@@ -6,6 +6,7 @@ def GCODE_line_dissector(line):
     M203 for max axis speed
     M204,P for printing acceleration (R,S,T not yet supported)
     M205, axis Jerk
+    M82/M83, abs (M82) / rel (M83) extruder toggle
 
     Parameters
     ----------
@@ -15,27 +16,37 @@ def GCODE_line_dissector(line):
     Returns
     ----------
     float array
-        array with   G1          M203      M204      M205
-                    [[X,Y,Z,E,F],[X,Y,Z,E],[P,R,S,T],[X,Y,Z,E]]
+        array with   G1          M203      M204      M205      T:M82/F:M83
+                    [[X,Y,Z,E,F],[X,Y,Z,E],[P,R,S,T],[X,Y,Z,E],bool]
     """
     def value_getter(line,all_params):
         line = line[:line.find(";")] if line.find(";") >= 0 else line   #remove comments
         all_params_return = []
-        for param_group,i in zip(all_params,range(len(all_params))):
+        for i,param_group in enumerate(all_params):
             group_array = []
-            if(line.find(param_group[0])!=-1):                          #get statement group
-                for param,i in zip(param_group[1],range(len(param_group[1]))):
-                    if(line.find(param)!=-1):                           #get parameters
-                        posA=line.find(param)+len(param)
-                        posE=line[posA:].find(" ")+posA
-                        if(posE > posA):
-                            group_array.insert(i, float(line[posA: posE]))
-                        else:
-                            group_array.insert(i, float(line[posA:]))
-                    else:
-                        group_array.insert(i,None)
-            else:
-                group_array.insert(i,None)
+            if type(param_group[1]) is list:   #if keyword has parameters extract those
+                if(line.find(param_group[0])!=-1):                          #get keyword group
+                    for i,param in enumerate(param_group[1]):
+                        if(line.find(param)!=-1):                           #get parameters
+                            posA=line.find(param)+len(param)
+                            posE=line[posA:].find(" ")+posA
+                            if(posE > posA):
+                                group_array.insert(i, float(line[posA: posE]))
+                            else:
+                                group_array.insert(i, float(line[posA:]))
+                        else: 
+                            group_array.insert(i,None)
+                else:
+                    group_array.insert(i,None)
+            else: #if no parameters are given, toggle keyword
+                if line.find(param_group[0]) == 0: #first list element defines "True"
+                    group_array.insert(0,True)
+                elif line.find(param_group[1]) == 0: #second list element defines "False"
+                    group_array.insert(0,False)
+                else:
+                    group_array.insert(i,None)
+
+            
             all_params_return.insert(i,group_array)
         return all_params_return
 
@@ -43,9 +54,13 @@ def GCODE_line_dissector(line):
     M203_params = ["M203",["X","Y","Z","E"]]        #M203 params convention
     M204_params = ["M204",["P","R","S","T"]]        #M204 params convention
     M205_params = ["M205",["X","Y","Z","E"]]        #M205 params convention
+    
+    M8X_params  = ["M82","M83"]                     #abs (M82) / rel (M83) toggle
+    
 
-    all_params  = [G1_params] + [M203_params] + [M204_params] + [M205_params]
+    all_params  = [G1_params] + [M203_params] + [M204_params] + [M205_params] + [M8X_params]
     output      = value_getter(line,all_params)
+    print(output)
     return output
 def array_to_state(old_state,array):
     """
