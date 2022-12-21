@@ -21,7 +21,7 @@ Activate the virtual environment with
 
         .\virtual_env\Scripts\activate.bat
 
-Now install the repository as a python package using
+Now install the repository as a python package in the root directory of this repository using:
 
         pip install .
 
