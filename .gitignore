@@ -1,0 +1,7 @@
+# Ignore result files from example
+
+*.png
+*.inp
+
+#
+__pycache__
