@@ -6,7 +6,7 @@
 tbd
 
 # Install pyGCodeDecode
-### Python 3
+### Installing in Python 3
 Set up a virtual environment named `virtual_env` using the `virtualenv` package
 
         python -m pip install .
@@ -31,7 +31,7 @@ If you want to contribute to the development, install in development mode with
 
 Verify the installation via `pip list` and look for `pygcodedecode`.
 
-### Python 2 (abaqus python)
+### Installing in `abaqus` python (2.7)
 
 1. Make sure you have installed pip for Abaqus python. If you do not have it, do the following:
 
