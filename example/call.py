@@ -1,5 +1,4 @@
-from gcode_interpreter import gcode_interpreter, unpack_blocklist
-
+from pyGCodeDecode import gcode_interpreter as gi
 
 ###Fictional Printer Preset
 fictional_printer = {
@@ -21,7 +20,7 @@ fictional_printer = {
 
 initial_position = True #uses first gcode point as initial position, alternative: [x,y,z,e]
 
-new = gcode_interpreter(filename="test.gcode",initial_position=initial_position,printer=fictional_printer)
+new = gi.gcode_interpreter(filename=r"example\test.gcode",initial_position=initial_position,printer=fictional_printer)
 
 new.plot_2d_position(show_points=False)
 new.plot_vel(axis=("x","y"))
