@@ -78,7 +78,7 @@ class state:
             if old_position is None: old_position = state.position(0,0,0,0)
             return np.linalg.norm(np.subtract(self.get_vec(withExtrusion=withExtrusion),old_position.get_vec(withExtrusion=withExtrusion)))
         @classmethod
-        def new(cls,old_position,x:float=None,y:float=None,z:float=None,e:float=None):
+        def new(cls,old_position,x:float=None,y:float=None,z:float=None,e:float=None,absMode=True):
             if x is None:
                 x = old_position.x
             if y is None:
@@ -87,6 +87,8 @@ class state:
                 z = old_position.z
             if e is None:
                 e = old_position.e
+            if not absMode and not e is None: #if rel mode, extrusion needs to be summed
+                e = old_position.e + e
             return cls(x,y,z,e)
         @classmethod
         def convert_vector_to_position(cls,vector:List[float]):
@@ -99,7 +101,7 @@ class state:
         Class method
             new:            returns an updated p_settings from given old p_settings and optional changing values
         """
-        def __init__(self,p_acc,jerk,Vx,Vy,Vz,Ve,speed):
+        def __init__(self,p_acc,jerk,Vx,Vy,Vz,Ve,speed,absMode=True):
             self.p_acc  = p_acc     #printing acceleration
             self.jerk   = jerk      #jerk settings
             self.Vx     = Vx        #max axis speed X
@@ -107,12 +109,13 @@ class state:
             self.Vz     = Vz        #max axis speed Z
             self.Ve     = Ve        #max axis speed E
             self.speed  = speed     #travel speed for move
+            self.absMode= absMode
         def __str__(self) -> str:
             return ">>> Print Settings:\nJerk: "+str(self.jerk)+"\nPrinting Acceleration: "+str(self.p_acc)+"\nMaximum Axis Speeds: [Vx:" + str(self.Vx) +", Vy:" + str(self.Vy) + ", Vz:" + str(self.Vz) + ", Ve:" + str(self.Ve) + "]\n" + "Printing speed: " + str(self.speed) +"\n"
         def __repr__(self) -> str:
             return self.__str__()
         @classmethod
-        def new(cls,old_settings:'state.p_settings', p_acc:float=None, jerk:float=None,Vx:float=None,Vy:float=None,Vz:float=None,Ve:float=None,speed:float=None):
+        def new(cls,old_settings:'state.p_settings', p_acc:float=None, jerk:float=None,Vx:float=None,Vy:float=None,Vz:float=None,Ve:float=None,speed:float=None,absMode:bool=None):
             if p_acc is None:
                 p_acc   = old_settings.p_acc    
             if jerk is None:
@@ -127,7 +130,9 @@ class state:
                 Ve      = old_settings.Ve       
             if speed is None:
                 speed = old_settings.speed
-            return cls(p_acc=p_acc,jerk=jerk,Vx=Vx,Vy=Vy,Vz=Vz,Ve=Ve,speed=speed)
+            if absMode is None:
+                absMode = old_settings.absMode
+            return cls(p_acc=p_acc,jerk=jerk,Vx=Vx,Vy=Vy,Vz=Vz,Ve=Ve,speed=speed,absMode=absMode)
 
     """State contains a Position and the gcode-defined Printing Settings (p_settings) to apply for the corresponding move to the Position
     Supports

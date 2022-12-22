@@ -5,7 +5,7 @@ def GCODE_line_dissector(line):
     Dissects single Gcode lines into array following convention
     M203 for max axis speed
     M204,P for printing acceleration (R,S,T not yet supported)
-    M205, axis Jerk
+    M205, axis Jerk, only use X value for calculation
     M82/M83, abs (M82) / rel (M83) extruder toggle
 
     Parameters
@@ -60,7 +60,6 @@ def GCODE_line_dissector(line):
 
     all_params  = [G1_params] + [M203_params] + [M204_params] + [M205_params] + [M8X_params]
     output      = value_getter(line,all_params)
-    print(output)
     return output
 def array_to_state(old_state,array):
     """
@@ -101,16 +100,15 @@ def array_to_state(old_state,array):
     jerk    = array[3][0] if not array[3] == [None] else None
     
     abs_extruder = array[4][0]
-    print("ABS EXTRUDER: ",abs_extruder)
-
-    if abs_extruder:
+    
+    new_p_settings = state.p_settings.new(old_settings=old_state.state_p_settings,p_acc=p_acc,jerk=jerk,Vx=Vx,Vy=Vy,Vz=Vz,Ve=Ve,speed=speed,absMode=abs_extruder)
+    
+    if new_p_settings.absMode: #if abs mode, normal position call
         new_position = state.position.new(old_position=old_state.state_position, x=x,y=y,z=z,e=e)
-    else:
-        e = old_state.state_position.e + e
-        new_position = state.position.new(old_position=old_state.state_position, x=x,y=y,z=z,e=e)
+    else: #if rel mode use special call with absMode = False
+        new_position = state.position.new(old_position=old_state.state_position, x=x,y=y,z=z,e=e,absMode=False)
 
 
-    new_p_settings = state.p_settings.new(old_settings=old_state.state_p_settings,p_acc=p_acc,jerk=jerk,Vx=Vx,Vy=Vy,Vz=Vz,Ve=Ve,speed=speed)
     new_state   = state.new(old_state=old_state,position=new_position,p_settings=new_p_settings)
     return new_state
 
