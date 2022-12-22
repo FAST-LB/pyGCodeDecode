@@ -3,7 +3,11 @@
 
 
 # What is this repository for?
-tbd
+This python package is used to generate time dependent boundary conditions from a .gcode file, needed in additive manufacturing simulations such as Fused Filament Fabrication. This package reads the trajectory as well as some relevant constantly changing printing settings. The output describes the nozzle position and velocity at every point in time. Notably, this method does try to simulate the real printer movements at a higher accuracy. This is achieved by replicating grbl and derivative firmwares specific movement planner solutions, such as Junction Deviation as an interpretation for Jerk.
+
+PyGCodeDecode is currently used in:
+- PySPH FFF
+- Abaqus Event Series Generator
 
 # Install pyGCodeDecode
 ### Installing in Python 3
