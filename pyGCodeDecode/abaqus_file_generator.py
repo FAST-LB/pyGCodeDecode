@@ -1,4 +1,4 @@
-from gcode_interpreter import gcode_interpreter, unpack_blocklist
+from pyGCodeDecode import gcode_interpreter as gi
 
 
 """
@@ -32,8 +32,8 @@ fictional_printer = {
     }
 
 initial_position = True #uses first gcode point as initial position, alternative: [x,y,z,e]
-
-trajectory  = gcode_interpreter(filename="test.gcode",initial_position=initial_position,printer=fictional_printer)
+print(__file__)
+trajectory  = gi.gcode_interpreter(filename=r"example/test.gcode",initial_position=initial_position,printer=fictional_printer)
 
 output_filename = "gcode_to_abaqus.inp"
 
@@ -41,7 +41,7 @@ output_filename = "gcode_to_abaqus.inp"
 
 
 #get all positions and timings
-unpacked    = unpack_blocklist(trajectory.blocklist)
+unpacked    = gi.unpack_blocklist(trajectory.blocklist)
 pos     = [unpacked[0].get_position(t=unpacked[0].t_begin).get_vec(withExtrusion=True)]
 time    = [0]
 for segm in unpacked:

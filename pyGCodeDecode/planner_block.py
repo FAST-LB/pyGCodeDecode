@@ -220,6 +220,7 @@ class planner_block:
     
     def self_correction(self,tolerance=float("1e-12")):
         ###Check interface points
+        print(self.next_blck.get_segments()[-1])
         flag_correct = False
         if not self.next_blck is None:
             same_vel   = self.get_segments()[-1].vel_end.get_abs() == self.next_blck.get_segments()[0].vel_begin.get_abs()
