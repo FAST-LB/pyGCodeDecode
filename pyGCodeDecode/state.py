@@ -85,10 +85,13 @@ class state:
                 y = old_position.y
             if z is None:
                 z = old_position.z
+            if not absMode and not e is None: #if rel mode, extrusion needs to be summed
+                print("old Pos: ",old_position.e)
+                print("before:",e)
+                e = old_position.e + e
+                print("after: ",e)
             if e is None:
                 e = old_position.e
-            if not absMode and not e is None: #if rel mode, extrusion needs to be summed
-                e = old_position.e + e
             return cls(x,y,z,e)
         @classmethod
         def convert_vector_to_position(cls,vector:List[float]):
@@ -109,9 +112,9 @@ class state:
             self.Vz     = Vz        #max axis speed Z
             self.Ve     = Ve        #max axis speed E
             self.speed  = speed     #travel speed for move
-            self.absMode= absMode
+            self.absMode= absMode   #abs extrusion mode, default = True
         def __str__(self) -> str:
-            return ">>> Print Settings:\nJerk: "+str(self.jerk)+"\nPrinting Acceleration: "+str(self.p_acc)+"\nMaximum Axis Speeds: [Vx:" + str(self.Vx) +", Vy:" + str(self.Vy) + ", Vz:" + str(self.Vz) + ", Ve:" + str(self.Ve) + "]\n" + "Printing speed: " + str(self.speed) +"\n"
+            return ">>> Print Settings:\nJerk: "+str(self.jerk)+"\nPrinting Acceleration: "+str(self.p_acc)+"\nMaximum Axis Speeds: [Vx:" + str(self.Vx) +", Vy:" + str(self.Vy) + ", Vz:" + str(self.Vz) + ", Ve:" + str(self.Ve) + "]\n" + "Printing speed: " + str(self.speed) +"\n" + "Abs Extr: "+ str(self.absMode) +"\n"
         def __repr__(self) -> str:
             return self.__str__()
         @classmethod

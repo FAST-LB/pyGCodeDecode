@@ -32,12 +32,12 @@ fictional_printer = {
     }
 
 initial_position = True #uses first gcode point as initial position, alternative: [x,y,z,e]
-print(__file__)
 trajectory  = gi.gcode_interpreter(filename=r"example/test.gcode",initial_position=initial_position,printer=fictional_printer)
 
 output_filename = "gcode_to_abaqus.inp"
 
-
+trajectory.plot_2d_position(filename="trajectory.png")
+trajectory.plot_vel(filename="velplot.png",show_segments=True,axis=("x","y","z"))
 
 
 #get all positions and timings

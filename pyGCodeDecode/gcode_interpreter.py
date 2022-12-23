@@ -26,8 +26,10 @@ def generate_planner_blocks(states:List[state]):
     for state in states:
         prev_blck           = blck_list[-1] if len(blck_list) > 0 else None         #grab prev blck from blck_list
         new_blck            = planner_block(state=state,prev_blck=prev_blck)        #generate new blck 
-        if not new_blck.prev_blck is None: new_blck.prev_blck.next_blck = new_blck  #update nb list
-        if len(new_blck.get_segments())>0: blck_list.extend([new_blck])
+        if len(new_blck.get_segments())>0:
+            if not new_blck.prev_blck is None:
+                new_blck.prev_blck.next_blck = new_blck  #update nb list
+            blck_list.extend([new_blck])
     return blck_list
 
 def find_current_segm(path:List[segment],t:float,last_index:int=None):
@@ -73,7 +75,7 @@ def unpack_blocklist(blocklist:List[planner_block])->List[segment]:
 
 class gcode_interpreter:
 
-    def plot_2d_position(self,show_points=True,filename="trajectory.png",dpi=400):
+    def plot_2d_position(self,filename="trajectory.png",show_points=True,dpi=400):
         import matplotlib.pyplot as plt
         
         segments = unpack_blocklist(blocklist=self.blocklist)
@@ -154,8 +156,9 @@ class gcode_interpreter:
         #plot all axis in velocity and position
         for ax in axis:
             ax1.plot(times,vel[axis_dict[ax]],label=ax) #velocity
-            if not ax == "e": ax2.plot(times,pos[axis_dict[ax]],linestyle="--") #position ignoring extrusion
-        ax1.plot(times,abs,color="red",label="abs") #absolute velocity
+            ax2.plot(times,pos[axis_dict[ax]],linestyle="--") #position w/ extrusion
+            #if not ax == "e": ax2.plot(times,pos[axis_dict[ax]],linestyle="--") #position ignoring extrusion
+        ax1.plot(times,abs,color="pink",label="abs") #absolute velocity
 
 
         ax1.set_xlabel("time in s")
@@ -186,7 +189,7 @@ class gcode_interpreter:
         initial_position    = initial_position if initial_position == True else state.position(x=initial_position[0],y=initial_position[1],z=initial_position[2],e=initial_position[3])                                #take first gcode coordinate as initial position
 
         self.states         = read_GCODE_from_file(filename=filename,initial_p_settings=initial_p_settings,initial_position=initial_position)
-
+        
         self.blocklist      = generate_planner_blocks(states=self.states)
 
         self.trajectory_self_correct()

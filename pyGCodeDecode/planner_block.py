@@ -220,7 +220,6 @@ class planner_block:
     
     def self_correction(self,tolerance=float("1e-12")):
         ###Check interface points
-        print(self.next_blck.get_segments()[-1])
         flag_correct = False
         if not self.next_blck is None:
             same_vel   = self.get_segments()[-1].vel_end.get_abs() == self.next_blck.get_segments()[0].vel_begin.get_abs()
@@ -285,8 +284,7 @@ class planner_block:
         if self.valid:
             self.JD = v_JD * self.direction #jd writeout for debugging plot
             self.move_maker2(v_end=v_JD)
-        #if self.valid: print(f"vel end soll: {vel_end} vel_end ist: {self.segments[-1].vel_end}") 
-
+            
     @property
     def prev_blck(self):
         return self._prev_blck
@@ -302,13 +300,15 @@ class planner_block:
 
     def __str__(self) -> str:
         if len(self.segments) == 3:
-            return "{:-^40}".format("Trapez Planner Block") + str(self.segments)
+            return "{:-^40}".format("Trapez Planner Block")
         elif len(self.segments) == 2:
-            return "{:-^40}".format("Triangular Planner Block") + str(self.segments)
+            return "{:-^40}".format("Triangular Planner Block")
         elif len(self.segments) == 1:
-            return "{:-^40}".format("Singular Planner Block") + str(self.segments)
-        else: return "\ninvalid Planner Block"
+            return "{:-^40}".format("Singular Planner Block")
+        else: return "{:#^40}".format("Invalid Planner Block")
+    
     def __repr__(self) -> str:
         return self.__str__()
+    
     def get_segments(self):
         return self.segments
