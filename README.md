@@ -48,6 +48,17 @@ Verify the installation via `pip list` and look for `pygcodedecode`.
 
 3. Verify the package installation via `abaqus python -m pip list` and look for `pygcodedecode`. 
 
+# Supported GCode commands
+fully supported:
+- G1 X** Y** Z** E** F**
+- M82 (absolute extruder mode)
+- M83 (relative extruder mode)
+
+partially supported:
+- M203 (max axis speed)         *read only
+- M204 P** (acceleration)       *P only
+- M205 X** (jerk)               *X only
+
 
 # Workflow
 
