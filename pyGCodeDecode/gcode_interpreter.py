@@ -158,7 +158,7 @@ class gcode_interpreter:
             ax1.plot(times,vel[axis_dict[ax]],label=ax) #velocity
             ax2.plot(times,pos[axis_dict[ax]],linestyle="--") #position w/ extrusion
             #if not ax == "e": ax2.plot(times,pos[axis_dict[ax]],linestyle="--") #position ignoring extrusion
-        ax1.plot(times,abs,color="pink",label="abs") #absolute velocity
+        ax1.plot(times,abs,color="black",label="abs") #absolute velocity
 
 
         ax1.set_xlabel("time in s")
