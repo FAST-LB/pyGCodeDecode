@@ -9,7 +9,7 @@ fictional_printer = {
     #settings
     "velocity"      :   35,
     "acceleration"  :   20,
-    "jerk"          :   10,
+    "jerk"          :   2,
     
     #axis max speeds
     "Vx"            :   60,
@@ -18,9 +18,14 @@ fictional_printer = {
     "Ve"            :   25
     }
 
-initial_position = True #uses first gcode point as initial position, alternative: [x,y,z,e]
+""" INITIAL POSITION:
+    [x,y,z,e]   -> non zero coordinates for initial position
+    True        -> use first gcode G1 command as initial position
+    False, None -> start from zero
+"""
+initial_position = True
 
-new = gi.gcode_interpreter(filename=r"example/test.gcode",initial_position=initial_position,printer=fictional_printer)
+new = gi.gcode_interpreter(filename=r"test.gcode",initial_position=initial_position,printer=fictional_printer)
 
 print(new.states)
 

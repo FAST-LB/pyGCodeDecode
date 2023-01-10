@@ -186,8 +186,6 @@ class gcode_interpreter:
         ###SET INITIAL SETTINGS
         initial_p_settings  =  state.p_settings(p_acc=printer["acceleration"],jerk=printer["jerk"],Vx=printer["Vx"],Vy=printer["Vy"],Vz=printer["Vz"],Ve=printer["Ve"],speed=printer["velocity"])
 
-        initial_position    = initial_position if initial_position == True else state.position(x=initial_position[0],y=initial_position[1],z=initial_position[2],e=initial_position[3])                                #take first gcode coordinate as initial position
-
         self.states         = read_GCODE_from_file(filename=filename,initial_p_settings=initial_p_settings,initial_position=initial_position)
         
         self.blocklist      = generate_planner_blocks(states=self.states)

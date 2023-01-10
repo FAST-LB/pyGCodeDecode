@@ -125,8 +125,22 @@ def read_GCODE_from_file(filename,initial_p_settings:state.p_settings,initial_po
     ----------
     state object list
     """
-    _remv_first_state   = initial_position == True
-    initial_position    = state.position(0,0,0,0) if initial_position is None or initial_position else initial_position
+    _remv_first_state   = False
+    
+    #handle initial position
+    if initial_position == True:
+        _remv_first_state   = True #flag for removal later
+        #initial_position    = state.position(0,0,0,0)
+    
+    elif initial_position == None or initial_position == False:
+        initial_position    = state.position(0,0,0,0)
+    
+    elif type(initial_position) == list and len(initial_position) == 4:
+        initial_position    = state.position(x=initial_position[0],y=initial_position[1],z=initial_position[2],e=initial_position[3])
+    else:
+        raise ValueError("Invalid Initial Position")
+    
+
     initial_state       = state(state_position=initial_position,state_p_settings=initial_p_settings)
     initial_state.line_nmbr = 0
 
@@ -134,9 +148,13 @@ def read_GCODE_from_file(filename,initial_p_settings:state.p_settings,initial_po
     file_gcode          = open(filename)
     counter             = 0
     for line in file_gcode:
-        counter        += 1
-        newState        = array_to_state(initial_state,GCODE_line_dissector(line=line))
-        newState.line_nmbr = counter
+        counter            += 1
+        newState            = array_to_state(initial_state,GCODE_line_dissector(line=line))
+        newState.line_nmbr  = counter
+        
+
+        
+
         if newState.state_position.is_travel(old_position=initial_state.state_position) or newState.state_position.is_extruding(old_position=initial_state.state_position):
             state_list.append(newState)
             newState.prev_state             = initial_state

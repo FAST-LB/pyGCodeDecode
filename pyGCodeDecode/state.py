@@ -63,7 +63,8 @@ class state:
                 return state.position(x=x,y=y,z=z,e=e)
             else: raise ValueError("Subtraction with __sub__ is only possible with other Position, 1x4 'list' or 1x4 'numpy.ndarray'")
         def __eq__(self,other:'state.position'):
-            if self.x == other.x and self.y == other.y and self.z == other.z and self.e == other.e: return True
+            if type(other) == type(self):
+                if self.x == other.x and self.y == other.y and self.z == other.z and self.e == other.e: return True
             else: return False
         def is_travel(self,old_position:'state.position') -> bool:
             if abs(old_position.x-self.x)+abs(old_position.y-self.y)+abs(old_position.z-self.z) > 0: return True
