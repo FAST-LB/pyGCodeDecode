@@ -181,9 +181,42 @@ class gcode_interpreter:
         tmp_pos = segm.get_position(t=t).get_vec(withExtrusion=True)
         
         return tmp_vel,tmp_pos
+    
+    def check_printer(self,printer):
+        """
+        Method to check the printer Dict for typos or missing parameters.
+        """
+        printer_keys = [
+        "nozzle_diam",
+        "filament_diam",
+        "velocity",
+        "acceleration",
+        "jerk",
+        "Vx",
+        "Vy",
+        "Vz",
+        "Ve"
+        ]
+        
+        #Following code could be improved i guess..
+
+        ##check if all provided keys are valid
+        for key in printer:
+            if not key in printer_keys:
+                raise ValueError(f"Invalid Key: \"{key}\" in Printer Dictionary, check for typos. Valid keys are: {printer_keys}")
+        
+        ##check if every required key is proivded
+        for key in printer_keys:
+            if not key in printer:
+                raise ValueError(f"Key: \"{key}\" is not provided in Printer Dictionary, check for typos. Required keys are: {printer_keys}")
+
+
+
     def __init__(self,filename,initial_position,printer):
         self.last_index = None #used to optimize search in segment list
         ###SET INITIAL SETTINGS
+        self.check_printer(printer=printer)
+
         initial_p_settings  =  state.p_settings(p_acc=printer["acceleration"],jerk=printer["jerk"],Vx=printer["Vx"],Vy=printer["Vy"],Vz=printer["Vz"],Ve=printer["Ve"],speed=printer["velocity"])
 
         self.states         = read_GCODE_from_file(filename=filename,initial_p_settings=initial_p_settings,initial_position=initial_position)
