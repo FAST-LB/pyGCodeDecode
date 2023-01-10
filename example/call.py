@@ -19,13 +19,13 @@ fictional_printer = {
     }
 
 """ INITIAL POSITION:
-    [x,y,z,e]   -> non zero coordinates for initial position
+    None        -> start from zero
     True        -> use first gcode G1 command as initial position
-    False, None -> start from zero
+    [x,y,z,e]   -> non zero coordinates for initial position
 """
 initial_position = True
 
-new = gi.gcode_interpreter(filename=r"test.gcode",initial_position=initial_position,printer=fictional_printer)
+new = gi.gcode_interpreter(filename=r"test.gcode",printer=fictional_printer,initial_position=initial_position)
 
 print(new.states)
 
