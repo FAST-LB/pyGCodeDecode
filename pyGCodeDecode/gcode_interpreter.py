@@ -211,7 +211,7 @@ class gcode_interpreter:
                 raise ValueError(f"Key: \"{key}\" is not provided in Printer Dictionary, check for typos. Required keys are: {printer_keys}")
 
     def print_summary(self,filename):
-        print(f"pyGCodeDecode extracted {len(self.states)} states from {filename} and generated {len(self.blocklist)} plannerblocks. \n Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end}")
+        print(f" >> pyGCodeDecode extracted {len(self.states)} states from {filename} and generated {len(self.blocklist)} plannerblocks. \n Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end} seconds.")
 
     def __init__(self,filename,printer,initial_position=None):
         self.last_index = None #used to optimize search in segment list
@@ -225,6 +225,8 @@ class gcode_interpreter:
         
         self.blocklist      = generate_planner_blocks(states=self.states)
 
-        self.trajectory_self_correct()
+        #self.trajectory_self_correct()
         
+        print(self.states)
+
         self.print_summary(filename=filename)

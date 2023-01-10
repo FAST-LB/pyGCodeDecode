@@ -23,11 +23,11 @@ fictional_printer = {
     True        -> use first gcode G1 command as initial position
     [x,y,z,e]   -> non zero coordinates for initial position
 """
-initial_position = True
+initial_position = None
 
 new = gi.gcode_interpreter(filename=r"test.gcode",printer=fictional_printer,initial_position=initial_position)
 
-print(new.states)
+#print(new.states)
 
 new.plot_2d_position(show_points=False)
 new.plot_vel(axis=("x","y","e"))
