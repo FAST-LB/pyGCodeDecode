@@ -31,7 +31,7 @@ If you want to contribute to the development, install in development mode with
 
         pip install -e .
 
-Verify the installation via `pip list` and look for `pygcodedecode`.
+Verify the installation via `pip list` and look for `pyGCodeDecode`.
 
 ### Installing in `abaqus` python (2.7)
 
@@ -44,7 +44,7 @@ Verify the installation via `pip list` and look for `pygcodedecode`.
 
         abq<version> python -m pip install .
 
-3. Verify the package installation via `abaqus python -m pip list` and look for `pygcodedecode`. 
+3. Verify the package installation via `abaqus python -m pip list` and look for `pyGCodeDecode`. 
 
 # Supported GCode commands
 fully supported:
