@@ -122,7 +122,7 @@ class segment:
             #linear interpolation of velocity in Segment
             delt_vel    = self.vel_end  - self.vel_begin
             delt_t      = self.t_end    - self.t_begin
-            slope       = delt_vel/delt_t if delt_t > 0 else 0
+            slope       = delt_vel/delt_t if delt_t > 0 else velocity(0,0,0,0)
             current_vel = self.vel_begin + slope * (t - self.t_begin)
             return current_vel
     def get_position(self,t):
