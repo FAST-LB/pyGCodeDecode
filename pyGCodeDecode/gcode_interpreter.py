@@ -7,6 +7,31 @@ from .state_generator import read_GCODE_from_file
 from .utils import segment
 from timeit import default_timer as timer
 
+# update_progress() : Displays or updates a console progress bar
+## Accepts a float between 0 and 1. Any int will be converted to a float.
+## A value under 0 represents a 'halt'.
+## A value at 1 or bigger represents 100%
+def update_progress(progress,name="Percent"):
+    import time, sys
+    barLength = 10 # Modify this to change the length of the progress bar
+    status = ""
+    
+    if isinstance(progress, int):
+        progress = float(progress)
+    if not isinstance(progress, float):
+        progress = 0
+        status = "error: progress var must be float\r\n"
+    if progress < 0:
+        progress = 0
+        status = "Halt...\r\n"
+    if progress >= 1:
+        progress = 1
+        status = "Done...\r\n"
+    block = int(round(barLength*progress))
+    progress = round(progress*100,ndigits=1)
+    text = "\r[{1}] {2}% of {0} {3}".format( name,"#"*block + "-"*(barLength-block), progress, status)
+    sys.stdout.write(text)
+    sys.stdout.flush()
 
 def generate_planner_blocks(states:List[state]):
     """
@@ -23,13 +48,16 @@ def generate_planner_blocks(states:List[state]):
         list of all plannerblocks to complete travel between all states
     """
     blck_list   = []
+    cntr = 0
     for state in states:
+        cntr += 1
         prev_blck           = blck_list[-1] if len(blck_list) > 0 else None         #grab prev blck from blck_list
         new_blck            = planner_block(state=state,prev_blck=prev_blck)        #generate new blck 
         if len(new_blck.get_segments())>0:
             if not new_blck.prev_blck is None:
                 new_blck.prev_blck.next_blck = new_blck  #update nb list
             blck_list.extend([new_blck])
+        update_progress(cntr/len(states),"Planner Block Generation")
     return blck_list
 
 def find_current_segm(path:List[segment],t:float,last_index:int=None):
@@ -82,7 +110,10 @@ class simulate:
         x,y = [],[]
         x.append(segments[0].pos_begin.get_vec()[0])
         y.append(segments[0].pos_begin.get_vec()[1])
+        cntr = 0
         for segm in segments:
+            cntr += 1
+            update_progress(cntr/len(segments),name="2D Plot Lines")
             x.append(segm.pos_end.get_vec()[0])
             y.append(segm.pos_end.get_vec()[1])
         
@@ -90,12 +121,44 @@ class simulate:
         new.plot(x,y,color="red")
 
         if show_points:
+            cntr = 0
             for blck in self.blocklist:
+                update_progress(cntr/len(self.blocklist),name="2D Plot Points")
                 new.scatter(blck.get_segments()[-1].pos_end.get_vec()[0],blck.get_segments()[-1].pos_end.get_vec()[1],color="blue",marker="x")
         
         plt.xlabel("x position")
         plt.ylabel("y position")
         plt.title("2D Position")
+        plt.savefig(filename,dpi=dpi)
+        plt.close()
+
+    def plot_3d_position(self,filename="trajectory_3D.png",show_points=False,dpi=400):
+        import matplotlib.pyplot as plt
+        from matplotlib import cm
+        #https://matplotlib.org/stable/gallery/lines_bars_and_markers/multicolored_line.html
+        segments = unpack_blocklist(blocklist=self.blocklist)
+        x,y,z,vel = [],[],[],[]
+        x.append(segments[0].pos_begin.get_vec()[0])
+        y.append(segments[0].pos_begin.get_vec()[1])
+        z.append(segments[0].pos_begin.get_vec()[2])
+        vel.append(segments[0].vel_begin.get_abs())
+
+        cntr = 0
+        for segm in segments:
+            cntr += 1
+            update_progress(cntr/len(segments),name="3D Plot")
+            x.append(segm.pos_end.get_vec()[0])
+            y.append(segm.pos_end.get_vec()[1])
+            z.append(segm.pos_end.get_vec()[2])
+            vel.append(segm.vel_begin.get_abs())
+
+        new = plt.figure().add_subplot(projection='3d')
+        new.plot(x,y,z)
+
+        
+        plt.xlabel("x position")
+        plt.ylabel("y position")
+        plt.title("3D Position")
         plt.savefig(filename,dpi=dpi)
         plt.close()
 
@@ -119,17 +182,19 @@ class simulate:
         vel     = [[],[],[],[]]
         abs     = [] #initialize value arrays
         index_saved = 0
+        cntr = 0
         for t in times:
             segm, index_saved = find_current_segm(path=segments,t=t,last_index=index_saved)
-            
+            cntr += 1
 
             tmp_vel = segm.get_velocity(t=t).get_vec(withExtrusion=True)
             tmp_pos = segm.get_position(t=t).get_vec(withExtrusion=True)
             for ax in axis:
                 pos[axis_dict[ax]].append(tmp_pos[axis_dict[ax]])
                 vel[axis_dict[ax]].append(tmp_vel[axis_dict[ax]])
-            
+
             abs.append(np.linalg.norm(tmp_vel[:3]))
+            update_progress(cntr/len(times),name="Velocity Plot")
 
         fig, ax1 = plt.subplots()
         ax2 = ax1.twinx()
