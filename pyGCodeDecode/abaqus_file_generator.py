@@ -1,6 +1,4 @@
 from pyGCodeDecode import gcode_interpreter as gi
-
-
 """
 This script is to convert gcode into an event series as abaqus input
 
@@ -13,50 +11,26 @@ time    x       y       z       extrusion bool -> 1 = extrusion moving to next s
 timepoints generated are always at segment beginnings / endings, so interpolation linearly is the exact solution
 
 """
-###Fictional Printer Preset
-fictional_printer = {
-    #general properties
-    "nozzle_diam"   :   0.4,
-    "filament_diam" :   1.75,
-    
-    #settings
-    "velocity"      :   35,
-    "acceleration"  :   20,
-    "jerk"          :   10,
-    
-    #axis max speeds
-    "Vx"            :   60,
-    "Vy"            :   60,
-    "Vz"            :   40,
-    "Ve"            :   25
-    }
+tolerance = float("1e-12")
 
-initial_position = True #uses first gcode point as initial position, alternative: [x,y,z,e]
-trajectory  = gi.gcode_interpreter(filename=r"example/test.gcode",initial_position=initial_position,printer=fictional_printer)
+def generate_abaqus_events(trajectory,output_filename = "pyGcodeDecode_abaqus_events.inp"):
+    #get all positions and timings
+    unpacked    = gi.unpack_blocklist(trajectory.blocklist)
+    pos     = [unpacked[0].get_position(t=unpacked[0].t_begin).get_vec(withExtrusion=True)]
+    time    = [0]
+    for segm in unpacked:
+        pos.append(segm.get_position(t=segm.t_end).get_vec(withExtrusion=True))
+        time.append(segm.t_end)
 
-output_filename = "gcode_to_abaqus.inp"
+    #figure out if extrusion happens from this to the next step, if yes -> 1, if no -> 0
+    for id in range(len(pos)-1):
+        if pos[id+1][3]-pos[id][3] > tolerance:
+            pos[id][3]   = 1
+        else: pos[id][3] = 0
+    pos[-1][3] = 0
 
-trajectory.plot_2d_position(filename="trajectory.png")
-trajectory.plot_vel(filename="velplot.png",show_segments=True,axis=("x","y","z"))
-
-
-#get all positions and timings
-unpacked    = gi.unpack_blocklist(trajectory.blocklist)
-pos     = [unpacked[0].get_position(t=unpacked[0].t_begin).get_vec(withExtrusion=True)]
-time    = [0]
-for segm in unpacked:
-    pos.append(segm.get_position(t=segm.t_end).get_vec(withExtrusion=True))
-    time.append(segm.t_end)
-
-#figure out if extrusion happens from this to the next step, if yes -> 1, if no -> 0
-for id in range(len(pos)-1):
-    if pos[id+1][3]-pos[id][3] > 0:
-        pos[id][3]   = 1
-    else: pos[id][3] = 0
-pos[-1][3] = 0
-
-#writeout to file
-f = open(output_filename, "w")
-for time,pos in zip(time,pos):
-    f.write(str(time)   +","+   str(pos[0])     +","+   str(pos[1])     +","+   str(pos[2]) +","+   str(pos[3]) + "\n")
-f.close()
+    #writeout to file
+    f = open(output_filename, "w")
+    for time,pos in zip(time,pos):
+        f.write(str(time)   +","+   str(pos[0])     +","+   str(pos[1])     +","+   str(pos[2]) +","+   str(pos[3]) + "\n")
+    f.close()

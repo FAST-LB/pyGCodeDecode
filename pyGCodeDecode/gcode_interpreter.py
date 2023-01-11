@@ -73,7 +73,7 @@ def unpack_blocklist(blocklist:List[planner_block])->List[segment]:
         path.extend(block.get_segments()[:])
     return path
 
-class gcode_interpreter:
+class simulate:
 
     def plot_2d_position(self,filename="trajectory.png",show_points=True,dpi=400):
         import matplotlib.pyplot as plt
@@ -214,6 +214,7 @@ class gcode_interpreter:
         print(f" >> pyGCodeDecode extracted {len(self.states)} states from {filename} and generated {len(self.blocklist)} plannerblocks. \n Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end} seconds.")
 
     def __init__(self,filename,printer,initial_position=None):
+        
         self.last_index = None #used to optimize search in segment list
         
         ###SET INITIAL SETTINGS
@@ -225,8 +226,6 @@ class gcode_interpreter:
         
         self.blocklist      = generate_planner_blocks(states=self.states)
 
-        #self.trajectory_self_correct()
+        self.trajectory_self_correct()
         
-        print(self.states)
-
         self.print_summary(filename=filename)

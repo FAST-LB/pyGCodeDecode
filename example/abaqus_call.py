@@ -1,4 +1,4 @@
-from pyGCodeDecode import gcode_interpreter
+from pyGCodeDecode import abaqus_file_generator,gcode_interpreter
 
 ###Fictional Printer Preset
 fictional_printer = {
@@ -25,9 +25,9 @@ fictional_printer = {
 """
 initial_position = None
 
-new = gcode_interpreter.simulate(filename=r"test.gcode",printer=fictional_printer,initial_position=initial_position)
+trajectory = gcode_interpreter.simulate(filename=r"test.gcode",printer=fictional_printer,initial_position=initial_position)
 
-#print(new.states)
+abaqus_file_generator.generate_abaqus_events(trajectory=trajectory,output_filename="abaqus.inp")
 
-new.plot_2d_position(show_points=False)
-new.plot_vel(axis=("x","y","e"))
+trajectory.plot_vel()
+trajectory.plot_2d_position()

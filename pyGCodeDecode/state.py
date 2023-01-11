@@ -87,10 +87,7 @@ class state:
             if z is None:
                 z = old_position.z
             if not absMode and not e is None: #if rel mode, extrusion needs to be summed
-                print("old Pos: ",old_position.e)
-                print("before:",e)
                 e = old_position.e + e
-                print("after: ",e)
             if e is None:
                 e = old_position.e
             return cls(x,y,z,e)

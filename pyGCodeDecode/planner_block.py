@@ -203,7 +203,7 @@ class planner_block:
             v_end_sing_sqr      = v_begin*v_begin - 2*acc*distance
         else:
             v_end_sing_sqr      = v_begin*v_begin + 2*acc*distance 
-        v_end_sing          = np.sqrt(v_end_sing_sqr) if v_end_sing_sqr > 0 else None
+        v_end_sing          = np.sqrt(v_end_sing_sqr) if v_end_sing_sqr >= 0 else None
         v_begin_sing        = np.sqrt(2*acc*distance + v_end*v_end)
         
 
@@ -216,7 +216,7 @@ class planner_block:
             singl_up()
         elif v_end_sing < v_begin:
             singl_dwn()
-        else:print("NOT MODELED"); raise NameError("Segment could not be modeled.")
+        else: raise NameError("Segment could not be modeled.")
     
     def self_correction(self,tolerance=float("1e-12")):
         ###Check interface points
