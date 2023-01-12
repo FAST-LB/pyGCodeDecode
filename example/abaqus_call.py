@@ -6,7 +6,7 @@ fictional_printer = {
     "nozzle_diam"   :   0.4,
     "filament_diam" :   1.75,
     
-    #settings
+    #default settings
     "velocity"      :   35,
     "acceleration"  :   20,
     "jerk"          :   10,

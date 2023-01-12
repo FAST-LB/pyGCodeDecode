@@ -132,7 +132,7 @@ class simulate:
         plt.savefig(filename,dpi=dpi)
         plt.close()
 
-    def plot_3d_position(self,filename="trajectory_3D.png",show_points=False,dpi=400):
+    def plot_3d_position(self,filename="trajectory_3D.png",show_points=False,dpi=400,show=False):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         #https://matplotlib.org/stable/gallery/lines_bars_and_markers/multicolored_line.html
@@ -153,13 +153,17 @@ class simulate:
             vel.append(segm.vel_begin.get_abs())
 
         new = plt.figure().add_subplot(projection='3d')
-        new.plot(x,y,z)
+        
 
         
         plt.xlabel("x position")
         plt.ylabel("y position")
         plt.title("3D Position")
-        plt.savefig(filename,dpi=dpi)
+        if show:
+            plt.show()
+            return new.plot(x,y,z)
+        else:
+            plt.savefig(filename,dpi=dpi)
         plt.close()
 
     def plot_vel(self,axis=("x","y","z","e"),show_plannerblocks=True,show_segments=False,show_JD=True,timesteps=2000,filename="velplot.png",dpi=400):

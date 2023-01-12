@@ -6,7 +6,7 @@ fictional_printer = {
     "nozzle_diam"   :   0.4,
     "filament_diam" :   1.75,
     
-    #settings
+    #default settings
     "velocity"      :   35,
     "acceleration"  :   20,
     "jerk"          :   2,
@@ -15,6 +15,23 @@ fictional_printer = {
     "Vx"            :   60,
     "Vy"            :   60,
     "Vz"            :   40,
+    "Ve"            :   25
+    }
+
+anisoprint_A4 = {
+    #general properties
+    "nozzle_diam"   :   0.4,
+    "filament_diam" :   1.75,
+    
+    #default settings
+    "velocity"      :   35,
+    "acceleration"  :   20,
+    "jerk"          :   10,
+    
+    #axis max speeds
+    "Vx"            :   80,
+    "Vy"            :   80,
+    "Vz"            :   80,
     "Ve"            :   25
     }
 
