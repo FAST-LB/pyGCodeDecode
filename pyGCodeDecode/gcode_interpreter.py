@@ -135,7 +135,17 @@ class simulate:
     def plot_3d_position(self,filename="trajectory_3D.png",show_points=False,dpi=400,show=False):
         import matplotlib.pyplot as plt
         from matplotlib import cm
+        
+        def colorline(x,y,z,c):
+            print("COLOR")
+            c = cm.jet((c-np.min(c))/(np.max(c)-np.min(c)))
+            ax = plt.gca()
+            for i in np.arange(len(x)-1):
+                ax.plot([x[i],x[i+1]], [y[i],y[i+1]],[z[i],z[i+1]], c=c[i])
+
         #https://matplotlib.org/stable/gallery/lines_bars_and_markers/multicolored_line.html
+        #https://stackoverflow.com/questions/17240694/how-to-plot-one-line-in-different-colors
+        #https://stackoverflow.com/questions/13622909/matplotlib-how-to-colorize-a-large-number-of-line-segments-as-independent-gradi
         segments = unpack_blocklist(blocklist=self.blocklist)
         x,y,z,vel = [],[],[],[]
         x.append(segments[0].pos_begin.get_vec()[0])
@@ -154,14 +164,16 @@ class simulate:
 
         new = plt.figure().add_subplot(projection='3d')
         
-
+        colorline(x,y,z,vel)
         
         plt.xlabel("x position")
         plt.ylabel("y position")
         plt.title("3D Position")
+        return
+        plot = new.plot(x,y,z)
         if show:
             plt.show()
-            return new.plot(x,y,z)
+            return plot
         else:
             plt.savefig(filename,dpi=dpi)
         plt.close()
