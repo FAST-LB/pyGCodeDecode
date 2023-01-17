@@ -135,24 +135,55 @@ class simulate:
     def plot_3d_position(self,filename="trajectory_3D.png",show_points=False,dpi=400,show=False):
         import matplotlib.pyplot as plt
         from matplotlib import cm
+        from matplotlib.collections import LineCollection
+        from matplotlib.colors import ListedColormap, BoundaryNorm
         
         def colorline(x,y,z,c):
-            print("COLOR")
+            print("Color")
             c = cm.jet((c-np.min(c))/(np.max(c)-np.min(c)))
             ax = plt.gca()
             for i in np.arange(len(x)-1):
                 ax.plot([x[i],x[i+1]], [y[i],y[i+1]],[z[i],z[i+1]], c=c[i])
+        
+        def interp(x,y,z,colvar,resolution=1):
+            segm_length = np.linalg.norm([np.ediff1d(x),np.ediff1d(y),np.ediff1d(z)],axis=0)
+            segm_interpol = np.ceil(segm_length/resolution) #get nmbr of segments for required resolution
+            
+            points = np.array([x,y,z,colvar]).T
 
+            print(points)
+            for point in points:
+                pass #HERE
+            ti = np.linspace(0, 1, num, endpoint=True)
+            xi = np.interp(ti, t, x)
+            yi = np.interp(ti, t, y)
+
+            # Insert the original vertices
+            indices = np.searchsorted(ti, t)
+            xi = np.insert(xi, indices, x)
+            yi = np.insert(yi, indices, y)
+            zi = np.insert(zi, indices, z)
+
+            return reshape(xi, yi, zi), ti
+
+        def reshape(x, y, z):
+            """Reshape the line represented by "x" and "y" into an array of individual
+            segments."""
+            points = np.vstack([x, y, z]).T.reshape(-1,1,3)
+            points = np.concatenate([points[:-1], points[1:]], axis=1)
+            return points
         #https://matplotlib.org/stable/gallery/lines_bars_and_markers/multicolored_line.html
         #https://stackoverflow.com/questions/17240694/how-to-plot-one-line-in-different-colors
         #https://stackoverflow.com/questions/13622909/matplotlib-how-to-colorize-a-large-number-of-line-segments-as-independent-gradi
+        
+        #get all data for plots
         segments = unpack_blocklist(blocklist=self.blocklist)
         x,y,z,vel = [],[],[],[]
         x.append(segments[0].pos_begin.get_vec()[0])
         y.append(segments[0].pos_begin.get_vec()[1])
         z.append(segments[0].pos_begin.get_vec()[2])
         vel.append(segments[0].vel_begin.get_abs())
-
+        
         cntr = 0
         for segm in segments:
             cntr += 1
@@ -160,7 +191,10 @@ class simulate:
             x.append(segm.pos_end.get_vec()[0])
             y.append(segm.pos_end.get_vec()[1])
             z.append(segm.pos_end.get_vec()[2])
-            vel.append(segm.vel_begin.get_abs())
+            vel.append(segm.vel_end.get_abs())
+        #create line segments
+        interp(x,y,z,vel)
+
 
         new = plt.figure().add_subplot(projection='3d')
         
@@ -169,12 +203,12 @@ class simulate:
         plt.xlabel("x position")
         plt.ylabel("y position")
         plt.title("3D Position")
-        return
-        plot = new.plot(x,y,z)
+        #plot = new.plot(x,y,z)
         if show:
             plt.show()
             return plot
         else:
+            print("COLOR DONE")
             plt.savefig(filename,dpi=dpi)
         plt.close()
 

@@ -25,11 +25,11 @@ fictional_printer = {
 """
 initial_position = None
 
-trajectory = gcode_interpreter.simulate(filename=r"3DBenchy.gcode",printer=fictional_printer,initial_position=initial_position)
+trajectory = gcode_interpreter.simulate(filename=r"test.gcode",printer=fictional_printer,initial_position=initial_position)
 
 abaqus_file_generator.generate_abaqus_events(trajectory=trajectory,output_filename="abaqus.inp")
 
+trajectory.plot_vel()
 trajectory.plot_3d_position()
-#trajectory.plot_vel()
 trajectory.plot_2d_position(show_points=False)
 trajectory.plot_vel(show_JD=False,show_plannerblocks=False,axis=("x","y","z"))
