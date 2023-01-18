@@ -150,7 +150,6 @@ class simulate:
             segm_interpol = np.r_[0,np.ceil(segm_length/resolution)] #get nmbr of segments for required resolution
             points = np.array([x,y,z,colvar]).T
             points = np.c_[points,segm_interpol]
-            
             #generate intermediate points with resolution
             old_point = None
             interpolated = np.zeros((1,4))
