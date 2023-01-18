@@ -150,27 +150,23 @@ class simulate:
             segm_interpol = np.r_[0,np.ceil(segm_length/resolution)] #get nmbr of segments for required resolution
             points = np.array([x,y,z,colvar]).T
             points = np.c_[points,segm_interpol]
-            print(points)
+            
+            #generate intermediate points with resolution
+            old_point = None
+            interpolated = np.zeros((1,4))
             for point in points:
-                steps = np.linspace(0, 1, point[4], endpoint=True)
-                x_i = np.interp(steps, t, x)
-                y_i = np.interp(steps, t, y)
+                if not old_point is None:
+                    steps       = np.linspace(0, 1, int(point[4]), endpoint=True)
+                    x_i         = np.interp(steps, [0,1], [old_point[0],point[0]])
+                    y_i         = np.interp(steps, [0,1], [old_point[1],point[1]])                 
+                    z_i         = np.interp(steps, [0,1], [old_point[2],point[2]])
+                    colvar_i    = np.interp(steps, [0,1], [old_point[3],point[3]])
+                    interpolated = np.r_[interpolated,np.array([x_i,y_i,z_i,colvar_i]).T]
+                old_point = point
+            interpolated = np.delete(interpolated,0,0)
+            return interpolated
 
 
-            # Insert the original vertices
-            indices = np.searchsorted(ti, t)
-            xi = np.insert(xi, indices, x)
-            yi = np.insert(yi, indices, y)
-            zi = np.insert(zi, indices, z)
-
-            return reshape(xi, yi, zi), ti
-
-        def reshape(x, y, z):
-            """Reshape the line represented by "x" and "y" into an array of individual
-            segments."""
-            points = np.vstack([x, y, z]).T.reshape(-1,1,3)
-            points = np.concatenate([points[:-1], points[1:]], axis=1)
-            return points
         #https://matplotlib.org/stable/gallery/lines_bars_and_markers/multicolored_line.html
         #https://stackoverflow.com/questions/17240694/how-to-plot-one-line-in-different-colors
         #https://stackoverflow.com/questions/13622909/matplotlib-how-to-colorize-a-large-number-of-line-segments-as-independent-gradi
@@ -192,12 +188,12 @@ class simulate:
             z.append(segm.pos_end.get_vec()[2])
             vel.append(segm.vel_end.get_abs())
         #create line segments
-        interp(x,y,z,vel)
+        interpolated = interp(x,y,z,vel)
 
 
         new = plt.figure().add_subplot(projection='3d')
-        
-        colorline(x,y,z,vel)
+        print()
+        colorline(interpolated.T[0],interpolated.T[1],interpolated.T[2],interpolated.T[3])
         
         plt.xlabel("x position")
         plt.ylabel("y position")
@@ -205,7 +201,7 @@ class simulate:
         #plot = new.plot(x,y,z)
         if show:
             plt.show()
-            return plot
+            return new
         else:
             print("COLOR DONE")
             plt.savefig(filename,dpi=dpi)
