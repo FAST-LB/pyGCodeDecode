@@ -147,16 +147,15 @@ class simulate:
         
         def interp(x,y,z,colvar,resolution=1):
             segm_length = np.linalg.norm([np.ediff1d(x),np.ediff1d(y),np.ediff1d(z)],axis=0)
-            segm_interpol = np.ceil(segm_length/resolution) #get nmbr of segments for required resolution
-            
+            segm_interpol = np.r_[0,np.ceil(segm_length/resolution)] #get nmbr of segments for required resolution
             points = np.array([x,y,z,colvar]).T
-
+            points = np.c_[points,segm_interpol]
             print(points)
             for point in points:
-                pass #HERE
-            ti = np.linspace(0, 1, num, endpoint=True)
-            xi = np.interp(ti, t, x)
-            yi = np.interp(ti, t, y)
+                steps = np.linspace(0, 1, point[4], endpoint=True)
+                x_i = np.interp(steps, t, x)
+                y_i = np.interp(steps, t, y)
+
 
             # Insert the original vertices
             indices = np.searchsorted(ti, t)
