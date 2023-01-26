@@ -136,6 +136,9 @@ class simulate:
         import matplotlib.pyplot as plt
         from matplotlib import cm
         from matplotlib.collections import LineCollection
+        from mpl_toolkits.mplot3d import Axes3D
+        from mpl_toolkits.mplot3d.art3d import Line3DCollection
+
         from matplotlib.colors import ListedColormap, BoundaryNorm
         
         def colorline(x,y,z,c):
@@ -167,6 +170,21 @@ class simulate:
 
             return interpolated
 
+        def w_collection(interpolated):
+            
+            segments = interpolated[:,:3]
+            c = interpolated[:,3:].T
+            coll = Line3DCollection(segments,cmap=plt.get_cmap('copper'))
+            coll.set_array(c)
+            fig = plt.figure()
+            ax = fig.gca(projection='3d')
+            plt.title('3D-Figure')
+            ax.add_collection3d(coll)
+            
+            plt.savefig("test.png")
+            #cbar = plt.colorbar()
+            #cbar.set_label("VELOCITY")
+
 
         #https://matplotlib.org/stable/gallery/lines_bars_and_markers/multicolored_line.html
         #https://stackoverflow.com/questions/17240694/how-to-plot-one-line-in-different-colors
@@ -193,13 +211,15 @@ class simulate:
 
         new = plt.figure().add_subplot(projection='3d')
         interpolated = interp(x,y,z,vel,colvar_spatial_resolution)
+
+        #w_collection(interpolated)
+
         colorline(interpolated.T[0],interpolated.T[1],interpolated.T[2],interpolated.T[3])
  
         ax = plt.gca()
         ax.set_xlabel("x position")
         ax.set_ylabel("y position")
         ax.set_zlabel("z position")
-        
         plt.title("3D Position")
 
         if show:

@@ -47,5 +47,5 @@ new = gcode_interpreter.simulate(filename=r"example/zugproben/movement.gcode",pr
 #print(new.states)
 
 #new.plot_2d_position(show_points=False)
-new.plot_vel(axis=("x","y","e"))
 new.plot_3d_position(filename="3DPlot.png",colvar_spatial_resolution=0.1)
+new.plot_vel(axis=("x","y","e"))
