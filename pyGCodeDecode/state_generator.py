@@ -79,7 +79,9 @@ def array_to_state(old_state,array):
     state
         state with updated values
     """
+    G1_empty       = True
     if not array[0] == [None]:
+        G1_empty   = False
         x       = array[0][0]
         y       = array[0][1]
         z       = array[0][2]
@@ -110,7 +112,7 @@ def array_to_state(old_state,array):
 
 
     new_state   = state.new(old_state=old_state,position=new_position,p_settings=new_p_settings)
-    return new_state
+    return new_state,G1_empty
 
 def read_GCODE_from_file(filename,initial_p_settings:state.p_settings,initial_position):
     """
@@ -162,11 +164,10 @@ def read_GCODE_from_file(filename,initial_p_settings:state.p_settings,initial_po
     for line in file_gcode:
         counter            += 1
 
-        newState            = array_to_state(initial_state,GCODE_line_dissector(line=line))
+        newState,G1_empty   = array_to_state(initial_state,GCODE_line_dissector(line=line))
         newState.line_nmbr  = counter
-        
 
-        if newState.state_position.is_travel(old_position=initial_state.state_position) or newState.state_position.is_extruding(old_position=initial_state.state_position) or state_list[-1].line_nmbr == -2:
+        if newState.state_position.is_travel(old_position=initial_state.state_position) or newState.state_position.is_extruding(old_position=initial_state.state_position) or (state_list[-1].line_nmbr == -2 and not G1_empty):
             state_list.append(newState)
             newState.prev_state             = initial_state
             newState.prev_state.next_state  = newState
