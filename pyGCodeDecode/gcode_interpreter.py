@@ -132,24 +132,25 @@ class simulate:
         plt.savefig(filename,dpi=dpi)
         plt.close()
 
-    def plot_3d_position(self,filename="trajectory_3D.png",show_points=False,dpi=400,show=False):
+    def plot_3d_position(self,filename="trajectory_3D.png",show_points=False,dpi=400,show=False,colvar_spatial_resolution=1):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         from matplotlib.collections import LineCollection
         from matplotlib.colors import ListedColormap, BoundaryNorm
         
         def colorline(x,y,z,c):
-            print("Color")
             c = cm.jet((c-np.min(c))/(np.max(c)-np.min(c)))
             ax = plt.gca()
             for i in np.arange(len(x)-1):
                 ax.plot([x[i],x[i+1]], [y[i],y[i+1]],[z[i],z[i+1]], c=c[i])
         
-        def interp(x,y,z,colvar,resolution=1):
-            segm_length = np.linalg.norm([np.ediff1d(x),np.ediff1d(y),np.ediff1d(z)],axis=0)
-            segm_interpol = np.r_[0,np.ceil(segm_length/resolution)] #get nmbr of segments for required resolution
+        def interp(x,y,z,colvar,spatial_resolution=1):
+            segm_length         = np.linalg.norm([np.ediff1d(x),np.ediff1d(y),np.ediff1d(z)],axis=0)
+            segm_colvar_delt    = np.greater(np.abs(np.ediff1d(colvar)),0)
+            segm_interpol = np.r_[0,np.where(segm_colvar_delt,np.ceil(segm_length/spatial_resolution)+1,1)] #get nmbr of segments for required resolution, dont interpolate if there is no change
             points = np.array([x,y,z,colvar]).T
             points = np.c_[points,segm_interpol]
+            
             #generate intermediate points with resolution
             old_point = None
             interpolated = np.zeros((1,4))
@@ -163,6 +164,7 @@ class simulate:
                     interpolated = np.r_[interpolated,np.array([x_i,y_i,z_i,colvar_i]).T]
                 old_point = point
             interpolated = np.delete(interpolated,0,0)
+
             return interpolated
 
 
@@ -187,23 +189,25 @@ class simulate:
             z.append(segm.pos_end.get_vec()[2])
             vel.append(segm.vel_end.get_abs())
         #create line segments
-        interpolated = interp(x,y,z,vel)
 
 
         new = plt.figure().add_subplot(projection='3d')
-        print()
+        interpolated = interp(x,y,z,vel,colvar_spatial_resolution)
         colorline(interpolated.T[0],interpolated.T[1],interpolated.T[2],interpolated.T[3])
+ 
+        ax = plt.gca()
+        ax.set_xlabel("x position")
+        ax.set_ylabel("y position")
+        ax.set_zlabel("z position")
         
-        plt.xlabel("x position")
-        plt.ylabel("y position")
         plt.title("3D Position")
-        #plot = new.plot(x,y,z)
+
         if show:
             plt.show()
             return new
         else:
-            print("COLOR DONE")
             plt.savefig(filename,dpi=dpi)
+            print("3D Plot saved as ",filename)
         plt.close()
 
     def plot_vel(self,axis=("x","y","z","e"),show_plannerblocks=True,show_segments=False,show_JD=True,timesteps=2000,filename="velplot.png",dpi=400):

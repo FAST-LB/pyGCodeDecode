@@ -25,7 +25,7 @@ anisoprint_A4 = {
     
     #default settings
     "velocity"      :   35,
-    "acceleration"  :   20,
+    "acceleration"  :   200,
     "jerk"          :   10,
     
     #axis max speeds
@@ -40,11 +40,12 @@ anisoprint_A4 = {
     True        -> use first gcode G1 command as initial position
     [x,y,z,e]   -> non zero coordinates for initial position
 """
-initial_position = None
+initial_position = True
 
-new = gcode_interpreter.simulate(filename=r"test.gcode",printer=fictional_printer,initial_position=initial_position)
+new = gcode_interpreter.simulate(filename=r"example/zugproben/movement.gcode",printer=anisoprint_A4,initial_position=initial_position)
 
 #print(new.states)
 
-new.plot_2d_position(show_points=False)
+#new.plot_2d_position(show_points=False)
 new.plot_vel(axis=("x","y","e"))
+new.plot_3d_position(filename="3DPlot.png",colvar_spatial_resolution=0.1)
