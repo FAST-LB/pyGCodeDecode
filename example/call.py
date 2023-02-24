@@ -42,7 +42,7 @@ anisoprint_A4 = {
 """
 initial_position = True
 
-new = gcode_interpreter.simulate(filename=r"example/zugproben/movement.gcode",printer=anisoprint_A4,initial_position=initial_position)
+new = gcode_interpreter.simulate(filename=r"example/UM2_dogbone_direkt.gcode",printer=anisoprint_A4,initial_position=initial_position)
 
 #print(new.states)
 

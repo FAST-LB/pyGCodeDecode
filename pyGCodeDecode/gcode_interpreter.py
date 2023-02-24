@@ -132,7 +132,7 @@ class simulate:
         plt.savefig(filename,dpi=dpi)
         plt.close()
 
-    def plot_3d_position(self,filename="trajectory_3D.png",show_points=False,dpi=400,show=False,colvar_spatial_resolution=1):
+    def plot_3d_position(self,filename="trajectory_3D.png",dpi=400,show=False,colvar_spatial_resolution=1,colvar="Velocity"):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         from matplotlib.collections import LineCollection
@@ -142,8 +142,11 @@ class simulate:
         from matplotlib.colors import ListedColormap, BoundaryNorm
         
         def colorline(x,y,z,c):
-            c = cm.jet((c-np.min(c))/(np.max(c)-np.min(c)))
-            ax = plt.gca()
+            #xyz    = positon
+            #c      = color variable
+            c   = cm.jet((c-np.min(c))/(np.max(c)-np.min(c)))
+            ax  = plt.gca()
+
             for i in np.arange(len(x)-1):
                 ax.plot([x[i],x[i+1]], [y[i],y[i+1]],[z[i],z[i+1]], c=c[i])
         
@@ -154,7 +157,7 @@ class simulate:
             points = np.array([x,y,z,colvar]).T
             points = np.c_[points,segm_interpol]
             
-            #generate intermediate points with resolution
+            #generate intermediate points with set resolution
             old_point = None
             interpolated = np.zeros((1,4))
             for point in points:
@@ -174,57 +177,57 @@ class simulate:
             
             segments = interpolated[:,:3]
             c = interpolated[:,3:].T
-            coll = Line3DCollection(segments,cmap=plt.get_cmap('copper'))
+            coll = Line3DCollection(segments)
             coll.set_array(c)
             fig = plt.figure()
             ax = fig.gca(projection='3d')
             plt.title('3D-Figure')
             ax.add_collection3d(coll)
-            
-            plt.savefig("test.png")
-            #cbar = plt.colorbar()
-            #cbar.set_label("VELOCITY")
-
 
         #https://matplotlib.org/stable/gallery/lines_bars_and_markers/multicolored_line.html
         #https://stackoverflow.com/questions/17240694/how-to-plot-one-line-in-different-colors
         #https://stackoverflow.com/questions/13622909/matplotlib-how-to-colorize-a-large-number-of-line-segments-as-independent-gradi
         
+        
         #get all data for plots
         segments = unpack_blocklist(blocklist=self.blocklist)
-        x,y,z,vel = [],[],[],[]
-        x.append(segments[0].pos_begin.get_vec()[0])
-        y.append(segments[0].pos_begin.get_vec()[1])
-        z.append(segments[0].pos_begin.get_vec()[2])
-        vel.append(segments[0].vel_begin.get_abs())
+        if colvar == "Velocity":
+            x,y,z,vel = [],[],[],[]
+            x.append(segments[0].pos_begin.get_vec()[0])
+            y.append(segments[0].pos_begin.get_vec()[1])
+            z.append(segments[0].pos_begin.get_vec()[2])
+            vel.append(segments[0].vel_begin.get_abs())
+            
+            cntr = 0
+            for segm in segments:
+                cntr += 1
+                update_progress(cntr/len(segments),name="3D Plot")
+                x.append(segm.pos_end.get_vec()[0])
+                y.append(segm.pos_end.get_vec()[1])
+                z.append(segm.pos_end.get_vec()[2])
+                vel.append(segm.vel_end.get_abs())
+            
+            #create scalar mappable for colormap
+            sm = plt.cm.ScalarMappable(cmap=cm.jet, norm=plt.Normalize(vmin=np.min(vel), vmax=np.max(vel)))
+            plt.colorbar(sm, label = "velocity in mm/s", shrink=0.6, location="left")
         
-        cntr = 0
-        for segm in segments:
-            cntr += 1
-            update_progress(cntr/len(segments),name="3D Plot")
-            x.append(segm.pos_end.get_vec()[0])
-            y.append(segm.pos_end.get_vec()[1])
-            z.append(segm.pos_end.get_vec()[2])
-            vel.append(segm.vel_end.get_abs())
         #create line segments
-
-
-        new = plt.figure().add_subplot(projection='3d')
+        color_plot = plt.figure().add_subplot(projection='3d')
         interpolated = interp(x,y,z,vel,colvar_spatial_resolution)
-
-        #w_collection(interpolated)
 
         colorline(interpolated.T[0],interpolated.T[1],interpolated.T[2],interpolated.T[3])
  
         ax = plt.gca()
-        ax.set_xlabel("x position")
-        ax.set_ylabel("y position")
-        ax.set_zlabel("z position")
-        plt.title("3D Position")
+        ax.set_xlabel("x Position")
+        ax.set_ylabel("y Position")
+        ax.set_zlabel("z Position")
+        plt.title("Printing "+colvar)
+        
+        
 
         if show:
             plt.show()
-            return new
+            return color_plot
         else:
             plt.savefig(filename,dpi=dpi)
             print("3D Plot saved as ",filename)
