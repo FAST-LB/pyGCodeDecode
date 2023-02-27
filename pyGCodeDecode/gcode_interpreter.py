@@ -102,37 +102,107 @@ def unpack_blocklist(blocklist:List[planner_block])->List[segment]:
     return path
 
 class simulate:
-
-    def plot_2d_position(self,filename="trajectory.png",show_points=True,dpi=400):
+    #https://stackoverflow.com/questions/33044454/python-using-a-class-to-enable-dot-notation for 
+    def plot_2d_position(self,filename="trajectory_2D.png",colvar="Velocity",show_points=False,colvar_spatial_resolution=1,dpi=400,scaled=True,show=False):
         import matplotlib.pyplot as plt
+        from matplotlib.collections import LineCollection
+        from matplotlib import cm
+
+        colvar_label = {"Velocity"      :   "Velocity in mm/s",
+                        "Acceleration"  :   "Acceleration in mm/s^2"
+                        }
         
+        def interp_2D(x,y,cvar,spatial_resolution=1):
+            segm_length         = np.linalg.norm([np.ediff1d(x),np.ediff1d(y)],axis=0)
+            segm_cvar_delt    = np.greater(np.abs(np.ediff1d(cvar)),0)
+            segm_interpol = np.r_[0,np.where(segm_cvar_delt,np.ceil(segm_length/spatial_resolution)+1,1)] #get nmbr of segments for required resolution, dont interpolate if there is no change
+            points = np.array([x,y,cvar]).T
+            points = np.c_[points,segm_interpol]
+            
+            #generate intermediate points with set resolution
+            old_point = None
+            interpolated = np.zeros((1,3))
+            for point in points:
+                if not old_point is None:
+                    steps       = np.linspace(0, 1, int(point[3]), endpoint=True)
+                    x_i         = np.interp(steps, [0,1], [old_point[0],point[0]])
+                    y_i         = np.interp(steps, [0,1], [old_point[1],point[1]])                 
+                    colvar_i    = np.interp(steps, [0,1], [old_point[2],point[2]])
+                    interpolated = np.r_[interpolated,np.array([x_i,y_i,colvar_i]).T]
+                old_point = point
+            interpolated = np.delete(interpolated,0,0)
+
+            return interpolated
+
+
         segments = unpack_blocklist(blocklist=self.blocklist)
-        x,y = [],[]
-        x.append(segments[0].pos_begin.get_vec()[0])
-        y.append(segments[0].pos_begin.get_vec()[1])
-        cntr = 0
-        for segm in segments:
-            cntr += 1
-            update_progress(cntr/len(segments),name="2D Plot Lines")
-            x.append(segm.pos_end.get_vec()[0])
-            y.append(segm.pos_end.get_vec()[1])
-        
-        new = plt.subplot()
-        new.plot(x,y,color="red")
+        if colvar == "Velocity":
+            #get all planned trajectory vertices + color variable
+            x,y,cvar = [],[],[]
+            x.append(segments[0].pos_begin.get_vec()[0])
+            y.append(segments[0].pos_begin.get_vec()[1])
+            cvar.append(segments[0].vel_begin.get_abs())
+            
+            cntr = 0
+            for segm in segments:
+                cntr += 1
+                update_progress(cntr/len(segments),name="2D Plot Lines")
+                x.append(segm.pos_end.get_vec()[0])
+                y.append(segm.pos_end.get_vec()[1])
+                cvar.append(segm.vel_end.get_abs())
+            
+            #interpolate values for smooth coloring
+            interpolated = interp_2D(x,y,cvar,spatial_resolution=colvar_spatial_resolution)
+
+            x = interpolated[:,0]
+            y = interpolated[:,1]
+            cvar = interpolated[:,2] #maybe change interpolation to return tuple?
+
+            #generate point pairs for line collection 
+            point_pairs = []
+            for i in np.arange(len(x)-1):
+                point_pairs.append([(x[i],y[i]), (x[i+1],y[i+1])])
+            
+            #generate collection from pairs
+            collection = LineCollection(point_pairs)
+            collection.set_array(cvar)
+            collection.set_cmap(cm.jet)
+            
+            fig = plt.figure()
+            ax1 = fig.add_subplot(1, 1, 1)  
+            ax1.add_collection(collection)
+            ax1.autoscale()
+            plt.colorbar(collection, label = colvar_label[colvar], shrink=0.6, location="right")
+        else:
+            x,y = [],[]
+            x.append(segments[0].pos_begin.get_vec()[0])
+            y.append(segments[0].pos_begin.get_vec()[1])
+            cntr = 0
+            for segm in segments:
+                cntr += 1
+                update_progress(cntr/len(segments),name="2D Plot Lines")
+                x.append(segm.pos_end.get_vec()[0])
+                y.append(segm.pos_end.get_vec()[1])
+            fig = plt.subplot()
+            fig.plot(x,y,color="black")
+
 
         if show_points:
             cntr = 0
             for blck in self.blocklist:
                 update_progress(cntr/len(self.blocklist),name="2D Plot Points")
-                new.scatter(blck.get_segments()[-1].pos_end.get_vec()[0],blck.get_segments()[-1].pos_end.get_vec()[1],color="blue",marker="x")
+                fig.scatter(blck.get_segments()[-1].pos_end.get_vec()[0],blck.get_segments()[-1].pos_end.get_vec()[1],color="blue",marker="x")
         
         plt.xlabel("x position")
         plt.ylabel("y position")
         plt.title("2D Position")
+        if scaled: plt.axis("scaled")
         plt.savefig(filename,dpi=dpi)
+        print("2D Plot saved as ",filename)
+        if show: plt.show()
         plt.close()
 
-    def plot_3d_position(self,filename="trajectory_3D.png",dpi=400,show=False,colvar_spatial_resolution=1,colvar="Velocity"):
+    def plot_3d_position(self,filename="trajectory_3D.png",dpi=400,show=False,colvar_spatial_resolution=1,colvar="Velocity",scaled=True):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         from matplotlib.collections import LineCollection
@@ -226,14 +296,12 @@ class simulate:
         ax.set_zlabel("z Position")
         plt.title("Printing "+colvar)
         plt.colorbar(sm, label = colvar_label[colvar], shrink=0.6, location="left")
-        
+        if scaled: plt.axis("scaled")
 
-        if show:
-            plt.show()
-            return color_plot
-        else:
-            plt.savefig(filename,dpi=dpi)
-            print("3D Plot saved as ",filename)
+
+        plt.savefig(filename,dpi=dpi)
+        print("3D Plot saved as ",filename)
+        if show: plt.show()
         plt.close()
 
     def plot_vel(self,axis=("x","y","z","e"),show_plannerblocks=True,show_segments=False,show_JD=True,timesteps=2000,filename="velplot.png",dpi=400):
