@@ -141,6 +141,10 @@ class simulate:
 
         from matplotlib.colors import ListedColormap, BoundaryNorm
         
+        colvar_label = {"Velocity":"Velocity in mm/s",
+                        "Acceleration":"Acceleration in mm/s^2"
+                        }
+
         def colorline(x,y,z,c):
             #xyz    = positon
             #c      = color variable
@@ -209,7 +213,6 @@ class simulate:
             
             #create scalar mappable for colormap
             sm = plt.cm.ScalarMappable(cmap=cm.jet, norm=plt.Normalize(vmin=np.min(vel), vmax=np.max(vel)))
-            plt.colorbar(sm, label = "velocity in mm/s", shrink=0.6, location="left")
         
         #create line segments
         color_plot = plt.figure().add_subplot(projection='3d')
@@ -222,7 +225,7 @@ class simulate:
         ax.set_ylabel("y Position")
         ax.set_zlabel("z Position")
         plt.title("Printing "+colvar)
-        
+        plt.colorbar(sm, label = colvar_label[colvar], shrink=0.6, location="left")
         
 
         if show:
