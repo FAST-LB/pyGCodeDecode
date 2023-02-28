@@ -199,7 +199,7 @@ class simulate:
         if scaled: plt.axis("scaled")
         plt.savefig(filename,dpi=dpi)
         print("2D Plot saved as ",filename)
-        if show: plt.show()
+        if show: plt.show(); return fig
         plt.close()
 
     def plot_3d_position(self,filename="trajectory_3D.png",dpi=400,show=False,colvar_spatial_resolution=1,colvar="Velocity",scaled=True):
@@ -208,9 +208,9 @@ class simulate:
         from matplotlib.collections import LineCollection
         from mpl_toolkits.mplot3d import Axes3D
         from mpl_toolkits.mplot3d.art3d import Line3DCollection
-
         from matplotlib.colors import ListedColormap, BoundaryNorm
         
+
         colvar_label = {"Velocity":"Velocity in mm/s",
                         "Acceleration":"Acceleration in mm/s^2"
                         }
@@ -301,7 +301,7 @@ class simulate:
 
         plt.savefig(filename,dpi=dpi)
         print("3D Plot saved as ",filename)
-        if show: plt.show()
+        if show: plt.show(); return color_plot
         plt.close()
 
     def plot_vel(self,axis=("x","y","z","e"),show_plannerblocks=True,show_segments=False,show_JD=True,timesteps=2000,filename="velplot.png",dpi=400):
@@ -423,7 +423,7 @@ class simulate:
     def __init__(self,filename,printer,initial_position=None):
         
         self.last_index = None #used to optimize search in segment list
-        
+        self.filename = filename
         ###SET INITIAL SETTINGS
         self.check_printer(printer=printer)
 
