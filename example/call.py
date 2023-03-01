@@ -26,7 +26,7 @@ anisoprint_A4 = {
     #default settings
     "velocity"      :   35,
     "acceleration"  :   200,
-    "jerk"          :   10,
+    "jerk"          :   2,
     
     #axis max speeds
     "Vx"            :   80,
@@ -42,12 +42,12 @@ anisoprint_A4 = {
 """
 initial_position = True
 
-new = gcode_interpreter.simulate(filename=r"example\3D_Benchy\snippet.gcode",printer=anisoprint_A4,initial_position=initial_position)
+new = gcode_interpreter.simulate(filename=r"example\test.gcode",printer=anisoprint_A4,initial_position=initial_position)
 
 #print(new.states)
 
-new.plot_2d_position(colvar = None,show=True)
-new.plot_2d_position()
+new.plot_2d_position(show=True,colvar_spatial_resolution=0.1)
+new.plot_vel(show=True,filename="velplot_drop.png")
 
 #new.plot_3d_position(filename="3DPlot.png",colvar_spatial_resolution=0.1)
 #new.plot_vel(axis=("x","y","e"))

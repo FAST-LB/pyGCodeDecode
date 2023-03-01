@@ -304,7 +304,7 @@ class simulate:
         if show: plt.show(); return color_plot
         plt.close()
 
-    def plot_vel(self,axis=("x","y","z","e"),show_plannerblocks=True,show_segments=False,show_JD=True,timesteps=2000,filename="velplot.png",dpi=400):
+    def plot_vel(self,axis=("x","y","z","e"),show=False,show_plannerblocks=True,show_segments=False,show_JD=True,timesteps=2000,filename="velplot.png",dpi=400):
         import matplotlib.pyplot as plt
         axis_dict = {"x":0,"y":1,"z":2,"e":3}
         
@@ -374,6 +374,7 @@ class simulate:
         ax1.legend(loc="lower left")
         plt.title("Velocity and Position over Time")
         plt.savefig(filename,dpi=400)
+        if show: plt.show(); return fig
         plt.close()
 
     def trajectory_self_correct(self):
