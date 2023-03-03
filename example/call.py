@@ -44,10 +44,9 @@ initial_position = True
 
 new = gcode_interpreter.simulate(filename=r"example\test.gcode",printer=anisoprint_A4,initial_position=initial_position)
 
-print(new.states)
 
-new.plot_2d_position(scaled=False,show=True,colvar_spatial_resolution=0.1,filename="2d_plot.png")
-new.plot_vel(show=True,filename="velplot.png",show_segments=True)
+new.plot_2d_position(show=True,colvar_spatial_resolution=0.1,filename="2d_plot.png")
+new.plot_vel(show=True,filename="velplot.png")
 
 #new.plot_3d_position(filename="3DPlot.png",colvar_spatial_resolution=0.1)
 #new.plot_vel(axis=("x","y","e"))
