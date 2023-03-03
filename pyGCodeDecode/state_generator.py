@@ -25,7 +25,7 @@ def GCODE_line_dissector(line):
         for i,param_group in enumerate(all_params):
             group_array = []
             if type(param_group[1]) is list:   #if keyword has parameters extract those
-                if(line.find(param_group[0])!=-1 or line.find("G0")!=-1):                          #get keyword group
+                if(line.find(param_group[0])!=-1 or line.find("G0")!=-1 and i == 0):                          #get keyword group
                     for i,param in enumerate(param_group[1]):
                         if(line.find(param)!=-1):                           #get parameters
                             posA=line.find(param)+len(param)
