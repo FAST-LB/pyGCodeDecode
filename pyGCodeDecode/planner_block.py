@@ -69,14 +69,17 @@ class planner_block:
         if state_0 is None or state_next is None:
             return velocity(0,0,0,0)
         travel_direction = np.subtract(state_next.state_position.get_vec(withExtrusion=True), state_0.state_position.get_vec(withExtrusion=True)) #outdated todo
+        print("\n planner_block/connect_state/travel_direction: ",travel_direction, travel_direction[3])
         distance         = np.linalg.norm(travel_direction[:3])
+        #travel_direction = travel_direction / distance if abs(distance) > 0 else travel_direction / travel_direction[3]; raise ValueError("uff")
         travel_direction = travel_direction / distance if abs(distance) > 0 else np.asarray([0,0,0,0])
+        print("\n planner_block/connect_state/distance: ",distance)
         speed = velocity.convert_vector_to_velocity(state_next.state_p_settings.speed * travel_direction)
         return speed
 
     def move_maker2(self,v_end):
         """
-        WIP Class that ignores the beginning velocity if end velocity is not reachable
+        WIP Method that ignores the beginning velocity if end velocity is not reachable
         Calculates the correct move type (trapezoidal,triangular or singular) and generates the corresponding Segments
 
         Parameters
@@ -98,7 +101,8 @@ class planner_block:
             list of Segments for move
         """
 
-        def trapez():
+        def trapez(extrusion_only=False):
+            print("TRAPEZ ONLY EXTRUSION: ", extrusion_only)
             ### A /
             t0          = previous_segment.t_end
             t1          = t0 + (v_target - v_begin)/acc
@@ -182,8 +186,16 @@ class planner_block:
 
             self.blcktype = "single"
         
+        extrusion_only      = False #flag
         self.segments       = [] #clear segments
-        distance            = self.state_B.state_position.get_t_distance(old_position=self.state_A.state_position) if not self.state_A is None else 0
+        if not self.state_A is None:
+            distance            = self.state_B.state_position.get_t_distance(old_position=self.state_A.state_position)
+            if distance == 0: #no travel, extrusion possible
+                distance        = self.state_B.state_position.get_t_distance(old_position=self.state_A.state_position,withExtrusion=True)
+                extrusion_only  = True
+                print("planner_block/move_maker2: extrusion only detected.")
+        else:
+            distance = 0
         previous_segment    = self.prev_blck.get_segments()[-1] if not self.prev_blck is None else segment.create_initial(initial_position=self.state_A.state_position)
         settings            = self.state_B.state_p_settings
         
@@ -191,7 +203,8 @@ class planner_block:
         acc             = settings.p_acc
         v_target        = settings.speed
         v_begin         = previous_segment.vel_end.get_abs()
-        
+        print("planner_block/movemaker2/v_begin: ",v_begin)
+        print("planner_block/movemaker2/distance: ",distance)
 
         #calculate min travel for trapezoidal shape, if sum larger than distance, regular movement pattern is possible
         travel_ramp_up      = (v_target-v_begin)*(v_begin+v_target)/(2*acc)
@@ -209,7 +222,7 @@ class planner_block:
 
         ###select case for planner block and calculate segment vertices
         if (travel_ramp_down+travel_ramp_up) < distance:
-            trapez()
+            trapez(extrusion_only=extrusion_only)
         elif v_peak_tri > v_end and v_peak_tri > v_begin:
             triang()
         elif v_end_sing > v_begin:
@@ -275,11 +288,14 @@ class planner_block:
         vel_blck        = self.connect_state(state_0=self.state_A, state_next=self.state_B           )  #target velocity for this plannerblock
         vel_next        = self.connect_state(state_0=self.state_B, state_next=self.state_B.next_state)  #target velocity for next plannerblock
         v_JD            = self.calc_JD(vel_0=vel_blck,vel_next=vel_next,p_settings=state.state_p_settings) #junction deviation speed for end of block
-        
+        print("\n A:",self.state_A,"B:",self.state_B)
+        print("\n A vel:",vel_blck,"B vel:",vel_next,"JD vel:",v_JD)
+
         self.direction  = vel_blck.get_norm_dir(withExtrusion=True)  #direction vector of pb                                       
+        print("planner_block/init/direction: ", self.direction)
         self.valid      = vel_blck.not_zero()                        #valid planner block
         
-        
+        print("VALID: ", self.valid)
         
         if self.valid:
             self.JD = v_JD * self.direction #jd writeout for debugging plot

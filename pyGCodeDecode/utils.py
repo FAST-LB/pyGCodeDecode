@@ -65,10 +65,10 @@ class velocity:
     def get_vec(self,withExtrusion=False):
         if withExtrusion: return [self.Vx,self.Vy,self.Vz,self.Ve]
         else: return [self.Vx,self.Vy,self.Vz]
-    def get_abs(self):
-        return np.linalg.norm(self.get_vec())
+    def get_abs(self,withExtrusion=False):
+        return np.linalg.norm(self.get_vec(withExtrusion=withExtrusion))
     def get_norm_dir(self,withExtrusion=False):
-        abs_val = self.get_abs()
+        abs_val = self.get_abs(withExtrusion=withExtrusion)
         return self.get_vec(withExtrusion=withExtrusion)/abs_val if abs_val > 0 else None
     def avoid_overspeed(self,p_settings:state.p_settings):
         """Returns velocity without any axis overspeed"""

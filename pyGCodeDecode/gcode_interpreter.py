@@ -53,6 +53,7 @@ def generate_planner_blocks(states:List[state]):
         cntr += 1
         prev_blck           = blck_list[-1] if len(blck_list) > 0 else None         #grab prev blck from blck_list
         new_blck            = planner_block(state=state,prev_blck=prev_blck)        #generate new blck 
+        print(new_blck)
         if len(new_blck.get_segments())>0:
             if not new_blck.prev_blck is None:
                 new_blck.prev_blck.next_blck = new_blck  #update nb list
@@ -197,8 +198,7 @@ class simulate:
         plt.ylabel("y position")
         plt.title("2D Position")
         if scaled: plt.axis("scaled")
-        plt.savefig(filename,dpi=dpi)
-        print("2D Plot saved as ",filename)
+        if not filename == False: plt.savefig(filename,dpi=dpi); print("2D Plot saved as ",filename)
         if show: plt.show(); return fig
         plt.close()
 
@@ -299,8 +299,7 @@ class simulate:
         if scaled: plt.axis("scaled")
 
 
-        plt.savefig(filename,dpi=dpi)
-        print("3D Plot saved as ",filename)
+        if not filename == False: plt.savefig(filename,dpi=400); print("3D Plot saved as ",filename)
         if show: plt.show(); return color_plot
         plt.close()
 
@@ -373,7 +372,7 @@ class simulate:
         ax2.set_ylabel("position in mm")
         ax1.legend(loc="lower left")
         plt.title("Velocity and Position over Time")
-        plt.savefig(filename,dpi=400)
+        if not filename == False: plt.savefig(filename,dpi=400)
         if show: plt.show(); return fig
         plt.close()
 
