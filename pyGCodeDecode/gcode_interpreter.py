@@ -53,7 +53,6 @@ def generate_planner_blocks(states:List[state]):
         cntr += 1
         prev_blck           = blck_list[-1] if len(blck_list) > 0 else None         #grab prev blck from blck_list
         new_blck            = planner_block(state=state,prev_blck=prev_blck)        #generate new blck 
-        print(new_blck)
         if len(new_blck.get_segments())>0:
             if not new_blck.prev_blck is None:
                 new_blck.prev_blck.next_blck = new_blck  #update nb list
