@@ -197,8 +197,7 @@ class simulate:
         plt.ylabel("y position")
         plt.title("2D Position")
         if scaled: plt.axis("scaled")
-        plt.savefig(filename,dpi=dpi)
-        print("2D Plot saved as ",filename)
+        if not filename == False: plt.savefig(filename,dpi=dpi); print("2D Plot saved as ",filename)
         if show: plt.show(); return fig
         plt.close()
 
@@ -299,8 +298,7 @@ class simulate:
         if scaled: plt.axis("scaled")
 
 
-        plt.savefig(filename,dpi=dpi)
-        print("3D Plot saved as ",filename)
+        if not filename == False: plt.savefig(filename,dpi=400); print("3D Plot saved as ",filename)
         if show: plt.show(); return color_plot
         plt.close()
 
@@ -373,7 +371,7 @@ class simulate:
         ax2.set_ylabel("position in mm")
         ax1.legend(loc="lower left")
         plt.title("Velocity and Position over Time")
-        plt.savefig(filename,dpi=400)
+        if not filename == False: plt.savefig(filename,dpi=400)
         if show: plt.show(); return fig
         plt.close()
 
