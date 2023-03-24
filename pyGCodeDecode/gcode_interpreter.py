@@ -201,7 +201,7 @@ class simulate:
         if show: plt.show(); return fig
         plt.close()
 
-    def plot_3d_position(self,filename="trajectory_3D.png",dpi=400,show=False,colvar_spatial_resolution=1,colvar="Velocity",scaled=True):
+    def plot_3d_position(self,filename="trajectory_3D.png",dpi=400,show=False,colvar_spatial_resolution=1,colvar="Velocity"):
         import matplotlib.pyplot as plt
         from matplotlib import cm
         from matplotlib.collections import LineCollection
@@ -295,7 +295,6 @@ class simulate:
         ax.set_zlabel("z Position")
         plt.title("Printing "+colvar)
         plt.colorbar(sm, label = colvar_label[colvar], shrink=0.6, location="left")
-        if scaled: plt.axis("scaled")
 
 
         if not filename == False: plt.savefig(filename,dpi=400); print("3D Plot saved as ",filename)
