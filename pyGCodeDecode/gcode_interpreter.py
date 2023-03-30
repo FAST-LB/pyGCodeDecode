@@ -621,9 +621,13 @@ class simulate:
         tmp_vel = segm.get_velocity(t=t).get_vec(withExtrusion=True)
         tmp_pos = segm.get_position(t=t).get_vec(withExtrusion=True)
 
+        # scale to required unit system
+        tmp_vel = [self.scaling * num for num in tmp_vel]
+        tmp_pos = [self.scaling * num for num in tmp_pos]
+
         return tmp_vel, tmp_pos
 
-    def check_printer(self, printer):
+    def check_printer(self,printer):
         """
         Method to check the printer Dict for typos or missing parameters.
         """
@@ -658,9 +662,18 @@ class simulate:
         self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states)
         self.trajectory_self_correct()
 
-    def __init__(self, filename, printer, initial_position=None):
+    def __init__(self,filename,printer,initial_position=None, output_unit_system: str = "SImm"):
         self.last_index = None  # used to optimize search in segment list
         self.filename = filename
+
+        # set scaling to chosen unit system
+        self.available_unit_systems = {"SI": 1e-3, "SImm": 1.0, "inches": 1/25.4}
+        if output_unit_system in self.available_unit_systems:
+            self.output_unit_system = output_unit_system
+            self.scaling = self.available_unit_systems[self.output_unit_system]
+        else:
+            raise ValueError("Chosen unit system is unavailable!")
+
         # SET INITIAL SETTINGS
         # self.check_printer(printer=printer)
 
