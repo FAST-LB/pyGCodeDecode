@@ -24,6 +24,7 @@ requirements = [
 
 setup(
     name="pyGCodeDecode",
+    internal_name="pygcodedecode",
     version="0.0.1",
     author="Jonathan Knirsch, Felix Froelich, Lukas Hof",
     author_email="felix.froelich@kit.edu",
