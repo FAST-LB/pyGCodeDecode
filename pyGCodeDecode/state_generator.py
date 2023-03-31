@@ -1,5 +1,6 @@
 from .state import state
 
+
 def GCODE_line_dissector(line):
     """
     Dissects single Gcode lines into array following convention
@@ -19,49 +20,50 @@ def GCODE_line_dissector(line):
         array with   G1          M203      M204      M205      T:M82/F:M83
                     [[X,Y,Z,E,F],[X,Y,Z,E],[P,R,S,T],[X,Y,Z,E],bool]
     """
-    def value_getter(line,all_params):
-        line = line[:line.find(";")] if line.find(";") >= 0 else line   #remove comments
+
+    def value_getter(line, all_params):
+        line = line[: line.find(";")] if line.find(";") >= 0 else line  # remove comments
         all_params_return = []
-        for i,param_group in enumerate(all_params):
+        for i, param_group in enumerate(all_params):
             group_array = []
-            if type(param_group[1]) is list:   #if keyword has parameters extract those
-                if(line.find(param_group[0])!=-1 or line.find("G0")!=-1 and i == 0):                          #get keyword group
-                    for i,param in enumerate(param_group[1]):
-                        if(line.find(param)!=-1):                           #get parameters
-                            posA=line.find(param)+len(param)
-                            posE=line[posA:].find(" ")+posA
-                            if(posE > posA):
-                                group_array.insert(i, float(line[posA: posE]))
+            if type(param_group[1]) is list:  # if keyword has parameters extract those
+                if line.find(param_group[0]) != -1 or line.find("G0") != -1 and i == 0:  # get keyword group
+                    for i, param in enumerate(param_group[1]):
+                        if line.find(param) != -1:  # get parameters
+                            posA = line.find(param) + len(param)
+                            posE = line[posA:].find(" ") + posA
+                            if posE > posA:
+                                group_array.insert(i, float(line[posA:posE]))
                             else:
                                 group_array.insert(i, float(line[posA:]))
-                        else: 
-                            group_array.insert(i,None)
+                        else:
+                            group_array.insert(i, None)
                 else:
-                    group_array.insert(i,None)
-            else: #if no parameters are given, toggle keyword
-                if line.find(param_group[0]) == 0: #first list element defines "True"
-                    group_array.insert(0,True)
-                elif line.find(param_group[1]) == 0: #second list element defines "False"
-                    group_array.insert(0,False)
+                    group_array.insert(i, None)
+            else:  # if no parameters are given, toggle keyword
+                if line.find(param_group[0]) == 0:  # first list element defines "True"
+                    group_array.insert(0, True)
+                elif line.find(param_group[1]) == 0:  # second list element defines "False"
+                    group_array.insert(0, False)
                 else:
-                    group_array.insert(i,None)
+                    group_array.insert(i, None)
 
-            
-            all_params_return.insert(i,group_array)
+            all_params_return.insert(i, group_array)
         return all_params_return
 
-    G1_params   = ["G1",  ["X","Y","Z","E","F"]]    #G1   params convention
-    M203_params = ["M203",["X","Y","Z","E"]]        #M203 params convention
-    M204_params = ["M204",["P","R","S","T"]]        #M204 params convention
-    M205_params = ["M205",["X","Y","Z","E"]]        #M205 params convention
-    
-    M8X_params  = ["M82","M83"]                     #abs (M82) / rel (M83) toggle
-    
+    G1_params = ["G1", ["X", "Y", "Z", "E", "F"]]  # G1   params convention
+    M203_params = ["M203", ["X", "Y", "Z", "E"]]  # M203 params convention
+    M204_params = ["M204", ["P", "R", "S", "T"]]  # M204 params convention
+    M205_params = ["M205", ["X", "Y", "Z", "E"]]  # M205 params convention
 
-    all_params  = [G1_params] + [M203_params] + [M204_params] + [M205_params] + [M8X_params]
-    output      = value_getter(line,all_params)
+    M8X_params = ["M82", "M83"]  # abs (M82) / rel (M83) toggle
+
+    all_params = [G1_params] + [M203_params] + [M204_params] + [M205_params] + [M8X_params]
+    output = value_getter(line, all_params)
     return output
-def array_to_state(old_state,array):
+
+
+def array_to_state(old_state, array):
     """
     converts the GCODE line as array/list to a State
 
@@ -79,45 +81,55 @@ def array_to_state(old_state,array):
     state
         state with updated values
     """
-    G1_empty       = True
+    G1_empty = True
     if not array[0] == [None]:
-        G1_empty   = False
-        x       = array[0][0]
-        y       = array[0][1]
-        z       = array[0][2]
-        e       = array[0][3]
-        speed   = array[0][4]/60.0 if not array[0][4] is None else None #convert mm/min to mm/s
+        G1_empty = False
+        x = array[0][0]
+        y = array[0][1]
+        z = array[0][2]
+        e = array[0][3]
+        speed = array[0][4] / 60.0 if not array[0][4] is None else None  # convert mm/min to mm/s
     else:
-        x=y=z=e=speed=None
-    
+        x = y = z = e = speed = None
+
     if not array[1] == [None]:
-        Vx      = array[1][0]
-        Vy      = array[1][1]
-        Vz      = array[1][2]
-        Ve      = array[1][3]
+        Vx = array[1][0]
+        Vy = array[1][1]
+        Vz = array[1][2]
+        Ve = array[1][3]
     else:
-        Vx=Vy=Vz=Ve=None
+        Vx = Vy = Vz = Ve = None
 
-    p_acc   = array[2][0] if not array[2] == [None] else None
-    jerk    = array[3][0] if not array[3] == [None] else None
-    
+    p_acc = array[2][0] if not array[2] == [None] else None
+    jerk = array[3][0] if not array[3] == [None] else None
+
     abs_extruder = array[4][0]
-    
-    new_p_settings = state.p_settings.new(old_settings=old_state.state_p_settings,p_acc=p_acc,jerk=jerk,Vx=Vx,Vy=Vy,Vz=Vz,Ve=Ve,speed=speed,absMode=abs_extruder)
-    
-    if new_p_settings.absMode: #if abs mode, normal position call
-        new_position = state.position.new(old_position=old_state.state_position, x=x,y=y,z=z,e=e)
-    else: #if rel mode use special call with absMode = False
-        new_position = state.position.new(old_position=old_state.state_position, x=x,y=y,z=z,e=e,absMode=False)
+
+    new_p_settings = state.p_settings.new(
+        old_settings=old_state.state_p_settings,
+        p_acc=p_acc,
+        jerk=jerk,
+        Vx=Vx,
+        Vy=Vy,
+        Vz=Vz,
+        Ve=Ve,
+        speed=speed,
+        absMode=abs_extruder,
+    )
+
+    if new_p_settings.absMode:  # if abs mode, normal position call
+        new_position = state.position.new(old_position=old_state.state_position, x=x, y=y, z=z, e=e)
+    else:  # if rel mode use special call with absMode = False
+        new_position = state.position.new(old_position=old_state.state_position, x=x, y=y, z=z, e=e, absMode=False)
+
+    new_state = state.new(old_state=old_state, position=new_position, p_settings=new_p_settings)
+    return new_state, G1_empty
 
 
-    new_state   = state.new(old_state=old_state,position=new_position,p_settings=new_p_settings)
-    return new_state,G1_empty
-
-def read_GCODE_from_file(filename,initial_p_settings:state.p_settings,initial_position):
+def read_GCODE_from_file(filename, initial_p_settings: state.p_settings, initial_position):
     """
     read gcode from .gcode file and fill in a state vector
-    
+
     Parameters
     ----------
     filename : string
@@ -129,54 +141,56 @@ def read_GCODE_from_file(filename,initial_p_settings:state.p_settings,initial_po
                         True        -> use first gcode G1 command as initial position
                         [x,y,z,e]   -> non zero coordinates for initial position
         initial position, where the simulation begins
-    
+
     Returns
     ----------
     state object list
     """
-    _remv_first_state   = False
-    
-    #handle initial position
+    _remv_first_state = False
+
+    # handle initial position
     if initial_position == True:
-        _remv_first_state   = True #flag for removal later
-        initial_position    = state.position(0,0,0,0)
-        initial_state       = state(state_position=initial_position,state_p_settings=initial_p_settings)
+        _remv_first_state = True  # flag for removal later
+        initial_position = state.position(0, 0, 0, 0)
+        initial_state = state(state_position=initial_position, state_p_settings=initial_p_settings)
         initial_state.line_nmbr = -2
 
     elif initial_position == None:
-        initial_position    = state.position(0,0,0,0)
-        initial_state       = state(state_position=initial_position,state_p_settings=initial_p_settings)
+        initial_position = state.position(0, 0, 0, 0)
+        initial_state = state(state_position=initial_position, state_p_settings=initial_p_settings)
         initial_state.line_nmbr = 0
-    
+
     elif type(initial_position) == list and len(initial_position) == 4:
-        initial_position    = state.position(x=initial_position[0],y=initial_position[1],z=initial_position[2],e=initial_position[3])
-        initial_state       = state(state_position=initial_position,state_p_settings=initial_p_settings)
+        initial_position = state.position(
+            x=initial_position[0], y=initial_position[1], z=initial_position[2], e=initial_position[3]
+        )
+        initial_state = state(state_position=initial_position, state_p_settings=initial_p_settings)
         initial_state.line_nmbr = -1
     else:
         raise ValueError("Invalid Initial Position")
-    
 
-
-
-    state_list          = [initial_state]
-    file_gcode          = open(filename)
-    counter             = 0
+    state_list = [initial_state]
+    file_gcode = open(filename)
+    counter = 0
     for line in file_gcode:
-        counter            += 1
+        counter += 1
 
-        newState,G1_empty   = array_to_state(initial_state,GCODE_line_dissector(line=line))
-        newState.line_nmbr  = counter
+        newState, G1_empty = array_to_state(initial_state, GCODE_line_dissector(line=line))
+        newState.line_nmbr = counter
 
-        if newState.state_position.is_travel(old_position=initial_state.state_position) or newState.state_position.is_extruding(old_position=initial_state.state_position) or (state_list[-1].line_nmbr == -2 and not G1_empty):
+        if (
+            newState.state_position.is_travel(old_position=initial_state.state_position)
+            or newState.state_position.is_extruding(old_position=initial_state.state_position)
+            or (state_list[-1].line_nmbr == -2 and not G1_empty)
+        ):
             state_list.append(newState)
-            newState.prev_state             = initial_state
-            newState.prev_state.next_state  = newState
-        
-        initial_state   = newState
-    
+            newState.prev_state = initial_state
+            newState.prev_state.next_state = newState
+
+        initial_state = newState
+
     if _remv_first_state:
         del state_list[0]
         state_list[0].prev_state = None
-
 
     return state_list

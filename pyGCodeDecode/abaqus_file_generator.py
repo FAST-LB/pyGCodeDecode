@@ -1,4 +1,5 @@
 from pyGCodeDecode import gcode_interpreter as gi
+
 """
 This script is to convert gcode into an event series as abaqus input
 
@@ -13,24 +14,26 @@ timepoints generated are always at segment beginnings / endings, so interpolatio
 """
 tolerance = float("1e-12")
 
-def generate_abaqus_events(trajectory,output_filename = "pyGcodeDecode_abaqus_events.inp"):
-    #get all positions and timings
-    unpacked    = gi.unpack_blocklist(trajectory.blocklist)
-    pos     = [unpacked[0].get_position(t=unpacked[0].t_begin).get_vec(withExtrusion=True)]
-    time    = [0]
+
+def generate_abaqus_events(trajectory, output_filename="pyGcodeDecode_abaqus_events.inp"):
+    # get all positions and timings
+    unpacked = gi.unpack_blocklist(trajectory.blocklist)
+    pos = [unpacked[0].get_position(t=unpacked[0].t_begin).get_vec(withExtrusion=True)]
+    time = [0]
     for segm in unpacked:
         pos.append(segm.get_position(t=segm.t_end).get_vec(withExtrusion=True))
         time.append(segm.t_end)
 
-    #figure out if extrusion happens from this to the next step, if yes -> 1, if no -> 0
-    for id in range(len(pos)-1):
-        if pos[id+1][3]-pos[id][3] > tolerance:
-            pos[id][3]   = 1
-        else: pos[id][3] = 0
+    # figure out if extrusion happens from this to the next step, if yes -> 1, if no -> 0
+    for id in range(len(pos) - 1):
+        if pos[id + 1][3] - pos[id][3] > tolerance:
+            pos[id][3] = 1
+        else:
+            pos[id][3] = 0
     pos[-1][3] = 0
 
-    #writeout to file
+    # writeout to file
     f = open(output_filename, "w")
-    for time,pos in zip(time,pos):
-        f.write(str(time)   +","+   str(pos[0])     +","+   str(pos[1])     +","+   str(pos[2]) +","+   str(pos[3]) + "\n")
+    for time, pos in zip(time, pos):
+        f.write(str(time) + "," + str(pos[0]) + "," + str(pos[1]) + "," + str(pos[2]) + "," + str(pos[3]) + "\n")
     f.close()
