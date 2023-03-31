@@ -184,10 +184,10 @@ def read_GCODE_from_file(filename, initial_p_settings: state.p_settings, initial
             or (state_list[-1].line_nmbr == -2 and not G1_empty)
         ):
             state_list.append(newState)
+            print("statelist-1", state_list[-1])
             newState.prev_state = initial_state
             newState.prev_state.next_state = newState
-
-        initial_state = newState
+            initial_state = newState
 
     if _remv_first_state:
         del state_list[0]
