@@ -1,4 +1,4 @@
-from typing import List, Type
+from typing import List
 from .utils import velocity, segment
 from .state import state
 import numpy as np
@@ -26,7 +26,7 @@ class planner_block:
         [2]: http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
 
         """
-        ### Junction deviation settings
+        # Junction deviation settings
         JD_acc = p_settings.p_acc
         if p_settings.jerk == 0:
             return 0
@@ -37,7 +37,7 @@ class planner_block:
         vel_1_vec = vel_next.get_vec()
         if vel_0.get_abs() == 0 or vel_next.get_abs() == 0:
             return 0
-        ###calculate junction angle
+        # calculate junction angle
         JD_cos_theta = np.dot(-np.asarray(vel_0_vec), np.asarray(vel_1_vec)) / (
             np.linalg.norm(vel_0_vec) * np.linalg.norm(vel_1_vec)
         )  # cos of theta, theta: small angle between velocity vectors
@@ -114,7 +114,7 @@ class planner_block:
         """
 
         def trapez(extrusion_only=False):
-            ### A /
+            # A /
             t0 = previous_segment.t_end
             t1 = t0 + (v_target - v_begin) / acc
             pos_begin = previous_segment.pos_end
@@ -126,7 +126,7 @@ class planner_block:
             )
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin):
                 self.segments.append(segment_A)
-            ### B --
+            # B --
             travel_const = distance - travel_ramp_down - travel_ramp_up
             v_const = vel_const.get_abs(withExtrusion=extrusion_only)  # abs of vel const
             t2 = t1 + travel_const / v_const  # time it takes to travel the remaining distance
@@ -139,7 +139,7 @@ class planner_block:
             )
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin):
                 self.segments.append(segment_B)
-            ### C \
+            # C \
             t2 = segment_B.t_end
             t3 = t2 + (v_target - v_end) / acc
             pos_begin = segment_B.pos_end
@@ -155,7 +155,7 @@ class planner_block:
             self.blcktype = "trapez"
 
         def triang(extrusion_only=False):
-            ### A /
+            # A /
             t0 = previous_segment.t_end
             t1 = t0 + (v_peak_tri - v_begin) / acc
             pos_begin = previous_segment.pos_end
@@ -168,7 +168,7 @@ class planner_block:
             )
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin):
                 self.segments.append(segment_A)
-            ### C \
+            # C \
             t2 = segment_A.t_end
             t3 = t2 + (v_peak_tri - v_end) / acc
             pos_begin = segment_A.pos_end
@@ -185,7 +185,7 @@ class planner_block:
             self.blcktype = "triangle"
 
         def singl_up():
-            ### A /
+            # A /
             t0 = previous_segment.t_end
             t1 = t0 + (v_end_sing - v_begin) / acc
             pos_begin = previous_segment.pos_end
@@ -202,7 +202,7 @@ class planner_block:
             self.blcktype = "single"
 
         def singl_dwn():
-            ### C \ with forced end point met
+            # C \ with forced end point met
             t0 = previous_segment.t_end
             t1 = t0 + (v_begin_sing - v_end) / acc
             pos_begin = previous_segment.pos_end
@@ -220,7 +220,7 @@ class planner_block:
 
         extrusion_only = False  # flag
         self.segments = []  # clear segments
-        if not self.state_A is None:
+        if self.state_A is not None:
             distance = self.state_B.state_position.get_t_distance(old_position=self.state_A.state_position)
             if distance == 0:  # no travel, extrusion possible
                 distance = self.state_B.state_position.get_t_distance(
@@ -231,7 +231,7 @@ class planner_block:
             distance = 0
         previous_segment = (
             self.prev_blck.get_segments()[-1]
-            if not self.prev_blck is None
+            if self.prev_blck is not None
             else segment.create_initial(initial_position=self.state_A.state_position)
         )
         settings = self.state_B.state_p_settings
@@ -254,7 +254,7 @@ class planner_block:
         v_end_sing = np.sqrt(v_end_sing_sqr) if v_end_sing_sqr >= 0 else None
         v_begin_sing = np.sqrt(2 * acc * distance + v_end * v_end)
 
-        ###select case for planner block and calculate segment vertices
+        # select case for planner block and calculate segment vertices
         if (travel_ramp_down + travel_ramp_up) < distance:
             trapez(extrusion_only=extrusion_only)
         elif v_peak_tri > v_end and v_peak_tri > v_begin:
@@ -267,9 +267,9 @@ class planner_block:
             raise NameError("Segment could not be modeled.")
 
     def self_correction(self, tolerance=float("1e-12")):
-        ###Check interface points
+        # Check interface points
         flag_correct = False
-        if not self.next_blck is None:
+        if self.next_blck is not None:
             same_vel = self.get_segments()[-1].vel_end.get_abs() == self.next_blck.get_segments()[0].vel_begin.get_abs()
             if not same_vel:
                 error_vel = (
@@ -279,20 +279,20 @@ class planner_block:
                     # print("Velocity error: ", error_vel)
                     flag_correct = True
 
-        ###Correct error by recalculating velocitys with new vel_end
-        if not self.next_blck is None and flag_correct:
+        # Correct error by recalculating velocitys with new vel_end
+        if self.next_blck is not None and flag_correct:
             vel_end = self.next_blck.get_segments()[0].vel_begin.get_abs()
             self.move_maker2(v_end=vel_end)
             if self.blcktype == "single":
                 self.prev_blck.self_correction()  # forward correction?
 
-        ###Timeshift the corrected blocks
-        if not self.next_blck is None:
+        # Timeshift the corrected blocks
+        if self.next_blck is not None:
             delta_t = self.get_segments()[-1].t_end - self.next_blck.get_segments()[0].t_begin
             self.next_blck.timeshift(delta_t=delta_t)
 
-        ###Check continuity in Position
-        if not self.next_blck is None:
+        # Check continuity in Position
+        if self.next_blck is not None:
             same_position = self.get_segments()[-1].pos_end == self.next_blck.get_segments()[0].pos_begin
             if not same_position:
                 error_position = self.get_segments()[-1].pos_end - self.next_blck.get_segments()[0].pos_begin
@@ -312,14 +312,16 @@ class planner_block:
         """calculates and stores Single Planner Block consisting of multiple Segments
         move is from previous to the current state
         """
-        self.segments: List[segment] = []  # store segments here
+        # neighbor list
         self.state_A = state.prev_state  # from state A
-        self.state_B = state  # to   state B
-        ###neighbor list
+        self.state_B = state  # to state B
         self.prev_blck = prev_blck  # nb list prev
         self.next_blck = None  # nb list next
+
+        self.segments: List[segment] = []  # store segments here
         self.blcktype = None
 
+        # planner block calculation
         vel_blck = self.connect_state(
             state_0=self.state_A, state_next=self.state_B
         )  # target velocity for this plannerblock

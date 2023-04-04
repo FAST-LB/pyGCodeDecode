@@ -3,7 +3,7 @@ Utils for the GCode Reader contains:
 -Velocity as Class
 -Segment
 """
-from typing import List, Type
+from typing import List
 import numpy as np
 from .state import state
 
@@ -151,7 +151,7 @@ class segment:
         self.self_check()
 
     def __str__(self) -> str:
-        distance = self.pos_end.get_t_distance(old_position=self.pos_begin) if not self.pos_end is None else 0
+        # distance = self.pos_end.get_t_distance(old_position=self.pos_begin) if not self.pos_end is None else 0
         # return f"Segment length: {distance} mm from {self.t_begin}s to {self.t_end}s\nv_begin: {self.vel_begin}\tv_end: {self.vel_end}\n"
         return f"\nSegment from: \n{self.pos_begin} to \n{self.pos_end} Self check: {self.self_check()}.\n"
 

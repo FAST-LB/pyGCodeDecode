@@ -149,13 +149,13 @@ def read_GCODE_from_file(filename, initial_p_settings: state.p_settings, initial
     _remv_first_state = False
 
     # handle initial position
-    if initial_position == True:
+    if initial_position is True:
         _remv_first_state = True  # flag for removal later
         initial_position = state.position(0, 0, 0, 0)
         initial_state = state(state_position=initial_position, state_p_settings=initial_p_settings)
         initial_state.line_nmbr = -2
 
-    elif initial_position == None:
+    elif initial_position is None:
         initial_position = state.position(0, 0, 0, 0)
         initial_state = state(state_position=initial_position, state_p_settings=initial_p_settings)
         initial_state.line_nmbr = 0
@@ -184,10 +184,10 @@ def read_GCODE_from_file(filename, initial_p_settings: state.p_settings, initial
             or (state_list[-1].line_nmbr == -2 and not G1_empty)
         ):
             state_list.append(newState)
-            print("statelist-1", state_list[-1])
             newState.prev_state = initial_state
             newState.prev_state.next_state = newState
             initial_state = newState
+    # possible extra tmp state to check for change in array_to_state here
 
     if _remv_first_state:
         del state_list[0]

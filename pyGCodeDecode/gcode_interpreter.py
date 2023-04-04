@@ -4,8 +4,7 @@ from typing import List
 from .planner_block import planner_block
 from .state import state
 from .state_generator import read_GCODE_from_file
-from .utils import segment
-from timeit import default_timer as timer
+from .utils import segment, velocity
 
 
 def update_progress(progress, name="Percent"):
@@ -15,7 +14,7 @@ def update_progress(progress, name="Percent"):
     # A value under 0 represents a 'halt'.
     # A value at 1 or bigger represents 100%
 
-    import time, sys
+    import sys
 
     barLength = 10  # Modify this to change the length of the progress bar
     status = ""
@@ -54,19 +53,19 @@ def generate_planner_blocks(states: List[state]):
     """
     blck_list = []
     cntr = 0
-    for state in states:
+    for state in states:  # noqa
         cntr += 1
         prev_blck = blck_list[-1] if len(blck_list) > 0 else None  # grab prev blck from blck_list
         new_blck = planner_block(state=state, prev_blck=prev_blck)  # generate new blck
         if len(new_blck.get_segments()) > 0:
-            if not new_blck.prev_blck is None:
+            if new_blck.prev_blck is not None:
                 new_blck.prev_blck.next_blck = new_blck  # update nb list
             blck_list.extend([new_blck])
         update_progress(cntr / len(states), "Planner Block Generation")
     return blck_list
 
 
-def find_current_segm(path: List[segment], t: float, last_index: int = None):
+def find_current_segm(path: List[segment], t: float, last_index: int = None, keep_position: bool = False):
     """
     finds the current segment
 
@@ -78,26 +77,67 @@ def find_current_segm(path: List[segment], t: float, last_index: int = None):
         time of search
     last_index: int
         last found index for optimizing search
+    keep_position: bool
+        keeps position of last segment, use this when working with gaps of no movement inbetween segments
 
     Returns
     ----------
     segment
         the segment which defines movement at that point in time
+    last_index
+        last index where something was found, search speed optimization possible
     """
-    # some robustness checks
-    if path[-1].t_end < t:
-        print("No movement at this time in Path!")
-        return None, None
-    elif last_index is None or len(path) - 1 < last_index or path[last_index].t_begin > t:
-        # print(f"unoptimized Search, last index: {last_index}")
-        for last_index, segm in enumerate(path):
-            if t >= segm.t_begin and t < segm.t_end:
-                return segm, last_index
+
+    if keep_position:
+        # use this if eval for times where no planner blocks are created
+        if last_index is None or len(path) - 1 < last_index or path[last_index].t_begin > t:
+            # unoptimized search, still returns index
+            for last_index, segm in enumerate(path):
+                if t >= segm.t_begin and t < segm.t_end:
+                    return segm, last_index
+                elif t >= segm.t_end and t < path[last_index+1].t_begin:
+                    # if no segment exists, create one that interpolates the previous segment as static
+                    interpolated_segment = segment(
+                        t_begin=segm.t_end,
+                        t_end=path[last_index+1].t_begin,
+                        pos_begin=segm.pos_end,
+                        pos_end=segm.pos_end,
+                        vel_begin=velocity(0, 0, 0, 0),
+                        vel_end=velocity(0, 0, 0, 0),
+                    )
+                    return interpolated_segment, last_index
+        else:
+            # optimized search
+            for id, segm in enumerate(path[last_index:]):
+                if t >= segm.t_begin and t <= segm.t_end:
+                    return segm, last_index + id
+                elif t >= segm.t_end and t < path[last_index+1].t_begin:
+                    # if no segment exists, create one that interpolates the previous segment as static
+                    interpolated_segment = segment(
+                        t_begin=segm.t_end,
+                        t_end=path[last_index+1].t_begin,
+                        pos_begin=segm.pos_end,
+                        pos_end=segm.pos_end,
+                        vel_begin=velocity(0, 0, 0, 0),
+                        vel_end=velocity(0, 0, 0, 0),
+                    )
+                    return interpolated_segment, last_index
     else:
-        for id, segm in enumerate(path[last_index:]):
-            if t >= segm.t_begin and t <= segm.t_end:
-                return segm, last_index + id
-        raise ValueError("nothing found")
+        # original function untouched
+        # some robustness checks
+        if path[-1].t_end < t:
+            print("No movement at this time in Path!")
+            return None, None
+        elif last_index is None or len(path) - 1 < last_index or path[last_index].t_begin > t:
+            # print(f"unoptimized Search, last index: {last_index}")
+            for last_index, segm in enumerate(path):
+                if t >= segm.t_begin and t < segm.t_end:
+                    return segm, last_index
+        else:
+            for id, segm in enumerate(path[last_index:]):
+                if t >= segm.t_begin and t <= segm.t_end:
+                    return segm, last_index + id
+            raise ValueError("nothing found")
 
 
 def unpack_blocklist(blocklist: List[planner_block]) -> List[segment]:
@@ -141,7 +181,7 @@ class simulate:
             old_point = None
             interpolated = np.zeros((1, 3))
             for point in points:
-                if not old_point is None:
+                if old_point is not None:
                     steps = np.linspace(0, 1, int(point[3]), endpoint=True)
                     x_i = np.interp(steps, [0, 1], [old_point[0], point[0]])
                     y_i = np.interp(steps, [0, 1], [old_point[1], point[1]])
@@ -219,7 +259,7 @@ class simulate:
         plt.title("2D Position")
         if scaled:
             plt.axis("scaled")
-        if not filename == False:
+        if filename is not False:
             plt.savefig(filename, dpi=dpi)
             print("2D Plot saved as ", filename)
         if show:
@@ -232,10 +272,11 @@ class simulate:
     ):
         import matplotlib.pyplot as plt
         from matplotlib import cm
-        from matplotlib.collections import LineCollection
-        from mpl_toolkits.mplot3d import Axes3D
         from mpl_toolkits.mplot3d.art3d import Line3DCollection
-        from matplotlib.colors import ListedColormap, BoundaryNorm
+
+        # from matplotlib.colors import ListedColormap, BoundaryNorm
+        # from matplotlib.collections import LineCollection
+        # from mpl_toolkits.mplot3d import Axes3D
 
         colvar_label = {"Velocity": "Velocity in mm/s", "Acceleration": "Acceleration in mm/s^2"}
 
@@ -261,7 +302,7 @@ class simulate:
             old_point = None
             interpolated = np.zeros((1, 4))
             for point in points:
-                if not old_point is None:
+                if old_point is not None:
                     steps = np.linspace(0, 1, int(point[4]), endpoint=True)
                     x_i = np.interp(steps, [0, 1], [old_point[0], point[0]])
                     y_i = np.interp(steps, [0, 1], [old_point[1], point[1]])
@@ -322,7 +363,7 @@ class simulate:
         plt.title("Printing " + colvar)
         plt.colorbar(sm, label=colvar_label[colvar], shrink=0.6, location="left")
 
-        if not filename == False:
+        if filename is not False:
             plt.savefig(filename, dpi=400)
             print("3D Plot saved as ", filename)
         if show:
@@ -347,7 +388,7 @@ class simulate:
 
         segments = unpack_blocklist(blocklist=self.blocklist)  # unpack
 
-        ##timesteps
+        # timesteps
         if type(timesteps) == int:  # evenly distributed timesteps
             times = np.linspace(0, self.blocklist[-1].get_segments()[-1].t_end, timesteps, endpoint=False)
         elif timesteps == "constrained":  # use segment timepoints as plot constrains
@@ -357,14 +398,14 @@ class simulate:
         else:
             raise ValueError('Invalid value for Timesteps, either use Integer or "constrained" as argument.')
 
-        ##gathering values
+        # gathering values
         pos = [[], [], [], []]
         vel = [[], [], [], []]
         abs = []  # initialize value arrays
         index_saved = 0
         cntr = 0
         for t in times:
-            segm, index_saved = find_current_segm(path=segments, t=t, last_index=index_saved)
+            segm, index_saved = find_current_segm(path=segments, t=t, last_index=index_saved, keep_position=True)
             cntr += 1
 
             tmp_vel = segm.get_velocity(t=t).get_vec(withExtrusion=True)
@@ -412,7 +453,7 @@ class simulate:
         ax2.set_ylabel("position in mm")
         ax1.legend(loc="lower left")
         plt.title("Velocity and Position over Time")
-        if not filename == False:
+        if filename is not False:
             plt.savefig(filename, dpi=400)
         if show:
             plt.show()
@@ -420,7 +461,7 @@ class simulate:
         plt.close()
 
     def trajectory_self_correct(self):
-        ###self correction
+        # self correction
         for block in self.blocklist:
             block.self_correction()
 
@@ -440,30 +481,31 @@ class simulate:
 
         # Following code could be improved i guess..
 
-        ##check if all provided keys are valid
+        # check if all provided keys are valid
         for key in printer:
-            if not key in printer_keys:
+            if key not in printer_keys:
                 raise ValueError(
                     f'Invalid Key: "{key}" in Printer Dictionary, check for typos. Valid keys are: {printer_keys}'
                 )
 
-        ##check if every required key is proivded
+        # check if every required key is proivded
         for key in printer_keys:
-            if not key in printer:
+            if key not in printer:
                 raise ValueError(
                     f'Key: "{key}" is not provided in Printer Dictionary, check for typos. Required keys are: {printer_keys}'
                 )
 
     def print_summary(self, filename):
         print(
-            f" >> pyGCodeDecode extracted {len(self.states)} states from {filename} and generated {len(self.blocklist)} plannerblocks. \n Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end} seconds."
+            f""" >> pyGCodeDecode extracted {len(self.states)} states from {filename} and generated {len(self.blocklist)} plannerblocks.\n 
+            Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end} seconds."""
         )
 
     def __init__(self, filename, printer, initial_position=None):
 
         self.last_index = None  # used to optimize search in segment list
         self.filename = filename
-        ###SET INITIAL SETTINGS
+        # SET INITIAL SETTINGS
         self.check_printer(printer=printer)
 
         initial_p_settings = state.p_settings(

@@ -1,4 +1,4 @@
-from typing import List, Type
+from typing import List
 import numpy as np
 
 
@@ -126,7 +126,7 @@ class state:
                 y = old_position.y
             if z is None:
                 z = old_position.z
-            if not absMode and not e is None:  # if rel mode, extrusion needs to be summed
+            if not absMode and e is not None:  # if rel mode, extrusion needs to be summed
                 e = old_position.e + e
             if e is None:
                 e = old_position.e
