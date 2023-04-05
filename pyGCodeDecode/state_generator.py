@@ -170,13 +170,17 @@ def read_GCODE_from_file(filename, initial_p_settings: state.p_settings, initial
         raise ValueError("Invalid Initial Position")
 
     state_list = [initial_state]
+    tmp_prev_state = initial_state
     file_gcode = open(filename)
     counter = 0
     for line in file_gcode:
         counter += 1
 
-        newState, G1_empty = array_to_state(initial_state, GCODE_line_dissector(line=line))
+        newState, G1_empty = array_to_state(tmp_prev_state, GCODE_line_dissector(line=line))
         newState.line_nmbr = counter
+
+        tmp_prev_state = newState
+        # this is needed to store the previous states settings even if the state doesnt result in a pos change and is not appended to the state list.
 
         if (
             newState.state_position.is_travel(old_position=initial_state.state_position)
@@ -187,7 +191,6 @@ def read_GCODE_from_file(filename, initial_p_settings: state.p_settings, initial
             newState.prev_state = initial_state
             newState.prev_state.next_state = newState
             initial_state = newState
-    # possible extra tmp state to check for change in array_to_state here
 
     if _remv_first_state:
         del state_list[0]
