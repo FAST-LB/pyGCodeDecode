@@ -8,7 +8,6 @@ from .utils import segment, velocity
 
 
 def update_progress(progress, name="Percent"):
-
     # update_progress() : Displays or updates a console progress bar
     # Accepts a float between 0 and 1. Any int will be converted to a float.
     # A value under 0 represents a 'halt'.
@@ -95,11 +94,11 @@ def find_current_segm(path: List[segment], t: float, last_index: int = None, kee
             for last_index, segm in enumerate(path):
                 if t >= segm.t_begin and t < segm.t_end:
                     return segm, last_index
-                elif t >= segm.t_end and t < path[last_index+1].t_begin:
+                elif t >= segm.t_end and t < path[last_index + 1].t_begin:
                     # if no segment exists, create one that interpolates the previous segment as static
                     interpolated_segment = segment(
                         t_begin=segm.t_end,
-                        t_end=path[last_index+1].t_begin,
+                        t_end=path[last_index + 1].t_begin,
                         pos_begin=segm.pos_end,
                         pos_end=segm.pos_end,
                         vel_begin=velocity(0, 0, 0, 0),
@@ -111,11 +110,11 @@ def find_current_segm(path: List[segment], t: float, last_index: int = None, kee
             for id, segm in enumerate(path[last_index:]):
                 if t >= segm.t_begin and t <= segm.t_end:
                     return segm, last_index + id
-                elif t >= segm.t_end and t < path[last_index+1].t_begin:
+                elif t >= segm.t_end and t < path[last_index + 1].t_begin:
                     # if no segment exists, create one that interpolates the previous segment as static
                     interpolated_segment = segment(
                         t_begin=segm.t_end,
-                        t_end=path[last_index+1].t_begin,
+                        t_end=path[last_index + 1].t_begin,
                         pos_begin=segm.pos_end,
                         pos_end=segm.pos_end,
                         vel_begin=velocity(0, 0, 0, 0),
@@ -267,7 +266,7 @@ class simulate:
             return fig
         plt.close()
 
-    def plot_3d_position(
+    def plot_3d_position_legacy(
         self, filename="trajectory_3D.png", dpi=400, show=False, colvar_spatial_resolution=1, colvar="Velocity"
     ):
         import matplotlib.pyplot as plt
@@ -315,7 +314,6 @@ class simulate:
             return interpolated
 
         def w_collection(interpolated):
-
             segments = interpolated[:, :3]
             c = interpolated[:, 3:].T
             coll = Line3DCollection(segments)
@@ -360,6 +358,100 @@ class simulate:
         ax.set_xlabel("x Position")
         ax.set_ylabel("y Position")
         ax.set_zlabel("z Position")
+        plt.title("Printing " + colvar)
+        plt.colorbar(sm, label=colvar_label[colvar], shrink=0.6, location="left")
+
+        if filename is not False:
+            plt.savefig(filename, dpi=400)
+            print("3D Plot saved as ", filename)
+        if show:
+            plt.show()
+            return color_plot
+        plt.close()
+
+    def plot_3d_position(
+        self, filename="trajectory_3D.png", dpi=400, show=False, colvar_spatial_resolution=1, colvar="Velocity"
+    ):
+        import matplotlib.pyplot as plt
+        from matplotlib import cm
+        from mpl_toolkits.mplot3d.art3d import Line3DCollection
+        from mpl_toolkits.mplot3d import Axes3D
+
+        colvar_label = {"Velocity": "Velocity in mm/s", "Acceleration": "Acceleration in mm/s^2"}
+
+        def interp(x, y, z, colvar, spatial_resolution=1):
+            segm_length = np.linalg.norm([np.ediff1d(x), np.ediff1d(y), np.ediff1d(z)], axis=0)
+            segm_colvar_delt = np.greater(np.abs(np.ediff1d(colvar)), 0)
+            segm_interpol = np.r_[
+                0, np.where(segm_colvar_delt, np.ceil(segm_length / spatial_resolution) + 1, 1)
+            ]  # get nmbr of segments for required resolution, dont interpolate if there is no change
+            points = np.array([x, y, z, colvar]).T
+            points = np.c_[points, segm_interpol]
+
+            # generate intermediate points with set resolution
+            old_point = None
+            interpolated = np.zeros((1, 4))
+            for point in points:
+                if old_point is not None:
+                    steps = np.linspace(0, 1, int(point[4]), endpoint=True)
+                    x_i = np.interp(steps, [0, 1], [old_point[0], point[0]])
+                    y_i = np.interp(steps, [0, 1], [old_point[1], point[1]])
+                    z_i = np.interp(steps, [0, 1], [old_point[2], point[2]])
+                    colvar_i = np.interp(steps, [0, 1], [old_point[3], point[3]])
+                    interpolated = np.r_[interpolated, np.array([x_i, y_i, z_i, colvar_i]).T]
+                old_point = point
+            interpolated = np.delete(interpolated, 0, 0)
+
+            return interpolated
+
+        def w_collection(interpolated):
+            points = interpolated[:, :3].reshape(-1, 1, 3)  # get points and reshape
+            c = interpolated[:, 3:].reshape(-1)  # color variable
+
+            lsegments = np.concatenate([points[:-1], points[1:]], axis=1)  # create point pairs
+
+            collection = Line3DCollection(lsegments, cmap=cm.jet, norm=plt.Normalize(vmin=np.min(c), vmax=np.max(c)))
+            collection.set_array(c)
+            return collection
+
+        # get all data for plots
+        segments = unpack_blocklist(blocklist=self.blocklist)
+        if colvar == "Velocity":
+            x, y, z, vel = [], [], [], []
+            x.append(segments[0].pos_begin.get_vec()[0])
+            y.append(segments[0].pos_begin.get_vec()[1])
+            z.append(segments[0].pos_begin.get_vec()[2])
+            vel.append(segments[0].vel_begin.get_abs())
+
+            cntr = 0
+            for segm in segments:
+                cntr += 1
+                update_progress(cntr / len(segments), name="3D Plot")
+                x.append(segm.pos_end.get_vec()[0])
+                y.append(segm.pos_end.get_vec()[1])
+                z.append(segm.pos_end.get_vec()[2])
+                vel.append(segm.vel_end.get_abs())
+
+            # create scalar mappable for colormap
+            sm = plt.cm.ScalarMappable(cmap=cm.jet, norm=plt.Normalize(vmin=np.min(vel), vmax=np.max(vel)))
+
+        # create line segments
+        interpolated = interp(x, y, z, vel, colvar_spatial_resolution)
+
+        color_plot = plt.figure()
+        # color_plot.add_subplot(projection="3d")
+        ax = Axes3D(color_plot)
+        collection = w_collection(interpolated=interpolated)
+        ax.add_collection3d(collection)
+
+        ax.set_xlabel("x Position")
+        ax.set_ylabel("y Position")
+        ax.set_zlabel("z Position")
+
+        ax.set_xlim(min(x), max(x))
+        ax.set_ylim(min(y), max(y))
+        ax.set_zlim(min(z), max(z))
+        
         plt.title("Printing " + colvar)
         plt.colorbar(sm, label=colvar_label[colvar], shrink=0.6, location="left")
 
@@ -422,7 +514,6 @@ class simulate:
 
         # plot JD-Limits
         for blck in self.blocklist:
-
             # plannerblocks vertical line plot
             if show_plannerblocks:
                 ax1.axvline(x=blck.get_segments()[-1].t_end, color="black", lw=0.5)
@@ -502,7 +593,6 @@ class simulate:
         )
 
     def __init__(self, filename, printer, initial_position=None):
-
         self.last_index = None  # used to optimize search in segment list
         self.filename = filename
         # SET INITIAL SETTINGS
