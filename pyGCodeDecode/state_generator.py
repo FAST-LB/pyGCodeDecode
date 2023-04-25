@@ -63,6 +63,46 @@ def GCODE_line_dissector(line):
     return output
 
 
+def line_to_dict(line):
+    """
+    Converts known GCode commands to dictionary.
+    """
+    commands = {
+        "G0 ": ["X", "Y", "Z", "F"],  # non Extrusion Move
+        "G1 ": None,  # Extrusion Move
+        "G4 ": None,  # Dwell
+        "M82": None,  # E Absolute
+        "M203 ": None,  # Max Feedrate
+        "M204 ": None,  # Starting Acceleration
+        "M205 ": None,  # Advanced Settings
+        "M83": None,  # E Relative
+        "G20": None,  # Inches
+        "G21": None,  # Milimeters
+        "G90": None,  # Absolute Positioning
+        "G91": None,  # Relative Positioning
+        "G92 ": None,  # Set Position
+        ";": None,  # Comment
+    }
+
+    for line in lines:
+        line_dict = dict()
+        matches = list()
+        for command in commands.keys():
+            match = re.search(command, line)
+            if match is not None:
+                matches.append(match)
+        # check for longest match? more robust
+
+        # support for multiple commands or additional comments per line
+        for i in range(len(matches)):
+            match_0 = matches[i]
+            match_1 = matches[i + 1].start() if i + 1 < len(matches) else len(line)
+            command_type = match_0.group()
+            command_content = line[match_0.end() : match_1]
+            line_dict[command_type] = command_content
+        print(line_dict)
+
+
 def array_to_state(old_state, array):
     """
     converts the GCODE line as array/list to a State
