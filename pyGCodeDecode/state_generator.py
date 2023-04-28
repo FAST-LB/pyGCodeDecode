@@ -1,4 +1,23 @@
 from .state import state
+import re
+from typing import List, Match
+
+commands = {
+    "G0": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # non Extrusion Move
+    "G1": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # Extrusion Move
+    "M203": {"E": None, "X": None, "Y": None, "Z": None},  # Max Feedrate
+    "M204": {"P": None, "R": None, "S": None, "T": None},  # Starting Acceleration
+    "M205": {"E": None, "J": None, "S": None, "X": None, "Y": None, "Z": None},  # Advanced Settings
+    "G4": {"P": None, "S": None},  # Dwell
+    "M82": None,  # E Absolute
+    "M83": None,  # E Relative
+    "G20": None,  # Inches
+    "G21": None,  # Milimeters
+    "G90": None,  # Absolute Positioning
+    "G91": None,  # Relative Positioning
+    "G92": {"E": None, "X": None, "Y": None, "Z": None},  # Set Position
+    ";": None,  # Comment
+}
 
 
 def GCODE_line_dissector(line):
@@ -63,44 +82,70 @@ def GCODE_line_dissector(line):
     return output
 
 
-def line_to_dict(line):
+def arg_extract(string: str, key_dict: dict):
     """
-    Converts known GCode commands to dictionary.
+    Extract arguments from known command dictionarys.
+    converts list of states to trajectory segments
+
+    Parameters
+    ----------
+    string  :   str
+        string of Commands
+    key_dict : dict
+        dictionary with known commands and subcommands
+
+    Returns
+    ----------
+    arg_dict : dict
+        dictionary with all found keys and their arguments
+
     """
-    commands = {
-        "G0 ": ["X", "Y", "Z", "F"],  # non Extrusion Move
-        "G1 ": None,  # Extrusion Move
-        "G4 ": None,  # Dwell
-        "M82": None,  # E Absolute
-        "M203 ": None,  # Max Feedrate
-        "M204 ": None,  # Starting Acceleration
-        "M205 ": None,  # Advanced Settings
-        "M83": None,  # E Relative
-        "G20": None,  # Inches
-        "G21": None,  # Milimeters
-        "G90": None,  # Absolute Positioning
-        "G91": None,  # Relative Positioning
-        "G92 ": None,  # Set Position
-        ";": None,  # Comment
-    }
+    arg_dict = dict()  # dict to store found arguments for each key
+    matches: List[Match] = list()  # list to store matching keywords
 
-    for line in lines:
-        line_dict = dict()
-        matches = list()
-        for command in commands.keys():
-            match = re.search(command, line)
-            if match is not None:
-                matches.append(match)
-        # check for longest match? more robust
+    for key in key_dict.keys():  # look for each key in the dictionary
+        match = re.search(key, string)  # regex search for key in string
+        if match is not None:
+            matches.append(match)  # append found matches
 
-        # support for multiple commands or additional comments per line
-        for i in range(len(matches)):
-            match_0 = matches[i]
-            match_1 = matches[i + 1].start() if i + 1 < len(matches) else len(line)
-            command_type = match_0.group()
-            command_content = line[match_0.end() : match_1]
-            line_dict[command_type] = command_content
-        print(line_dict)
+    # check for longest match and remove smaller match
+    i = 0
+    while i < len(matches):
+        a: Match = matches[i]
+        for match in matches:
+            if a.start() == match.start() and a.end() < match.end():
+                matches.remove(a)
+        i += 1
+
+    # support for multiple commands or additional comments per line
+    match_start_list = [match.start() for match in matches]
+    next_larger = lambda lst, num: min(  # noqa: E731
+        filter(lambda x: x >= num, lst), default=len(string)
+    )  # function to find next largest occurence in list, default to eol
+    comment_begin = min(
+        [start.start() for start in list(filter(lambda x: x.group() == ";", [match for match in matches]))],
+        default=len(string),
+    )  # find first comment, default to eol
+
+    for match in matches:  # iterate through all matches, with next match available
+        match_end = match.end()  # find arg beginning by using end of match
+        key = match.group()  # get key from match
+        arg = None
+
+        match_next_start = next_larger(match_start_list, match_end)  # find arg end by using beginning of next arg
+        if key != ";":
+            arg = string[match_end:match_next_start]  # slice string
+            arg = arg.replace(" ", "")  # remove spaces if argument is not a comment
+        else:
+            arg = string[match_end:]  # special case for comments where everything coming after match is arg
+
+        if key_dict[key] is not None:  # check for nested commands
+            arg = arg_extract(arg, key_dict[key])  # call arg_extract through recursion
+
+        # save matches found outside of comments, not applying for comments
+        if match.end() <= comment_begin or key == ";":
+            arg_dict[key] = arg  # save argument values in dict
+    return arg_dict
 
 
 def array_to_state(old_state, array):
