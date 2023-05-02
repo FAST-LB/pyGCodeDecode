@@ -451,7 +451,7 @@ class simulate:
         ax.set_xlim(min(x), max(x))
         ax.set_ylim(min(y), max(y))
         ax.set_zlim(min(z), max(z))
-        
+
         plt.title("Printing " + colvar)
         plt.colorbar(sm, label=colvar_label[colvar], shrink=0.6, location="left")
 
@@ -588,7 +588,7 @@ class simulate:
 
     def print_summary(self, filename):
         print(
-            f""" >> pyGCodeDecode extracted {len(self.states)} states from {filename} and generated {len(self.blocklist)} plannerblocks.\n 
+            f""" >> pyGCodeDecode extracted {len(self.states)} states from {filename} and generated {len(self.blocklist)} plannerblocks.\n
             Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end} seconds."""
         )
 

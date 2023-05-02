@@ -38,10 +38,13 @@ anisoprint_A4 = {
 """
 initial_position = None
 
+# new = gcode_interpreter.simulate(
+#     filename=r"example\3D_Benchy\3DBenchy.gcode", printer=anisoprint_A4, initial_position=initial_position
+# )
+
 new = gcode_interpreter.simulate(
     filename=r"example\3D_Benchy\snippet.gcode", printer=anisoprint_A4, initial_position=initial_position
 )
-
 
 # new.plot_2d_position(show=True,colvar_spatial_resolution=0.1,filename=False)
 # new.plot_vel(show=True,filename=False)
@@ -51,3 +54,4 @@ new.plot_3d_position(filename="3DPlot.png", colvar_spatial_resolution=0.1, show=
 
 print(f"Display took: {t.time()-time}s")
 # snippet.gcode used with 1018 lines of GCODE--> 3D Plot saved as  3DPlot.png, Display took: 18.40489935874939s
+# after: ca. 2.01s

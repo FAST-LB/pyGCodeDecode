@@ -19,67 +19,25 @@ commands = {
     ";": None,  # Comment
 }
 
-
-def GCODE_line_dissector(line):
-    """
-    Dissects single Gcode lines into array following convention
-    M203 for max axis speed
-    M204,P for printing acceleration (R,S,T not yet supported)
-    M205, axis Jerk, only use X value for calculation
-    M82/M83, abs (M82) / rel (M83) extruder toggle
-
-    Parameters
-    ----------
-    line : string
-        single Gcode line
-
-    Returns
-    ----------
-    float array
-        array with   G1          M203      M204      M205      T:M82/F:M83
-                    [[X,Y,Z,E,F],[X,Y,Z,E],[P,R,S,T],[X,Y,Z,E],bool]
-    """
-
-    def value_getter(line, all_params):
-        line = line[: line.find(";")] if line.find(";") >= 0 else line  # remove comments
-        all_params_return = []
-        for i, param_group in enumerate(all_params):
-            group_array = []
-            if type(param_group[1]) is list:  # if keyword has parameters extract those
-                if line.find(param_group[0]) != -1 or line.find("G0") != -1 and i == 0:  # get keyword group
-                    for i, param in enumerate(param_group[1]):
-                        if line.find(param) != -1:  # get parameters
-                            posA = line.find(param) + len(param)
-                            posE = line[posA:].find(" ") + posA
-                            if posE > posA:
-                                group_array.insert(i, float(line[posA:posE]))
-                            else:
-                                group_array.insert(i, float(line[posA:]))
-                        else:
-                            group_array.insert(i, None)
-                else:
-                    group_array.insert(i, None)
-            else:  # if no parameters are given, toggle keyword
-                if line.find(param_group[0]) == 0:  # first list element defines "True"
-                    group_array.insert(0, True)
-                elif line.find(param_group[1]) == 0:  # second list element defines "False"
-                    group_array.insert(0, False)
-                else:
-                    group_array.insert(i, None)
-
-            all_params_return.insert(i, group_array)
-        return all_params_return
-
-    G1_params = ["G1", ["X", "Y", "Z", "E", "F"]]  # G1   params convention
-    M203_params = ["M203", ["X", "Y", "Z", "E"]]  # M203 params convention
-    M204_params = ["M204", ["P", "R", "S", "T"]]  # M204 params convention
-    M205_params = ["M205", ["X", "Y", "Z", "E"]]  # M205 params convention
-
-    M8X_params = ["M82", "M83"]  # abs (M82) / rel (M83) toggle
-
-    all_params = [G1_params] + [M203_params] + [M204_params] + [M205_params] + [M8X_params]
-    output = value_getter(line, all_params)
-    return output
+default_virtual_machine = {
+    "absolute_position": True,
+    "absolute_extrusion": True,
+    "units": "mm",
+    "initial_position": None,
+    # general properties
+    "nozzle_diam": 0.4,
+    "filament_diam": 1.75,
+    # default settings
+    "p_vel": 35,
+    "t_vel": 35,
+    "p_acc": 1000,
+    "jerk": 10,
+    # axis max speeds
+    "Vx": 180,
+    "Vy": 180,
+    "Vz": 30,
+    "Ve": 33,
+}
 
 
 def arg_extract(string: str, key_dict: dict):
@@ -96,7 +54,7 @@ def arg_extract(string: str, key_dict: dict):
 
     Returns
     ----------
-    arg_dict : dict
+    dict
         dictionary with all found keys and their arguments
 
     """
@@ -146,6 +104,118 @@ def arg_extract(string: str, key_dict: dict):
         if match.end() <= comment_begin or key == ";":
             arg_dict[key] = arg  # save argument values in dict
     return arg_dict
+
+
+def read_gcode_to_dict_list(filename):
+    """
+    read gcode from .gcode file
+
+    Parameters
+    ----------
+    filename : string
+        filename of the .gcode file: e.g. "print.gcode"
+
+    Returns
+    ----------
+    list[dict]
+        list with every line as dict
+    """
+    file_gcode = open(filename)
+    dict_list = list()
+
+    counter = 0
+    for line in file_gcode:
+        counter += 1
+        line_dict = arg_extract(line, commands)
+        line_dict["line_number"] = counter
+        dict_list.append(line_dict)
+
+
+def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict = None):
+    """
+    Converts the line dictionary to a state.
+
+    Parameters
+    ----------
+    line_dict_list  :  dict
+        dict list with commands
+    initial_machine_setup  :  dict
+        dict with initial machine setup [absolute_position, absolute_extrusion, units, initial_position...]
+
+    Returns
+    ----------
+    state
+        incomplete state
+
+    """
+
+    def dict_extract(key: str, line_dict: dict):
+        if key in line_dict:
+            return line_dict[key]
+        else:
+            return None
+
+    virtual_machine = dict()  # keeping track of interstate values
+    for key in default_virtual_machine:
+        if key in initial_machine_setup:
+            virtual_machine[key] = default_virtual_machine[key]
+
+    # generating first initial state from default and setup values
+    position = (
+        state.position(0, 0, 0, 0)
+        if virtual_machine["initial_position"] is None
+        else state.position(*virtual_machine["initial_position"])
+    )
+    p_settings = state.p_settings(
+        speed=virtual_machine["p_vel"],
+        p_acc=virtual_machine["p_acc"],
+        jerk=virtual_machine["p_acc"],
+        Vx=virtual_machine["Vx"],
+        Vy=virtual_machine["Vy"],
+        Vz=virtual_machine["Vz"],
+        Ve=virtual_machine["Ve"],
+        absMode=virtual_machine["absolute_extrusion"],
+    )
+    initial_state = state(state_position=position, state_p_settings=p_settings)
+
+    # GCode functionality:
+    for line_dict in line_dict_list:
+        # absolute / relative position mode
+        if "G90" in line_dict:
+            virtual_machine["absolute_position"] = True
+        if "G91" in line_dict:
+            virtual_machine["absolute_position"] = False
+
+        # absolute / relative extrusionb mode
+        if "M82" in line_dict:
+            virtual_machine["absolute_extrusion"] = True
+        if "M83" in line_dict:
+            virtual_machine["absolute_extrusion"] = False
+
+        # units
+        if "G20" in line_dict:
+            virtual_machine["units"] = "inch"
+        if "G21" in line_dict:
+            virtual_machine["units"] = "mm"
+
+        new_state = state()  # create new state
+
+        # parse comment
+        new_state.comment = dict_extract(";", line_dict=line_dict)
+
+        #
+
+    return new_state
+
+
+def state_generator(filename: str, initial_machine_setup: dict = None):
+    line_dict_list = read_gcode_to_dict_list(filename=filename)
+    states = dict_list_traveler(line_dict_list=line_dict_list, initial_machine_setup=initial_machine_setup)
+
+    return states
+
+
+# old functions below
 
 
 def array_to_state(old_state, array):
@@ -209,6 +279,68 @@ def array_to_state(old_state, array):
 
     new_state = state.new(old_state=old_state, position=new_position, p_settings=new_p_settings)
     return new_state, G1_empty
+
+
+def GCODE_line_dissector(line):
+    """
+    Dissects single Gcode lines into array following convention
+    M203 for max axis speed
+    M204,P for printing acceleration (R,S,T not yet supported)
+    M205, axis Jerk, only use X value for calculation
+    M82/M83, abs (M82) / rel (M83) extruder toggle
+
+    Parameters
+    ----------
+    line : string
+        single Gcode line
+
+    Returns
+    ----------
+    float array
+        array with   G1          M203      M204      M205      T:M82/F:M83
+                    [[X,Y,Z,E,F],[X,Y,Z,E],[P,R,S,T],[X,Y,Z,E],bool]
+    """
+
+    def value_getter(line, all_params):
+        line = line[: line.find(";")] if line.find(";") >= 0 else line  # remove comments
+        all_params_return = []
+        for i, param_group in enumerate(all_params):
+            group_array = []
+            if type(param_group[1]) is list:  # if keyword has parameters extract those
+                if line.find(param_group[0]) != -1 or line.find("G0") != -1 and i == 0:  # get keyword group
+                    for i, param in enumerate(param_group[1]):
+                        if line.find(param) != -1:  # get parameters
+                            posA = line.find(param) + len(param)
+                            posE = line[posA:].find(" ") + posA
+                            if posE > posA:
+                                group_array.insert(i, float(line[posA:posE]))
+                            else:
+                                group_array.insert(i, float(line[posA:]))
+                        else:
+                            group_array.insert(i, None)
+                else:
+                    group_array.insert(i, None)
+            else:  # if no parameters are given, toggle keyword
+                if line.find(param_group[0]) == 0:  # first list element defines "True"
+                    group_array.insert(0, True)
+                elif line.find(param_group[1]) == 0:  # second list element defines "False"
+                    group_array.insert(0, False)
+                else:
+                    group_array.insert(i, None)
+
+            all_params_return.insert(i, group_array)
+        return all_params_return
+
+    G1_params = ["G1", ["X", "Y", "Z", "E", "F"]]  # G1   params convention
+    M203_params = ["M203", ["X", "Y", "Z", "E"]]  # M203 params convention
+    M204_params = ["M204", ["P", "R", "S", "T"]]  # M204 params convention
+    M205_params = ["M205", ["X", "Y", "Z", "E"]]  # M205 params convention
+
+    M8X_params = ["M82", "M83"]  # abs (M82) / rel (M83) toggle
+
+    all_params = [G1_params] + [M203_params] + [M204_params] + [M205_params] + [M8X_params]
+    output = value_getter(line, all_params)
+    return output
 
 
 def read_GCODE_from_file(filename, initial_p_settings: state.p_settings, initial_position):

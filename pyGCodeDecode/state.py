@@ -218,12 +218,13 @@ class state:
         new: returns new State from old State and given optional changing Position and/or Print Settings
     """
 
-    def __init__(self, state_position: position, state_p_settings: p_settings):
+    def __init__(self, state_position: position = None, state_p_settings: p_settings = None):
         self.state_position = state_position
         self.state_p_settings = state_p_settings
         self.next_state = None
         self.prev_state = None
         self.line_nmbr = None
+        self.comment = None
 
     @property
     def state_position(self):
