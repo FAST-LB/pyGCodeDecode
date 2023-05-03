@@ -10,10 +10,10 @@ fictional_printer = {
     "acceleration": 20,
     "jerk": 2,
     # axis max speeds
-    "Vx": 60,
-    "Vy": 60,
-    "Vz": 40,
-    "Ve": 25,
+    "vX": 60,
+    "vY": 60,
+    "vZ": 40,
+    "vE": 25,
 }
 
 anisoprint_A4 = {
@@ -43,15 +43,16 @@ initial_position = None
 # )
 
 new = gcode_interpreter.simulate(
-    filename=r"example\3D_Benchy\snippet.gcode", printer=anisoprint_A4, initial_position=initial_position
+    filename=r"example\test.gcode", printer=fictional_printer, initial_position=initial_position
 )
 
 # new.plot_2d_position(show=True,colvar_spatial_resolution=0.1,filename=False)
 # new.plot_vel(show=True,filename=False)
-time = t.time()
+#time = t.time()
 
 new.plot_3d_position(filename="3DPlot.png", colvar_spatial_resolution=0.1, show=True)
+print(new.states)
 
-print(f"Display took: {t.time()-time}s")
+#print(f"Display took: {t.time()-time}s")
 # snippet.gcode used with 1018 lines of GCODE--> 3D Plot saved as  3DPlot.png, Display took: 18.40489935874939s
 # after: ca. 2.01s

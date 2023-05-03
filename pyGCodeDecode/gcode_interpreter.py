@@ -3,7 +3,7 @@ import numpy as np
 from typing import List
 from .planner_block import planner_block
 from .state import state
-from .state_generator import read_GCODE_from_file
+from .state_generator import read_GCODE_from_file, state_generator
 from .utils import segment, velocity
 
 
@@ -50,6 +50,7 @@ def generate_planner_blocks(states: List[state]):
     blck_list[planner_block]
         list of all plannerblocks to complete travel between all states
     """
+
     blck_list = []
     cntr = 0
     for state in states:  # noqa
@@ -596,24 +597,17 @@ class simulate:
         self.last_index = None  # used to optimize search in segment list
         self.filename = filename
         # SET INITIAL SETTINGS
-        self.check_printer(printer=printer)
+        # self.check_printer(printer=printer)
 
-        initial_p_settings = state.p_settings(
-            p_acc=printer["acceleration"],
-            jerk=printer["jerk"],
-            Vx=printer["Vx"],
-            Vy=printer["Vy"],
-            Vz=printer["Vz"],
-            Ve=printer["Ve"],
-            speed=printer["velocity"],
-        )
+    
+        # self.states = read_GCODE_from_file(
+        #     filename=filename, initial_p_settings=initial_p_settings, initial_position=initial_position
+        # )
 
-        self.states = read_GCODE_from_file(
-            filename=filename, initial_p_settings=initial_p_settings, initial_position=initial_position
-        )
+        self.states = state_generator(filename=filename, initial_machine_setup=printer)
+        # print(self.states)
 
         self.blocklist = generate_planner_blocks(states=self.states)
 
         self.trajectory_self_correct()
-
         self.print_summary(filename=filename)

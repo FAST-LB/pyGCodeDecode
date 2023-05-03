@@ -33,10 +33,10 @@ default_virtual_machine = {
     "p_acc": 1000,
     "jerk": 10,
     # axis max speeds
-    "Vx": 180,
-    "Vy": 180,
-    "Vz": 30,
-    "Ve": 33,
+    "vX": 180,
+    "vY": 180,
+    "vZ": 30,
+    "vE": 33,
 }
 
 
@@ -94,6 +94,12 @@ def arg_extract(string: str, key_dict: dict):
         if key != ";":
             arg = string[match_end:match_next_start]  # slice string
             arg = arg.replace(" ", "")  # remove spaces if argument is not a comment
+            arg = arg.replace("\n", "")  # remove \n if argument is not a comment
+
+            try:
+                arg = float(arg)  # casting to float if possible
+            except ValueError:
+                pass
         else:
             arg = string[match_end:]  # special case for comments where everything coming after match is arg
 
@@ -130,6 +136,8 @@ def read_gcode_to_dict_list(filename):
         line_dict["line_number"] = counter
         dict_list.append(line_dict)
 
+    return dict_list
+
 
 def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict = None):
     """
@@ -155,28 +163,23 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
         else:
             return None
 
-    virtual_machine = dict()  # keeping track of interstate values
-    for key in default_virtual_machine:
-        if key in initial_machine_setup:
-            virtual_machine[key] = default_virtual_machine[key]
+    state_list: List[state] = list()
 
-    # generating first initial state from default and setup values
-    position = (
-        state.position(0, 0, 0, 0)
-        if virtual_machine["initial_position"] is None
-        else state.position(*virtual_machine["initial_position"])
-    )
-    p_settings = state.p_settings(
-        speed=virtual_machine["p_vel"],
-        p_acc=virtual_machine["p_acc"],
-        jerk=virtual_machine["p_acc"],
-        Vx=virtual_machine["Vx"],
-        Vy=virtual_machine["Vy"],
-        Vz=virtual_machine["Vz"],
-        Ve=virtual_machine["Ve"],
-        absMode=virtual_machine["absolute_extrusion"],
-    )
-    initial_state = state(state_position=position, state_p_settings=p_settings)
+    virtual_machine = {
+        "X": 0,  # machine coordinates
+        "Y": 0,
+        "Z": 0,
+        "E": 0,
+        "_X": 0,  # offset through nulling
+        "_Y": 0,
+        "_Z": 0,
+        "_E": 0,
+    }  # keeping track of interstate values
+    for key in default_virtual_machine:
+        if initial_machine_setup is not None and key in initial_machine_setup:
+            virtual_machine[key] = initial_machine_setup[key]
+        else:
+            virtual_machine[key] = default_virtual_machine[key]
 
     # GCode functionality:
     for line_dict in line_dict_list:
@@ -198,14 +201,75 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
         if "G21" in line_dict:
             virtual_machine["units"] = "mm"
 
-        new_state = state()  # create new state
+        # position & velocity
+        pos_keys = ["X", "Y", "Z"]
+        movement_commands = ["G0", "G1"]
+        for command in movement_commands:  # treat G0 and G1 the same
+            if command in line_dict:
+                # look for xyz movement commands and apply abs/rel
+                for key in pos_keys:
+                    if key in line_dict[command]:
+                        if virtual_machine["absolute_position"] is True:
+                            virtual_machine[key] = line_dict[command][key]
+                        elif virtual_machine["absolute_position"] is False:  # redundant
+                            virtual_machine[key] = virtual_machine[key] + line_dict[command][key]
+
+                # look for extrusion commands and apply abs/rel
+                if "E" in line_dict[command]:
+                    if virtual_machine["absolute_extrusion"] is True:
+                        virtual_machine["E"] = line_dict[command]["E"]
+                    if virtual_machine["absolute_extrusion"] is False:  # redundant
+                        virtual_machine["E"] = virtual_machine["E"] + line_dict[command]["E"]
+                if "F" in line_dict[command]:
+                    virtual_machine["p_vel"] = line_dict[command]["F"] / 60
+
+        # set position
+        if "G92" in line_dict:
+            for key in line_dict["G92"]:
+                if key in commands["G92"]:
+                    virtual_machine["_" + key] = virtual_machine[key] + line_dict["G92"][key]
+                    virtual_machine[key] = line_dict["G92"][key]
+
+        # set acceleration
+        if "M204" in line_dict and "P" in line_dict["M204"]:
+            virtual_machine["p_acc"] = line_dict["M204"]["P"]
+
+        # set max feedrate
+        if "M203" in line_dict:
+            for key in line_dict["M203"]:
+                if key in commands["M203"]:
+                    virtual_machine["v" + key] = line_dict["M203"][key]
+
+        state_position = state.position(
+            x=virtual_machine["X"] + virtual_machine["_X"],
+            y=virtual_machine["Y"] + virtual_machine["_Y"],
+            z=virtual_machine["Z"] + virtual_machine["_Z"],
+            e=virtual_machine["E"] + virtual_machine["_E"],
+        )
+
+        p_settings = state.p_settings(
+            speed=virtual_machine["p_vel"],
+            p_acc=virtual_machine["p_acc"],
+            jerk=virtual_machine["jerk"],
+            Vx=virtual_machine["vX"],
+            Vy=virtual_machine["vY"],
+            Vz=virtual_machine["vZ"],
+            Ve=virtual_machine["vE"],
+            absMode=virtual_machine["absolute_extrusion"],
+        )
+        new_state = state(state_position=state_position, state_p_settings=p_settings)  # create new state
 
         # parse comment
         new_state.comment = dict_extract(";", line_dict=line_dict)
+        new_state.line_nmbr = line_dict["line_number"]
 
-        #
+        # populate state list
+        if len(state_list) > 0:
+            new_state.prev_state = state_list[-1]
+            state_list[-1].next_state = new_state
 
-    return new_state
+        state_list.append(new_state)
+    return state_list
 
 
 def state_generator(filename: str, initial_machine_setup: dict = None):
