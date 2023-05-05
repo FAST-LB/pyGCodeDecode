@@ -464,6 +464,12 @@ class simulate:
             return color_plot
         plt.close()
 
+    def plot_3d_mayavi(
+        self,
+        filename="trajectory_3D.png",
+    ):
+        import mayavi.mlab
+
     def plot_vel(
         self,
         axis=("x", "y", "z", "e"),
@@ -593,21 +599,22 @@ class simulate:
             Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end} seconds."""
         )
 
+    def refresh(self, new_state_list: List[state] = None):
+        if new_state_list is not None:
+            self.states = new_state_list
+        
+        self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states)
+        self.trajectory_self_correct()
+
     def __init__(self, filename, printer, initial_position=None):
         self.last_index = None  # used to optimize search in segment list
         self.filename = filename
         # SET INITIAL SETTINGS
         # self.check_printer(printer=printer)
 
-    
-        # self.states = read_GCODE_from_file(
-        #     filename=filename, initial_p_settings=initial_p_settings, initial_position=initial_position
-        # )
+        self.states: List[state] = state_generator(filename=filename, initial_machine_setup=printer)
 
-        self.states = state_generator(filename=filename, initial_machine_setup=printer)
-        # print(self.states)
-
-        self.blocklist = generate_planner_blocks(states=self.states)
-
+        self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states)
         self.trajectory_self_correct()
+
         self.print_summary(filename=filename)
