@@ -7,7 +7,7 @@ lint:
         - black --check .
         - flake8 .
 
-build:
+test:
     stage: test
     image: "python:3.8"
     script:
