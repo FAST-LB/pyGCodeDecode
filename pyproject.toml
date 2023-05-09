@@ -1,2 +1,51 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyGCodeDecode"
+version = "0.1.0"
+authors = [
+    {name = "Jonathan Knirsch", email = "jonathan.knirsch@student.kit.edu"},
+    {name = "Felix Frölich", email = "felix.froelich@kit.edu"},
+    {name = "Lukas Hof", email = "lukas.hof@kit.edu"},]
+description = "Generate time dependent boundary conditions from a .gcode file"
+readme = "README.md"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Scientific/Engineering",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "typing",
+]
+
+[project.optional-dependencies]
+DEVELOPER = [
+    "flake8",
+    "isort",
+    "black",
+    "black[jupyter]",
+    "flake8-docstrings",
+]
+
+[project.urls]
+Code = "https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode"
+Issues = "https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/issues"
+
 [tool.black]
 line-length = 120
+
+[tool.isort]
+profile = "black"
