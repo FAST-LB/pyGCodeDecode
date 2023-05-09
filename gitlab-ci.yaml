@@ -1,0 +1,13 @@
+lint:
+    stage: test
+    image: "python:3.8"
+    script:
+        - pip install flake8 flake8-docstrings black
+        - black --check .
+        - flake8 .
+
+build:
+    stage: test
+    image: "python:3.8"
+    script:
+        - pip install .
