@@ -32,7 +32,7 @@ default_virtual_machine = {
     # default settings
     "p_vel": 35,
     "t_vel": 35,
-    "p_acc": 1000,
+    "p_acc": 200,
     "jerk": 10,
     # axis max speeds
     "vX": 180,

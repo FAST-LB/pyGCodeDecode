@@ -7,8 +7,8 @@ fictional_printer = {
     "nozzle_diam": 0.4,
     "filament_diam": 1.75,
     # default settings
-    "velocity": 35,
-    "acceleration": 20,
+    "p_vel": 35,
+    "p_acc": 200,
     "jerk": 2,
     # axis max speeds
     "vX": 60,
