@@ -16,6 +16,8 @@ commands = {
     "G90": None,  # Absolute Positioning
     "G91": None,  # Relative Positioning
     "G92": {"E": None, "X": None, "Y": None, "Z": None},  # Set Position
+    "G10": {"S": None},
+    "G11": None,
     ";": None,  # Comment
 }
 

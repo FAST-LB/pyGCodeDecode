@@ -3,7 +3,7 @@ import numpy as np
 from typing import List
 from .planner_block import planner_block
 from .state import state
-from .state_generator import read_GCODE_from_file, state_generator
+from .state_generator import state_generator
 from .utils import segment, velocity
 
 
@@ -464,11 +464,63 @@ class simulate:
             return color_plot
         plt.close()
 
-    def plot_3d_mayavi(
-        self,
-        filename="trajectory_3D.png",
-    ):
-        import mayavi.mlab
+    def plot_3d_mayavi(self, colvar_spatial_resolution: float = 0.5):
+        import mayavi.mlab as ma
+
+        def interp(x, y, z, colvar, spatial_resolution=1):
+            segm_length = np.linalg.norm([np.ediff1d(x), np.ediff1d(y), np.ediff1d(z)], axis=0)
+            segm_colvar_delt = np.greater(np.abs(np.ediff1d(colvar)), 0)
+            segm_interpol = np.r_[
+                0, np.where(segm_colvar_delt, np.ceil(segm_length / spatial_resolution) + 1, 1)
+            ]  # get nmbr of segments for required resolution, dont interpolate if there is no change
+            points = np.array([x, y, z, colvar]).T
+            points = np.c_[points, segm_interpol]
+
+            # generate intermediate points with set resolution
+            old_point = None
+            interpolated = np.zeros((1, 4))
+            for point in points:
+                if old_point is not None:
+                    steps = np.linspace(0, 1, int(point[4]), endpoint=True)
+                    x_i = np.interp(steps, [0, 1], [old_point[0], point[0]])
+                    y_i = np.interp(steps, [0, 1], [old_point[1], point[1]])
+                    z_i = np.interp(steps, [0, 1], [old_point[2], point[2]])
+                    colvar_i = np.interp(steps, [0, 1], [old_point[3], point[3]])
+                    interpolated = np.r_[interpolated, np.array([x_i, y_i, z_i, colvar_i]).T]
+                old_point = point
+            interpolated = np.delete(interpolated, 0, 0)
+
+            return interpolated
+
+        # get all data for plots
+        segments = unpack_blocklist(blocklist=self.blocklist)
+        x, y, z, vel = [], [], [], []
+        x.append(segments[0].pos_begin.get_vec()[0])
+        y.append(segments[0].pos_begin.get_vec()[1])
+        z.append(segments[0].pos_begin.get_vec()[2])
+        vel.append(segments[0].vel_begin.get_abs())
+
+        cntr = 0
+        for segm in segments:
+            cntr += 1
+            update_progress(cntr / len(segments), name="3D Plot")
+            x.append(segm.pos_end.get_vec()[0])
+            y.append(segm.pos_end.get_vec()[1])
+            z.append(segm.pos_end.get_vec()[2])
+            vel.append(segm.vel_end.get_abs())
+
+        # create line segments
+        # interpolated = interp(x, y, z, vel, colvar_spatial_resolution)
+
+        # points = interpolated[:, :3].reshape(-1, 1, 3)  # get points and reshape
+        # c = interpolated[:, 3:].reshape(-1)  # color variable
+        # print(points)
+        # ma.plot3d(interpolated[0], interpolated[1], interpolated[2], interpolated[3], tube_radius=0.025)
+        print = ma.plot3d(x, y, z, vel, tube_radius=0.2)
+        ma.colorbar(object=print)
+        ma.show()
+
+        # lsegments = np.concatenate([points[:-1], points[1:]], axis=1)  # create point pairs
 
     def plot_vel(
         self,
@@ -602,7 +654,7 @@ class simulate:
     def refresh(self, new_state_list: List[state] = None):
         if new_state_list is not None:
             self.states = new_state_list
-        
+
         self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states)
         self.trajectory_self_correct()
 

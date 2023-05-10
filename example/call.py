@@ -1,5 +1,6 @@
 from pyGCodeDecode import gcode_interpreter
-import time as t
+
+# import time as t
 # Fictional Printer Preset
 fictional_printer = {
     # general properties
@@ -43,15 +44,17 @@ initial_position = None
 # )
 
 new = gcode_interpreter.simulate(
-    filename=r"example\test.gcode", printer=fictional_printer, initial_position=initial_position
+    filename=r"example\zugproben\UM2_dogbone_direkt.gcode", printer=fictional_printer, initial_position=initial_position
 )
 
 # new.plot_2d_position(show=True,colvar_spatial_resolution=0.1,filename=False)
 # new.plot_vel(show=True,filename=False)
 # time = t.time()
 
-new.plot_3d_position(filename="3DPlot.png", colvar_spatial_resolution=0.1, show=True)
-print(new.states)
+new.plot_3d_mayavi()
+
+# new.plot_3d_position(filename="3DPlot.png", colvar_spatial_resolution=0.1, show=True)
+# print(new.states)
 
 # print(f"Display took: {t.time()-time}s")
 # snippet.gcode used with 1018 lines of GCODE--> 3D Plot saved as  3DPlot.png, Display took: 18.40489935874939s
