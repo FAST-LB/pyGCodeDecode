@@ -22,8 +22,8 @@ anisoprint_A4 = {
     "nozzle_diam": 0.4,
     "filament_diam": 1.75,
     # default settings
-    "velocity": 35,
-    "acceleration": 1000,
+    "p_vel": 35,
+    "p_acc": 1000,
     "jerk": 10,
     # axis max speeds
     "vX": 180,
@@ -44,8 +44,10 @@ initial_position = None
 # )
 
 new = gcode_interpreter.simulate(
-    filename=r"example\zugproben\UM2_dogbone_direkt.gcode", printer=fictional_printer, initial_position=initial_position
+    filename=r"example\zugproben\platte.gcode", printer=anisoprint_A4, initial_position=initial_position
 )
+# example\zugproben\dogbone_direkt_90_layer.gcode
+
 
 # new.plot_2d_position(show=True,colvar_spatial_resolution=0.1,filename=False)
 # new.plot_vel(show=True,filename=False)

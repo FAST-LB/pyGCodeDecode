@@ -463,8 +463,15 @@ class simulate:
             return color_plot
         plt.close()
 
-    def plot_3d_mayavi(self, colvar_spatial_resolution: float = 0.5):
+    def plot_3d_mayavi(
+        self,
+    ):
         import mayavi.mlab as ma
+        import matplotlib
+        import matplotlib.pyplot as plt
+
+        matplotlib.use("Qt5Agg")
+        matplotlib.interactive(True)
 
         # get all data for plots
         segments = unpack_blocklist(blocklist=self.blocklist)
@@ -475,7 +482,7 @@ class simulate:
         e.append(segments[0].pos_begin.get_vec(withExtrusion=True)[3])
         vel.append(segments[0].vel_begin.get_abs())
 
-        figure = ma.figure(figure="Velocity", bgcolor=(0.0, 0.0, 0.0))
+        figure = ma.figure(figure="Velocity", bgcolor=(1.0, 1.0, 1.0), size=(3000, 3000))
 
         cntr = 0
         extrude = False
@@ -494,13 +501,15 @@ class simulate:
                 z = [z[-2], z[-1]]
                 e = [e[-2], e[-1]]
                 vel = [vel[-2], vel[-1]]
-            if len(e) >= 2 and (e[-1] <= e[-2] or n == len(segments)) and extrude:
+            if len(e) >= 2 and (e[-1] <= e[-2] or n == len(segments) - 1) and extrude:
                 x = x[:-1]
                 y = y[:-1]
                 z = z[:-1]
                 e = e[:-1]
-                vel  = vel[:-1]
-                plot = ma.plot3d(x, y, z, vel, tube_radius=0.2, figure=figure, vmin=0, vmax=35)  # vmax
+                vel = vel[:-1]
+                plot = ma.plot3d(
+                    x, y, z, vel, tube_radius=0.2, figure=figure, vmin=0, vmax=35, colormap="viridis"
+                )  # vmax
                 x = []
                 y = []
                 z = []
@@ -514,8 +523,18 @@ class simulate:
                 extrude = False
 
         # show only extrusion
+        ma.view(azimuth=0, elevation=180, distance="auto", focalpoint="auto")
+        figure.scene.parallel_projection = True
+        ma.savefig("test.png", size=(2000, 2000), magnification=6)
+        img = ma.screenshot()
 
-        ma.colorbar(object=plot)
+        fig, ax = plt.subplots()
+
+        im = ax.imshow(img, cmap="viridis", vmin=0, vmax=35)
+        cbar = fig.colorbar(im)
+        plt.show()
+
+        # ma.colorbar(object=plot)
         ma.show()
 
         # lsegments = np.concatenate([points[:-1], points[1:]], axis=1)  # create point pairs

@@ -29,7 +29,8 @@ dependencies = [
     "numpy",
     "matplotlib",
     "typing",
-    "mayavi"
+    "mayavi",
+    "PyQt5"
 ]
 
 [project.optional-dependencies]
