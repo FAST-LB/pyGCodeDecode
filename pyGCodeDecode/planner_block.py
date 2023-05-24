@@ -1,7 +1,10 @@
+# -*- coding: utf-8 -*-
 from typing import List
-from .utils import velocity, segment
-from .state import state
+
 import numpy as np
+
+from .state import segment, state
+from .utils import velocity
 
 
 class planner_block:
@@ -35,7 +38,7 @@ class planner_block:
         JD_maxAngle = 180 - 18
         vel_0_vec = vel_0.get_vec()
         vel_1_vec = vel_next.get_vec()
-        if vel_0.get_abs() == 0 or vel_next.get_abs() == 0:
+        if vel_0.get_norm() == 0 or vel_next.get_norm() == 0:
             return 0
         # calculate junction angle
         JD_cos_theta = np.dot(-np.asarray(vel_0_vec), np.asarray(vel_1_vec)) / (
@@ -53,11 +56,11 @@ class planner_block:
                 JD_Radius = JD_delta * JD_sin_theta_half / (1 - JD_sin_theta_half)
                 JD_velocity_scalar = np.sqrt(JD_acc * JD_Radius)
 
-                return JD_velocity_scalar if JD_velocity_scalar < vel_0.get_abs() else vel_0.get_abs()
+                return JD_velocity_scalar if JD_velocity_scalar < vel_0.get_norm() else vel_0.get_norm()
             else:
                 return 0  # angle smaller than min angle, stop completely
         else:
-            return vel_0.get_abs()  # angle larger than max angle, full speed pass
+            return vel_0.get_norm()  # angle larger than max angle, full speed pass
 
     def connect_state(self, state_0: state, state_next: state):
         """
@@ -86,7 +89,7 @@ class planner_block:
             travel_direction = travel_direction / abs(e_len)
         else:  # no move at all
             travel_direction = np.asarray([0, 0, 0, 0])
-        speed = velocity.convert_vector_to_velocity(state_next.state_p_settings.speed * travel_direction)
+        speed = velocity(state_next.state_p_settings.speed * travel_direction)
         return speed
 
     def move_maker2(self, v_end):
@@ -119,7 +122,7 @@ class planner_block:
             t1 = t0 + (v_target - v_begin) / acc
             pos_begin = previous_segment.pos_end
             pos_end = pos_begin + self.direction * travel_ramp_up
-            vel_begin = velocity.convert_vector_to_velocity(self.direction * v_begin)
+            vel_begin = velocity(self.direction * v_begin)
             vel_end = vel_const
             segment_A = segment(
                 t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
@@ -128,7 +131,7 @@ class planner_block:
                 self.segments.append(segment_A)
             # B --
             travel_const = distance - travel_ramp_down - travel_ramp_up
-            v_const = vel_const.get_abs(withExtrusion=extrusion_only)  # abs of vel const
+            v_const = vel_const.get_norm(withExtrusion=extrusion_only)  # abs of vel const
             t2 = t1 + travel_const / v_const  # time it takes to travel the remaining distance
             pos_begin = segment_A.pos_end
             pos_end = pos_begin + self.direction * travel_const
@@ -145,7 +148,7 @@ class planner_block:
             pos_begin = segment_B.pos_end
             pos_end = pos_begin + self.direction * travel_ramp_down
             vel_begin = segment_B.vel_end
-            vel_end = velocity.convert_vector_to_velocity(self.direction * v_end)
+            vel_end = velocity(self.direction * v_end)
             segment_C = segment(
                 t_begin=t2, t_end=t3, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
             )
@@ -161,8 +164,8 @@ class planner_block:
             pos_begin = previous_segment.pos_end
             travel_ramp_up = (v_peak_tri - v_begin) * (v_begin + v_peak_tri) / (2 * acc)
             pos_end = pos_begin + self.direction * travel_ramp_up
-            vel_begin = velocity.convert_vector_to_velocity(self.direction * v_begin)
-            vel_end = velocity.convert_vector_to_velocity(self.direction * v_peak_tri)
+            vel_begin = velocity(self.direction * v_begin)
+            vel_end = velocity(self.direction * v_peak_tri)
             segment_A = segment(
                 t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
             )
@@ -175,7 +178,7 @@ class planner_block:
             travel_ramp_down = (v_peak_tri - v_end) * (v_end + v_peak_tri) / (2 * acc)
             pos_end = pos_begin + self.direction * travel_ramp_down
             vel_begin = segment_A.vel_end
-            vel_end = velocity.convert_vector_to_velocity(self.direction * v_end)
+            vel_end = velocity(self.direction * v_end)
             segment_C = segment(
                 t_begin=t2, t_end=t3, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
             )
@@ -191,8 +194,8 @@ class planner_block:
             pos_begin = previous_segment.pos_end
             travel_ramp_up = (v_end_sing - v_begin) * (v_begin + v_end_sing) / (2 * acc)
             pos_end = pos_begin + self.direction * travel_ramp_up
-            vel_begin = velocity.convert_vector_to_velocity(self.direction * v_begin)
-            vel_end = velocity.convert_vector_to_velocity(self.direction * v_end_sing)
+            vel_begin = velocity(self.direction * v_begin)
+            vel_end = velocity(self.direction * v_end_sing)
             segment_A = segment(
                 t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
             )
@@ -208,8 +211,8 @@ class planner_block:
             pos_begin = previous_segment.pos_end
             travel_ramp_up = (v_begin_sing - v_end) * (v_begin_sing + v_end) / (2 * acc)
             pos_end = pos_begin + self.direction * travel_ramp_up
-            vel_begin = velocity.convert_vector_to_velocity(self.direction * v_begin_sing)
-            vel_end = velocity.convert_vector_to_velocity(self.direction * v_end)
+            vel_begin = velocity(self.direction * v_begin_sing)
+            vel_end = velocity(self.direction * v_end)
             segment_C = segment(
                 t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
             )
@@ -239,12 +242,12 @@ class planner_block:
         # convert Velocities (vel: Object) to travel speeds (v: mm/s)
         acc = settings.p_acc
         v_target = settings.speed
-        v_begin = previous_segment.vel_end.get_abs()
+        v_begin = previous_segment.vel_end.get_norm()
 
         # calculate min travel for trapezoidal shape, if sum larger than distance, regular movement pattern is possible
         travel_ramp_up = (v_target - v_begin) * (v_begin + v_target) / (2 * acc)
         travel_ramp_down = (v_end - v_target) * (v_end + v_target) / (2 * -acc)
-        vel_const = velocity.convert_vector_to_velocity(self.direction * v_target)
+        vel_const = velocity(self.direction * v_target)
         v_peak_tri = np.sqrt(acc * distance + v_begin * v_begin / 2 + v_end * v_end / 2)
 
         if v_begin > v_end:
@@ -270,10 +273,12 @@ class planner_block:
         # Check interface points
         flag_correct = False
         if self.next_blck is not None:
-            same_vel = self.get_segments()[-1].vel_end.get_abs() == self.next_blck.get_segments()[0].vel_begin.get_abs()
+            same_vel = (
+                self.get_segments()[-1].vel_end.get_norm() == self.next_blck.get_segments()[0].vel_begin.get_norm()
+            )
             if not same_vel:
                 error_vel = (
-                    self.get_segments()[-1].vel_end.get_abs() - self.next_blck.get_segments()[0].vel_begin.get_abs()
+                    self.get_segments()[-1].vel_end.get_norm() - self.next_blck.get_segments()[0].vel_begin.get_norm()
                 )
                 if error_vel > tolerance:
                     # print("Velocity error: ", error_vel)
@@ -281,7 +286,7 @@ class planner_block:
 
         # Correct error by recalculating velocitys with new vel_end
         if self.next_blck is not None and flag_correct:
-            vel_end = self.next_blck.get_segments()[0].vel_begin.get_abs()
+            vel_end = self.next_blck.get_segments()[0].vel_begin.get_norm()
             self.move_maker2(v_end=vel_end)
             if self.blcktype == "single":
                 self.prev_blck.self_correction()  # forward correction?

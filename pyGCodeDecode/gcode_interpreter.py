@@ -1,10 +1,13 @@
+# -*- coding: utf-8 -*-
 """WIP gcode Reader"""
-import numpy as np
 from typing import List
+
+import numpy as np
+
 from .planner_block import planner_block
-from .state import state
+from .state import segment, state
 from .state_generator import state_generator
-from .utils import segment, velocity
+from .utils import velocity
 
 
 def update_progress(progress, name="Percent"):
@@ -162,8 +165,8 @@ class simulate:
         show=False,
     ):
         import matplotlib.pyplot as plt
-        from matplotlib.collections import LineCollection
         from matplotlib import cm
+        from matplotlib.collections import LineCollection
 
         colvar_label = {"Velocity": "Velocity in mm/s", "Acceleration": "Acceleration in mm/s^2"}
 
@@ -197,7 +200,7 @@ class simulate:
             x, y, cvar = [], [], []
             x.append(segments[0].pos_begin.get_vec()[0])
             y.append(segments[0].pos_begin.get_vec()[1])
-            cvar.append(segments[0].vel_begin.get_abs())
+            cvar.append(segments[0].vel_begin.get_norm())
 
             cntr = 0
             for segm in segments:
@@ -205,7 +208,7 @@ class simulate:
                 update_progress(cntr / len(segments), name="2D Plot Lines")
                 x.append(segm.pos_end.get_vec()[0])
                 y.append(segm.pos_end.get_vec()[1])
-                cvar.append(segm.vel_end.get_abs())
+                cvar.append(segm.vel_end.get_norm())
 
             # interpolate values for smooth coloring
             interpolated = interp_2D(x, y, cvar, spatial_resolution=colvar_spatial_resolution)
@@ -334,7 +337,7 @@ class simulate:
             x.append(segments[0].pos_begin.get_vec()[0])
             y.append(segments[0].pos_begin.get_vec()[1])
             z.append(segments[0].pos_begin.get_vec()[2])
-            vel.append(segments[0].vel_begin.get_abs())
+            vel.append(segments[0].vel_begin.get_norm())
 
             cntr = 0
             for segm in segments:
@@ -343,7 +346,7 @@ class simulate:
                 x.append(segm.pos_end.get_vec()[0])
                 y.append(segm.pos_end.get_vec()[1])
                 z.append(segm.pos_end.get_vec()[2])
-                vel.append(segm.vel_end.get_abs())
+                vel.append(segm.vel_end.get_norm())
 
             # create scalar mappable for colormap
             sm = plt.cm.ScalarMappable(cmap=cm.jet, norm=plt.Normalize(vmin=np.min(vel), vmax=np.max(vel)))
@@ -374,8 +377,8 @@ class simulate:
     ):
         import matplotlib.pyplot as plt
         from matplotlib import cm
-        from mpl_toolkits.mplot3d.art3d import Line3DCollection
         from mpl_toolkits.mplot3d import Axes3D
+        from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
         colvar_label = {"Velocity": "Velocity in mm/s", "Acceleration": "Acceleration in mm/s^2"}
 
@@ -421,7 +424,7 @@ class simulate:
             x.append(segments[0].pos_begin.get_vec()[0])
             y.append(segments[0].pos_begin.get_vec()[1])
             z.append(segments[0].pos_begin.get_vec()[2])
-            vel.append(segments[0].vel_begin.get_abs())
+            vel.append(segments[0].vel_begin.get_norm())
 
             cntr = 0
             for segm in segments:
@@ -430,7 +433,7 @@ class simulate:
                 x.append(segm.pos_end.get_vec()[0])
                 y.append(segm.pos_end.get_vec()[1])
                 z.append(segm.pos_end.get_vec()[2])
-                vel.append(segm.vel_end.get_abs())
+                vel.append(segm.vel_end.get_norm())
 
             # create scalar mappable for colormap
             sm = plt.cm.ScalarMappable(cmap=cm.jet, norm=plt.Normalize(vmin=np.min(vel), vmax=np.max(vel)))
@@ -466,9 +469,9 @@ class simulate:
     def plot_3d_mayavi(
         self,
     ):
-        import mayavi.mlab as ma
         import matplotlib
         import matplotlib.pyplot as plt
+        import mayavi.mlab as ma
 
         matplotlib.use("Qt5Agg")
         matplotlib.interactive(True)
@@ -480,7 +483,7 @@ class simulate:
         y.append(segments[0].pos_begin.get_vec()[1])
         z.append(segments[0].pos_begin.get_vec()[2])
         e.append(segments[0].pos_begin.get_vec(withExtrusion=True)[3])
-        vel.append(segments[0].vel_begin.get_abs())
+        vel.append(segments[0].vel_begin.get_norm())
 
         figure = ma.figure(figure="Velocity", bgcolor=(1.0, 1.0, 1.0), size=(3000, 3000))
 
@@ -493,7 +496,7 @@ class simulate:
             y.append(segm.pos_end.get_vec()[1])
             z.append(segm.pos_end.get_vec()[2])
             e.append(segm.pos_end.get_vec(withExtrusion=True)[3])
-            vel.append(segm.vel_end.get_abs())
+            vel.append(segm.vel_end.get_norm())
             if len(e) >= 2 and e[-1] > e[-2] and extrude is False:
                 extrude = True
                 x = [x[-2], x[-1]]

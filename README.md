@@ -44,7 +44,7 @@ Verify the installation via `pip list` and look for `pyGCodeDecode`.
 
         abq<version> python -m pip install .
 
-3. Verify the package installation via `abaqus python -m pip list` and look for `pyGCodeDecode`. 
+3. Verify the package installation via `abaqus python -m pip list` and look for `pyGCodeDecode`.
 
 # Supported GCode commands
 fully supported:

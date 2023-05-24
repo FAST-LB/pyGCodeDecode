@@ -3,141 +3,10 @@ from typing import List
 
 import numpy as np
 
+from .utils import position, velocity
+
 
 class state:
-    class position:
-        """The Position stores 4D spatial data in x,y,z,e
-        Supports
-            str, add (pos+pos, pos+(list 1x4), pos+(numpy.ndarray 1x4))
-        Additional methods
-            is_travel:      returns True if there is a travel move between self and another given Position
-            is_extruding:   returns True if there is an extrusion between self and another given Position
-            get_vec:        returns Position as a 1x3 or 1x4 list [x,y,z(,e)], optional argument withExtrusion: default = False
-            get_t_distance: returns the absolute travel distance between self and another given Position (3D)
-        Class method
-            new:            returns an updated Position from given old Position and optional changing positional values
-            convert_vector_to_position: returns a Position object with a 1x4 list as input [Vx,Vy,Vz,Ve]
-        """
-
-        def __init__(self, x, y, z, e):
-            self.x = x
-            self.y = y
-            self.z = z
-            self.e = e
-
-        def __str__(self) -> str:
-            return (
-                ">>> Position\nx: "
-                + str(self.x)
-                + "\ny: "
-                + str(self.y)
-                + "\nz: "
-                + str(self.z)
-                + "\ne: "
-                + str(self.e)
-                + "\n"
-            )
-
-        def __add__(self, other: "state.position") -> "state.position":
-            if isinstance(other, state.position):
-                x = self.x + other.x
-                y = self.y + other.y
-                z = self.z + other.z
-                e = self.e + other.e
-                return state.position(x=x, y=y, z=z, e=e)
-            elif isinstance(other, np.ndarray) and len(other) == 4:
-                x = self.x + other[0]
-                y = self.y + other[1]
-                z = self.z + other[2]
-                e = self.e + other[3]
-                return state.position(x=x, y=y, z=z, e=e)
-            elif isinstance(other, list) and len(other) == 4:
-                x = self.x + other[0]
-                y = self.y + other[1]
-                z = self.z + other[2]
-                e = self.e + other[3]
-                return state.position(x=x, y=y, z=z, e=e)
-            else:
-                raise ValueError(
-                    "Addition with __add__ is only possible with other Position, 1x4 'list' or 1x4 'numpy.ndarray'"
-                )
-
-        def __sub__(self, other: "state.position") -> "state.position":
-            if isinstance(other, state.position):
-                x = self.x - other.x
-                y = self.y - other.y
-                z = self.z - other.z
-                e = self.e - other.e
-                return state.position(x=x, y=y, z=z, e=e)
-            elif isinstance(other, np.ndarray) and len(other) == 4:
-                x = self.x - other[0]
-                y = self.y - other[1]
-                z = self.z - other[2]
-                e = self.e - other[3]
-                return state.position(x=x, y=y, z=z, e=e)
-            elif isinstance(other, list) and len(other) == 4:
-                x = self.x - other[0]
-                y = self.y - other[1]
-                z = self.z - other[2]
-                e = self.e - other[3]
-                return state.position(x=x, y=y, z=z, e=e)
-            else:
-                raise ValueError(
-                    "Subtraction with __sub__ is only possible with other Position, 1x4 'list' or 1x4 'numpy.ndarray'"
-                )
-
-        def __eq__(self, other: "state.position"):
-            if type(other) == type(self):
-                if self.x == other.x and self.y == other.y and self.z == other.z and self.e == other.e:
-                    return True
-            else:
-                return False
-
-        def is_travel(self, old_position: "state.position") -> bool:
-            if abs(old_position.x - self.x) + abs(old_position.y - self.y) + abs(old_position.z - self.z) > 0:
-                return True
-            else:
-                return False
-
-        def is_extruding(self, old_position: "state.position") -> bool:
-            if abs(old_position.e - self.e) > 0:
-                return True
-            else:
-                return False
-
-        def get_vec(self, withExtrusion=False):
-            if withExtrusion:
-                return [self.x, self.y, self.z, self.e]
-            else:
-                return [self.x, self.y, self.z]
-
-        def get_t_distance(self, old_position: "state.position" = None, withExtrusion=False) -> float:
-            if old_position is None:
-                old_position = state.position(0, 0, 0, 0)
-            return np.linalg.norm(
-                np.subtract(
-                    self.get_vec(withExtrusion=withExtrusion), old_position.get_vec(withExtrusion=withExtrusion)
-                )
-            )
-
-        @classmethod
-        def new(cls, old_position, x: float = None, y: float = None, z: float = None, e: float = None, absMode=True):
-            if x is None:
-                x = old_position.x
-            if y is None:
-                y = old_position.y
-            if z is None:
-                z = old_position.z
-            if not absMode and e is not None:  # if rel mode, extrusion needs to be summed
-                e = old_position.e + e
-            if e is None:
-                e = old_position.e
-            return cls(x, y, z, e)
-
-        @classmethod
-        def convert_vector_to_position(cls, vector: List[float]):
-            return cls(x=vector[0], y=vector[1], z=vector[2], e=vector[3])
-
     class p_settings:
         """Store Printing Settings
         Supports
@@ -282,3 +151,89 @@ class state:
         if p_settings is None:
             p_settings = old_state.p_settings
         return cls(state_position=position, state_p_settings=p_settings)
+
+
+class segment:
+    """stores Segment data for linear 4D Velocity function segment, contains: time,position,velocity
+    Supports
+        str
+    Additional methods
+        move_segment_time:      moves Segment in time by a specified interval
+        get_velocity:           returns the calculated Velocity for all axis at a given point in time
+        get_position:           returns the calculated Position for all axis at a given point in time
+    Class method
+        create_initial:         returns the artificial initial segment where everything is at standstill, intervall length = 0
+        self_check:             returns True if all self checks have been successfull
+    """
+
+    def __init__(
+        self,
+        t_begin: float,
+        t_end: float,
+        pos_begin: position,
+        vel_begin: velocity,
+        pos_end: position = None,
+        vel_end: velocity = None,
+    ):
+        self.t_begin = t_begin
+        self.t_end = t_end
+        self.pos_begin = pos_begin
+        self.pos_end = pos_end
+        self.vel_begin = vel_begin
+        self.vel_end = vel_end
+        self.self_check()
+
+    def __str__(self) -> str:
+        # distance = self.pos_end.get_t_distance(old_position=self.pos_begin) if not self.pos_end is None else 0
+        # return f"Segment length: {distance} mm from {self.t_begin}s to {self.t_end}s\nv_begin: {self.vel_begin}\tv_end: {self.vel_end}\n"
+        return f"\nSegment from: \n{self.pos_begin} to \n{self.pos_end} Self check: {self.self_check()}.\n"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def move_segment_time(self, delta_t: float):
+        self.t_begin = self.t_begin + delta_t
+        self.t_end = self.t_end + delta_t
+
+    def get_velocity(self, t):
+        if t < self.t_begin or t > self.t_end:
+            raise ValueError("Segment not defined for this point in time.")
+        else:
+            # linear interpolation of velocity in Segment
+            delt_vel = self.vel_end - self.vel_begin
+            delt_t = self.t_end - self.t_begin
+            slope = delt_vel / delt_t if delt_t > 0 else velocity(0, 0, 0, 0)
+            current_vel = self.vel_begin + slope * (t - self.t_begin)
+            return current_vel
+
+    def get_position(self, t):
+        if t < self.t_begin or t > self.t_end:
+            raise ValueError("Segment not defined for this point in time.")
+        else:
+            current_vel = self.get_velocity(t=t)
+            position = self.pos_begin + ((self.vel_begin + current_vel) * (t - self.t_begin) / 2.0).get_vec(
+                withExtrusion=True
+            )
+            return position
+
+    def self_check(self):  # ,tolerance=float("e-13"), state:state=None):
+        # WIP, check for self consistency
+        # > travel distance
+        position = self.pos_begin + ((self.vel_begin + self.vel_end) * (self.t_end - self.t_begin) / 2.0).get_vec(
+            withExtrusion=True
+        )
+        pos_check = self.pos_end == position
+        if pos_check:
+            return pos_check
+        else:
+            error_distance = np.linalg.norm(np.asarray(self.pos_end.get_vec()) - np.asarray(position.get_vec()))
+            return "Error distance: " + str(error_distance)
+        # > max acceleration
+        # > max velocity
+        # ..more?
+
+    @classmethod
+    def create_initial(cls, initial_position: position = None):
+        velocity_0 = velocity(0, 0, 0, 0)
+        pos_0 = position(x=0, y=0, z=0, e=0) if initial_position is None else initial_position
+        return cls(t_begin=0, t_end=0, pos_begin=pos_0, vel_begin=velocity_0, pos_end=pos_0, vel_end=velocity_0)

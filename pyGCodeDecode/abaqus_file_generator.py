@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pyGCodeDecode import gcode_interpreter as gi
 
 """
