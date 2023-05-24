@@ -3,7 +3,7 @@
 Utilitys.
 
 Utils for the GCode Reader contains:
-- Vector 4D
+- vector 4D
     - velocity
     - position
 """
@@ -12,12 +12,13 @@ import numpy as np
 
 
 class vector_4D:
-    """The vector_4D class stores 4D Vector in x,y,z,e.
+    """The vector_4D class stores 4D vector in x,y,z,e.
 
     Supports
         str, add, sub, mul (scalar), truediv (scalar),eq
     Additional methods
-        get_vec:        returns Position as a 1x3 or 1x4 list [x,y,z(,e)], optional argument withExtrusion: default = False
+        get_vec:        returns vector as a 1x3 or 1x4 list [x,y,z(,e)], optional argument withExtrusion: default = False
+        get_norm:       returns norm of vector, optional argument withExtrusion: default = False
         https://stackoverflow.com/questions/73388831/python-method-that-returns-instance-of-class-or-subclass-while-keeping-subclass second answer was useful
     """
 
@@ -36,16 +37,16 @@ class vector_4D:
             self.z = args[2]
             self.e = args[3]
         else:
-            raise ValueError("4D Spatial Object requires x,y,z,e or [x,y,z,e] as input.")
+            raise ValueError("4D object requires x,y,z,e or [x,y,z,e] as input.")
 
     def __str__(self) -> str:
         """Return string representation."""
         return "[" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ", " + str(self.e) + "]"
 
     def __add__(self, other):
-        """Add functionality for 4D Vectors.
+        """Add functionality for 4D vectors.
 
-        Possible input: 4D Vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'.
+        Possible input: 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'.
         """
         if isinstance(other, self.__class__):
             x = self.x + other.x
@@ -61,13 +62,13 @@ class vector_4D:
             return self.__class__(x, y, z, e)
         else:
             raise ValueError(
-                "Addition with __add__ is only possible with other 4D Vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'"
+                "Addition with __add__ is only possible with other 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'"
             )
 
     def __sub__(self, other):
-        """Sub functionality for 4D Vectors.
+        """Sub functionality for 4D vectors.
 
-        Possible input: 4D Vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'.
+        Possible input: 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'.
         """
         if isinstance(other, self.__class__):
             x = self.x - other.x
@@ -83,11 +84,11 @@ class vector_4D:
             return self.__class__(x, y, z, e)
         else:
             raise ValueError(
-                "Addition with __sub__ is only possible with other 4D Vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'"
+                "Addition with __sub__ is only possible with other 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'"
             )
 
     def __mul__(self, other):
-        """Scalar multiplication functionality for 4D Vectors.
+        """Scalar multiplication functionality for 4D vectors.
 
         Possible input: float and int
         """
@@ -97,7 +98,7 @@ class vector_4D:
             z = self.z * other
             e = self.e * other
         else:
-            raise TypeError("Mutiplication of 4D Vectors only supports float and int.")
+            raise TypeError("Mutiplication of 4D vectors only supports float and int.")
         return self.__class__(x, y, z, e)
 
     def __truediv__(self, other):
@@ -115,9 +116,9 @@ class vector_4D:
         return self.__class__(x, y, z, e)
 
     def __eq__(self, other, tolerance=None):
-        """Check for Equality and Return True if equal. Optional tolerance.
+        """Check for equality and return True if equal. Optional tolerance.
 
-        Possible input: 4D Vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'.
+        Possible input: 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'.
         """
         if isinstance(other, type(self)):
             if self.x == other.x and self.y == other.y and self.z == other.z and self.e == other.e:
@@ -138,7 +139,7 @@ class vector_4D:
                 )  # calculate distance manually
             else:
                 raise ValueError(
-                    "Equality check failed, only possible with other 4D Vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'"
+                    "Equality check failed, only possible with other 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'"
                 )
             if dist <= tolerance:
                 return True
@@ -147,22 +148,22 @@ class vector_4D:
             return False
 
     def get_vec(self, withExtrusion=False):
-        """Return the 4D Vector, optionally with Extrusion."""
+        """Return the 4D vector, optionally with extrusion."""
         if withExtrusion:
             return [self.x, self.y, self.z, self.e]
         else:
             return [self.x, self.y, self.z]
 
     def get_norm(self, withExtrusion=False):
-        """Return the 4D Vector norm. Optional with Extrusion."""
+        """Return the 4D vector norm. Optional with extrusion."""
         return np.linalg.norm(self.get_vec(withExtrusion=withExtrusion))
 
 
 class velocity(vector_4D):
-    """4D - Velocity object for (cartesian) 3D Printer."""
+    """4D - Velocity object for (cartesian) 3D printer."""
 
     def __str__(self) -> str:
-        """Print out Velocity."""
+        """Print out velocity."""
         return "velocity: " + super().__str__()
 
     def get_norm_dir(self, withExtrusion=False):
@@ -195,28 +196,28 @@ class velocity(vector_4D):
 
 
 class position(vector_4D):
-    """4D - Position object for (cartesian) 3D Printer."""
+    """4D - Position object for (cartesian) 3D printer."""
 
     def __str__(self) -> str:
-        """Print out Position."""
+        """Print out position."""
         return "position: " + super().__str__()
 
     def is_travel(self, other) -> bool:
-        """Return True if there is Travel between self and given Position."""
+        """Return True if there is travel between self and other position."""
         if abs(other.x - self.x) + abs(other.y - self.y) + abs(other.z - self.z) > 0:
             return True
         else:
             return False
 
     def is_extruding(self, other) -> bool:
-        """Return True if there is positive Extrusion between self and given Position."""
+        """Return True if there is positive extrusion between self and other position."""
         if abs(other.e - self.e) > 0:
             return True
         else:
             return False
 
     def get_t_distance(self, other=None, withExtrusion=False) -> float:
-        """Calculate the travel distance between other Position. If none is provided, zero will be used."""
+        """Calculate the travel distance between self and other position. If none is provided, zero will be used."""
         if other is None:
             other = position(0, 0, 0, 0)
         return np.linalg.norm(
