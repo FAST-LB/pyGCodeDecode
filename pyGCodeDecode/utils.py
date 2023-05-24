@@ -8,6 +8,148 @@ import numpy as np
 from .state import state
 
 
+class vector_4D:
+    """The vector_4D class stores 4D Vector in x,y,z,e.
+
+    Supports
+        str, add, sub, eq
+    Additional methods
+        get_vec:        returns Position as a 1x3 or 1x4 list [x,y,z(,e)], optional argument withExtrusion: default = False
+    """
+
+    def __init__(self, *args):
+        """Store args = x,y,z,e or [x,y,z,e]."""
+        self.x = None
+        self.y = None
+        self.z = None
+        self.e = None
+
+        if type(args) == tuple and len(args) == 1:
+            args = tuple(args[0])
+        if type(args) == tuple and len(args) == 4:
+            self.x = args[0]
+            self.y = args[1]
+            self.z = args[2]
+            self.e = args[3]
+        else:
+            raise ValueError("4D Spatial Object requires x,y,z,e or [x,y,z,e] as input.")
+
+    def __str__(self) -> str:
+        """Return string representation."""
+        return "[" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ", " + str(self.e) + "]"
+
+    def __add__(self, other):
+        """Add functionality for 4D Vectors.
+
+        Possible input: 4D Vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'.
+        """
+        if isinstance(other, vector_4D):
+            x = self.x + other.x
+            y = self.y + other.y
+            z = self.z + other.z
+            e = self.e + other.e
+            return vector_4D(x, y, z, e)
+        elif (isinstance(other, np.ndarray) or isinstance(other, list) or isinstance(other, tuple)) and len(other) == 4:
+            x = self.x + other[0]
+            y = self.y + other[1]
+            z = self.z + other[2]
+            e = self.e + other[3]
+            return vector_4D(x, y, z, e)
+        else:
+            raise ValueError(
+                "Addition with __add__ is only possible with other 4D Vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'"
+            )
+
+    def __sub__(self, other):
+        """Sub functionality for 4D Vectors.
+
+        Possible input: 4D Vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'.
+        """
+        if isinstance(other, vector_4D):
+            x = self.x - other.x
+            y = self.y - other.y
+            z = self.z - other.z
+            e = self.e - other.e
+            return vector_4D(x, y, z, e)
+        elif (isinstance(other, np.ndarray) or isinstance(other, list) or isinstance(other, tuple)) and len(other) == 4:
+            x = self.x - other[0]
+            y = self.y - other[1]
+            z = self.z - other[2]
+            e = self.e - other[3]
+            return vector_4D(x, y, z, e)
+        else:
+            raise ValueError(
+                "Addition with __sub__ is only possible with other 4D Vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'"
+            )
+
+    def __mul__(self, other):
+        """Scalar multiplication functionality for 4D Vectors.
+
+        Possible input: float and int
+        """
+        if type(other) is float or type(other) is np.float64 or type(other) is int:
+            x = self.x * other
+            y = self.y * other
+            z = self.z * other
+            e = self.e * other
+        else:
+            raise TypeError("Mutiplication of 4D Vectors only supports float and int.")
+        return vector_4D(x, y, z, e)
+
+    def __truediv__(self, other):
+        """Scalar division functionality for 4D Vectors.
+
+        Possible input: float and int
+        """
+        if type(other) is float or type(other) is np.float64:
+            x = self.x / other
+            y = self.y / other
+            z = self.z / other
+            e = self.e / other
+        else:
+            raise TypeError("Division of 4D Vectors only supports float and int.")
+        return vector_4D(x, y, z, e)
+
+    def __eq__(self, other, tolerance=None):
+        """Check for Equality and Return True if equal. Optional tolerance.
+
+        Possible input: 4D Vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'.
+        """
+        if isinstance(other, type(self)):
+            if self.x == other.x and self.y == other.y and self.z == other.z and self.e == other.e:
+                return True
+
+        elif (isinstance(other, np.ndarray) or isinstance(other, list) or isinstance(other, tuple)) and len(other) == 4:
+            if self.x == other[0] and self.y == other[1] and self.z == other[2] and self.e == other[3]:
+                return True
+
+        if tolerance is not None:
+            if isinstance(other, type(self)):
+                dist = np.linalg.norm(self - other)  # calculate distance through __sub__
+            elif (isinstance(other, np.ndarray) or isinstance(other, list) or isinstance(other, tuple)) and len(
+                other
+            ) == 4:
+                dist = np.linalg.norm(
+                    self.x - other[0], self.y - other[1], self.z - other[2], self.e - other[3]
+                )  # calculate distance manually
+            else:
+                raise ValueError(
+                    "Equality check failed, only possible with other 4D Vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'"
+                )
+            if dist <= tolerance:
+                return True
+
+        else:
+            return False
+
+    def get_vec(self, withExtrusion=False):
+        """Return the 4D Vector, optionally with Extrusion."""
+        if withExtrusion:
+            return [self.x, self.y, self.z, self.e]
+        else:
+            return [self.x, self.y, self.z]
+
+
 class velocity:
     """4D - Velocity object for (cartesian) 3D Printer
     Supports
@@ -62,7 +204,7 @@ class velocity:
             Vz = self.Vz * other
             Ve = self.Ve * other
         else:
-            raise TypeError("mutiplication of Velocities only supports float")
+            raise TypeError("mutiplication of Velocities only supports float and int")
         return velocity(Vx=Vx, Vy=Vy, Vz=Vz, Ve=Ve)
 
     def __truediv__(self, other):
@@ -72,7 +214,7 @@ class velocity:
             Vz = self.Vz / other
             Ve = self.Ve / other
         else:
-            raise TypeError("division of Velocities only supports float")
+            raise TypeError("division of Velocities only supports float and int")
         return velocity(Vx=Vx, Vy=Vy, Vz=Vz, Ve=Ve)
 
     def __eq__(self, other: "velocity"):
