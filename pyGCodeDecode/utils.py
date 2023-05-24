@@ -6,9 +6,7 @@ Utils for the GCode Reader contains:
 - Vector 4D
     - velocity
     - position
-- Segment
 """
-from typing import List
 
 import numpy as np
 
@@ -17,7 +15,7 @@ class vector_4D:
     """The vector_4D class stores 4D Vector in x,y,z,e.
 
     Supports
-        str, add, sub, eq
+        str, add, sub, mul (scalar), truediv (scalar),eq
     Additional methods
         get_vec:        returns Position as a 1x3 or 1x4 list [x,y,z(,e)], optional argument withExtrusion: default = False
         https://stackoverflow.com/questions/73388831/python-method-that-returns-instance-of-class-or-subclass-while-keeping-subclass second answer was useful
@@ -156,28 +154,19 @@ class vector_4D:
             return [self.x, self.y, self.z]
 
     def get_norm(self, withExtrusion=False):
-        """Return the 4D Vector norm."""
+        """Return the 4D Vector norm. Optional with Extrusion."""
         return np.linalg.norm(self.get_vec(withExtrusion=withExtrusion))
 
 
 class velocity(vector_4D):
-    """4D - Velocity object for (cartesian) 3D Printer
-    Supports
-        str, add, sub, mul (scalar), truediv (scalar),eq
-    Additional methods
-        get_vec:        returns Velocity as a 1x3 or 1x4 list [Vx,Vy,Vz(,Ve)], optional argument withExtrusion: default = False
-        get_norm:        returns the absolute 3D movement Velocity, extrusion is ignored
-        get_norm dir:   returns the normalized direction as 1x3 or 1x4 list [Vx,Vy,Vz(,Ve)], optional argument withExtrusion: default = False
-        avoid_overspeed:returns Velocity with all axis kept below their max travel speed
-    Class method
-        convert_vector_to_velocity: returns a Velocity object with a 1x4 list as input [Vx,Vy,Vz,Ve]
-    """
+    """4D - Velocity object for (cartesian) 3D Printer."""
 
     def __str__(self) -> str:
+        """Print out Velocity."""
         return "velocity: " + super().__str__()
 
     def get_norm_dir(self, withExtrusion=False):
-        # get (regarding travel distance) normalized vector, if only extrusion occurs, normalize to extrusion length
+        """Get normalized vector (regarding travel distance), if only extrusion occurs, normalize to extrusion length."""
         abs_val = self.get_norm()
         if abs_val > 0:
             return self.get_vec(withExtrusion=withExtrusion) / abs_val
@@ -187,7 +176,7 @@ class velocity(vector_4D):
             return None
 
     def avoid_overspeed(self, p_settings):
-        """Returns velocity without any axis overspeed"""
+        """Return velocity without any axis overspeed."""
         scale = 1.0
         scale = p_settings.Vx / self.Vx if self.Vx > 0 and p_settings.Vx / self.Vx < scale else scale
         scale = p_settings.Vy / self.Vy if self.Vy > 0 and p_settings.Vy / self.Vy < scale else scale
@@ -197,65 +186,39 @@ class velocity(vector_4D):
         return self * scale
 
     def not_zero(self):
+        """Return True if velocity is not zero."""
         return True if np.linalg.norm(self.get_vec(withExtrusion=True)) > 0 else False
+
+    def is_extruding(self):
+        """Return True if extrusion velocity is not zero."""
+        return True if self.e > 0 else False
 
 
 class position(vector_4D):
-    """The Position stores 4D spatial data in x,y,z,e.
-    Supports
-        str, add (pos+pos, pos+(list 1x4), pos+(numpy.ndarray 1x4))
-    Additional methods
-        is_travel:      returns True if there is a travel move between self and another given Position
-        is_extruding:   returns True if there is an extrusion between self and another given Position
-        get_vec:        returns Position as a 1x3 or 1x4 list [x,y,z(,e)], optional argument withExtrusion: default = False
-        get_t_distance: returns the absolute travel distance between self and another given Position (3D)
-    Class method
-        new:            returns an updated Position from given old Position and optional changing positional values
-        convert_vector_to_position: returns a Position object with a 1x4 list as input [Vx,Vy,Vz,Ve]
-    """
+    """4D - Position object for (cartesian) 3D Printer."""
 
     def __str__(self) -> str:
+        """Print out Position."""
         return "position: " + super().__str__()
 
-    def is_travel(self, old_position) -> bool:
-        if abs(old_position.x - self.x) + abs(old_position.y - self.y) + abs(old_position.z - self.z) > 0:
+    def is_travel(self, other) -> bool:
+        """Return True if there is Travel between self and given Position."""
+        if abs(other.x - self.x) + abs(other.y - self.y) + abs(other.z - self.z) > 0:
             return True
         else:
             return False
 
-    def is_extruding(self, old_position) -> bool:
-        if abs(old_position.e - self.e) > 0:
+    def is_extruding(self, other) -> bool:
+        """Return True if there is positive Extrusion between self and given Position."""
+        if abs(other.e - self.e) > 0:
             return True
         else:
             return False
 
-    def get_vec(self, withExtrusion=False):
-        if withExtrusion:
-            return [self.x, self.y, self.z, self.e]
-        else:
-            return [self.x, self.y, self.z]
-
-    def get_t_distance(self, old_position=None, withExtrusion=False) -> float:
-        if old_position is None:
-            old_position = position(0, 0, 0, 0)
+    def get_t_distance(self, other=None, withExtrusion=False) -> float:
+        """Calculate the travel distance between other Position. If none is provided, zero will be used."""
+        if other is None:
+            other = position(0, 0, 0, 0)
         return np.linalg.norm(
-            np.subtract(self.get_vec(withExtrusion=withExtrusion), old_position.get_vec(withExtrusion=withExtrusion))
+            np.subtract(self.get_vec(withExtrusion=withExtrusion), other.get_vec(withExtrusion=withExtrusion))
         )
-
-    @classmethod
-    def new(cls, old_position, x: float = None, y: float = None, z: float = None, e: float = None, absMode=True):
-        if x is None:
-            x = old_position.x
-        if y is None:
-            y = old_position.y
-        if z is None:
-            z = old_position.z
-        if not absMode and e is not None:  # if rel mode, extrusion needs to be summed
-            e = old_position.e + e
-        if e is None:
-            e = old_position.e
-        return cls(x, y, z, e)
-
-    @classmethod
-    def convert_vector_to_position(cls, vector: List[float]):
-        return cls(x=vector[0], y=vector[1], z=vector[2], e=vector[3])

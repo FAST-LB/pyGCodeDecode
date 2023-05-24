@@ -224,10 +224,10 @@ class planner_block:
         extrusion_only = False  # flag
         self.segments = []  # clear segments
         if self.state_A is not None:
-            distance = self.state_B.state_position.get_t_distance(old_position=self.state_A.state_position)
+            distance = self.state_B.state_position.get_t_distance(other=self.state_A.state_position)
             if distance == 0:  # no travel, extrusion possible
                 distance = self.state_B.state_position.get_t_distance(
-                    old_position=self.state_A.state_position, withExtrusion=True
+                    other=self.state_A.state_position, withExtrusion=True
                 )
                 extrusion_only = True
         else:

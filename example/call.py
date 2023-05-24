@@ -54,7 +54,7 @@ new = gcode_interpreter.simulate(
 # new.plot_vel(show=True,filename=False)
 # time = t.time()
 
-new.plot_3d_mayavi()
+# new.plot_3d_mayavi()
 
 # new.plot_3d_position(filename="3DPlot.png", colvar_spatial_resolution=0.1, show=True)
 # print(new.states)
