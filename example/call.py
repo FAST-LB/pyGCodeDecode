@@ -24,7 +24,7 @@ anisoprint_A4 = {
     "filament_diam": 1.75,
     # default settings
     "p_vel": 35,
-    "p_acc": 1000,
+    "p_acc": 200,
     "jerk": 10,
     # axis max speeds
     "vX": 180,
@@ -45,7 +45,7 @@ initial_position = None
 # )
 
 new = gcode_interpreter.simulate(
-    filename=r"example\zugproben\platte.gcode", printer=anisoprint_A4, initial_position=initial_position
+    filename=r"example\processsimulation\shape.gcode", printer=anisoprint_A4, initial_position=initial_position
 )
 # example\zugproben\dogbone_direkt_90_layer.gcode
 
@@ -54,7 +54,7 @@ new = gcode_interpreter.simulate(
 # new.plot_vel(show=True,filename=False)
 # time = t.time()
 
-# new.plot_3d_mayavi()
+new.plot_3d_mayavi()
 
 # new.plot_3d_position(filename="3DPlot.png", colvar_spatial_resolution=0.1, show=True)
 # print(new.states)

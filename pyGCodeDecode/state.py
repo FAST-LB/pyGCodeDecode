@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from typing import List
-
 import numpy as np
 
 from .utils import position, velocity
@@ -231,6 +229,10 @@ class segment:
         # > max acceleration
         # > max velocity
         # ..more?
+
+    def is_extruding(self):
+        return self.pos_begin.e < self.pos_end.e
+        # return self.vel_begin.is_extruding() or self.vel_end.is_extruding()
 
     @classmethod
     def create_initial(cls, initial_position: position = None):

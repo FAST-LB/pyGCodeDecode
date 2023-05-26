@@ -469,78 +469,51 @@ class simulate:
     def plot_3d_mayavi(
         self,
     ):
-        import matplotlib
-        import matplotlib.pyplot as plt
         import mayavi.mlab as ma
-
-        matplotlib.use("Qt5Agg")
-        matplotlib.interactive(True)
 
         # get all data for plots
         segments = unpack_blocklist(blocklist=self.blocklist)
+
+        # initialize mayavi fig
+        figure = ma.figure(figure="Velocity", bgcolor=(1.0, 1.0, 1.0))
+
         x, y, z, e, vel = [], [], [], [], []
-        x.append(segments[0].pos_begin.get_vec()[0])
-        y.append(segments[0].pos_begin.get_vec()[1])
-        z.append(segments[0].pos_begin.get_vec()[2])
-        e.append(segments[0].pos_begin.get_vec(withExtrusion=True)[3])
-        vel.append(segments[0].vel_begin.get_norm())
-
-        figure = ma.figure(figure="Velocity", bgcolor=(1.0, 1.0, 1.0), size=(3000, 3000))
-
-        cntr = 0
-        extrude = False
         for n, segm in enumerate(segments):
-            cntr += 1
-            update_progress(cntr / len(segments), name="3D Plot")
-            x.append(segm.pos_end.get_vec()[0])
-            y.append(segm.pos_end.get_vec()[1])
-            z.append(segm.pos_end.get_vec()[2])
-            e.append(segm.pos_end.get_vec(withExtrusion=True)[3])
-            vel.append(segm.vel_end.get_norm())
-            if len(e) >= 2 and e[-1] > e[-2] and extrude is False:
-                extrude = True
-                x = [x[-2], x[-1]]
-                y = [y[-2], y[-1]]
-                z = [z[-2], z[-1]]
-                e = [e[-2], e[-1]]
-                vel = [vel[-2], vel[-1]]
-            if len(e) >= 2 and (e[-1] <= e[-2] or n == len(segments) - 1) and extrude:
-                x = x[:-1]
-                y = y[:-1]
-                z = z[:-1]
-                e = e[:-1]
-                vel = vel[:-1]
-                plot = ma.plot3d(
-                    x, y, z, vel, tube_radius=0.2, figure=figure, vmin=0, vmax=35, colormap="viridis"
-                )  # vmax
-                x = []
-                y = []
-                z = []
-                vel = []
-                e = []
-                # x = [x[-1]]
-                # y = [y[-1]]
-                # z = [z[-1]]
-                # vel = [vel[-1]]
-                # e = [e[-1]]
-                extrude = False
+            update_progress(n / len(segments), name="3D Plot")
+            if segm.is_extruding():
+                if len(x) == 0:
+                    # append segm begin values to plotting array for first segm
+                    x.append(segm.pos_begin.get_vec()[0])
+                    y.append(segm.pos_begin.get_vec()[1])
+                    z.append(segm.pos_begin.get_vec()[2])
+                    e.append(segm.pos_begin.get_vec(withExtrusion=True)[3])
+                    vel.append(segm.vel_begin.get_norm())
 
-        # show only extrusion
-        ma.view(azimuth=0, elevation=180, distance="auto", focalpoint="auto")
+                # append segm end values to plotting array
+                x.append(segm.pos_end.get_vec()[0])
+                y.append(segm.pos_end.get_vec()[1])
+                z.append(segm.pos_end.get_vec()[2])
+                e.append(segm.pos_end.get_vec(withExtrusion=True)[3])
+                vel.append(segm.vel_end.get_norm())
+
+            # plot if following segment is not extruding or if it's the last segment
+            if (len(x) > 0 and not segm.is_extruding()) or (len(x) > 0 and n == len(segments) - 1):
+                plot = ma.plot3d(x, y, z, vel, tube_radius=0.2, figure=figure, vmin=0, vmax=35, colormap="viridis")
+                # known assertion error thrown when empty plotting array gets plotted. Caused by purge at beginning of many .gcodes
+                x, y, z, e, vel = [], [], [], [], []  # clear plotting array
+
+        # ma.view(azimuth=0, elevation=180, distance="auto", focalpoint="auto")  # view preset
         figure.scene.parallel_projection = True
-        ma.savefig("test.png", size=(2000, 2000), magnification=6)
-        img = ma.screenshot()
 
-        fig, ax = plt.subplots()
+        cb = ma.colorbar(object=plot, orientation="vertical", title="printing velocity in mm/s")
+        cb.label_text_property.font_family = "times"
+        cb.title_text_property.color = (0.0, 0.0, 0.0)
+        cb.label_text_property.color = (0.0, 0.0, 0.0)
+        cb.scalar_bar.unconstrained_font_size = True
+        cb.label_text_property.font_size = 24
+        cb.title_text_property.font_size = 24
 
-        im = ax.imshow(img, cmap="viridis", vmin=0, vmax=35)
-        cbar = fig.colorbar(im)
-        plt.show()
-
-        # ma.colorbar(object=plot)
         ma.show()
-
-        # lsegments = np.concatenate([points[:-1], points[1:]], axis=1)  # create point pairs
 
     def plot_vel(
         self,
