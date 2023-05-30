@@ -1,4 +1,5 @@
 # This configuration file defines the hooks to be executed at each commit
+exclude: .gcode$
 repos:
 # Pre-commit itself
 -   repo: https://github.com/pre-commit/pre-commit-hooks
@@ -16,6 +17,7 @@ repos:
     rev: 23.3.0
     hooks:
       - id: black
+      - id: black-jupyter
 # isort import sorting
 -   repo: https://github.com/timothycrosley/isort
     rev: '5.12.0'
@@ -27,3 +29,8 @@ repos:
     rev: '6.0.0'
     hooks:
     -   id: flake8
+# strip output of notebooks
+# -   repo: https://github.com/kynan/nbstripout
+#     rev: 0.6.1
+#     hooks:
+#         - id: nbstripout
