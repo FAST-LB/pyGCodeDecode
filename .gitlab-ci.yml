@@ -11,4 +11,5 @@ test:
     stage: test
     image: "python:3.8"
     script:
+        - py -m pip install --upgrade pip
         - pip install . -v
