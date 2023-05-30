@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-py-modules = ["pyGCodeDecode"]
+packages = ["pyGCodeDecode"]
 
 [project]
 name = "pyGCodeDecode"
@@ -33,7 +33,8 @@ dependencies = [
     "matplotlib",
     "typing",
     "mayavi @ git+https://github.com/enthought/mayavi.git",
-    "PyQt5"
+    "PyQt5",
+    "PyYAML"
 ]
 
 [project.optional-dependencies]
