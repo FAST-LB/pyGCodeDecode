@@ -642,9 +642,9 @@ class simulate:
                     f'Key: "{key}" is not provided in Printer Dictionary, check for typos. Required keys are: {printer_keys}'
                 )
 
-    def print_summary(self, filename):
+    def print_summary(self):
         print(
-            f""" >> pyGCodeDecode extracted {len(self.states)} states from {filename} and generated {len(self.blocklist)} plannerblocks.\n
+            f""" >> pyGCodeDecode extracted {len(self.states)} states from {self.filename} and generated {len(self.blocklist)} plannerblocks.\n
             Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end} seconds."""
         )
 
@@ -654,6 +654,34 @@ class simulate:
 
         self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states)
         self.trajectory_self_correct()
+
+    def extr_extend(self):
+        all_positions_extruding = np.asarray(
+            [block.state_B.state_position.get_vec() for block in self.blocklist if block.is_extruding]
+        )
+        max_pos = np.amax(all_positions_extruding, axis=0)
+        min_pos = np.amin(all_positions_extruding, axis=0)
+        return np.r_[[min_pos], [max_pos]]
+
+    def save_summary(self):
+        import yaml
+
+        t_end = self.blocklist[-1].get_segments()[-1].t_end  # print end time
+        extend = self.extr_extend()  # extend in [xmin,ymin,zmin],[xmax,ymax,zmax]
+
+        yamldict = {
+            "filename": self.filename,
+            "t_end": float(t_end),
+            "x_min": float(extend[0, 0]),
+            "y_min": float(extend[0, 1]),
+            "z_min": float(extend[0, 2]),
+            "x_max": float(extend[1, 0]),
+            "y_max": float(extend[1, 1]),
+            "z_max": float(extend[1, 2]),
+        }
+        file = open(file=self.filename[:len(self.filename)-6] + "_summary.yaml", mode="w")
+        yaml.dump(yamldict, file)
+        file.close()
 
     def __init__(self, filename, printer, initial_position=None, output_unit_system: str = "SImm"):
         self.last_index = None  # used to optimize search in segment list
@@ -675,4 +703,4 @@ class simulate:
         self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states)
         self.trajectory_self_correct()
 
-        self.print_summary(filename=filename)
+        self.print_summary()

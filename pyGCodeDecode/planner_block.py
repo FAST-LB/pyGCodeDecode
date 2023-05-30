@@ -338,11 +338,16 @@ class planner_block:
         )  # junction deviation speed for end of block
 
         self.direction = vel_blck.get_norm_dir(withExtrusion=True)  # direction vector of pb
+
+
         self.valid = vel_blck.not_zero()  # valid planner block
 
         if self.valid:
             self.JD = v_JD * self.direction  # jd writeout for debugging plot
             self.move_maker2(v_end=v_JD)
+            self.is_extruding = self.state_A.state_position.is_extruding(
+            self.state_B.state_position
+        )  # store extrusion flag
 
     @property
     def prev_blck(self):

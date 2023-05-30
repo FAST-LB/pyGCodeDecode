@@ -45,7 +45,7 @@ initial_position = None
 # )
 
 new = gcode_interpreter.simulate(
-    filename=r"example\processsimulation\shape.gcode", printer=anisoprint_A4, initial_position=initial_position
+    filename=r"example\test.gcode", printer=anisoprint_A4, initial_position=initial_position
 )
 # example\zugproben\dogbone_direkt_90_layer.gcode
 
@@ -53,7 +53,8 @@ new = gcode_interpreter.simulate(
 # new.plot_2d_position(show=True,colvar_spatial_resolution=0.1,filename=False)
 # new.plot_vel(show=True,filename=False)
 # time = t.time()
-
+print(new.extr_extend())
+new.save_summary()
 new.plot_3d_mayavi()
 
 # new.plot_3d_position(filename="3DPlot.png", colvar_spatial_resolution=0.1, show=True)

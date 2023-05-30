@@ -1,0 +1,8 @@
+filename: example\test.gcode
+t_end: 61.80414602799603
+x_max: 175.372
+x_min: 0.0
+y_max: 140.095
+y_min: 0.0
+z_max: 0.45
+z_min: 0.25
