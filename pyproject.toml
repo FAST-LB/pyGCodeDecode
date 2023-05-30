@@ -30,8 +30,7 @@ dependencies = [
     "matplotlib",
     "typing",
     "mayavi",
-    "PyQt5",
-    "yaml"
+    "PyQt5"
 ]
 
 [project.optional-dependencies]
@@ -41,8 +40,7 @@ DEVELOPER = [
     "black",
     "black[jupyter]",
     "flake8-docstrings",
-    "pre-commit",
-    "yaml"
+    "pre-commit"
 ]
 
 [project.urls]
