@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from pyGCodeDecode import gcode_interpreter
+from pyGCodeDecode import abaqus_file_generator
 
 # import time as t
 # Fictional Printer Preset
@@ -53,9 +54,10 @@ new = gcode_interpreter.simulate(
 # new.plot_2d_position(show=True,colvar_spatial_resolution=0.1,filename=False)
 # new.plot_vel(show=True,filename=False)
 # time = t.time()
-print(new.extr_extend())
+
 new.save_summary()
 new.plot_3d_mayavi()
+# abaqus_file_generator.generate_abaqus_events(new, "abaqus.inp")
 
 # new.plot_3d_position(filename="3DPlot.png", colvar_spatial_resolution=0.1, show=True)
 # print(new.states)

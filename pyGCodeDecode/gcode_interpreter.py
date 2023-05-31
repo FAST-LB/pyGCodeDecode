@@ -473,7 +473,7 @@ class simulate:
 
         # get all data for plots
         segments = unpack_blocklist(blocklist=self.blocklist)
-
+        vel_max = self.extr_max_vel()
         # initialize mayavi fig
         figure = ma.figure(figure="Velocity", bgcolor=(1.0, 1.0, 1.0))
 
@@ -498,7 +498,7 @@ class simulate:
 
             # plot if following segment is not extruding or if it's the last segment
             if (len(x) > 0 and not segm.is_extruding()) or (len(x) > 0 and n == len(segments) - 1):
-                plot = ma.plot3d(x, y, z, vel, tube_radius=0.2, figure=figure, vmin=0, vmax=35, colormap="viridis")
+                plot = ma.plot3d(x, y, z, vel, tube_radius=0.2, figure=figure, vmin=0, vmax=vel_max, colormap="viridis")
                 # known assertion error thrown when empty plotting array gets plotted. Caused by purge at beginning of many .gcodes
                 x, y, z, e, vel = [], [], [], [], []  # clear plotting array
 
@@ -656,6 +656,7 @@ class simulate:
         self.trajectory_self_correct()
 
     def extr_extend(self):
+        """Return xyz min & max while extruding."""
         all_positions_extruding = np.asarray(
             [block.state_B.state_position.get_vec() for block in self.blocklist if block.is_extruding]
         )
@@ -663,12 +664,20 @@ class simulate:
         min_pos = np.amin(all_positions_extruding, axis=0)
         return np.r_[[min_pos], [max_pos]]
 
+    def extr_max_vel(self):
+        """Return maximum travel velocity while extruding."""
+        all_blocks_max_vel = np.asarray(
+            [np.linalg.norm(block.extr_block_max_vel()[:3]) for block in self.blocklist if block.is_extruding]
+        )
+        max_vel = np.amax(all_blocks_max_vel, axis=0)
+        return max_vel
+
     def save_summary(self):
         import yaml
 
         t_end = self.blocklist[-1].get_segments()[-1].t_end  # print end time
         extend = self.extr_extend()  # extend in [xmin,ymin,zmin],[xmax,ymax,zmax]
-
+        max_vel = self.extr_max_vel()
         yamldict = {
             "filename": self.filename,
             "t_end": float(t_end),
@@ -678,8 +687,9 @@ class simulate:
             "x_max": float(extend[1, 0]),
             "y_max": float(extend[1, 1]),
             "z_max": float(extend[1, 2]),
+            "max_extr_trav_vel": float(max_vel),
         }
-        file = open(file=self.filename[:len(self.filename)-6] + "_summary.yaml", mode="w")
+        file = open(file=self.filename[: len(self.filename) - 6] + "_summary.yaml", mode="w")
         yaml.dump(yamldict, file)
         file.close()
 

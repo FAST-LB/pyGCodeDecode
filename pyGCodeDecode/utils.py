@@ -209,7 +209,7 @@ class position(vector_4D):
         else:
             return False
 
-    def is_extruding(self, other:"position") -> bool:
+    def is_extruding(self, other: "position") -> bool:
         """Return True if there is positive extrusion between self and other position."""
         if abs(other.e - self.e) > 0:
             return True

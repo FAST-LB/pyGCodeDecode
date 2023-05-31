@@ -313,6 +313,25 @@ class planner_block:
             for segm in self.segments:
                 segm.move_segment_time(delta_t)
 
+    def extr_block_max_vel(self):
+        if self.is_extruding:
+            all_vel_extruding = np.asarray(
+                [
+                    [
+                        [abs(ax_vel) for ax_vel in segm.vel_begin.get_vec(withExtrusion=True)],
+                        [abs(ax_vel) for ax_vel in segm.vel_end.get_vec(withExtrusion=True)],
+                    ]
+                    for segm in self.segments
+                ]
+            )
+            all_vel_extruding = np.reshape(all_vel_extruding, (-1, 4))
+            # print("all_vel:", all_vel_extruding)
+            block_max_vel = np.amax(all_vel_extruding, axis=0)
+            # print("maxvel", block_max_vel)
+            return block_max_vel
+        else:
+            pass
+
     def __init__(self, state: state, prev_blck: "planner_block"):
         """calculates and stores Single Planner Block consisting of multiple Segments
         move is from previous to the current state
@@ -339,15 +358,14 @@ class planner_block:
 
         self.direction = vel_blck.get_norm_dir(withExtrusion=True)  # direction vector of pb
 
-
         self.valid = vel_blck.not_zero()  # valid planner block
 
         if self.valid:
             self.JD = v_JD * self.direction  # jd writeout for debugging plot
             self.move_maker2(v_end=v_JD)
             self.is_extruding = self.state_A.state_position.is_extruding(
-            self.state_B.state_position
-        )  # store extrusion flag
+                self.state_B.state_position
+            )  # store extrusion flag
 
     @property
     def prev_blck(self):
