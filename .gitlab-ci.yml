@@ -11,5 +11,6 @@ test:
     stage: test
     image: "python:3.8"
     script:
-        - python -m pip install --upgrade pip
+        # missing dependencies for docker-container
+        - apt-get update && apt-get install libgl1
         - pip install . -v
