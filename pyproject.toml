@@ -32,7 +32,8 @@ dependencies = [
     "numpy",
     "matplotlib",
     "typing",
-    "mayavi @ git+https://github.com/enthought/mayavi.git",
+    "mayavi",
+    # "mayavi @ git+https://github.com/enthought/mayavi.git",
     "PyQt5",
     "PyYAML"
 ]
