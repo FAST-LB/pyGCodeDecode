@@ -471,6 +471,8 @@ class simulate:
     ):
         import mayavi.mlab as ma
 
+        # https://mayavi.sourceforge.net/docs/guide/ch04.html ?vtk dump maybe?
+
         # get all data for plots
         segments = unpack_blocklist(blocklist=self.blocklist)
         vel_max = self.extr_max_vel()
@@ -483,17 +485,19 @@ class simulate:
             if segm.is_extruding():
                 if len(x) == 0:
                     # append segm begin values to plotting array for first segm
-                    x.append(segm.pos_begin.get_vec()[0])
-                    y.append(segm.pos_begin.get_vec()[1])
-                    z.append(segm.pos_begin.get_vec()[2])
-                    e.append(segm.pos_begin.get_vec(withExtrusion=True)[3])
+                    posbegin_vec = segm.pos_begin.get_vec(withExtrusion=True)
+                    x.append(posbegin_vec[0])
+                    y.append(posbegin_vec[1])
+                    z.append(posbegin_vec[2])
+                    e.append(posbegin_vec[3])
                     vel.append(segm.vel_begin.get_norm())
 
                 # append segm end values to plotting array
-                x.append(segm.pos_end.get_vec()[0])
-                y.append(segm.pos_end.get_vec()[1])
-                z.append(segm.pos_end.get_vec()[2])
-                e.append(segm.pos_end.get_vec(withExtrusion=True)[3])
+                posend_vec = segm.pos_end.get_vec(withExtrusion=True)
+                x.append(posend_vec[0])
+                y.append(posend_vec[1])
+                z.append(posend_vec[2])
+                e.append(posend_vec[3])
                 vel.append(segm.vel_end.get_norm())
 
             # plot if following segment is not extruding or if it's the last segment
@@ -620,24 +624,24 @@ class simulate:
 
         return tmp_vel, tmp_pos
 
-    def check_printer(self, printer):
+    def check_initial_setup(self, initial_machine_setup):
         """
         Method to check the printer Dict for typos or missing parameters.
         """
-        printer_keys = ["nozzle_diam", "filament_diam", "velocity", "acceleration", "jerk", "Vx", "Vy", "Vz", "Ve"]
+        printer_keys = ["nozzle_diam", "filament_diam", "p_vel", "p_acc", "jerk", "vX", "vY", "vZ", "vE"]
 
         # Following code could be improved i guess..
 
         # check if all provided keys are valid
-        for key in printer:
+        for key in initial_machine_setup:
             if key not in printer_keys:
                 raise ValueError(
                     f'Invalid Key: "{key}" in Printer Dictionary, check for typos. Valid keys are: {printer_keys}'
                 )
 
         # check if every required key is proivded
-        for key in printer_keys:
-            if key not in printer:
+        for key in initial_machine_setup:
+            if key not in initial_machine_setup:
                 raise ValueError(
                     f'Key: "{key}" is not provided in Printer Dictionary, check for typos. Required keys are: {printer_keys}'
                 )
@@ -693,7 +697,7 @@ class simulate:
         yaml.dump(yamldict, file)
         file.close()
 
-    def __init__(self, filename, printer, initial_position=None, output_unit_system: str = "SImm"):
+    def __init__(self, filename, initial_machine_setup, output_unit_system: str = "SImm"):
         self.last_index = None  # used to optimize search in segment list
         self.filename = filename
 
@@ -706,11 +710,39 @@ class simulate:
             raise ValueError("Chosen unit system is unavailable!")
 
         # SET INITIAL SETTINGS
-        # self.check_printer(printer=printer)
+        self.check_initial_setup(initial_machine_setup=initial_machine_setup)
 
-        self.states: List[state] = state_generator(filename=filename, initial_machine_setup=printer)
+        self.states: List[state] = state_generator(filename=filename, initial_machine_setup=initial_machine_setup)
 
         self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states)
         self.trajectory_self_correct()
 
         self.print_summary()
+
+
+class setup:
+    def load_setup(self, filename):
+        import yaml
+        from yaml import Loader
+
+        file = open(file=filename, mode="r")
+
+        setup_dict = yaml.load(file, Loader=Loader)
+        return setup_dict
+
+    def select_printer(self, printer_name):
+        self.printer_select = printer_name
+
+    def set_initial_position(self, initial_position):
+        self.initial_position = initial_position
+
+    def __init__(self, filename: str) -> None:
+        self.printer_select = None
+        self.initial_position = None
+
+        self.setup_dict = self.load_setup(filename)
+
+    def get_dict(self):
+        return_dict = self.setup_dict[self.printer_select]
+        return_dict.update(self.initial_position)
+        return return_dict

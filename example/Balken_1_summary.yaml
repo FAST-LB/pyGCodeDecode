@@ -1,0 +1,9 @@
+filename: example\Balken_1.gcode
+max_extr_trav_vel: 80.00000000000001
+t_end: 37087.583333672665
+x_max: 243.381
+x_min: 0.0
+y_max: 125.48
+y_min: 0.0
+z_max: 30.05
+z_min: 0.25
