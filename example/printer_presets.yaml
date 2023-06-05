@@ -5,8 +5,8 @@ anisoprint_A4:
   nozzle_diam: 0.4
   filament_diam: 1.75
   # default settings
-  velocity: 35
-  acceleration: 1000
+  p_vel: 35
+  p_acc: 1000
   jerk: 10
   # axis max speeds
   vX: 180
@@ -20,8 +20,8 @@ prusa_mini:
   nozzle_diam: 0.4
   filament_diam: 1.75
   # default settings
-  velocity": 35
-  acceleration: 1250
+  p_vel: 35
+  p_acc: 1250
   jerk: 8
   # axis max speeds
   vX: 180

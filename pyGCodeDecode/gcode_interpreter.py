@@ -628,7 +628,21 @@ class simulate:
         """
         Method to check the printer Dict for typos or missing parameters.
         """
-        printer_keys = ["nozzle_diam", "filament_diam", "p_vel", "p_acc", "jerk", "vX", "vY", "vZ", "vE"]
+        printer_keys = [
+            "nozzle_diam",
+            "filament_diam",
+            "p_vel",
+            "p_acc",
+            "jerk",
+            "vX",
+            "vY",
+            "vZ",
+            "vE",
+            "x",
+            "y",
+            "z",
+            "e",
+        ]
 
         # Following code could be improved i guess..
 
@@ -697,7 +711,7 @@ class simulate:
         yaml.dump(yamldict, file)
         file.close()
 
-    def __init__(self, filename, initial_machine_setup, output_unit_system: str = "SImm"):
+    def __init__(self, filename: str, initial_machine_setup: "setup", output_unit_system: str = "SImm"):
         self.last_index = None  # used to optimize search in segment list
         self.filename = filename
 
@@ -710,6 +724,7 @@ class simulate:
             raise ValueError("Chosen unit system is unavailable!")
 
         # SET INITIAL SETTINGS
+        initial_machine_setup = initial_machine_setup.get_dict()
         self.check_initial_setup(initial_machine_setup=initial_machine_setup)
 
         self.states: List[state] = state_generator(filename=filename, initial_machine_setup=initial_machine_setup)
@@ -721,7 +736,10 @@ class simulate:
 
 
 class setup:
+    """Setup for printing simulation."""
+
     def load_setup(self, filename):
+        """Load setup from file."""
         import yaml
         from yaml import Loader
 
@@ -731,16 +749,39 @@ class setup:
         return setup_dict
 
     def select_printer(self, printer_name):
-        self.printer_select = printer_name
+        """Select printer by name."""
+        if printer_name not in self.setup_dict:
+            raise ValueError(f"Selected Printer {self.printer_select} not found in setup file: {self.filename}.")
+        else:
+            self.printer_select = printer_name
 
-    def set_initial_position(self, initial_position):
-        self.initial_position = initial_position
+    def set_initial_position(self, *initial_position):
+        """Set initial Position through dict with keys: {x, y, z, e} or as tuple with length 4.
 
-    def __init__(self, filename: str) -> None:
-        self.printer_select = None
-        self.initial_position = None
+        Example:    set_initial_position(1, 2, 3, 4)
+                    set_initial_position({"x": 1, "y": 2, "z": 3, "e": 4})
+        """
+        if isinstance(initial_position[0], dict) and all(key in initial_position[0] for key in ["x", "y", "z", "e"]):
+            self.initial_position = initial_position[0]
+        elif isinstance(initial_position, tuple) and len(initial_position) == 4:
+            self.initial_position = {
+                "x": initial_position[0],
+                "y": initial_position[1],
+                "z": initial_position[2],
+                "e": initial_position[3],
+            }
+        else:
+            raise ValueError("Set initial position through dict with keys: {x, y, z, e} or as tuple with length 4.")
+
+    def __init__(self, filename: str, printer=None) -> None:
+        self.filename = filename
+        self.printer_select = printer
+        self.initial_position = {"x": 0, "y": 0, "z": 0, "e": 0}  # default initial pos is zero
 
         self.setup_dict = self.load_setup(filename)
+
+        if self.printer_select is not None:
+            self.select_printer(printer_name=self.printer_select)
 
     def get_dict(self):
         return_dict = self.setup_dict[self.printer_select]

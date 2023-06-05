@@ -33,12 +33,9 @@ anisoprint_A4 = {
 }
 
 
-setup = gcode_interpreter.setup(filename=r"example\printer_presets.yaml")
-setup.select_printer("anisoprint_A4")
-setup.set_initial_position({"x": 0, "y": 0, "z": 0})
-print(setup.get_dict())
+setup = gcode_interpreter.setup(filename=r"example\printer_presets.yaml", printer="anisoprint_A4")
 
-new = gcode_interpreter.simulate(filename=r"example\test.gcode", initial_machine_setup=anisoprint_A4)
+new = gcode_interpreter.simulate(filename=r"example\test.gcode", initial_machine_setup=setup)
 
 # new.plot_vel(show=True, filename=False)
 # new.save_summary()
