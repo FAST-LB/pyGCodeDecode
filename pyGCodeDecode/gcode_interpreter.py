@@ -642,6 +642,7 @@ class simulate:
             "y",
             "z",
             "e",
+            "printer_name",
         ]
 
         # Following code could be improved i guess..
@@ -773,6 +774,12 @@ class setup:
         else:
             raise ValueError("Set initial position through dict with keys: {x, y, z, e} or as tuple with length 4.")
 
+    def set_property(self, property_dict: dict):
+        if self.printer_select is not None:
+            self.setup_dict[self.printer_select].update(property_dict)
+        else:
+            raise ValueError("No printer is selected. Select printer through select_printer() beforehand.")
+
     def __init__(self, filename: str, printer=None) -> None:
         self.filename = filename
         self.printer_select = printer
@@ -784,6 +791,8 @@ class setup:
             self.select_printer(printer_name=self.printer_select)
 
     def get_dict(self):
-        return_dict = self.setup_dict[self.printer_select]
-        return_dict.update(self.initial_position)
+        """Return the setup for the selected printer."""
+        return_dict = self.setup_dict[self.printer_select]  # create dict
+        return_dict.update(self.initial_position)  # add initial position
+        return_dict.update({"printer_name": self.printer_select})  # add printer name
         return return_dict
