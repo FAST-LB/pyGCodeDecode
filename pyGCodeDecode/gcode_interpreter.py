@@ -807,7 +807,7 @@ class setup:
     def __init__(self, filename: str, printer=None) -> None:
         self.filename = filename
         self.printer_select = printer
-        self.initial_position = {"x": 0, "y": 0, "z": 0, "e": 0}  # default initial pos is zero
+        self.initial_position = {"X": 0, "Y": 0, "Z": 0, "E": 0}  # default initial pos is zero
 
         self.setup_dict = self.load_setup(filename)
 

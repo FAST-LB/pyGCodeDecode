@@ -191,8 +191,6 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
         else:
             virtual_machine[key] = default_virtual_machine[key]
 
-    print(virtual_machine)
-
     # initial state creation
     state_position = position(
         virtual_machine["X"] + virtual_machine["_X"],
