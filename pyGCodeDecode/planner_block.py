@@ -350,7 +350,7 @@ class planner_block:
             state_0=self.state_A, state_next=self.state_B
         )  # target velocity for this plannerblock
 
-        # get next travel move, if following state is a comment or not printing the state after that gets used for calculation the vel_next
+        # get next travel move, if following state is a comment or not printing, the state after that gets used for calculating the vel_next
         # might be useful to create a travel/extr only state list?
         next_next_state = self.state_B.next_state if self.state_B.next_state is not None else self.state_B
         while True:
