@@ -42,6 +42,11 @@ default_virtual_machine = {
     "vY": 180,
     "vZ": 30,
     "vE": 33,
+    # axis positions
+    "X": 0,
+    "Y": 0,
+    "Z": 0,
+    "E": 0,
 }
 
 
@@ -146,7 +151,7 @@ def read_gcode_to_dict_list(filename):
 
 def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict = None):
     """
-    Converts the line dictionary to a state.
+    Convert the line dictionary to a state.
 
     Parameters
     ----------
@@ -186,6 +191,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
         else:
             virtual_machine[key] = default_virtual_machine[key]
 
+    print(virtual_machine)
 
     # initial state creation
     state_position = position(
