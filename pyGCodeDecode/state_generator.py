@@ -186,6 +186,33 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
         else:
             virtual_machine[key] = default_virtual_machine[key]
 
+
+    # initial state creation
+    state_position = position(
+        virtual_machine["X"] + virtual_machine["_X"],
+        virtual_machine["Y"] + virtual_machine["_Y"],
+        virtual_machine["Z"] + virtual_machine["_Z"],
+        virtual_machine["E"] + virtual_machine["_E"],
+    )
+
+    p_settings = state.p_settings(
+        speed=virtual_machine["p_vel"],
+        p_acc=virtual_machine["p_acc"],
+        jerk=virtual_machine["jerk"],
+        Vx=virtual_machine["vX"],
+        Vy=virtual_machine["vY"],
+        Vz=virtual_machine["vZ"],
+        Ve=virtual_machine["vE"],
+        absMode=virtual_machine["absolute_extrusion"],
+    )
+    new_state = state(state_position=state_position, state_p_settings=p_settings)  # create new state
+
+    # parse comment
+    new_state.comment = "Initial state created by pyGCD."
+    new_state.line_nmbr = None
+
+    state_list.append(new_state)
+
     # GCode functionality:
     for line_dict in line_dict_list:
         # absolute / relative position mode

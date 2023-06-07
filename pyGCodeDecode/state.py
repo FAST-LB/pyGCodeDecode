@@ -137,7 +137,7 @@ class state:
         self._prev_state = state
 
     def __str__(self) -> str:
-        return f"<state: line({self.line_nmbr}), comment({self.comment}) pos({self.state_position}), settings({self.state_p_settings})>"
+        return f"<state: line: {self.line_nmbr}, comment: {self.comment}, {self.state_position}, settings({self.state_p_settings})>"
 
     def __repr__(self) -> str:
         return self.__str__()

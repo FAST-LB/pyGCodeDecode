@@ -466,23 +466,50 @@ class simulate:
             return color_plot
         plt.close()
 
-    def plot_3d_mayavi(
-        self,
-    ):
+    def plot_3d_mayavi(self, extrusion_only: bool = True):
         import mayavi.mlab as ma
 
         # https://mayavi.sourceforge.net/docs/guide/ch04.html ?vtk dump maybe?
 
         # get all data for plots
         segments = unpack_blocklist(blocklist=self.blocklist)
-        vel_max = self.extr_max_vel()
         # initialize mayavi fig
         figure = ma.figure(figure="Velocity", bgcolor=(1.0, 1.0, 1.0))
 
         x, y, z, e, vel = [], [], [], [], []
-        for n, segm in enumerate(segments):
-            update_progress(n / len(segments), name="3D Plot")
-            if segm.is_extruding():
+
+        if extrusion_only:
+            vel_max = self.extr_max_vel()
+            for n, segm in enumerate(segments):
+                update_progress(n / len(segments), name="3D Plot")
+                if segm.is_extruding():
+                    if len(x) == 0:
+                        # append segm begin values to plotting array for first segm
+                        posbegin_vec = segm.pos_begin.get_vec(withExtrusion=True)
+                        x.append(posbegin_vec[0])
+                        y.append(posbegin_vec[1])
+                        z.append(posbegin_vec[2])
+                        e.append(posbegin_vec[3])
+                        vel.append(segm.vel_begin.get_norm())
+
+                    # append segm end values to plotting array
+                    posend_vec = segm.pos_end.get_vec(withExtrusion=True)
+                    x.append(posend_vec[0])
+                    y.append(posend_vec[1])
+                    z.append(posend_vec[2])
+                    e.append(posend_vec[3])
+                    vel.append(segm.vel_end.get_norm())
+
+                # plot if following segment is not extruding or if it's the last segment
+                if (len(x) > 0 and not segm.is_extruding()) or (len(x) > 0 and n == len(segments) - 1):
+                    plot = ma.plot3d(
+                        x, y, z, vel, tube_radius=0.2, figure=figure, vmin=0, vmax=vel_max, colormap="viridis"
+                    )
+                    # known assertion error thrown when empty plotting array gets plotted. Caused by purge at beginning of many .gcodes
+                    x, y, z, e, vel = [], [], [], [], []  # clear plotting array
+        else:
+            for n, segm in enumerate(segments):
+                update_progress(n / len(segments), name="3D Plot")
                 if len(x) == 0:
                     # append segm begin values to plotting array for first segm
                     posbegin_vec = segm.pos_begin.get_vec(withExtrusion=True)
@@ -500,11 +527,8 @@ class simulate:
                 e.append(posend_vec[3])
                 vel.append(segm.vel_end.get_norm())
 
-            # plot if following segment is not extruding or if it's the last segment
-            if (len(x) > 0 and not segm.is_extruding()) or (len(x) > 0 and n == len(segments) - 1):
-                plot = ma.plot3d(x, y, z, vel, tube_radius=0.2, figure=figure, vmin=0, vmax=vel_max, colormap="viridis")
-                # known assertion error thrown when empty plotting array gets plotted. Caused by purge at beginning of many .gcodes
-                x, y, z, e, vel = [], [], [], [], []  # clear plotting array
+            vel_max = np.amax(vel)  # calculate maximumum total velocity
+            plot = ma.plot3d(x, y, z, vel, tube_radius=0.2, figure=figure, vmin=0, vmax=vel_max, colormap="viridis")
 
         # ma.view(azimuth=0, elevation=180, distance="auto", focalpoint="auto")  # view preset
         figure.scene.parallel_projection = True
@@ -628,7 +652,7 @@ class simulate:
         """
         Method to check the printer Dict for typos or missing parameters.
         """
-        printer_keys = [
+        setup_keys = [
             "nozzle_diam",
             "filament_diam",
             "p_vel",
@@ -638,10 +662,10 @@ class simulate:
             "vY",
             "vZ",
             "vE",
-            "x",
-            "y",
-            "z",
-            "e",
+            "X",
+            "Y",
+            "Z",
+            "E",
             "printer_name",
         ]
 
@@ -649,16 +673,16 @@ class simulate:
 
         # check if all provided keys are valid
         for key in initial_machine_setup:
-            if key not in printer_keys:
+            if key not in setup_keys:
                 raise ValueError(
-                    f'Invalid Key: "{key}" in Printer Dictionary, check for typos. Valid keys are: {printer_keys}'
+                    f'Invalid Key: "{key}" in Setup Dictionary, check for typos. Valid keys are: {setup_keys}'
                 )
 
         # check if every required key is proivded
         for key in initial_machine_setup:
             if key not in initial_machine_setup:
                 raise ValueError(
-                    f'Key: "{key}" is not provided in Printer Dictionary, check for typos. Required keys are: {printer_keys}'
+                    f'Key: "{key}" is not provided in Setup Dictionary, check for typos. Required keys are: {setup_keys}'
                 )
 
     def print_summary(self):
@@ -757,22 +781,22 @@ class setup:
             self.printer_select = printer_name
 
     def set_initial_position(self, *initial_position):
-        """Set initial Position through dict with keys: {x, y, z, e} or as tuple with length 4.
+        """Set initial Position through dict with keys: {X, Y, Z, E} or as tuple with length 4.
 
         Example:    set_initial_position(1, 2, 3, 4)
-                    set_initial_position({"x": 1, "y": 2, "z": 3, "e": 4})
+                    set_initial_position({"X": 1, "Y": 2, "Z": 3, "E": 4})
         """
-        if isinstance(initial_position[0], dict) and all(key in initial_position[0] for key in ["x", "y", "z", "e"]):
+        if isinstance(initial_position[0], dict) and all(key in initial_position[0] for key in ["X", "Y", "Z", "E"]):
             self.initial_position = initial_position[0]
         elif isinstance(initial_position, tuple) and len(initial_position) == 4:
             self.initial_position = {
-                "x": initial_position[0],
-                "y": initial_position[1],
-                "z": initial_position[2],
-                "e": initial_position[3],
+                "X": initial_position[0],
+                "Y": initial_position[1],
+                "Z": initial_position[2],
+                "E": initial_position[3],
             }
         else:
-            raise ValueError("Set initial position through dict with keys: {x, y, z, e} or as tuple with length 4.")
+            raise ValueError("Set initial position through dict with keys: {X, Y, Z, E} or as tuple with length 4.")
 
     def set_property(self, property_dict: dict):
         if self.printer_select is not None:
