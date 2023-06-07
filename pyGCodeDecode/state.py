@@ -25,25 +25,23 @@ class state:
 
         def __str__(self) -> str:
             return (
-                ">>> Print Settings:\nJerk: "
+                "jerk: "
                 + str(self.jerk)
-                + "\nPrinting Acceleration: "
+                + ", p_acc: "
                 + str(self.p_acc)
-                + "\nMaximum Axis Speeds: [Vx:"
+                + ", max_ax_vel: ["
                 + str(self.Vx)
-                + ", Vy:"
+                + ", "
                 + str(self.Vy)
-                + ", Vz:"
+                + ", "
                 + str(self.Vz)
-                + ", Ve:"
+                + ", "
                 + str(self.Ve)
-                + "]\n"
-                + "Printing speed: "
+                + "]"
+                + ", p_vel: "
                 + str(self.speed)
-                + "\n"
-                + "Abs Extr: "
+                + " Abs Extr: "
                 + str(self.absMode)
-                + "\n"
             )
 
         def __repr__(self) -> str:
@@ -137,7 +135,7 @@ class state:
         self._prev_state = state
 
     def __str__(self) -> str:
-        return f"<state: line: {self.line_nmbr}, comment: {self.comment}, {self.state_position}, settings({self.state_p_settings})>"
+        return f"<state: line: {str(self.line_nmbr)}, {self.state_position}, settings: {self.state_p_settings}, comment: {self.comment}>\n"
 
     def __repr__(self) -> str:
         return self.__str__()

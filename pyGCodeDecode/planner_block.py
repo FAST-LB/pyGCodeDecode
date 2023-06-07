@@ -333,8 +333,8 @@ class planner_block:
             pass
 
     def __init__(self, state: state, prev_blck: "planner_block"):
-        """calculates and stores Single Planner Block consisting of multiple Segments
-        move is from previous to the current state
+        """Calculate and store planner block consisting of multiple segments.
+        Move is from previous to the current state
         """
         # neighbor list
         self.state_A = state.prev_state  # from state A
@@ -349,9 +349,22 @@ class planner_block:
         vel_blck = self.connect_state(
             state_0=self.state_A, state_next=self.state_B
         )  # target velocity for this plannerblock
-        vel_next = self.connect_state(
-            state_0=self.state_B, state_next=self.state_B.next_state
-        )  # target velocity for next plannerblock
+
+        # get next travel move, if following state is a comment or not printing the state after that gets used for calculation the vel_next
+        # might be useful to create a travel/extr only state list?
+        next_next_state = self.state_B.next_state if self.state_B.next_state is not None else self.state_B
+        while True:
+            if (
+                next_next_state.next_state is None
+                or self.state_B.state_position.get_t_distance(next_next_state.state_position, withExtrusion=True) > 0
+            ):
+                vel_next = self.connect_state(
+                    state_0=self.state_B, state_next=next_next_state
+                )  # target velocity for next plannerblock
+                break
+            else:
+                next_next_state = next_next_state.next_state
+
         v_JD = self.calc_JD(
             vel_0=vel_blck, vel_next=vel_next, p_settings=state.state_p_settings
         )  # junction deviation speed for end of block

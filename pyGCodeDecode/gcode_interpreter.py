@@ -63,7 +63,7 @@ def generate_planner_blocks(states: List[state]):
         if len(new_blck.get_segments()) > 0:
             if new_blck.prev_blck is not None:
                 new_blck.prev_blck.next_blck = new_blck  # update nb list
-            blck_list.extend([new_blck])
+            blck_list.append(new_blck)
         update_progress(cntr / len(states), "Planner Block Generation")
     return blck_list
 

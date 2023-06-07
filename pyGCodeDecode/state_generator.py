@@ -168,6 +168,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
     """
 
     def dict_extract(key: str, line_dict: dict):
+        """Return value from dict, if it has the key, else return None."""
         if key in line_dict:
             return line_dict[key]
         else:
@@ -296,7 +297,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
         new_state = state(state_position=state_position, state_p_settings=p_settings)  # create new state
 
         # parse comment
-        new_state.comment = dict_extract(";", line_dict=line_dict)
+        new_state.comment = line_dict[";"].strip() if ";" in line_dict else None
         new_state.line_nmbr = line_dict["line_number"]
 
         # populate state list
