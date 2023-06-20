@@ -186,6 +186,12 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
         "_Z": 0,
         "_E": 0,
     }  # keeping track of interstate values
+
+    # optionally record layers
+    if "layer_cue" in initial_machine_setup:
+        layer_counter = 0
+
+    # overwrite default values from initial machine setup
     for key in default_virtual_machine:
         if initial_machine_setup is not None and key in initial_machine_setup:
             virtual_machine[key] = initial_machine_setup[key]
@@ -212,7 +218,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
     )
     new_state = state(state_position=state_position, state_p_settings=p_settings)  # create new state
 
-    # parse comment
+    # add initial state comment
     new_state.comment = "Initial state created by pyGCD."
     new_state.line_nmbr = None
 
@@ -298,6 +304,13 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
 
         # parse comment
         new_state.comment = line_dict[";"].strip() if ";" in line_dict else None
+        
+        # if layer cue is requested, count and add layers
+        if "layer_cue" in initial_machine_setup:
+            if new_state.comment is not None and initial_machine_setup["layer_cue"] in new_state.comment:
+                layer_counter += 1
+            new_state.layer = layer_counter
+            
         new_state.line_nmbr = line_dict["line_number"]
 
         # populate state list

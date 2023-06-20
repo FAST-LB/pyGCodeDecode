@@ -154,6 +154,8 @@ def unpack_blocklist(blocklist: List[planner_block]) -> List[segment]:
 
 
 class simulate:
+    """Simulate .gcode with given machine parameters."""
+
     def plot_2d_position(
         self,
         filename="trajectory_2D.png",
@@ -649,12 +651,8 @@ class simulate:
         return tmp_vel, tmp_pos
 
     def check_initial_setup(self, initial_machine_setup):
-        """
-        Method to check the printer Dict for typos or missing parameters.
-        """
-        setup_keys = [
-            "nozzle_diam",
-            "filament_diam",
+        """Check the printer Dict for typos or missing parameters."""
+        req_keys = [
             "p_vel",
             "p_acc",
             "jerk",
@@ -668,21 +666,26 @@ class simulate:
             "E",
             "printer_name",
         ]
+        optional_keys = [
+            "layer_cue",
+            "nozzle_diam",
+            "filament_diam",
+        ]
 
-        # Following code could be improved i guess..
+        valid_keys = req_keys + optional_keys
 
         # check if all provided keys are valid
         for key in initial_machine_setup:
-            if key not in setup_keys:
+            if key not in valid_keys:
                 raise ValueError(
-                    f'Invalid Key: "{key}" in Setup Dictionary, check for typos. Valid keys are: {setup_keys}'
+                    f'Invalid Key: "{key}" in Setup Dictionary, check for typos. Valid keys are: {valid_keys}'
                 )
 
         # check if every required key is proivded
-        for key in initial_machine_setup:
+        for key in req_keys:
             if key not in initial_machine_setup:
                 raise ValueError(
-                    f'Key: "{key}" is not provided in Setup Dictionary, check for typos. Required keys are: {setup_keys}'
+                    f'Missing Key: "{key}" is not provided in Setup Dictionary, check for typos. Required keys are: {req_keys}'
                 )
 
     def print_summary(self):
@@ -716,6 +719,11 @@ class simulate:
         return max_vel
 
     def save_summary(self):
+        """Save summary to .yaml file.
+
+        Saved data: filename, t_end, x/y/z _min/_max (extend where positive extrusion),
+                    max_extr_trav_vel (maximum travel velocity where positive extrusion)
+        """
         import yaml
 
         t_end = self.blocklist[-1].get_segments()[-1].t_end  # print end time
@@ -799,14 +807,23 @@ class setup:
             raise ValueError("Set initial position through dict with keys: {X, Y, Z, E} or as tuple with length 4.")
 
     def set_property(self, property_dict: dict):
+        """Overwrite or add a property to the printer dictionary. Printer has to be selected through select_printer() beforehand."""
         if self.printer_select is not None:
             self.setup_dict[self.printer_select].update(property_dict)
         else:
             raise ValueError("No printer is selected. Select printer through select_printer() beforehand.")
 
-    def __init__(self, filename: str, printer=None) -> None:
+    def __init__(self, filename: str, printer=None, layer_cue=None) -> None:
+        """Create simulation setup.
+
+        filename    : choose setup yaml file with printer presets
+        printer     : select printer from preset file
+        layer_cue   : set slicer specific layer change cue from comment
+        """
         self.filename = filename
         self.printer_select = printer
+        self.layer_cue = layer_cue
+
         self.initial_position = {"X": 0, "Y": 0, "Z": 0, "E": 0}  # default initial pos is zero
 
         self.setup_dict = self.load_setup(filename)
@@ -818,5 +835,7 @@ class setup:
         """Return the setup for the selected printer."""
         return_dict = self.setup_dict[self.printer_select]  # create dict
         return_dict.update(self.initial_position)  # add initial position
+        if self.layer_cue is not None:
+            return_dict.update({"layer_cue": self.layer_cue})  # add layer cue
         return_dict.update({"printer_name": self.printer_select})  # add printer name
         return return_dict

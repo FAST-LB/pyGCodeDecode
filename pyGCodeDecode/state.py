@@ -5,6 +5,8 @@ from .utils import position, velocity
 
 
 class state:
+    """State contains a Position and Printing Settings (p_settings) to apply for the corresponding move to this State."""
+
     class p_settings:
         """Store Printing Settings
         Supports
@@ -78,13 +80,6 @@ class state:
                 absMode = old_settings.absMode
             return cls(p_acc=p_acc, jerk=jerk, Vx=Vx, Vy=Vy, Vz=Vz, Ve=Ve, speed=speed, absMode=absMode)
 
-    """State contains a Position and the gcode-defined Printing Settings (p_settings) to apply for the corresponding move to the Position
-    Supports
-        str
-    Class method
-        new: returns new State from old State and given optional changing Position and/or Print Settings
-    """
-
     def __init__(self, state_position: position = None, state_p_settings: p_settings = None):
         self.state_position = state_position
         self.state_p_settings = state_p_settings
@@ -92,6 +87,7 @@ class state:
         self.prev_state = None
         self.line_nmbr = None
         self.comment = None
+        self.layer = None
 
     @property
     def state_position(self):
@@ -135,22 +131,21 @@ class state:
         self._prev_state = state
 
     def __str__(self) -> str:
-        return f"<state: line: {str(self.line_nmbr)}, {self.state_position}, settings: {self.state_p_settings}, comment: {self.comment}>\n"
+        """Generate string for representation."""
+        if self.layer is not None:
+            return f"<state: line: {str(self.line_nmbr)}, layer: {self.layer}, {self.state_position}, settings: {self.state_p_settings}, comment: {self.comment}>\n"
+        else:
+            return f"<state: line: {str(self.line_nmbr)}, {self.state_position}, settings: {self.state_p_settings}, comment: {self.comment}>\n"
 
     def __repr__(self) -> str:
+        """Call __str__() for representation."""
         return self.__str__()
-
-    @classmethod
-    def new(cls, old_state: "state", position: position = None, p_settings: p_settings = None):
-        if position is None:
-            position = old_state.position
-        if p_settings is None:
-            p_settings = old_state.p_settings
-        return cls(state_position=position, state_p_settings=p_settings)
 
 
 class segment:
-    """stores Segment data for linear 4D Velocity function segment, contains: time,position,velocity
+    """Store Segment data for linear 4D Velocity function segment.
+
+    contains: time,position,velocity
     Supports
         str
     Additional methods
