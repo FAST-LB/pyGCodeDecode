@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """GCode Interpreter Module."""
-from typing import List
 
 import numpy as np
 
 from .planner_block import planner_block
-from .state import state
 from .state_generator import state_generator
+from .state import state
+from typing import List
 from .utils import velocity, segment
 
 

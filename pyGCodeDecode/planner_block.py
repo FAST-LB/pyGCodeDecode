@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """Plannerblock Module."""
-from typing import List
-
 import numpy as np
-
 from .state import state
+from typing import List
 from .utils import velocity, segment
 
 
