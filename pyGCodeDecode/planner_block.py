@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """Plannerblock Module."""
-import numpy as np
-from .state import state
 from typing import List
-from .utils import velocity, segment
+
+import numpy as np
+
+from .state import state
+from .utils import segment, velocity
 
 
 class planner_block:

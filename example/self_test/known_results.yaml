@@ -2,12 +2,12 @@
 # extrusion length
 # time for simple movements
 # self correction check
-#  
+#
 # adhere to max acc
-# adhere to max vel 
+# adhere to max vel
 # jerk / JD
 # units
 # layer detection / comment functionality
 # rel / abs pos/extr
 # set position
-# 
+#

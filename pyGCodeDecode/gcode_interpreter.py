@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """GCode Interpreter Module."""
 
+from typing import List
+
 import numpy as np
 
 from .planner_block import planner_block
-from .state_generator import state_generator
 from .state import state
-from typing import List
-from .utils import velocity, segment
+from .state_generator import state_generator
+from .utils import segment, velocity
 
 
 def update_progress(progress, name="Percent"):
@@ -477,7 +478,6 @@ class simulate:
         import mayavi.mlab as ma
 
         # https://mayavi.sourceforge.net/docs/guide/ch04.html ?vtk dump maybe?
-
         # get all data for plots
         segments = unpack_blocklist(blocklist=self.blocklist)
         # initialize mayavi fig
