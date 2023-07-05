@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""State generator module."""
 import re
 from typing import List, Match
 
@@ -53,7 +54,6 @@ default_virtual_machine = {
 def arg_extract(string: str, key_dict: dict):
     """
     Extract arguments from known command dictionarys.
-    converts list of states to trajectory segments
 
     Parameters
     ----------
@@ -124,7 +124,7 @@ def arg_extract(string: str, key_dict: dict):
 
 def read_gcode_to_dict_list(filename):
     """
-    read gcode from .gcode file
+    Read gcode from .gcode file.
 
     Parameters
     ----------
@@ -299,19 +299,19 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
             Vz=virtual_machine["vZ"],
             Ve=virtual_machine["vE"],
             absMode=virtual_machine["absolute_extrusion"],
-            units=virtual_machine["units"]
+            units=virtual_machine["units"],
         )
         new_state = state(state_position=state_position, state_p_settings=p_settings)  # create new state
 
         # parse comment
         new_state.comment = line_dict[";"].strip() if ";" in line_dict else None
-        
+
         # if layer cue is requested, count and add layers
         if "layer_cue" in initial_machine_setup:
             if new_state.comment is not None and initial_machine_setup["layer_cue"] in new_state.comment:
                 layer_counter += 1
             new_state.layer = layer_counter
-            
+
         new_state.line_nmbr = line_dict["line_number"]
 
         # populate state list
@@ -324,6 +324,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
 
 
 def state_generator(filename: str, initial_machine_setup: dict = None):
+    """Generate state list from GCode file."""
     line_dict_list = read_gcode_to_dict_list(filename=filename)
     states = dict_list_traveler(line_dict_list=line_dict_list, initial_machine_setup=initial_machine_setup)
 

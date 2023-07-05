@@ -251,6 +251,7 @@ class segment:
         pos_end: position = None,
         vel_end: velocity = None,
     ):
+        """Initialize a segment."""
         self.t_begin = t_begin
         self.t_end = t_end
         self.pos_begin = pos_begin
@@ -260,18 +261,22 @@ class segment:
         self.self_check()
 
     def __str__(self) -> str:
+        """Create string from segment."""
         # distance = self.pos_end.get_t_distance(old_position=self.pos_begin) if not self.pos_end is None else 0
         # return f"Segment length: {distance} mm from {self.t_begin}s to {self.t_end}s\nv_begin: {self.vel_begin}\tv_end: {self.vel_end}\n"
         return f"\nSegment from: \n{self.pos_begin} to \n{self.pos_end} Self check: {self.self_check()}.\n"
 
     def __repr__(self):
+        """Segment representation."""
         return self.__str__()
 
     def move_segment_time(self, delta_t: float):
+        """Move segment in time."""
         self.t_begin = self.t_begin + delta_t
         self.t_end = self.t_end + delta_t
 
     def get_velocity(self, t):
+        """Get current velocity of segment at a certain time."""
         if t < self.t_begin or t > self.t_end:
             raise ValueError("Segment not defined for this point in time.")
         else:
@@ -283,6 +288,7 @@ class segment:
             return current_vel
 
     def get_position(self, t):
+        """Get current position of segment at a certain time."""
         if t < self.t_begin or t > self.t_end:
             raise ValueError("Segment not defined for this point in time.")
         else:
@@ -293,8 +299,14 @@ class segment:
             return position
 
     def self_check(self):  # ,tolerance=float("e-13"), state:state=None):
-        # WIP, check for self consistency
-        # > travel distance
+        """Check the segment for self consistency. WIP.
+
+        not yet:
+        - max acceleration
+        - max velocity
+        ..more?
+        """
+        # position self check:
         position = self.pos_begin + ((self.vel_begin + self.vel_end) * (self.t_end - self.t_begin) / 2.0).get_vec(
             withExtrusion=True
         )
@@ -304,16 +316,14 @@ class segment:
         else:
             error_distance = np.linalg.norm(np.asarray(self.pos_end.get_vec()) - np.asarray(position.get_vec()))
             return "Error distance: " + str(error_distance)
-        # > max acceleration
-        # > max velocity
-        # ..more?
 
     def is_extruding(self):
+        """Return true if the segment is pos. extruding."""
         return self.pos_begin.e < self.pos_end.e
-        # return self.vel_begin.is_extruding() or self.vel_end.is_extruding()
 
     @classmethod
     def create_initial(cls, initial_position: position = None):
+        """Create initial static segment with (optionally) initial position."""
         velocity_0 = velocity(0, 0, 0, 0)
         pos_0 = position(x=0, y=0, z=0, e=0) if initial_position is None else initial_position
         return cls(t_begin=0, t_end=0, pos_begin=pos_0, vel_begin=velocity_0, pos_end=pos_0, vel_end=velocity_0)

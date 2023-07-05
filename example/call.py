@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Example usage of pyGCD."""
 from pyGCodeDecode import gcode_interpreter
 
 setup = gcode_interpreter.setup(filename=r"example\printer_presets.yaml", printer="anisoprint_A4")

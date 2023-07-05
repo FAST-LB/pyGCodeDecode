@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Plannerblock Module."""
 from typing import List
 
 import numpy as np
@@ -8,9 +9,11 @@ from .utils import velocity, segment
 
 
 class planner_block:
+    """Planner Block Class."""
+
     def calc_JD(self, vel_0: velocity, vel_next: velocity, p_settings: state.p_settings):
         """
-        Calculates junction deviation velocity from 2 velocitys.
+        Calculate junction deviation velocity from 2 velocitys.
 
         Parameters
         ----------
@@ -64,7 +67,7 @@ class planner_block:
 
     def connect_state(self, state_0: state, state_next: state):
         """
-        Connects two states and generates the velocity for the move from state_0 to state_next
+        Connect two states and generates the velocity for the move from state_0 to state_next.
 
         Parameters
         ----------
@@ -94,8 +97,9 @@ class planner_block:
 
     def move_maker2(self, v_end):
         """
+        Calculate the correct move type (trapezoidal,triangular or singular) and generate the corresponding segments.
+
         WIP Method that ignores the beginning velocity if end velocity is not reachable
-        Calculates the correct move type (trapezoidal,triangular or singular) and generates the corresponding Segments
 
         Parameters
         ----------
@@ -270,7 +274,7 @@ class planner_block:
             raise NameError("Segment could not be modeled.")
 
     def self_correction(self, tolerance=float("1e-12")):
-        # Check interface points
+        """Check for interfacing vel and self correct."""
         flag_correct = False
         if self.next_blck is not None:
             same_vel = (
@@ -308,12 +312,13 @@ class planner_block:
         return flag_correct
 
     def timeshift(self, delta_t: float):
-        pass
+        """Shift planner block in time."""
         if len(self.segments) > 0:
             for segm in self.segments:
                 segm.move_segment_time(delta_t)
 
     def extr_block_max_vel(self):
+        """Return max vel from plannerblock while extruding."""
         if self.is_extruding:
             all_vel_extruding = np.asarray(
                 [
@@ -334,7 +339,7 @@ class planner_block:
 
     def __init__(self, state: state, prev_blck: "planner_block"):
         """Calculate and store planner block consisting of one or multiple segments.
-        
+
         Move is from state_A to state_B (the current state)
         """
         # neighbor list
@@ -383,6 +388,7 @@ class planner_block:
 
     @property
     def prev_blck(self):
+        """Define prev_blck as property."""
         return self._prev_blck
 
     @prev_blck.setter
@@ -391,6 +397,7 @@ class planner_block:
 
     @property
     def next_blck(self):
+        """Define next_blck as property."""
         return self._next_blck
 
     @next_blck.setter
@@ -398,6 +405,7 @@ class planner_block:
         self._next_blck = blck
 
     def __str__(self) -> str:
+        """Create string from plannerblock."""
         if len(self.segments) == 3:
             return "{:-^40}".format("Trapez Planner Block")
         elif len(self.segments) == 2:
@@ -408,7 +416,9 @@ class planner_block:
             return "{:#^40}".format("Invalid Planner Block")
 
     def __repr__(self) -> str:
+        """Represent plannerblock."""
         return self.__str__()
 
     def get_segments(self):
+        """Return segments, contained by the plannerblock."""
         return self.segments

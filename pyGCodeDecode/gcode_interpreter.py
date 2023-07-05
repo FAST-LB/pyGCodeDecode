@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""WIP gcode Reader"""
+"""GCode Interpreter Module."""
 from typing import List
 
 import numpy as np
@@ -11,14 +11,16 @@ from .utils import velocity, segment
 
 
 def update_progress(progress, name="Percent"):
-    # update_progress() : Displays or updates a console progress bar
-    # Accepts a float between 0 and 1. Any int will be converted to a float.
-    # A value under 0 represents a 'halt'.
-    # A value at 1 or bigger represents 100%
+    """
+    Display or update a console progress bar.
 
+    Accepts a float between 0 and 1. Any int will be converted to a float.
+    A value under 0 represents a 'halt'.
+    A value at 1 or bigger represents 100%
+    """
     import sys
 
-    barLength = 10  # Modify this to change the length of the progress bar
+    barLength = 10
     status = ""
 
     if isinstance(progress, int):
@@ -41,7 +43,7 @@ def update_progress(progress, name="Percent"):
 
 def generate_planner_blocks(states: List[state]):
     """
-    converts list of states to trajectory segments
+    Convert list of states to trajectory segments.
 
     Parameters
     ----------
@@ -53,7 +55,6 @@ def generate_planner_blocks(states: List[state]):
     blck_list[planner_block]
         list of all plannerblocks to complete travel between all states
     """
-
     blck_list = []
     cntr = 0
     for state in states:  # noqa
@@ -70,7 +71,7 @@ def generate_planner_blocks(states: List[state]):
 
 def find_current_segm(path: List[segment], t: float, last_index: int = None, keep_position: bool = False):
     """
-    finds the current segment
+    Find the current segment.
 
     Parameters
     ----------
@@ -90,7 +91,6 @@ def find_current_segm(path: List[segment], t: float, last_index: int = None, kee
     last_index
         last index where something was found, search speed optimization possible
     """
-
     if keep_position:
         # use this if eval for times where no planner blocks are created
         if last_index is None or len(path) - 1 < last_index or path[last_index].t_begin > t:
@@ -144,9 +144,7 @@ def find_current_segm(path: List[segment], t: float, last_index: int = None, kee
 
 
 def unpack_blocklist(blocklist: List[planner_block]) -> List[segment]:
-    """
-    Returns list of segments by unpacking list of plannerblocks.
-    """
+    """Return list of segments by unpacking list of plannerblocks."""
     path = []
     for block in blocklist:
         path.extend(block.get_segments()[:])
@@ -166,6 +164,7 @@ class simulate:
         scaled=True,
         show=False,
     ):
+        """Plot 2D position (XY plane) with matplotlib."""
         import matplotlib.pyplot as plt
         from matplotlib import cm
         from matplotlib.collections import LineCollection
@@ -274,6 +273,7 @@ class simulate:
     def plot_3d_position_legacy(
         self, filename="trajectory_3D.png", dpi=400, show=False, colvar_spatial_resolution=1, colvar="Velocity"
     ):
+        """Plot 3D position with Matplotlib (legacy)."""
         import matplotlib.pyplot as plt
         from matplotlib import cm
         from mpl_toolkits.mplot3d.art3d import Line3DCollection
@@ -377,6 +377,7 @@ class simulate:
     def plot_3d_position(
         self, filename="trajectory_3D.png", dpi=400, show=False, colvar_spatial_resolution=1, colvar="Velocity"
     ):
+        """Plot 3D position with Matplotlib."""
         import matplotlib.pyplot as plt
         from matplotlib import cm
         from mpl_toolkits.mplot3d import Axes3D
@@ -469,6 +470,10 @@ class simulate:
         plt.close()
 
     def plot_3d_mayavi(self, extrusion_only: bool = True):
+        """Plot 3D Positon with Mayavi (colormap).
+
+        Only plot where material gets extruded. Default = True
+        """
         import mayavi.mlab as ma
 
         # https://mayavi.sourceforge.net/docs/guide/ch04.html ?vtk dump maybe?
@@ -556,6 +561,7 @@ class simulate:
         filename="velplot.png",
         dpi=400,
     ):
+        """Plot axis velocity with matplotlib."""
         import matplotlib.pyplot as plt
 
         axis_dict = {"x": 0, "y": 1, "z": 2, "e": 3}
@@ -634,11 +640,13 @@ class simulate:
         plt.close()
 
     def trajectory_self_correct(self):
+        """Self correct all blocks in the blocklist with self_corection() method."""
         # self correction
         for block in self.blocklist:
             block.self_correction()
 
     def get_values(self, t):
+        """Return unit system scaled values for vel and pos."""
         segments = unpack_blocklist(blocklist=self.blocklist)
         segm, self.last_index = find_current_segm(path=segments, t=t, last_index=self.last_index)
         tmp_vel = segm.get_velocity(t=t).get_vec(withExtrusion=True)
@@ -689,12 +697,14 @@ class simulate:
                 )
 
     def print_summary(self):
+        """Print simulation summary."""
         print(
             f""" >> pyGCodeDecode extracted {len(self.states)} states from {self.filename} and generated {len(self.blocklist)} plannerblocks.\n
             Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end} seconds."""
         )
 
     def refresh(self, new_state_list: List[state] = None):
+        """Refresh simulation. Either through new state list or by rerunning the self.states as input."""
         if new_state_list is not None:
             self.states = new_state_list
 
@@ -746,7 +756,7 @@ class simulate:
 
     def __init__(self, filename: str, initial_machine_setup: "setup", output_unit_system: str = "SImm"):
         """Simulate a given GCode with initial machine setup.
-        
+
         - Generate all states from GCode.
         - Connect states with planner blocks, consisting of segments
         - Self correct inconsistencies.
