@@ -830,7 +830,7 @@ class setup:
         else:
             raise ValueError("No printer is selected. Select printer through select_printer() beforehand.")
 
-    def __init__(self, filename: str, printer=None, layer_cue=None) -> None:
+    def __init__(self, filename: str, printer: str = None, layer_cue: str = None) -> None:
         """Create simulation setup.
 
         filename    : choose setup yaml file with printer presets
