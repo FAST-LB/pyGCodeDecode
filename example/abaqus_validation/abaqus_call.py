@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from pyGCodeDecode import abaqus_file_generator, gcode_interpreter
 
-###Fictional Printer Preset
+# Fictional Printer Preset
 fictional_printer = {
     # general properties
     "nozzle_diam": 0.4,
