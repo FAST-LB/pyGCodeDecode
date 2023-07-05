@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Module for generating Abaqus .inp files for AMSIM."""
 from pyGCodeDecode import gcode_interpreter as gi
 
 """
@@ -17,6 +18,7 @@ tolerance = float("1e-12")
 
 
 def generate_abaqus_events(trajectory, output_filename="pyGcodeDecode_abaqus_events.inp"):
+    """Generate abaqus event series."""
     # get all positions and timings
     unpacked = gi.unpack_blocklist(trajectory.blocklist)
     pos = [unpacked[0].get_position(t=unpacked[0].t_begin).get_vec(withExtrusion=True)]

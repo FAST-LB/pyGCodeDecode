@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Abaqus example call."""
 from pyGCodeDecode import abaqus_file_generator, gcode_interpreter
 
 # Fictional Printer Preset
