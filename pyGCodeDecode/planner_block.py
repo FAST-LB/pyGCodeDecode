@@ -3,8 +3,8 @@ from typing import List
 
 import numpy as np
 
-from .state import segment, state
-from .utils import velocity
+from .state import state
+from .utils import velocity, segment
 
 
 class planner_block:
@@ -333,8 +333,9 @@ class planner_block:
             pass
 
     def __init__(self, state: state, prev_blck: "planner_block"):
-        """Calculate and store planner block consisting of multiple segments.
-        Move is from previous to the current state
+        """Calculate and store planner block consisting of one or multiple segments.
+        
+        Move is from state_A to state_B (the current state)
         """
         # neighbor list
         self.state_A = state.prev_state  # from state A

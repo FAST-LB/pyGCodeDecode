@@ -225,3 +225,95 @@ class position(vector_4D):
         return np.linalg.norm(
             np.subtract(self.get_vec(withExtrusion=withExtrusion), other.get_vec(withExtrusion=withExtrusion))
         )
+
+
+class segment:
+    """Store Segment data for linear 4D Velocity function segment.
+
+    contains: time,position,velocity
+    Supports
+        str
+    Additional methods
+        move_segment_time:      moves Segment in time by a specified interval
+        get_velocity:           returns the calculated Velocity for all axis at a given point in time
+        get_position:           returns the calculated Position for all axis at a given point in time
+    Class method
+        create_initial:         returns the artificial initial segment where everything is at standstill, intervall length = 0
+        self_check:             returns True if all self checks have been successfull
+    """
+
+    def __init__(
+        self,
+        t_begin: float,
+        t_end: float,
+        pos_begin: position,
+        vel_begin: velocity,
+        pos_end: position = None,
+        vel_end: velocity = None,
+    ):
+        self.t_begin = t_begin
+        self.t_end = t_end
+        self.pos_begin = pos_begin
+        self.pos_end = pos_end
+        self.vel_begin = vel_begin
+        self.vel_end = vel_end
+        self.self_check()
+
+    def __str__(self) -> str:
+        # distance = self.pos_end.get_t_distance(old_position=self.pos_begin) if not self.pos_end is None else 0
+        # return f"Segment length: {distance} mm from {self.t_begin}s to {self.t_end}s\nv_begin: {self.vel_begin}\tv_end: {self.vel_end}\n"
+        return f"\nSegment from: \n{self.pos_begin} to \n{self.pos_end} Self check: {self.self_check()}.\n"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def move_segment_time(self, delta_t: float):
+        self.t_begin = self.t_begin + delta_t
+        self.t_end = self.t_end + delta_t
+
+    def get_velocity(self, t):
+        if t < self.t_begin or t > self.t_end:
+            raise ValueError("Segment not defined for this point in time.")
+        else:
+            # linear interpolation of velocity in Segment
+            delt_vel = self.vel_end - self.vel_begin
+            delt_t = self.t_end - self.t_begin
+            slope = delt_vel / delt_t if delt_t > 0 else velocity(0, 0, 0, 0)
+            current_vel = self.vel_begin + slope * (t - self.t_begin)
+            return current_vel
+
+    def get_position(self, t):
+        if t < self.t_begin or t > self.t_end:
+            raise ValueError("Segment not defined for this point in time.")
+        else:
+            current_vel = self.get_velocity(t=t)
+            position = self.pos_begin + ((self.vel_begin + current_vel) * (t - self.t_begin) / 2.0).get_vec(
+                withExtrusion=True
+            )
+            return position
+
+    def self_check(self):  # ,tolerance=float("e-13"), state:state=None):
+        # WIP, check for self consistency
+        # > travel distance
+        position = self.pos_begin + ((self.vel_begin + self.vel_end) * (self.t_end - self.t_begin) / 2.0).get_vec(
+            withExtrusion=True
+        )
+        pos_check = self.pos_end == position
+        if pos_check:
+            return pos_check
+        else:
+            error_distance = np.linalg.norm(np.asarray(self.pos_end.get_vec()) - np.asarray(position.get_vec()))
+            return "Error distance: " + str(error_distance)
+        # > max acceleration
+        # > max velocity
+        # ..more?
+
+    def is_extruding(self):
+        return self.pos_begin.e < self.pos_end.e
+        # return self.vel_begin.is_extruding() or self.vel_end.is_extruding()
+
+    @classmethod
+    def create_initial(cls, initial_position: position = None):
+        velocity_0 = velocity(0, 0, 0, 0)
+        pos_0 = position(x=0, y=0, z=0, e=0) if initial_position is None else initial_position
+        return cls(t_begin=0, t_end=0, pos_begin=pos_0, vel_begin=velocity_0, pos_end=pos_0, vel_end=velocity_0)

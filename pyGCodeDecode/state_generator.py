@@ -163,7 +163,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
     Returns
     ----------
     state
-        incomplete state
+        state list
 
     """
 
@@ -242,7 +242,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
         if "G20" in line_dict:
             virtual_machine["units"] = "inch"
         if "G21" in line_dict:
-            virtual_machine["units"] = "mm"
+            virtual_machine["units"] = "SImm"
 
         # position & velocity
         pos_keys = ["X", "Y", "Z"]
@@ -299,6 +299,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
             Vz=virtual_machine["vZ"],
             Ve=virtual_machine["vE"],
             absMode=virtual_machine["absolute_extrusion"],
+            units=virtual_machine["units"]
         )
         new_state = state(state_position=state_position, state_p_settings=p_settings)  # create new state
 

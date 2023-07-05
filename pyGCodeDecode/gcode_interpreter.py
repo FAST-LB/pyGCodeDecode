@@ -5,9 +5,9 @@ from typing import List
 import numpy as np
 
 from .planner_block import planner_block
-from .state import segment, state
+from .state import state
 from .state_generator import state_generator
-from .utils import velocity
+from .utils import velocity, segment
 
 
 def update_progress(progress, name="Percent"):
@@ -745,11 +745,18 @@ class simulate:
         file.close()
 
     def __init__(self, filename: str, initial_machine_setup: "setup", output_unit_system: str = "SImm"):
+        """Simulate a given GCode with initial machine setup.
+        
+        - Generate all states from GCode.
+        - Connect states with planner blocks, consisting of segments
+        - Self correct inconsistencies.
+        Unit system choosable: SI, SImm & inch
+        """
         self.last_index = None  # used to optimize search in segment list
         self.filename = filename
 
         # set scaling to chosen unit system
-        self.available_unit_systems = {"SI": 1e-3, "SImm": 1.0, "inches": 1 / 25.4}
+        self.available_unit_systems = {"SI": 1e-3, "SImm": 1.0, "inch": 1 / 25.4}
         if output_unit_system in self.available_unit_systems:
             self.output_unit_system = output_unit_system
             self.scaling = self.available_unit_systems[self.output_unit_system]

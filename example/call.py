@@ -5,7 +5,6 @@ setup = gcode_interpreter.setup(filename=r"example\printer_presets.yaml", printe
 setup.set_property({"layer_cue": "LAYER_CHANGE"})  # Prusa Slicer layer change cue.
 
 new = gcode_interpreter.simulate(filename=r"example\test.gcode", initial_machine_setup=setup)
-
 print(new.states)
 
 # new.plot_vel(show=True, filename=False)
