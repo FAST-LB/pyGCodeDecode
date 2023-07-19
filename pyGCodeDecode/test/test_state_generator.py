@@ -8,10 +8,10 @@ def test_state_generator():
     from pyGCodeDecode.gcode_interpreter import setup
 
     test_setup = setup(
-        filename=r"pyGCodeDecode\test\test_state_generator_setup.yaml", printer="test", layer_cue="LAYER_CHANGE"
+        filename=r".\pyGCodeDecode\test\test_state_generator_setup.yaml", printer="test", layer_cue="LAYER_CHANGE"
     )
     states = state_generator(
-        filename=r"pyGCodeDecode\test\test_state_generator.gcode", initial_machine_setup=test_setup.get_dict()
+        filename=r".\pyGCodeDecode\test\test_state_generator.gcode", initial_machine_setup=test_setup.get_dict()
     )
     # print(states[0])
     # assert True
