@@ -7,17 +7,13 @@ lint:
         - black --check .
         - flake8 .
 
-installation:
+
+tests:
     stage: test
     image: "python:3.8"
     script:
         # missing dependencies for docker-container
         - apt-get update && apt-get install libgl1 -y
         - pip install . -v
-
-tests:
-    stage: test
-    image: "python:3.9"
-    script:
         - pip install pytest
         - pytest .
