@@ -166,14 +166,6 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
         state list
 
     """
-
-    def dict_extract(key: str, line_dict: dict):
-        """Return value from dict, if it has the key, else return None."""
-        if key in line_dict:
-            return line_dict[key]
-        else:
-            return None
-
     state_list: List[state] = list()
 
     virtual_machine = {
