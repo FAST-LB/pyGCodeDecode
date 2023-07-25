@@ -4,7 +4,26 @@ from pyGCodeDecode.state_generator import state_generator
 
 
 def test_state_generator():
-    """Test the state generator function."""
+    """Test the state generator function.
+
+    Functionality:
+    - G0,G1
+    - M82
+    - M83
+    - G90
+    - G91
+    - G92
+    - G20
+    - G21
+    - comment
+    To-Do:
+    - M203
+    - M204
+    - M205
+    - G4
+    - G10
+        --> rest of supported commands + glitch/inject tests
+    """
     import os
 
     from pyGCodeDecode.gcode_interpreter import setup
@@ -40,3 +59,7 @@ def test_state_generator():
     assert states[12].state_position.get_vec(withExtrusion=True) == [7, 7, 7, 7]  # abs move
     # assert states[13]  # virtual null all axis
     assert states[14].state_position.get_vec(withExtrusion=True) == [14, 14, 14, 14]  # abs move with offset
+    assert states[14].state_p_settings.units == "SImm"
+    assert states[15].state_p_settings.units == "inch"
+    assert states[16].state_p_settings.units == "SImm"
+    assert states[17].comment == "LAYER cue"

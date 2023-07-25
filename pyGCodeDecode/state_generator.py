@@ -28,7 +28,7 @@ commands = {
 default_virtual_machine = {
     "absolute_position": True,
     "absolute_extrusion": True,
-    "units": "mm",
+    "units": "SImm",
     "initial_position": None,
     # general properties
     "nozzle_diam": 0.4,
