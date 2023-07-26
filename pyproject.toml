@@ -45,7 +45,8 @@ DEVELOPER = [
     "black",
     "black[jupyter]",
     "flake8-docstrings",
-    "pre-commit"
+    "pre-commit",
+    "pytest"
 ]
 
 [project.urls]
