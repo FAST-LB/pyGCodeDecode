@@ -16,7 +16,7 @@ run_tests:
         - apt-get update && apt-get install libgl1 -y
         - pip install . -v
         - pip install pytest pytest-cov
-        - pytest . --cov --cov-config=./pyproject.toml --cov-report=xml:./pyGCodeDecode/test/coverage.xml
+        - pytest --cov --cov-report term --cov-report xml:./pyGCodeDecode/test/coverage.xml
     coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
     artifacts:
         reports:
