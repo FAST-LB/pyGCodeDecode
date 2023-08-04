@@ -5,6 +5,7 @@
 [![Latest Release](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/badges/release.svg)](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/releases)
 [![pipeline status](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/badges/main/pipeline.svg)](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/commits/main)
 [![coverage report](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/badges/dev_init/coverage.svg)](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/commits/dev_init)
+
 ![Black](https://img.shields.io/badge/code%20style-black-000000.svg)
 
 ## What is this repository for?
