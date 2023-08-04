@@ -46,7 +46,8 @@ DEVELOPER = [
     "black[jupyter]",
     "flake8-docstrings",
     "pre-commit",
-    "pytest"
+    "pytest",
+    "pytest-cov",
 ]
 
 [project.urls]
@@ -58,3 +59,20 @@ line-length = 120
 
 [tool.isort]
 profile = "black"
+
+[tool.coverage.paths]
+source = [
+    "./pyGCodeDecode/",
+    ]
+
+[tool.coverage.run]
+omit = [
+    # omit tests
+    "pyGCodeDecode/test/*",
+    ]
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_also = [
+    "if __name__ == .__main__.:",
+    ]

@@ -1,14 +1,25 @@
 # pyGCodeDecode
+
 ![LOGO](pyGCodeDecode/logo.jpg?raw=true "pyGCD")
-# What is this repository for?
+
+[![Latest Release](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/badges/release.svg)](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/releases)
+[![coverage report](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/badges/dev_init/coverage.svg)](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/commits/dev_init)
+![coverage](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/badges/-/coverage.svg?job=tests)
+![Black](https://img.shields.io/badge/code%20style-black-000000.svg)
+
+## What is this repository for?
+
 This python package is used to generate time dependent boundary conditions from a .gcode file, needed in additive manufacturing simulations such as Fused Filament Fabrication. This package reads the trajectory as well as some relevant constantly changing printing settings. The output describes the nozzle position and velocity at every point in time. Notably, this method does try to simulate the real printer movements at a higher accuracy. This is achieved by replicating grbl and derivative firmwares specific movement planner solutions, such as Junction Deviation as an interpretation for Jerk.
 
 PyGCodeDecode is currently used in:
+
 - PySPH FFF
 - Abaqus Event Series Generator
 
-# Install pyGCodeDecode
+## Install pyGCodeDecode
+
 ### Installing in Python 3
+
 Set up a virtual environment named `virtual_env` using the `virtualenv` package
 
         python -m pip install .
@@ -46,18 +57,20 @@ Verify the installation via `pip list` and look for `pyGCodeDecode`.
 
 3. Verify the package installation via `abaqus python -m pip list` and look for `pyGCodeDecode`.
 
-# Supported GCode commands
+## Supported GCode commands
+
 fully supported:
+
 - G1 X** Y** Z** E** F**
 - M82 (absolute extruder mode)
 - M83 (relative extruder mode)
 
 partially supported:
+
 - M203 (max axis speed)         *read only
 - M204 P** (acceleration)       *P only
 - M205 X** (jerk)               *X only
 
-
-# Workflow
+## Workflow
 
 tbd
