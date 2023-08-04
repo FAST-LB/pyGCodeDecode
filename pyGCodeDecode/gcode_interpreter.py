@@ -569,7 +569,7 @@ class simulate:
         segments = unpack_blocklist(blocklist=self.blocklist)  # unpack
 
         # timesteps
-        if type(timesteps) == int:  # evenly distributed timesteps
+        if type(timesteps) is int:  # evenly distributed timesteps
             times = np.linspace(0, self.blocklist[-1].get_segments()[-1].t_end, timesteps, endpoint=False)
         elif timesteps == "constrained":  # use segment timepoints as plot constrains
             times = [0]

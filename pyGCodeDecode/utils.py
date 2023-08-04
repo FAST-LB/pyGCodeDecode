@@ -29,9 +29,9 @@ class vector_4D:
         self.z = None
         self.e = None
 
-        if type(args) == tuple and len(args) == 1:
+        if type(args) is tuple and len(args) == 1:
             args = tuple(args[0])
-        if type(args) == tuple and len(args) == 4:
+        if type(args) is tuple and len(args) == 4:
             self.x = args[0]
             self.y = args[1]
             self.z = args[2]

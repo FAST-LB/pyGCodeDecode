@@ -14,7 +14,7 @@ repos:
     -   id: fix-encoding-pragma
 # Black code style formatter
 -   repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.7.0
     hooks:
       - id: black
       - id: black-jupyter
@@ -26,7 +26,7 @@ repos:
         args: ["--profile", "black"]
 # Flake8 for linting
 -   repo: https://github.com/pycqa/flake8
-    rev: '6.0.0'
+    rev: '6.1.0'
     hooks:
     -   id: flake8
         additional_dependencies: [flake8-docstrings]
