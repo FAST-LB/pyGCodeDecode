@@ -1,13 +1,15 @@
 # Ignore result files from example
-
 *.png
 *.inp
 
-#
+# build artifacts
 __pycache__
-
 *.egg-info
-venv/*
 
+# directories
 venv/*
 build/*
+
+# coverage reports
+.coverage
+coverage.xml
