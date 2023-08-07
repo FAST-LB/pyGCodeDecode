@@ -3,8 +3,8 @@
 ![LOGO](pyGCodeDecode/logo.jpg?raw=true "pyGCD")
 
 [![Latest Release](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/badges/release.svg)](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/releases)
-[![pipeline status](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/badges/%{default_branch}/pipeline.svg)](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/pipelines?scope=branches)
-![coverage report](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/badges/%{default_branch}/coverage.svg)
+[![pipeline status](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/badges/main/pipeline.svg)](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/pipelines?scope=branches)
+![coverage report](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/badges/main/coverage.svg)
 
 ![Python](https://img.shields.io/badge/-Python-4B8BBE?&logo=Python&logoColor=fff)
 ![Black](https://img.shields.io/badge/code%20style-black-000000.svg)
