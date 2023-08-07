@@ -20,9 +20,9 @@ run_tests:
             --cov-report xml:./pyGCodeDecode/test/coverage.xml
     coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
     artifacts:
-        untracked: true
+        untracked: false
         paths:
-            - test-artifacts/
+            - ./pyGCodeDecode/test/coverage.xml
         reports:
             coverage_report:
                 coverage_format: cobertura
