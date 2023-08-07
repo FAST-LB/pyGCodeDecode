@@ -4,10 +4,10 @@
 
 [![Latest Release](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/badges/release.svg)](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/releases)
 [![pipeline status](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/badges/main/pipeline.svg)](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/pipelines?scope=branches)
-![coverage report](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/badges/main/coverage.svg)
+[![coverage report](https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/badges/main/coverage.svg)]()
 
-![Python](https://img.shields.io/badge/-Python-4B8BBE?&logo=Python&logoColor=fff)
-![Black](https://img.shields.io/badge/code%20style-black-000000.svg)
+[![Python](https://img.shields.io/badge/-Python-4B8BBE?&logo=Python&logoColor=fff)]()
+[![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://black.readthedocs.io/en/stable/)
 [![isort](https://img.shields.io/badge/isort-blue)](https://pycqa.github.io/isort/)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
