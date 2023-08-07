@@ -7,7 +7,6 @@ lint:
         - black --check .
         - flake8 .
 
-
 run_tests:
     stage: test
     image: "python:3.8"
@@ -21,8 +20,8 @@ run_tests:
     coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
     artifacts:
         untracked: false
-        paths:
-            - ./pyGCodeDecode/test/*
+        # paths:
+        #     - ./pyGCodeDecode/test/coverage.xml
         reports:
             coverage_report:
                 coverage_format: cobertura
