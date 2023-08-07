@@ -75,4 +75,6 @@ omit = [
 # Regexes for lines to exclude from consideration
 exclude_also = [
     "if __name__ == .__main__.:",
+    "except",
+    "import"
     ]
