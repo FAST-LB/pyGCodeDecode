@@ -22,7 +22,7 @@ run_tests:
     artifacts:
         untracked: false
         paths:
-            - ./pyGCodeDecode/test/coverage.xml
+            - ./pyGCodeDecode/test/*
         reports:
             coverage_report:
                 coverage_format: cobertura
