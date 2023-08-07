@@ -67,8 +67,8 @@ source = [
 
 [tool.coverage.run]
 omit = [
-    # omit tests
-    "pyGCodeDecode/test/*",
+    "./pyGCodeDecode/test/*",
+    "./example/*"
     ]
 
 [tool.coverage.report]
