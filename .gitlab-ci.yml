@@ -3,9 +3,9 @@ lint:
     image: "python:3.8"
     script:
         - pip install flake8 flake8-docstrings black[jupyter] black isort
-        - isort --check .
-        - black --check .
-        - flake8 .
+        - isort --check . -v
+        - black --check */ -v
+        - flake8 . -v
 
 run_tests:
     stage: test
