@@ -274,6 +274,20 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
             for key in line_dict["M203"]:
                 if key in commands["M203"]:
                     virtual_machine["v" + key] = line_dict["M203"][key]
+        
+        # set advanced settings
+        if "M205" in line_dict and "X" in line_dict["M205"]:
+            virtual_machine["jerk"] = line_dict["M205"]["X"]
+
+        # dwell
+        pause_duration = None
+        if "G4" in line_dict:
+            if "P" in line_dict["G4"]:
+                pause_duration = line_dict["G4"]["P"] / 1000.0
+            if "S" in line_dict["G4"]:
+                pause_duration = line_dict["G4"]["S"]
+
+
 
         state_position = position(
             virtual_machine["X"] + virtual_machine["_X"],
@@ -305,6 +319,9 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
             new_state.layer = layer_counter
 
         new_state.line_nmbr = line_dict["line_number"]
+
+        # add pause time to state
+        new_state.pause = pause_duration
 
         # populate state list
         if len(state_list) > 0:

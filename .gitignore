@@ -9,6 +9,7 @@ __pycache__
 # directories
 venv/*
 build/*
+.venv/*
 
 # coverage reports
 .coverage

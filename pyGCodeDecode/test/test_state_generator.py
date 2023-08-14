@@ -16,12 +16,11 @@ def test_state_generator():
     - G20
     - G21
     - comment
-    To-Do:
     - M203
     - M204
     - M205
     - G4
-    - G10
+    To-Do:
         --> rest of supported commands + glitch/inject tests
     """
     import os
@@ -63,3 +62,11 @@ def test_state_generator():
     assert states[15].state_p_settings.units == "inch"
     assert states[16].state_p_settings.units == "SImm"
     assert states[17].comment == "LAYER cue"
+    assert states[18].state_p_settings.Ve == 50  # max extr vel (M203)
+    assert states[18].state_p_settings.Vx == 60  # max x vel
+    assert states[18].state_p_settings.Vy == 30  # max y vel
+    assert states[18].state_p_settings.Vz == 15  # max z vel
+    assert states[19].state_p_settings.p_acc == 1200  # printing acc(M204 P*)
+    assert states[20].state_p_settings.jerk == 5  # jerk settings (M205 X*)
+    assert states[21].pause == 0.5
+    assert states[22].pause == 5

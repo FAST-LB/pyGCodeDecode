@@ -65,6 +65,7 @@ class state:
         self.line_nmbr = None
         self.comment = None
         self.layer = None
+        self.pause = None
 
     @property
     def state_position(self):
