@@ -16,14 +16,14 @@ class state:
             new:            returns an updated p_settings from given old p_settings and optional changing values
         """
 
-        def __init__(self, p_acc, jerk, Vx, Vy, Vz, Ve, speed, absMode=True, units="SImm"):
+        def __init__(self, p_acc, jerk, vX, vY, vZ, vE, speed, absMode=True, units="SImm"):
             """Initialize printing settings with p_acc, jerk, Vx, Vy, Vz, Ve, speed, absMode=True, units="SImm"."""
             self.p_acc = p_acc  # printing acceleration
             self.jerk = jerk  # jerk settings
-            self.Vx = Vx  # max axis speed X
-            self.Vy = Vy  # max axis speed Y
-            self.Vz = Vz  # max axis speed Z
-            self.Ve = Ve  # max axis speed E
+            self.vX = vX  # max axis speed X
+            self.vY = vY  # max axis speed Y
+            self.vZ = vZ  # max axis speed Z
+            self.vE = vE  # max axis speed E
             self.speed = speed  # travel speed for move
             self.absMode = absMode  # abs extrusion mode, default = True [deprecated]
             self.units = units  # unit system used
@@ -36,13 +36,13 @@ class state:
                 + ", p_acc: "
                 + str(self.p_acc)
                 + ", max_ax_vel: ["
-                + str(self.Vx)
+                + str(self.vX)
                 + ", "
-                + str(self.Vy)
+                + str(self.vY)
                 + ", "
-                + str(self.Vz)
+                + str(self.vZ)
                 + ", "
-                + str(self.Ve)
+                + str(self.vE)
                 + "]"
                 + ", p_vel: "
                 + str(self.speed)
