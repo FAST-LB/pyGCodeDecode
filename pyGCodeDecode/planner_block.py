@@ -379,12 +379,27 @@ class planner_block:
 
         self.valid = vel_blck.not_zero()  # valid planner block
 
+        # standard move maker
         if self.valid:
             self.JD = v_JD * self.direction  # jd writeout for debugging plot
             self.move_maker2(v_end=v_JD)
             self.is_extruding = self.state_A.state_position.is_extruding(
                 self.state_B.state_position
             )  # store extrusion flag
+
+        # dwell functionality
+        if self.state_B.pause is not None:
+            self.JD = [0, 0, 0, 0]
+            self.segments = [
+                segment(
+                    t_begin=self.prev_blck.segments[-1].t_end,
+                    t_end=self.prev_blck.segments[-1].t_end + self.state_B.pause,
+                    pos_begin=self.prev_blck.segments[-1].pos_end,
+                    pos_end=self.prev_blck.segments[-1].pos_end,
+                    vel_begin=velocity(0, 0, 0, 0),
+                    vel_end=velocity(0, 0, 0, 0),
+                )
+            ]
 
     @property
     def prev_blck(self):

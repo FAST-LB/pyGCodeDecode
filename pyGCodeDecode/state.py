@@ -116,9 +116,9 @@ class state:
     def __str__(self) -> str:
         """Generate string for representation."""
         if self.layer is not None:
-            return f"<state: line: {str(self.line_nmbr)}, layer: {self.layer}, {self.state_position}, settings: {self.state_p_settings}, comment: {self.comment}>\n"  # noqa E501
+            return f"<state: line: {str(self.line_nmbr)}, layer: {self.layer}, {self.state_position}, settings: {self.state_p_settings}, comment: {self.comment}, pause: {str(self.pause)}>\n"  # noqa E501
         else:
-            return f"<state: line: {str(self.line_nmbr)}, {self.state_position}, settings: {self.state_p_settings}, comment: {self.comment}>\n"
+            return f"<state: line: {str(self.line_nmbr)}, {self.state_position}, settings: {self.state_p_settings}, comment: {self.comment}, pause: {str(self.pause)}>\n"  # noqa E501
 
     def __repr__(self) -> str:
         """Call __str__() for representation."""
