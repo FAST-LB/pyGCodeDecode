@@ -21,10 +21,10 @@ def generate_abaqus_events(trajectory, output_filename="pyGcodeDecode_abaqus_eve
     """Generate abaqus event series."""
     # get all positions and timings
     unpacked = gi.unpack_blocklist(trajectory.blocklist)
-    pos = [unpacked[0].get_position(t=unpacked[0].t_begin).get_vec(withExtrusion=True)]
+    pos = [unpacked[0].pos_begin.get_vec(withExtrusion=True)]
     time = [0]
     for segm in unpacked:
-        pos.append(segm.get_position(t=segm.t_end).get_vec(withExtrusion=True))
+        pos.append(segm.pos_end.get_vec(withExtrusion=True))
         time.append(segm.t_end)
 
     # figure out if extrusion happens from this to the next step, if yes -> 1, if no -> 0
