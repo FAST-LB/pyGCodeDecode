@@ -290,7 +290,7 @@ class segment:
     def get_position(self, t):
         """Get current position of segment at a certain time."""
         if t < self.t_begin or t > self.t_end:
-            raise ValueError("Segment not defined for this point in time.")
+            raise ValueError(f"Segment not defined for this point in time. {t} -->({self.t_begin}, {self.t_end})")
         else:
             current_vel = self.get_velocity(t=t)
             position = self.pos_begin + ((self.vel_begin + current_vel) * (t - self.t_begin) / 2.0).get_vec(
