@@ -81,9 +81,10 @@ class planner_block:
         """
         if state_0 is None or state_next is None:
             return velocity(0, 0, 0, 0)
+
         travel_direction = np.subtract(
             state_next.state_position.get_vec(withExtrusion=True), state_0.state_position.get_vec(withExtrusion=True)
-        )  # outdated todo
+        )  # outdated todo: subtract positions directly
         t_distance = np.linalg.norm(travel_direction[:3])
         e_len = travel_direction[3]
         if abs(t_distance) > 0:  # regular travel mixed move
@@ -131,7 +132,7 @@ class planner_block:
             segment_A = segment(
                 t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
             )
-            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin):
+            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_A)
             # B --
             travel_const = distance - travel_ramp_down - travel_ramp_up
@@ -144,7 +145,7 @@ class planner_block:
             segment_B = segment(
                 t_begin=t1, t_end=t2, pos_begin=pos_begin, vel_begin=vel_begin, pos_end=pos_end, vel_end=vel_end
             )
-            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin):
+            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_B)
             # C \
             t2 = segment_B.t_end
@@ -156,7 +157,7 @@ class planner_block:
             segment_C = segment(
                 t_begin=t2, t_end=t3, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
             )
-            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin):
+            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_C)
 
             self.blcktype = "trapez"
@@ -173,7 +174,7 @@ class planner_block:
             segment_A = segment(
                 t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
             )
-            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin):
+            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_A)
             # C \
             t2 = segment_A.t_end
@@ -186,7 +187,7 @@ class planner_block:
             segment_C = segment(
                 t_begin=t2, t_end=t3, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
             )
-            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin):
+            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_C)
 
             self.blcktype = "triangle"
@@ -203,7 +204,7 @@ class planner_block:
             segment_A = segment(
                 t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
             )
-            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin):
+            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_A)
 
             self.blcktype = "single"
@@ -220,7 +221,7 @@ class planner_block:
             segment_C = segment(
                 t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
             )
-            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin):
+            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_C)
 
             self.blcktype = "single"
@@ -258,20 +259,26 @@ class planner_block:
             v_end_sing_sqr = v_begin * v_begin - 2 * acc * distance
         else:
             v_end_sing_sqr = v_begin * v_begin + 2 * acc * distance
-        v_end_sing = np.sqrt(v_end_sing_sqr) if v_end_sing_sqr >= 0 else None
+        v_end_sing = (
+            np.sqrt(v_end_sing_sqr) if v_end_sing_sqr >= 0 else 0
+        )  # (todo: verify set to zero, otherwise None is safer)
         v_begin_sing = np.sqrt(2 * acc * distance + v_end * v_end)
 
         # select case for planner block and calculate segment vertices
-        if (travel_ramp_down + travel_ramp_up) < distance:
-            trapez(extrusion_only=extrusion_only)
-        elif v_peak_tri > v_end and v_peak_tri > v_begin:
-            triang()
-        elif v_end_sing > v_begin:
-            singl_up()
-        elif v_end_sing < v_begin:
-            singl_dwn()
-        else:
-            raise NameError("Segment could not be modeled.")
+        try:
+            if (travel_ramp_down + travel_ramp_up) < distance:
+                trapez(extrusion_only=extrusion_only)
+            elif v_peak_tri > v_end and v_peak_tri > v_begin:
+                triang(extrusion_only=extrusion_only)
+            elif v_end_sing > v_begin:
+                singl_up()
+            elif v_end_sing < v_begin:
+                singl_dwn()
+            else:
+                raise NameError("Segment could not be modeled.")
+        except TypeError:
+            print(f"Segment after {self.prev_blck.segments[-1].t_end} could not be modeled.\n " + str(self.state_B))
+            print(f"v-begin: {v_begin} / v-end {v_end}")
 
     def self_correction(self, tolerance=float("1e-12")):
         """Check for interfacing vel and self correct."""
@@ -347,6 +354,7 @@ class planner_block:
         self.state_B = state  # to state B
         self.prev_blck = prev_blck  # nb list prev
         self.next_blck = None  # nb list next
+        self.is_extruding = False  # default Value
 
         self.segments: List[segment] = []  # store segments here
         self.blcktype = None
