@@ -298,7 +298,7 @@ class segment:
             )
             return position
 
-    def self_check(self):  # ,tolerance=float("e-13"), state:state=None):
+    def self_check(self):  # ,, state:state=None):
         """Check the segment for self consistency. WIP.
 
         not yet:
@@ -307,15 +307,18 @@ class segment:
         ..more?
         """
         # position self check:
+        tolerance = float("1e-9")
         position = self.pos_begin + ((self.vel_begin + self.vel_end) * (self.t_end - self.t_begin) / 2.0).get_vec(
             withExtrusion=True
         )
-        pos_check = self.pos_end == position
-        if pos_check:
-            return pos_check
-        else:
-            error_distance = np.linalg.norm(np.asarray(self.pos_end.get_vec()) - np.asarray(position.get_vec()))
-            return "Error distance: " + str(error_distance)
+        error_distance = np.linalg.norm(np.asarray(self.pos_end.get_vec()) - np.asarray(position.get_vec()))
+
+        if error_distance > tolerance:
+            raise ValueError("Error distance: " + str(error_distance))
+
+        # time consistency
+        if self.t_begin > self.t_end:
+            raise ValueError(f"Inconsistent segment time (t_begin/t_end): ({self.t_begin}/{self.t_end}) \n ")
 
     def is_extruding(self):
         """Return true if the segment is pos. extruding."""
