@@ -1,9 +1,0 @@
-filename: example\test.gcode
-max_extr_trav_vel: 30.000000000000004
-t_end: 6.3585468449224685
-x_max: 175.372
-x_min: 123.163
-y_max: 115.229
-y_min: 74.905
-z_max: 0.25
-z_min: 0.25
