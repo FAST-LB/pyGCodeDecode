@@ -699,8 +699,8 @@ class simulate:
     def print_summary(self):
         """Print simulation summary."""
         print(
-            f""" >> pyGCodeDecode extracted {len(self.states)} states from {self.filename} and generated {len(self.blocklist)} plannerblocks.\n
-            Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end} seconds."""
+            f" >> pyGCodeDecode extracted {len(self.states)} states from {self.filename} and generated {len(self.blocklist)} plannerblocks.\n"
+            f"Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end} seconds."
         )
 
     def refresh(self, new_state_list: List[state] = None):
