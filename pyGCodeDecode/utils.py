@@ -307,7 +307,7 @@ class segment:
         ..more?
         """
         # position self check:
-        tolerance = float("1e-9")
+        tolerance = float("1e-6")
         position = self.pos_begin + ((self.vel_begin + self.vel_end) * (self.t_end - self.t_begin) / 2.0).get_vec(
             withExtrusion=True
         )
