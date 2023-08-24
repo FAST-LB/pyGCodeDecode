@@ -107,7 +107,7 @@ class planner_block:
         direction   :   float list 1x4
             travel direction, vectorial
         mov_vel_end :   velocity
-            target velocity for end of move (currently not guaranteed to be met, however a warning will be spit)
+            target velocity for end of move
         settings    :   p_settings
             printing settings for corresponding move
         distance    :   float
@@ -266,7 +266,7 @@ class planner_block:
 
         # select case for planner block and calculate segment vertices
         try:
-            if (travel_ramp_down + travel_ramp_up) < distance:
+            if (travel_ramp_down + travel_ramp_up) < distance and travel_ramp_up > 0 and travel_ramp_down > 0:
                 trapez(extrusion_only=extrusion_only)
             elif v_peak_tri > v_end and v_peak_tri > v_begin:
                 triang(extrusion_only=extrusion_only)
@@ -276,9 +276,12 @@ class planner_block:
                 singl_dwn()
             else:
                 raise NameError("Segment could not be modeled.")
-        except TypeError:
-            print(f"Segment after {self.prev_blck.segments[-1].t_end} could not be modeled.\n " + str(self.state_B))
-            print(f"v-begin: {v_begin} / v-end {v_end}")
+        # except TypeError:
+        #     print(f"Segment after {self.prev_blck.segments[-1].t_end} could not be modeled.\n " + str(self.state_B))
+        #     print(f"v-begin: {v_begin} / v-end {v_end}")
+        except ValueError as ve:
+            print(f"Segments to state: {str(self.state_B)} could not be modeled.\n {ve}")
+            raise RuntimeError()
 
     def self_correction(self, tolerance=float("1e-12")):
         """Check for interfacing vel and self correct."""
