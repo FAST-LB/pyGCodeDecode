@@ -298,7 +298,7 @@ class segment:
             )
             return position
 
-    def self_check(self):  # ,, state:state=None):
+    def self_check(self, p_settings=None):  # ,, state:state=None):
         """Check the segment for self consistency. WIP.
 
         not yet:
@@ -319,6 +319,15 @@ class segment:
         # time consistency
         if self.t_begin > self.t_end:
             raise ValueError(f"Inconsistent segment time (t_begin/t_end): ({self.t_begin}/{self.t_end}) \n ")
+
+        # max velocity
+        if p_settings is not None:
+            if self.vel_begin.get_norm() > p_settings.speed and not np.isclose(
+                self.vel_begin.get_norm(), p_settings.speed
+            ):
+                raise ValueError(f"Target Velocity of {p_settings.speed} exceeded with {self.vel_begin.get_norm()}.")
+            if self.vel_end.get_norm() > p_settings.speed and not np.isclose(self.vel_end.get_norm(), p_settings.speed):
+                raise ValueError(f"Target Velocity of {p_settings.speed} exceeded with {self.vel_end.get_norm()}.")
 
     def is_extruding(self):
         """Return true if the segment is pos. extruding."""
