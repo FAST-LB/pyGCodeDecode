@@ -59,11 +59,12 @@ class planner_block:
                 JD_Radius = JD_delta * JD_sin_theta_half / (1 - JD_sin_theta_half)
                 JD_velocity_scalar = np.sqrt(JD_acc * JD_Radius)
 
-                return JD_velocity_scalar if JD_velocity_scalar < vel_0.get_norm() else vel_0.get_norm()
+                # return JD_velocity_scalar if JD_velocity_scalar < vel_0.get_norm() else vel_0.get_norm()
+                return JD_velocity_scalar if JD_velocity_scalar < p_settings.speed else p_settings.speed
             else:
                 return 0  # angle smaller than min angle, stop completely
         else:
-            return vel_0.get_norm()  # angle larger than max angle, full speed pass
+            return p_settings.speed  # angle larger than max angle, full speed pass
 
     def connect_state(self, state_0: state, state_next: state):
         """
@@ -266,16 +267,18 @@ class planner_block:
 
         # select case for planner block and calculate segment vertices
         try:
-            if (travel_ramp_down + travel_ramp_up) < distance and travel_ramp_up > 0 and travel_ramp_down > 0:
+            if (travel_ramp_up + travel_ramp_down) < distance and travel_ramp_up >= 0 and travel_ramp_down >= 0:
                 trapez(extrusion_only=extrusion_only)
-            elif v_peak_tri > v_end and v_peak_tri > v_begin:
+            elif v_peak_tri > v_end and v_peak_tri > v_begin and v_peak_tri <= v_target:
                 triang(extrusion_only=extrusion_only)
-            elif v_end_sing > v_begin:
+            elif v_end_sing > v_begin and v_end_sing <= v_target:
                 singl_up()
-            elif v_end_sing < v_begin:
+            elif v_end_sing < v_begin and v_end_sing <= v_target:
                 singl_dwn()
             else:
-                raise NameError("Segment could not be modeled.")
+                raise NameError(
+                    "Segment could not be modeled: " + str(self.state_B) + f"\nv-begin: {v_begin} / v-end {v_end}"
+                )
         # except TypeError:
         #     print(f"Segment after {self.prev_blck.segments[-1].t_end} could not be modeled.\n " + str(self.state_B))
         #     print(f"v-begin: {v_begin} / v-end {v_end}")
