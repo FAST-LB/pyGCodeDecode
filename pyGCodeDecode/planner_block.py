@@ -267,13 +267,21 @@ class planner_block:
 
         # select case for planner block and calculate segment vertices
         try:
-            if (travel_ramp_up + travel_ramp_down) < distance and travel_ramp_up >= 0 and travel_ramp_down >= 0:
+            if (
+                (travel_ramp_up + travel_ramp_down) < distance
+                and (travel_ramp_up > 0 or np.isclose(travel_ramp_up, 0.0))
+                and (travel_ramp_down > 0 or np.isclose(travel_ramp_down, 0.0))
+            ):
                 trapez(extrusion_only=extrusion_only)
-            elif v_peak_tri > v_end and v_peak_tri > v_begin and v_peak_tri <= v_target:
+            elif (
+                v_peak_tri > v_end
+                and v_peak_tri > v_begin
+                and (v_peak_tri < v_target or np.isclose(v_peak_tri, v_target))
+            ):
                 triang(extrusion_only=extrusion_only)
-            elif v_end_sing > v_begin and v_end_sing <= v_target:
+            elif v_end_sing > v_begin and (v_end_sing < v_target or np.isclose(v_end_sing, v_target)):
                 singl_up()
-            elif v_end_sing < v_begin and v_end_sing <= v_target:
+            elif v_end_sing < v_begin:
                 singl_dwn()
             else:
                 raise NameError(
@@ -320,8 +328,15 @@ class planner_block:
                 error_position = self.get_segments()[-1].pos_end - self.next_blck.get_segments()[0].pos_begin
                 dist = error_position.get_t_distance()
                 if dist > tolerance:
-                    print(dist)
-                    raise NameError("disconinuity in segments detected")
+                    raise NameError(f"Disconinuity of {dist} in segments detected")
+
+        # Check if segment adheres to settings
+        try:
+            for segm in self.segments:
+                segm.self_check(p_settings=self.state_B.state_p_settings)
+        except ValueError as ve:
+            print(f"Segment for {self.state_B} does not adhere to machine limits: {ve}")
+
         return flag_correct
 
     def timeshift(self, delta_t: float):
@@ -396,6 +411,7 @@ class planner_block:
         # standard move maker
         if self.valid:
             self.JD = v_JD * self.direction  # jd writeout for debugging plot
+            # print(np.linalg.norm(v_JD * self.direction[:3]))
             self.move_maker2(v_end=v_JD)
             self.is_extruding = self.state_A.state_position.is_extruding(
                 self.state_B.state_position
