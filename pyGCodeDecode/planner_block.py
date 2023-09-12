@@ -249,6 +249,7 @@ class planner_block:
         acc = settings.p_acc
         v_target = settings.speed
         v_begin = previous_segment.vel_end.get_norm()
+        v_begin = v_begin if v_begin < v_target else v_target
 
         # calculate min travel for trapezoidal shape, if sum larger than distance, regular movement pattern is possible
         travel_ramp_up = (v_target - v_begin) * (v_begin + v_target) / (2 * acc)
