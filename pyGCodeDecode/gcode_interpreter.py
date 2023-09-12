@@ -470,7 +470,7 @@ class simulate:
             return color_plot
         plt.close()
 
-    def plot_3d_mayavi(self, extrusion_only: bool = True):
+    def plot_3d_mayavi(self, extrusion_only: bool = True, clean_junction=False):
         """Plot 3D Positon with Mayavi (colormap).
 
         Only plot where material gets extruded. Default = True
@@ -501,6 +501,33 @@ class simulate:
 
                     # append segm end values to plotting array
                     posend_vec = segm.pos_end.get_vec(withExtrusion=True)
+
+                    if clean_junction:
+                        # interpolate initial movement for clean plotted tubes
+                        temp_dir = [
+                            posend_vec[0] - x[-1],
+                            posend_vec[1] - y[-1],
+                            posend_vec[2] - z[-1],
+                            posend_vec[3] - e[-1],
+                        ]
+                        length = np.linalg.norm(temp_dir)
+                        if length > 0.4:
+                            temp_dir = temp_dir / length
+
+                            # add 0.2 mm after junction
+                            x.append(x[-1] + temp_dir[0] * 0.2)
+                            y.append(y[-1] + temp_dir[1] * 0.2)
+                            z.append(z[-1] + temp_dir[2] * 0.2)
+                            e.append(e[-1] + temp_dir[3] * 0.2)
+                            vel.append(vel[-1])
+
+                            # # add 0.2 mm before junction
+                            x.append(posend_vec[0] - temp_dir[0] * 0.2)
+                            y.append(posend_vec[1] - temp_dir[1] * 0.2)
+                            z.append(posend_vec[2] - temp_dir[2] * 0.2)
+                            e.append(posend_vec[3] - temp_dir[3] * 0.2)
+                            vel.append(segm.vel_end.get_norm())
+
                     x.append(posend_vec[0])
                     y.append(posend_vec[1])
                     z.append(posend_vec[2])
@@ -510,7 +537,15 @@ class simulate:
                 # plot if following segment is not extruding or if it's the last segment
                 if (len(x) > 0 and not segm.is_extruding()) or (len(x) > 0 and n == len(segments) - 1):
                     plot = ma.plot3d(
-                        x, y, z, vel, tube_radius=0.2, figure=figure, vmin=0, vmax=vel_max, colormap="viridis"
+                        x,
+                        y,
+                        z,
+                        vel,
+                        figure=figure,
+                        vmin=0,
+                        vmax=vel_max,
+                        colormap="viridis",
+                        tube_radius=0.2,
                     )
                     # known assertion error thrown when empty plotting array gets plotted. Caused by purge at beginning of many .gcodes
                     x, y, z, e, vel = [], [], [], [], []  # clear plotting array
@@ -547,6 +582,10 @@ class simulate:
         cb.scalar_bar.unconstrained_font_size = True
         cb.label_text_property.font_size = 24
         cb.title_text_property.font_size = 24
+        cb.title_text_property.italic = False
+        cb.title_text_property.bold = False
+        cb.label_text_property.italic = False
+        cb.label_text_property.bold = False
 
         ma.show()
 
