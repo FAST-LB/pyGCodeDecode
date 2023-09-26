@@ -83,9 +83,7 @@ class planner_block:
         if state_0 is None or state_next is None:
             return velocity(0, 0, 0, 0)
 
-        travel_direction = np.subtract(
-            state_next.state_position.get_vec(withExtrusion=True), state_0.state_position.get_vec(withExtrusion=True)
-        )  # outdated todo: subtract positions directly
+        travel_direction = np.asarray((state_next.state_position - state_0.state_position).get_vec(withExtrusion=True))
         t_distance = np.linalg.norm(travel_direction[:3])
         e_len = travel_direction[3]
         if abs(t_distance) > 0:  # regular travel mixed move
@@ -261,9 +259,7 @@ class planner_block:
             v_end_sing_sqr = v_begin * v_begin - 2 * acc * distance
         else:
             v_end_sing_sqr = v_begin * v_begin + 2 * acc * distance
-        v_end_sing = (
-            np.sqrt(v_end_sing_sqr) if v_end_sing_sqr >= 0 else 0
-        )  # (todo: verify set to zero, otherwise None is safer)
+        v_end_sing = np.sqrt(v_end_sing_sqr) if v_end_sing_sqr >= 0 else 0
         v_begin_sing = np.sqrt(2 * acc * distance + v_end * v_end)
 
         # select case for planner block and calculate segment vertices
