@@ -34,3 +34,9 @@ deploy-compile_paper:
           --env JOURNAL=joss openjournals/inara
     tags:
         - shell
+    artifacts:
+        untracked: false
+        paths:
+            - ./paper/*.pdf
+        when: on_success
+        expire_in: "30 days"
