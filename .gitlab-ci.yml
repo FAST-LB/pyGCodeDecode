@@ -12,6 +12,7 @@ test-lin_py38:
     image: "python:latest"
     script:
         # missing dependencies for docker-container
+        - apt-get update && apt-get install libgl1 -y
         - pip install .[TEST]
         - pytest --cov --cov-config=pyproject.toml --cov-report term
           --cov-report xml:./pyGCodeDecode/test/coverage.xml
