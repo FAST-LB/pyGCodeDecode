@@ -9,23 +9,24 @@ packages = ["pyGCodeDecode"]
 name = "pyGCodeDecode"
 version = "0.1.0"
 authors = [
-    {name = "Jonathan Knirsch", email = "jonathan.knirsch@student.kit.edu"},
-    {name = "Felix Frölich", email = "felix.froelich@kit.edu"},
-    {name = "Lukas Hof", email = "lukas.hof@kit.edu"},]
+    { name = "Jonathan Knirsch", email = "jonathan.knirsch@student.kit.edu" },
+    { name = "Felix Frölich", email = "felix.froelich@kit.edu" },
+    { name = "Lukas Hof", email = "lukas.hof@kit.edu" },
+]
 description = "Generate time dependent boundary conditions from a .gcode file"
 readme = "README.md"
 classifiers = [
-  "Development Status :: 4 - Beta",
-  "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
-  "Operating System :: OS Independent",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Topic :: Scientific/Engineering",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
 ]
 requires-python = ">=3.8"
 dependencies = [
@@ -35,10 +36,11 @@ dependencies = [
     # "mayavi",
     "mayavi @ git+https://github.com/enthought/mayavi.git",
     "PyQt5",
-    "PyYAML"
+    "PyYAML",
 ]
 
 [project.optional-dependencies]
+TEST = ["pytest", "pytest-cov"]
 DEVELOPER = [
     "flake8",
     "isort",
@@ -61,20 +63,11 @@ line-length = 120
 profile = "black"
 
 [tool.coverage.paths]
-source = [
-    "./pyGCodeDecode/",
-    ]
+source = ["./pyGCodeDecode/"]
 
 [tool.coverage.run]
-omit = [
-    "./pyGCodeDecode/test/*",
-    "./example/*"
-    ]
+omit = ["./pyGCodeDecode/test/*", "./example/*"]
 
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration
-exclude_also = [
-    "if __name__ == .__main__.:",
-    "except",
-    "import"
-    ]
+exclude_also = ["if __name__ == .__main__.:", "except", "import"]

@@ -1,6 +1,6 @@
 test-lint:
     stage: test
-    image: "python:3.8"
+    image: "python:latest"
     script:
         - pip install flake8 flake8-docstrings black[jupyter] black isort
         - isort --check . -v
@@ -9,12 +9,10 @@ test-lint:
 
 test-lin_py38:
     stage: test
-    image: "python:3.8"
+    image: "python:latest"
     script:
         # missing dependencies for docker-container
-        - apt-get update && apt-get install libgl1 -y
-        - pip install .
-        - pip install pytest pytest-cov
+        - pip install .[TEST]
         - pytest --cov --cov-config=pyproject.toml --cov-report term
           --cov-report xml:./pyGCodeDecode/test/coverage.xml
     coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
