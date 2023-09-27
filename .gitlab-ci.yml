@@ -1,4 +1,4 @@
-lint:
+test-lint:
     stage: test
     image: "python:3.8"
     script:
@@ -7,7 +7,7 @@ lint:
         - black --check */ -v
         - flake8 . -v
 
-run_tests:
+test-lin_py38:
     stage: test
     image: "python:3.8"
     script:
@@ -16,7 +16,7 @@ run_tests:
         - pip install .
         - pip install pytest pytest-cov
         - pytest --cov --cov-config=pyproject.toml --cov-report term
-            --cov-report xml:./pyGCodeDecode/test/coverage.xml
+          --cov-report xml:./pyGCodeDecode/test/coverage.xml
     coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
     artifacts:
         untracked: false
@@ -26,3 +26,11 @@ run_tests:
             coverage_report:
                 coverage_format: cobertura
                 path: ./pyGCodeDecode/test/coverage.xml
+
+deploy-compile_paper:
+    stage: deploy
+    script:
+        - docker run --rm --volume $PWD/paper:/data --user $(id -u):$(id -g)
+          --env JOURNAL=joss openjournals/inara
+    tags:
+        - shell
