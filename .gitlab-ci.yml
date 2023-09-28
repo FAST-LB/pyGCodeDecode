@@ -7,7 +7,7 @@ test-lint:
         - black --check */ -v
         - flake8 . -v
 
-test-lin_py38:
+test-lin_py_latest:
     stage: test
     image: "python:latest"
     script:
@@ -19,8 +19,6 @@ test-lin_py38:
     coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
     artifacts:
         untracked: false
-        # paths:
-        #     - ./pyGCodeDecode/test/coverage.xml
         reports:
             coverage_report:
                 coverage_format: cobertura
