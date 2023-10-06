@@ -13,6 +13,11 @@ def test_planner_block():
 
     Create single standalone blocks with no initial velocity.
     Test for the three cases: trapez, triangle and singular against known analytical solutions.
+    To-Do:
+        - self correction is not being tested.
+        - advanced tests for Junction Deviation, currently only straight line JD is tested.
+        - extrusion only not being tested
+        - helper function
     """
     # initialize test parameters trapez
     dist = 10
