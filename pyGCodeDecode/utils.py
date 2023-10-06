@@ -115,37 +115,44 @@ class vector_4D:
             raise TypeError("Division of 4D Vectors only supports float and int.")
         return self.__class__(x, y, z, e)
 
-    def __eq__(self, other, tolerance=None):
+    def __eq__(self, other):
         """Check for equality and return True if equal. Optional tolerance.
 
         Possible input: 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'.
         """
+        import numpy as np
+
         if isinstance(other, type(self)):
-            if self.x == other.x and self.y == other.y and self.z == other.z and self.e == other.e:
+            if (
+                np.isclose(self.x, other.x)
+                and np.isclose(self.y, other.y)
+                and np.isclose(self.z, other.z)
+                and np.isclose(self.e, other.e)
+            ):
                 return True
 
         elif (isinstance(other, np.ndarray) or isinstance(other, list) or isinstance(other, tuple)) and len(other) == 4:
             if self.x == other[0] and self.y == other[1] and self.z == other[2] and self.e == other[3]:
                 return True
 
-        if tolerance is not None:
-            if isinstance(other, type(self)):
-                dist = np.linalg.norm(self - other)  # calculate distance through __sub__
-            elif (isinstance(other, np.ndarray) or isinstance(other, list) or isinstance(other, tuple)) and len(
-                other
-            ) == 4:
-                dist = np.linalg.norm(
-                    self.x - other[0], self.y - other[1], self.z - other[2], self.e - other[3]
-                )  # calculate distance manually
-            else:
-                raise ValueError(
-                    "Equality check failed, only possible with other 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'"
-                )
-            if dist <= tolerance:
-                return True
+        # if tolerance is not None:
+        #     if isinstance(other, type(self)):
+        #         dist = np.linalg.norm(self - other)  # calculate distance through __sub__
+        #     elif (isinstance(other, np.ndarray) or isinstance(other, list) or isinstance(other, tuple)) and len(
+        #         other
+        #     ) == 4:
+        #         dist = np.linalg.norm(
+        #             self.x - other[0], self.y - other[1], self.z - other[2], self.e - other[3]
+        #         )  # calculate distance manually
+        #     else:
+        #         raise ValueError(
+        #             "Equality check failed, only possible with other 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'"
+        #         )
+        #     if dist <= tolerance:
+        #         return True
 
-        else:
-            return False
+        # else:
+        #     return False
 
     def get_vec(self, withExtrusion=False):
         """Return the 4D vector, optionally with extrusion."""
