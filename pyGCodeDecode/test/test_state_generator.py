@@ -4,7 +4,8 @@ from pyGCodeDecode.state_generator import state_generator
 
 
 def test_state_generator():
-    """Test the state generator function.
+    """
+    Test the state generator function.
 
     Functionality:
     - G0,G1
