@@ -1,0 +1,29 @@
+# -*- coding: utf-8 -*-
+
+prusa_mini:
+  # general properties
+  nozzle_diam: 0.4
+  filament_diam: 1.75
+  # default settings
+  p_vel: 35
+  p_acc: 1250
+  jerk: 8
+  # axis max speeds
+  vX: 180
+  vY: 180
+  vZ: 12
+  vE: 80
+
+debugging:
+  # general properties
+  nozzle_diam: 0.4
+  filament_diam: 1.75
+  # default settings
+  p_vel: 85
+  p_acc: 100
+  jerk: 8
+  # axis max speeds
+  vX: 180
+  vY: 170
+  vZ: 12
+  vE: 80
