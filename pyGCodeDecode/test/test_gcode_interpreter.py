@@ -49,4 +49,30 @@ def test_setup():
     assert sim_dict["p_acc"] == 1250
 
 
-test_setup()
+def test_simulate():
+    """Test for simulate class."""
+    import os
+
+    from pyGCodeDecode.gcode_interpreter import setup, simulate
+
+    simulation_setup = setup(
+        filename=os.path.abspath("pyGCodeDecode/test/test_gcode_interpreter_setup_printers.yaml"),
+        printer="debugging",
+        layer_cue="LAYER CHANGE",
+    )
+    simulation_setup.set_property({"jerk": 0})
+    simulation_setup.set_property({"p_acc": 50})
+
+    simulation = simulate(
+        filename=os.path.abspath("pyGCodeDecode/test/test_gcode_interpreter.gcode"),
+        initial_machine_setup=simulation_setup,
+    )
+
+    # from analytical calculation with given parameters
+    t_100mm = 3.93333
+    t_10mm = 0.89442
+    t_02mm = 0.12649
+
+    t_ges = t_100mm * 2 + t_10mm * 4 + t_02mm
+    t_end_sim = simulation.blocklist[-1].get_segments()[-1].t_end
+    assert abs(t_ges - t_end_sim) < 0.001
