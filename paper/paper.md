@@ -16,7 +16,7 @@ authors:
     equal-contrib: false
     affiliation: 1
   - name: Felix Frölich
-    equal-contrib: true
+    equal-contrib: false
     affiliation: 1
   - name: Lukas Hof
     equal-contrib: false
@@ -67,6 +67,8 @@ The junction velocities in corners are calculated with the junction deviation mo
 We acknowledge contributions from * for this project.
 
 # References
+[@grbl]
+
 GRBL Firmware GitHub Repository: [https://github.com/grbl/grbl](https://github.com/grbl/grbl)
 
 Marlin Firmware GCode Documentation: [https://marlinfw.org/meta/gcode/](https://marlinfw.org/meta/gcode/)
