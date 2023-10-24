@@ -13,8 +13,8 @@ tags:
 authors:
   - name: Jonathan Knirsch
     orcid: 0000-0000-0000-0000
-    equal-contrib: true
-    affiliation: 1 # (Multiple affiliations must be quoted)
+    equal-contrib: false
+    affiliation: 1
   - name: Felix Frölich
     equal-contrib: true
     affiliation: 1
@@ -22,7 +22,7 @@ authors:
     equal-contrib: false
     affiliation: 1
   - name: Luise Kärger
-    equal-contrib: true
+    equal-contrib: false
     affiliation: 1
 affiliations:
  - name: Karlsruhe Institute of Technology (KIT), Insitute of Vehicle System Technology, Germany
@@ -68,8 +68,11 @@ We acknowledge contributions from * for this project.
 
 # References
 GRBL Firmware GitHub Repository: [https://github.com/grbl/grbl](https://github.com/grbl/grbl)
+
 Marlin Firmware GCode Documentation: [https://marlinfw.org/meta/gcode/](https://marlinfw.org/meta/gcode/)
+
 Marlin Firmware GitHub Repository: [https://github.com/MarlinFirmware/Marlin](https://github.com/MarlinFirmware/Marlin)
+
 <!-- http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
 https://onehossshay.wordpress.com/2011/09/24/improving_grbl_cornering_algorithm/
 https://reprap.org/forum/read.php?1,739819 -->
