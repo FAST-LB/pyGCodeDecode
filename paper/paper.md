@@ -1,11 +1,13 @@
 ---
-title: 'pyGCodeDecode: A Python package for GCode simulation.'
+title: 'pyGCodeDecode: A Python package for GCode simulation for Material Extrusion Processes.'
 tags:
   - Python
   - GCode
   - Simulation
   - Fused Filament Deoposition
   - Fused Filament Fabrication
+  - Material Extrusion
+  - Additive Manufacturing
   - 3D Printing
   - Process Simulation
 authors:
@@ -14,12 +16,17 @@ authors:
     equal-contrib: true
     affiliation: 1 # (Multiple affiliations must be quoted)
   - name: Felix Frölich
-    equal-contrib: true # (This is how you can denote equal contributions between multiple authors)
+    equal-contrib: true
+    affiliation: 1
+  - name: Lukas Hof
+    equal-contrib: false
+    affiliation: 1
+  - name: Luise Kärger
+    equal-contrib: true
     affiliation: 1
 affiliations:
  - name: Karlsruhe Institute of Technology (KIT), Insitute of Vehicle System Technology, Germany
    index: 1
- - name: Institution Name, Country
 date: 21 August 2023
 bibliography: paper.bib
 
@@ -55,28 +62,14 @@ In the simplest case, the planner can fit a complete trapez to the boundary cond
 The junction velocities in corners are calculated with the junction deviation model based on the grbl/Marlin firmware implementation. All segments of a single move are stored together with its enclosing states in a planner block class. The package is designed to easily apply modifications to either the interpretation and trajectory modeling as well as overwriting the simulation inputs, e.g. states or acceleration modeling, to create parameter studys without much effort.
 `pyGCD` provides many examples ranging from simple GCode analysis with plots using Mayavi or Matplotlib to an Abaqus AM Modeler input file generator. The package is designed to be used by researchers and users to gain a better understanding of the time dependant process variables and study their resulting material properties in greater detail than otherwise possible.
 
-# Citations
-
-https://marlinfw.org/meta/gcode/
-http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
-https://onehossshay.wordpress.com/2011/09/24/improving_grbl_cornering_algorithm/
-https://reprap.org/forum/read.php?1,739819
-https://github.com/MarlinFirmware/Marlin
-
-
-Citations to entries in paper.bib should be in
-[rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
-format.
-
-
-For a quick reference, the following citation commands can be used:
-- `@author:2001`  ->  "Author et al. (2001)"
-- `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
-
-
 # Acknowledgements
 
 We acknowledge contributions from * for this project.
 
 # References
+GRBL Firmware GitHub Repository: [https://github.com/grbl/grbl](https://github.com/grbl/grbl)
+Marlin Firmware GCode Documentation: [https://marlinfw.org/meta/gcode/](https://marlinfw.org/meta/gcode/)
+Marlin Firmware GitHub Repository: [https://github.com/MarlinFirmware/Marlin](https://github.com/MarlinFirmware/Marlin)
+<!-- http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
+https://onehossshay.wordpress.com/2011/09/24/improving_grbl_cornering_algorithm/
+https://reprap.org/forum/read.php?1,739819 -->
