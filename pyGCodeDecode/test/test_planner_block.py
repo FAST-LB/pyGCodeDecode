@@ -4,7 +4,7 @@ import numpy as np
 
 from pyGCodeDecode.planner_block import planner_block
 from pyGCodeDecode.state import state
-from pyGCodeDecode.utils import position
+from pyGCodeDecode.utils import position, velocity
 
 
 def test_planner_block():
@@ -88,3 +88,12 @@ def test_planner_block():
     assert np.isclose(
         block_3.get_segments()[0].vel_end.get_norm(), (settings.p_acc * block_3.get_segments()[0].t_end)
     )  # analytical check for end vel
+
+    # self correction test
+    block_3.segments[0].pos_begin = position(30, 0, 0, 0)
+    block_3.segments[0].pos_end = position(34.224744871391, 0, 0, 0)
+    block_3.segments[0].vel_begin = velocity(10, 0, 0, 0)
+    block_2.next_blck = block_3
+    block_2.self_correction()
+    # check if interface velocity has been corrected
+    assert block_2.segments[-1].vel_end.get_norm() == block_2.next_blck.segments[0].vel_begin.get_norm()
