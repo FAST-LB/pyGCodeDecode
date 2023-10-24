@@ -299,7 +299,7 @@ class planner_block:
                 self.get_segments()[-1].vel_end.get_norm() == self.next_blck.get_segments()[0].vel_begin.get_norm()
             )
             if not same_vel:
-                error_vel = (
+                error_vel = abs(
                     self.get_segments()[-1].vel_end.get_norm() - self.next_blck.get_segments()[0].vel_begin.get_norm()
                 )
                 if error_vel > tolerance:
