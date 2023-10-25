@@ -16,6 +16,7 @@ authors:
     equal-contrib: false
     affiliation: 1
   - name: Felix Frölich
+    orcid: 0000-0002-2575-4752
     equal-contrib: false
     affiliation: 1
   - name: Lukas Hof
