@@ -49,6 +49,7 @@ The constraints imposed by the components installed in the printer, such as maxi
 
 `pyGCD` is a Python package for GCode interpretation and FFF Firmware simulation.
 Its class-based structure and separation of modules enable extensive modifications and additions. The built-in GCode parser translates the line by line information into a state class, which contains all possible information from the GCode as well as the GCode history and user-set firmware default values supporting printer presets. In the next step, trajectory modeling connects all states by planning accelerating, constant velocity, and decelerating segments. This is achieved by simply solving the equations of the surface area under the trapezoidal velocity profile shown in \autoref{fig:trapezoid} for the missing parameters.
+
 ![Trapezoidal Velocity Profile.\label{fig:trapezoid}](trapezoid_profile.svg){width=40%}
 
 <!-- In diesem Absatz könnte man sich dann auf die Abbildung von dir beziehen. Man könnte überlegen. Ob man das auch an einem kleinen Beispiel zeigt. Oder ist das zu aufwendig und umfangreich? -->
@@ -71,7 +72,9 @@ In the simplest case, the planner can fit a complete trapez to the boundary cond
 The junction velocities in corners are calculated with the junction deviation model based on the grbl/Marlin firmware implementation.
 <!-- Man könnte überlegen diese noch mit einer kleinen Abbildung und Formel näher zu erklären. Das würde ich aber erst machen wenn wir am ende denken das ist notwendig -->
 All segments of a single move are stored together with its enclosing states in a planner block class. \autoref{fig:general} depicts the general structure and dependencies of the plannerblocks to its states and segments. The package is designed to easily apply modifications to either the interpretation and trajectory modeling as well as overwriting the simulation inputs, e.g. states or acceleration modeling, to create parameter studys without much effort.
+
 ![Overview of the Plannerblock Class structure.\label{fig:general}](general.svg){width=40%}
+
 <!-- vielleicht dieses bild detaillierter um den programmablauf zu verdeutlichen, wird dann aber viel und ggfs unübersichtlicher.. -->
 `pyGCD` provides many examples ranging from a simple GCode analysis with plots using Mayavi or Matplotlib to an Abaqus AM Modeler input file generator to use the real process conditions in a process simulation. The package was developed to enable researchers and users to better understand time-dependent process variables and to study the resulting material and component properties in more detail.
 
