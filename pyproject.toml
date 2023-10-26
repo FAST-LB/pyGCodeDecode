@@ -70,3 +70,15 @@ omit = ["./pyGCodeDecode/test/*", "./example/*"]
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration
 exclude_also = ["if __name__ == .__main__.:", "except", "import"]
+
+[[tool.pydoc-markdown.loaders]]
+type = "python"
+search_path = [ "." ]
+
+[tool.pydoc-markdown.renderer]
+type = "mkdocs"
+
+[[tool.pydoc-markdown.renderer.pages]]
+title = "API Documentation"
+name = "index"
+contents = [ "pyGCodeDecode.*" ]

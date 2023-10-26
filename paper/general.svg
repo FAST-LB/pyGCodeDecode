@@ -26,7 +26,7 @@
      showgrid="false"
      inkscape:zoom="0.74564396"
      inkscape:cx="319.18719"
-     inkscape:cy="450.61721"
+     inkscape:cy="451.95833"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
      inkscape:window-x="-8"
@@ -49,12 +49,12 @@
        y="115.29418" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="44.088741"
+       style="font-style:normal;font-weight:normal;font-size:8.46666667px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583;text-anchor:middle;text-align:center"
+       x="79.59034"
        y="130.68321"
        id="text952"><tspan
          sodipodi:role="line"
-         style="stroke-width:0.264583"
+         style="stroke-width:0.264583;text-anchor:middle;text-align:center;font-size:8.46666667px"
          x="44.088741"
          y="130.68321"
          id="tspan759">Planner Block</tspan></text>
@@ -67,13 +67,13 @@
        y="115.1834" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="133.56812"
+       style="font-style:normal;font-weight:normal;font-size:8.46666667px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583;text-anchor:middle;text-align:center"
+       x="169.06972"
        y="130.57243"
        id="text952-06"><tspan
          sodipodi:role="line"
          id="tspan950-82"
-         style="stroke-width:0.264583"
+         style="stroke-width:0.264583;text-anchor:middle;text-align:center;font-size:8.46666667px"
          x="133.56812"
          y="130.57243">Planner Block</tspan></text>
     <rect

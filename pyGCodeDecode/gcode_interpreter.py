@@ -71,26 +71,23 @@ def generate_planner_blocks(states: List[state]):
 
 
 def find_current_segm(path: List[segment], t: float, last_index: int = None, keep_position: bool = False):
-    """
-    Find the current segment.
+    """Find the current segment.
 
-    Parameters
-    ----------
-    path    :   List[segment]
-        all segments to be searched
-    t       :   float
-        time of search
-    last_index: int
-        last found index for optimizing search
-    keep_position: bool
-        keeps position of last segment, use this when working with gaps of no movement inbetween segments
+    Parameters:
+        path: List[segment]
+            all segments to be searched
+        t: float
+            time of search
+        last_index: int
+            last found index for optimizing search
+        keep_position: bool
+            keeps position of last segment, use this when working with gaps of no movement inbetween segments
 
-    Returns
-    ----------
-    segment
-        the segment which defines movement at that point in time
-    last_index
-        last index where something was found, search speed optimization possible
+    Returns:
+        segment
+            the segment which defines movement at that point in time
+        last_index
+            last index where something was found, search speed optimization possible
     """
     if keep_position:
         # use this if eval for times where no planner blocks are created
@@ -847,8 +844,12 @@ class setup:
     def set_initial_position(self, *initial_position):
         """Set initial Position through dict with keys: {X, Y, Z, E} or as tuple with length 4.
 
-        Example:    set_initial_position(1, 2, 3, 4)
-                    set_initial_position({"X": 1, "Y": 2, "Z": 3, "E": 4})
+        Example:
+        ```python
+        set_initial_position(1, 2, 3, 4)
+        set_initial_position({"X": 1, "Y": 2, "Z": 3, "E": 4})
+        ```
+
         """
         if isinstance(initial_position[0], dict) and all(key in initial_position[0] for key in ["X", "Y", "Z", "E"]):
             self.initial_position = initial_position[0]
@@ -869,11 +870,20 @@ class setup:
         else:
             raise ValueError("No printer is selected. Select printer through select_printer() beforehand.")
 
+    def get_dict(self):
+        """Return the setup for the selected printer."""
+        return_dict = self.setup_dict[self.printer_select]  # create dict
+        return_dict.update(self.initial_position)  # add initial position
+        if self.layer_cue is not None:
+            return_dict.update({"layer_cue": self.layer_cue})  # add layer cue
+        return_dict.update({"printer_name": self.printer_select})  # add printer name
+        return return_dict
+
     def __init__(self, filename: str, printer: str = None, layer_cue: str = None) -> None:
         """Create simulation setup.
 
-        filename    : choose setup yaml file with printer presets
-        printer     : select printer from preset file
+        filename    : choose setup yaml file with printer presets <br>
+        printer     : select printer from preset file <br>
         layer_cue   : set slicer specific layer change cue from comment
         """
         self.filename = filename
@@ -886,12 +896,3 @@ class setup:
 
         if self.printer_select is not None:
             self.select_printer(printer_name=self.printer_select)
-
-    def get_dict(self):
-        """Return the setup for the selected printer."""
-        return_dict = self.setup_dict[self.printer_select]  # create dict
-        return_dict.update(self.initial_position)  # add initial position
-        if self.layer_cue is not None:
-            return_dict.update({"layer_cue": self.layer_cue})  # add layer cue
-        return_dict.update({"printer_name": self.printer_select})  # add printer name
-        return return_dict

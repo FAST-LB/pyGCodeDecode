@@ -73,7 +73,7 @@ The junction velocities in corners are calculated with the junction deviation mo
 <!-- Man könnte überlegen diese noch mit einer kleinen Abbildung und Formel näher zu erklären. Das würde ich aber erst machen wenn wir am ende denken das ist notwendig -->
 All segments of a single move are stored together with its enclosing states in a planner block class. \autoref{fig:general} depicts the general structure and dependencies of the plannerblocks to its states and segments. The package is designed to easily apply modifications to either the interpretation and trajectory modeling as well as overwriting the simulation inputs, e.g. states or acceleration modeling, to create parameter studys without much effort.
 
-![Overview of the planner block class structure.\label{fig:general}](general_.svg){width=60%}
+![Overview of the planner block class structure.\label{fig:general}](general.svg){width=60%}
 
 <!-- vielleicht dieses bild detaillierter um den programmablauf zu verdeutlichen, wird dann aber viel und ggfs unübersichtlicher.. -->
 `pyGCD` provides many examples for simple GCode analysis with 3D color plots of the trajectory and velocity using Mayavi or vizualizing the axis velocities and positions in Matplotlib. As well as an Abaqus AM Modeler input file generator to use the real process conditions in a process simulation.

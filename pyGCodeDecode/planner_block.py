@@ -15,21 +15,22 @@ class planner_block:
         """
         Calculate junction deviation velocity from 2 velocitys.
 
-        Parameters
-        ----------
-        vel_0,vel_1 : velocity
-            velocity objects
-        p_settings  : state.p_settings
-            print settings, containing acceleration settings
-        Returns
-        ----------
-        velocity
-            velocity abs value
+        **Parameters**
 
-        Reference
-        ----------
-        [1]: https://onehossshay.wordpress.com/2011/09/24/improving_grbl_cornering_algorithm/
-        [2]: http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
+            vel_0,vel_1 : velocity
+                velocity objects
+            p_settings  : state.p_settings
+                print settings, containing acceleration settings
+
+        **Returns**
+
+            velocity
+                velocity abs value
+
+        **Reference**
+
+        [https://onehossshay.wordpress.com/2011/09/24/improving_grbl_cornering_algorithm/](https://onehossshay.wordpress.com/2011/09/24/improving_grbl_cornering_algorithm/)
+        [http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html](http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html)
 
         """
         # Junction deviation settings
@@ -70,15 +71,15 @@ class planner_block:
         """
         Connect two states and generates the velocity for the move from state_0 to state_next.
 
-        Parameters
-        ----------
-        state_0, state_next  :   state
-            two consecutive states
+        **Parameters**
 
-        Returns
-        ----------
-        velocity
-            the target velocity for that travel move
+            state_0, state_next  :   state
+                two consecutive states
+
+        **Returns**
+
+            velocity
+                the target velocity for that travel move
         """
         if state_0 is None or state_next is None:
             return velocity(0, 0, 0, 0)
@@ -101,23 +102,23 @@ class planner_block:
 
         WIP Method that ignores the beginning velocity if end velocity is not reachable
 
-        Parameters
-        ----------
-        direction   :   float list 1x4
-            travel direction, vectorial
-        mov_vel_end :   velocity
-            target velocity for end of move
-        settings    :   p_settings
-            printing settings for corresponding move
-        distance    :   float
-            travel distance for move
-        previous_segment:   segment
-            the previous segment, used to apply JD-Velocity at begin of move
+        **Parameters**
 
-        Returns
-        ----------
-        segment list
-            list of Segments for move
+            direction   :   float list 1x4
+                travel direction, vectorial
+            mov_vel_end :   velocity
+                target velocity for end of move
+            settings    :   p_settings
+                printing settings for corresponding move
+            distance    :   float
+                travel distance for move
+            previous_segment:   segment
+                the previous segment, used to apply JD-Velocity at begin of move
+
+        **Returns**
+
+            segment list
+                list of Segments for move
         """
 
         def trapez(extrusion_only=False):
