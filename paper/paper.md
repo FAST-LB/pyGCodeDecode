@@ -67,7 +67,7 @@ $$
 $$
 S_{dec} = \frac{1}{2} (v_{1} - v_{const}) t_{dec}.
 $$
-With the initial velocity $v_{0}$, the target velocity $v_{const}$ and ending velocity $v_{1}$ of the planner block given, it is possible to solve for the acceleration time $t_{acc}$, the constant velovcity time $t_{const}$ and the deceleration time $t_{dec}$ to construct the trapez.
+With the initial velocity $v_{0}$, the target velocity $v_{const}$ and ending velocity $v_{1}$ of the planner block given and using a constant printing acceleration $a$. It is possible to solve for the acceleration time $t_{acc}$, the constant velovcity time $t_{const}$ and the deceleration time $t_{dec}$ to construct the trapez.
 In the simplest case, the planner can fit a complete trapez to the boundary conditions. Since real life GCode is often finely discretized, especially in curved surfaces, $v_{const}$ or even $v_{1}$ can never be reached with given acceleration settings. In these cases, the parameters which are being solved for change accordingly and the velocity profile is truncated.
 The junction velocities in corners are calculated with the junction deviation model based on the grbl/Marlin firmware implementation.
 <!-- Man könnte überlegen diese noch mit einer kleinen Abbildung und Formel näher zu erklären. Das würde ich aber erst machen wenn wir am ende denken das ist notwendig -->
