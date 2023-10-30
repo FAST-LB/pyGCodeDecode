@@ -1,5 +1,5 @@
 ---
-title: 'pyGCodeDecode: A Python package for GCode simulation in material extrusion processes.'
+title: 'pyGCodeDecode: A Python package for GCode simulation in material extrusion processes'
 tags:
   - Python
   - GCode
