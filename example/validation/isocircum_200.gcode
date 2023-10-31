@@ -17,7 +17,7 @@ M104 S215 ; set temperature
 T0 R ; switch extruder
 G28 ; home all axes
 G1 Z10 F900 ; lift nozzle
-
+M204 P200
 M106 P1 S255; max Fanspeed as workaround
 M109 S215 ; set temperature and wait for it to be reached
 G21 ; set units to millimeters
