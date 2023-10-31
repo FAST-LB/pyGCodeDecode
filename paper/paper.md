@@ -55,20 +55,20 @@ Its class-based structure and separation of modules enable extensive modificatio
 <!-- In diesem Absatz könnte man sich dann auf die Abbildung von dir beziehen. Man könnte überlegen. Ob man das auch an einem kleinen Beispiel zeigt. Oder ist das zu aufwendig und umfangreich? -->
 Using
 $$
-S = S_{acc} + S_{const} + S_{dec}
+S = S_{\mathrm{acc}} + S_{\mathrm{const}} + S_{\mathrm{dec}}
 $$
 the sum of all segment distances is the total planner block distance $S$. The individual distances for linear acceleration $S_{acc}$, constant velocity $S_{const}$ and deceleration $S_{dec}$ are given by
 $$
-S_{acc} = \frac{1}{2} (v_{const} - v_{0}) t_{acc}
+S_{\mathrm{acc}} = \frac{1}{2} (v_{\mathrm{const}} + v_{\mathrm{0}}) t_{\mathrm{acc}}
 $$
 $$
-S_{const} =  v_{const} t_{const}
+S_{\mathrm{const}} =  v_{\mathrm{const}} t_{\mathrm{const}}
 $$
 $$
-S_{dec} = \frac{1}{2} (v_{1} - v_{const}) t_{dec}.
+S_{\mathrm{dec}} = \frac{1}{2} (v_{\mathrm{1}} + v_{\mathrm{const}}) t_{\mathrm{dec}}.
 $$
-With the initial velocity $v_{0}$, the target velocity $v_{const}$ and ending velocity $v_{1}$ of the planner block given and using a constant printing acceleration $a$. It is possible to solve for the acceleration time $t_{acc}$, the constant velovcity time $t_{const}$ and the deceleration time $t_{dec}$ to construct the trapez.
-In the simplest case, the planner can fit a complete trapez to the boundary conditions. Since real life GCode is often finely discretized, especially in curved surfaces, $v_{const}$ or even $v_{1}$ can never be reached with given acceleration settings. In these cases, the parameters which are being solved for change accordingly and the velocity profile is truncated.
+With the initial velocity $v_{\mathrm{0}}$, the target velocity $v_{\mathrm{const}}$ and ending velocity $v_{\mathrm{1}}$ of the planner block given and using a constant printing acceleration $a$. It is possible to solve for the acceleration time $t_{\mathrm{acc}}$, the constant velovcity time $t_{\mathrm{const}}$ and the deceleration time $t_{\mathrm{dec}}$ to construct the trapez.
+In the simplest case, the planner can fit a complete trapez to the boundary conditions. Since real life GCode is often finely discretized, especially in curved surfaces, $v_{\mathrm{const}}$ or even $v_{\mathrm{1}}$ can never be reached with given acceleration settings. In these cases, the parameters which are being solved for change accordingly and the velocity profile is truncated.
 The junction velocities in corners are calculated with the junction deviation model based on the grbl/Marlin firmware implementation.
 <!-- Man könnte überlegen diese noch mit einer kleinen Abbildung und Formel näher zu erklären. Das würde ich aber erst machen wenn wir am ende denken das ist notwendig -->
 All segments of a single move are stored together with its enclosing states in a planner block class. \autoref{fig:general} depicts the general structure and dependencies of the plannerblocks to its states and segments. The package is designed to easily apply modifications to either the interpretation and trajectory modeling as well as overwriting the simulation inputs, e.g. states or acceleration modeling, to create parameter studys without much effort.
