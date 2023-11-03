@@ -465,3 +465,7 @@ class planner_block:
     def get_segments(self):
         """Return segments, contained by the plannerblock."""
         return self.segments
+
+    def get_block_travel(self):
+        """Return the travel length of the plannerblock."""
+        return self.state_A.state_position.get_t_distance(self.state_B.state_position)
