@@ -42,7 +42,7 @@ def update_progress(progress, name="Percent"):
     sys.stdout.flush()
 
 
-def generate_planner_blocks(states: List[state]):
+def generate_planner_blocks(states: List[state], firmware=None):
     """
     Convert list of states to trajectory segments.
 
@@ -61,7 +61,7 @@ def generate_planner_blocks(states: List[state]):
     for state in states:  # noqa
         cntr += 1
         prev_blck = blck_list[-1] if len(blck_list) > 0 else None  # grab prev blck from blck_list
-        new_blck = planner_block(state=state, prev_blck=prev_blck)  # generate new blck
+        new_blck = planner_block(state=state, prev_blck=prev_blck, firmware=firmware)  # generate new blck
         if len(new_blck.get_segments()) > 0:
             if new_blck.prev_blck is not None:
                 new_blck.prev_blck.next_blck = new_blck  # update nb list
@@ -709,12 +709,12 @@ class simulate:
             "Z",
             "E",
             "printer_name",
+            "firmware",
         ]
         optional_keys = [
             "layer_cue",
             "nozzle_diam",
             "filament_diam",
-            "firmware",
         ]
 
         valid_keys = req_keys + optional_keys
@@ -745,7 +745,9 @@ class simulate:
         if new_state_list is not None:
             self.states = new_state_list
 
-        self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states)
+        self.blocklist: List[planner_block] = generate_planner_blocks(
+            states=self.states, firmware=self.initial_machine_setup["firmware"]
+        )
         self.trajectory_self_correct()
 
     def extr_extend(self):
@@ -801,6 +803,7 @@ class simulate:
         """
         self.last_index = None  # used to optimize search in segment list
         self.filename = filename
+        self.firmware = None
 
         # set scaling to chosen unit system
         self.available_unit_systems = {"SI": 1e-3, "SImm": 1.0, "inch": 1 / 25.4}
@@ -811,12 +814,16 @@ class simulate:
             raise ValueError("Chosen unit system is unavailable!")
 
         # SET INITIAL SETTINGS
-        initial_machine_setup = initial_machine_setup.get_dict()
-        self.check_initial_setup(initial_machine_setup=initial_machine_setup)
+        self.initial_machine_setup = initial_machine_setup.get_dict()
+        self.check_initial_setup(initial_machine_setup=self.initial_machine_setup)  # move this to setup class todo
+        self.firmware = self.initial_machine_setup["firmware"]
 
-        self.states: List[state] = state_generator(filename=filename, initial_machine_setup=initial_machine_setup)
+        self.states: List[state] = state_generator(filename=filename, initial_machine_setup=self.initial_machine_setup)
 
-        self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states)
+        print(
+            f"Simulating \"{self.filename}\" with {self.initial_machine_setup['printer_name']} using the {self.firmware} firmware.\n"
+        )
+        self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states, firmware=self.firmware)
         self.trajectory_self_correct()
 
         self.print_summary()
@@ -887,13 +894,13 @@ class setup:
         printer     : select printer from preset file <br>
         layer_cue   : set slicer specific layer change cue from comment
         """
+        self.initial_position = {"X": 0, "Y": 0, "Z": 0, "E": 0}  # default initial pos is zero
+        self.setup_dict = self.load_setup(filename)
+
         self.filename = filename
         self.printer_select = printer
         self.layer_cue = layer_cue
 
-        self.initial_position = {"X": 0, "Y": 0, "Z": 0, "E": 0}  # default initial pos is zero
-
-        self.setup_dict = self.load_setup(filename)
-
         if self.printer_select is not None:
             self.select_printer(printer_name=self.printer_select)
+            self.firmware = self.get_dict()["firmware"]

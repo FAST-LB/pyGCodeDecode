@@ -4,97 +4,17 @@ from typing import List
 
 import numpy as np
 
+from .junction_handling import (
+    junction_handling,
+    junction_handling_klipper,
+    junction_handling_marlin,
+)
 from .state import state
 from .utils import segment, velocity
 
 
 class planner_block:
     """Planner Block Class."""
-
-    def calc_JD(self, vel_0: velocity, vel_next: velocity, p_settings: state.p_settings):
-        """
-        Calculate junction deviation velocity from 2 velocitys.
-
-        **Parameters**
-
-            vel_0,vel_1 : velocity
-                velocity objects
-            p_settings  : state.p_settings
-                print settings, containing acceleration settings
-
-        **Returns**
-
-            velocity
-                velocity abs value
-
-        **Reference**
-
-        [https://onehossshay.wordpress.com/2011/09/24/improving_grbl_cornering_algorithm/](https://onehossshay.wordpress.com/2011/09/24/improving_grbl_cornering_algorithm/)
-        [http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html](http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html)
-
-        """
-        # Junction deviation settings
-        JD_acc = p_settings.p_acc
-        if p_settings.jerk == 0:
-            return 0
-        JD_delta = 0.4 * p_settings.jerk * p_settings.jerk / JD_acc  # [2]
-        JD_minAngle = 18
-        JD_maxAngle = 180 - 18
-        vel_0_vec = vel_0.get_vec()
-        vel_1_vec = vel_next.get_vec()
-        if vel_0.get_norm() == 0 or vel_next.get_norm() == 0:
-            return 0
-        # calculate junction angle
-        JD_cos_theta = np.dot(-np.asarray(vel_0_vec), np.asarray(vel_1_vec)) / (
-            np.linalg.norm(vel_0_vec) * np.linalg.norm(vel_1_vec)
-        )  # cos of theta, theta: small angle between velocity vectors
-        if JD_cos_theta < 1:  # catch numerical errors where cos theta is slightly larger than one
-            JD_sin_theta_half = np.sqrt((1 - JD_cos_theta) / 2)
-        else:
-            JD_sin_theta_half = 0
-        if JD_sin_theta_half < np.sin(JD_maxAngle * np.pi / (2 * 180)):  # smaller than max angle
-            if JD_sin_theta_half > np.sin(
-                JD_minAngle * np.pi / (2 * 180)
-            ):  # and larger than min angle --> apply Junction Deviation Calculation
-                # calculate scalar junction velocity
-                JD_Radius = JD_delta * JD_sin_theta_half / (1 - JD_sin_theta_half)
-                JD_velocity_scalar = np.sqrt(JD_acc * JD_Radius)
-
-                # return JD_velocity_scalar if JD_velocity_scalar < vel_0.get_norm() else vel_0.get_norm()
-                return JD_velocity_scalar if JD_velocity_scalar < p_settings.speed else p_settings.speed
-            else:
-                return 0  # angle smaller than min angle, stop completely
-        else:
-            return p_settings.speed  # angle larger than max angle, full speed pass
-
-    def connect_state(self, state_0: state, state_next: state):
-        """
-        Connect two states and generates the velocity for the move from state_0 to state_next.
-
-        **Parameters**
-
-            state_0, state_next  :   state
-                two consecutive states
-
-        **Returns**
-
-            velocity
-                the target velocity for that travel move
-        """
-        if state_0 is None or state_next is None:
-            return velocity(0, 0, 0, 0)
-
-        travel_direction = np.asarray((state_next.state_position - state_0.state_position).get_vec(withExtrusion=True))
-        t_distance = np.linalg.norm(travel_direction[:3])
-        e_len = travel_direction[3]
-        if abs(t_distance) > 0:  # regular travel mixed move
-            travel_direction = travel_direction / t_distance
-        elif abs(e_len) > 0:  # for extrusion only move
-            travel_direction = travel_direction / abs(e_len)
-        else:  # no move at all
-            travel_direction = np.asarray([0, 0, 0, 0])
-        speed = velocity(state_next.state_p_settings.speed * travel_direction)
-        return speed
 
     def move_maker2(self, v_end):
         """
@@ -283,7 +203,11 @@ class planner_block:
                 singl_dwn()
             else:
                 raise NameError(
-                    "Segment could not be modeled: " + str(self.state_B) + f"\nv-begin: {v_begin} / v-end {v_end}"
+                    "Segment could not be modeled: \n"
+                    + str(self.state_A)
+                    + "\n"
+                    + str(self.state_B)
+                    + f"\nv-begin {v_begin} / v-target {v_target} / v-end {v_end} "
                 )
         # except TypeError:
         #     print(f"Segment after {self.prev_blck.segments[-1].t_end} could not be modeled.\n " + str(self.state_B))
@@ -363,7 +287,7 @@ class planner_block:
         else:
             pass
 
-    def __init__(self, state: state, prev_blck: "planner_block"):
+    def __init__(self, state: state, prev_blck: "planner_block", firmware=None):
         """Calculate and store planner block consisting of one or multiple segments.
 
         Move is from state_A to state_B (the current state)
@@ -378,38 +302,28 @@ class planner_block:
         self.segments: List[segment] = []  # store segments here
         self.blcktype = None
 
+        if firmware == "marlin":
+            junction = junction_handling_marlin(state_A=self.state_A, state_B=self.state_B)
+        elif firmware == "klipper":
+            junction = junction_handling_klipper(state_A=self.state_A, state_B=self.state_B)
+        elif firmware == "marlin_jerk":
+            raise ValueError("-> junction_handling_marlin_jerk() is not yet implemented.")
+            # junction = junction_handling_marlin_jerk(state_A=self.state_A, state_B=self.state_B)
+        else:
+            junction = junction_handling(state_A=self.state_A, state_B=self.state_B)
+
         # planner block calculation
-        vel_blck = self.connect_state(
-            state_0=self.state_A, state_next=self.state_B
-        )  # target velocity for this plannerblock
+        target_vel = junction.get_target_vel()  # target velocity for this plannerblock
 
-        # get next travel move, if following state is a comment or not printing, the state after that gets used for calculating the vel_next
-        # might be useful to create a travel/extr only state list?
-        next_next_state = self.state_B.next_state if self.state_B.next_state is not None else self.state_B
-        while True:
-            if (
-                next_next_state.next_state is None
-                or self.state_B.state_position.get_t_distance(next_next_state.state_position, withExtrusion=True) > 0
-            ):
-                vel_next = self.connect_state(
-                    state_0=self.state_B, state_next=next_next_state
-                )  # target velocity for next plannerblock
-                break
-            else:
-                next_next_state = next_next_state.next_state
+        v_JD = junction.get_junction_vel()
 
-        v_JD = self.calc_JD(
-            vel_0=vel_blck, vel_next=vel_next, p_settings=state.state_p_settings
-        )  # junction deviation speed for end of block
+        self.direction = target_vel.get_norm_dir(withExtrusion=True)  # direction vector of pb
 
-        self.direction = vel_blck.get_norm_dir(withExtrusion=True)  # direction vector of pb
-
-        self.valid = vel_blck.not_zero()  # valid planner block
+        self.valid = target_vel.not_zero()  # valid planner block
 
         # standard move maker
         if self.valid:
             self.JD = v_JD * self.direction  # jd writeout for debugging plot
-            # print(np.linalg.norm(v_JD * self.direction[:3]))
             self.move_maker2(v_end=v_JD)
             self.is_extruding = self.state_A.state_position.is_extruding(
                 self.state_B.state_position

@@ -13,7 +13,7 @@ anisoprint_A4:
   vY: 180
   vZ: 30
   vE: 33
-  firmware: "marlin_jerk"
+  firmware: marlin_jerk
 
 prusa_mini:
   # general properties
@@ -28,7 +28,7 @@ prusa_mini:
   vY: 180
   vZ: 12
   vE: 80
-  firmware: "marlin_jd"
+  firmware: marlin
 
 prusa_mini_klipper:
   # general properties
@@ -43,7 +43,7 @@ prusa_mini_klipper:
   vY: 180
   vZ: 12
   vE: 80
-  firmware: "klipper"
+  firmware: klipper
 
 debugging:
   # general properties
@@ -58,4 +58,4 @@ debugging:
   vY: 180
   vZ: 12
   vE: 80
-  firmware: "debug"
+  firmware:

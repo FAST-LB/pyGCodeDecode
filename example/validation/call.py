@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 """Example usage of pyGCD in the Restore Project."""
+import time
+
 from pyGCodeDecode import abaqus_file_generator, gcode_interpreter  # noqa F401
 
-setup = gcode_interpreter.setup(
-    filename=r"example\printer_presets.yaml", printer="prusa_mini_klipper"
-)  # Select printer from preset.
+start_time = time.time()
+
+setup = gcode_interpreter.setup(filename=r"example\printer_presets.yaml")  # load setup
+setup.select_printer("prusa_mini_klipper")  # Select printer from preset.
 setup.set_property({"layer_cue": "LAYER_CHANGE"})  # Prusa Slicer layer change cue.
+
 # setup.set_property({"p_acc": 1000})
 setup.set_property({"jerk": 20})
 
@@ -13,7 +17,8 @@ stator_simulation = gcode_interpreter.simulate(
     filename=r"example\validation\prusa_mini_2.gcode", initial_machine_setup=setup
 )  # Simulate the gcode.
 
-# print(setup)
+print("--- %s seconds ---" % (time.time() - start_time))
+
 
 # Write all layer times.
 p_log = open("./example/validation/layertime.csv", "w")
