@@ -13,6 +13,7 @@ prusa_mini:
   vY: 180
   vZ: 12
   vE: 80
+  firmware: marlin
 
 debugging:
   # general properties
@@ -27,3 +28,4 @@ debugging:
   vY: 170
   vZ: 12
   vE: 80
+  firmware:
