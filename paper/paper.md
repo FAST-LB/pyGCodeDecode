@@ -57,7 +57,7 @@ Using
 $$
 S = S_{\mathrm{acc}} + S_{\mathrm{const}} + S_{\mathrm{dec}}
 $$
-the sum of all segment distances is the total planner block distance $S$. The individual distances for linear acceleration $S_{acc}$, constant velocity $S_{const}$ and deceleration $S_{dec}$ are given by
+the sum of all segment distances is the total planner block distance $S$. The individual distances for linear acceleration $S_{\mathrm{acc}}$, constant velocity $S_{\mathrm{const}}$ and deceleration $S_{\mathrm{dec}}$ are given by
 $$
 S_{\mathrm{acc}} = \frac{1}{2} (v_{\mathrm{const}} + v_{\mathrm{0}}) t_{\mathrm{acc}}
 $$

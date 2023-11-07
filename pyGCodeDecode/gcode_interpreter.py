@@ -714,6 +714,7 @@ class simulate:
             "layer_cue",
             "nozzle_diam",
             "filament_diam",
+            "firmware",
         ]
 
         valid_keys = req_keys + optional_keys

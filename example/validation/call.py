@@ -3,16 +3,17 @@
 from pyGCodeDecode import abaqus_file_generator, gcode_interpreter  # noqa F401
 
 setup = gcode_interpreter.setup(
-    filename=r"example\printer_presets.yaml", printer="prusa_mini"
+    filename=r"example\printer_presets.yaml", printer="prusa_mini_klipper"
 )  # Select printer from preset.
 setup.set_property({"layer_cue": "LAYER_CHANGE"})  # Prusa Slicer layer change cue.
 # setup.set_property({"p_acc": 1000})
-setup.set_property({"jerk": 25})
+setup.set_property({"jerk": 20})
 
 stator_simulation = gcode_interpreter.simulate(
-    filename=r"example\validation\prusa_mini.gcode", initial_machine_setup=setup
+    filename=r"example\validation\prusa_mini_2.gcode", initial_machine_setup=setup
 )  # Simulate the gcode.
 
+# print(setup)
 
 # Write all layer times.
 p_log = open("./example/validation/layertime.csv", "w")
@@ -22,6 +23,8 @@ p_log = open("./example/validation/layertime.csv", "w")
 last_layer = 0
 last_layer_time = 0
 travel = 0
+p_log.write("layer, layer time in s, travel distance in mm, avg speed in mm/s\n")
+
 for block in stator_simulation.blocklist:
     travel += block.get_block_travel()
 
@@ -33,6 +36,8 @@ for block in stator_simulation.blocklist:
             + str(block.segments[0].t_begin - last_layer_time)
             + ", "
             + str(travel)
+            + ", "
+            + str(travel / (block.segments[0].t_begin - last_layer_time))
             + "\n"
         )
         last_layer = block.state_B.layer
