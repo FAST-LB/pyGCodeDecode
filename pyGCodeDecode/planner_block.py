@@ -8,6 +8,7 @@ from .junction_handling import (
     junction_handling,
     junction_handling_klipper,
     junction_handling_marlin,
+    junction_handling_marlin_jerk,
 )
 from .state import state
 from .utils import segment, velocity
@@ -307,8 +308,7 @@ class planner_block:
         elif firmware == "klipper":
             junction = junction_handling_klipper(state_A=self.state_A, state_B=self.state_B)
         elif firmware == "marlin_jerk":
-            raise ValueError("-> junction_handling_marlin_jerk() is not yet implemented.")
-            # junction = junction_handling_marlin_jerk(state_A=self.state_A, state_B=self.state_B)
+            junction = junction_handling_marlin_jerk(state_A=self.state_A, state_B=self.state_B)
         else:
             junction = junction_handling(state_A=self.state_A, state_B=self.state_B)
 

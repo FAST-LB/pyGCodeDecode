@@ -144,6 +144,43 @@ class junction_handling_marlin(junction_handling):
         return self.junction_vel
 
 
+class junction_handling_marlin_jerk(junction_handling):
+    """Marlin classic jerk specific junction handling.
+
+    - https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768
+    """
+
+    def __init__(self, state_A: state, state_B: state):
+        """Marlin classic jerk specific junction velocity calculation."""
+        super().__init__(state_A, state_B)
+
+        self.calc_j_vel()
+
+    def calc_j_vel(self):
+        """Calculate the junction velocity."""
+        vel_0 = self.target_vel
+        vel_1 = self.vel_next
+        self.jerk = self.state_B.state_p_settings.jerk
+
+        vel_diff = vel_0 - vel_1
+        jerk_move = vel_diff.get_norm()
+        scale = jerk_move / self.jerk
+
+        if scale >= 1:
+            self.junction_vel = (vel_1 / scale).get_norm()
+        else:
+            self.junction_vel = vel_1.get_norm()
+
+        # if abs(jerk_move) > self.jerk:
+        #     print("big" + str(jerk_move))
+        # else:
+        #     print("smool" + str(jerk_move))
+
+    def get_junction_vel(self):
+        """Return the calculated junction velocity."""
+        return self.junction_vel
+
+
 class junction_handling_klipper(junction_handling):
     """Klipper specific junction handling.
 
@@ -169,6 +206,7 @@ class junction_handling_klipper(junction_handling):
         """
         sc_vel = (self.state_B.state_p_settings.jerk) ** 2
         self.j_delta = sc_vel * (math.sqrt(2.0) - 1.0) / self.state_B.state_p_settings.p_acc
+        # self.j_delta = 0.013
 
     def calc_j_vel(self):
         """Calculate the junction velocity."""
@@ -178,7 +216,7 @@ class junction_handling_klipper(junction_handling):
         vel_0_vec = vel_0.get_vec()
         vel_1_vec = vel_1.get_vec()
         if vel_0.get_norm() == 0 or vel_1.get_norm() == 0:
-            self.j_vel = 0
+            self.junction_vel = 0
             return
 
         # calculate junction angle
@@ -188,7 +226,7 @@ class junction_handling_klipper(junction_handling):
 
         j_cos_theta = max(j_cos_theta, -0.999999)  # limit
         if j_cos_theta > 0.999999:
-            self.j_vel = self.target_vel.get_norm()  # if self.target_vel.get_norm() is not None else 0
+            self.junction_vel = self.target_vel.get_norm()  # if self.target_vel.get_norm() is not None else 0
             return
 
         j_sin_theta_d2 = math.sqrt(0.5 * (1.0 - j_cos_theta))
@@ -204,10 +242,10 @@ class junction_handling_klipper(junction_handling):
             * self.state_B.state_p_settings.p_acc
         )
 
-        self.j_vel = math.sqrt(
+        self.junction_vel = math.sqrt(
             min(self.state_B.state_p_settings.p_acc * j_R, move_centripetal_v2, self.state_B.state_p_settings.speed)
         )
 
     def get_junction_vel(self):
         """Return the calculated junction velocity."""
-        return self.j_vel
+        return self.junction_vel
