@@ -70,7 +70,7 @@ class junction_handling:
 
     def get_junction_vel(self):
         """Return default junction velocity of zero."""
-        return velocity(0, 0, 0, 0)
+        return 0
 
 
 class junction_handling_marlin(junction_handling):

@@ -77,7 +77,7 @@ def test_planner_block():
     state_2 = state(state_position=pos_2, state_p_settings=settings)
     state_1.prev_state = state_0
     state_1.next_state = state_2  # needed next state to create singular PB with non zero ending vel
-    block_3 = planner_block(state=state_1, prev_blck=None)
+    block_3 = planner_block(state=state_1, prev_blck=None, firmware="marlin")
 
     # single block test
     assert block_3.blcktype == "single"

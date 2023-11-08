@@ -13,3 +13,4 @@ test:
   vY: 180
   vZ: 30
   vE: 33
+  firmware: marlin
