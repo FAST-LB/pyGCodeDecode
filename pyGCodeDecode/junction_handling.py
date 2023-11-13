@@ -147,6 +147,8 @@ class junction_handling_marlin(junction_handling):
 class junction_handling_marlin_jerk(junction_handling):
     """Marlin classic jerk specific junction handling.
 
+    todo: start and end of move has to jump too(?)
+
     - https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768
     """
 
