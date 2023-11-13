@@ -314,7 +314,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
 
         # if layer cue is requested, count and add layers
         if "layer_cue" in initial_machine_setup:
-            if new_state.comment is not None and initial_machine_setup["layer_cue"] in new_state.comment:
+            if new_state.comment is not None and initial_machine_setup["layer_cue"] == new_state.comment:
                 layer_counter += 1
             new_state.layer = layer_counter
 
