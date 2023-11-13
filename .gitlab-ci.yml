@@ -1,18 +1,26 @@
+stages:
+    - doc
+    - test
+
 test-lint:
     stage: test
     image: "python:latest"
+    needs: []
     script:
         - pip install flake8 flake8-docstrings black[jupyter] black isort
         - isort --check . -v
         - black --check */ -v
         - flake8 . -v
+    when: always
 
 test-lin_py_latest:
     stage: test
     image: "python:latest"
-    script:
+    needs: []
+    before_script:
         # missing dependencies for docker-container
         - apt-get update && apt-get install libgl1 -y
+    script:
         - pip install .[TEST]
         - pytest --cov --cov-config=pyproject.toml --cov-report term
           --cov-report xml:./pyGCodeDecode/test/coverage.xml
@@ -23,9 +31,24 @@ test-lin_py_latest:
             coverage_report:
                 coverage_format: cobertura
                 path: ./pyGCodeDecode/test/coverage.xml
+        when: always
 
-deploy-compile_paper:
-    stage: deploy
+doc-compile_docs:
+    stage: doc
+    image: "python:latest"
+    needs: []
+    script:
+        - python -m pydoc -w pyGCodeDecode
+    artifacts:
+        untracked: false
+        paths:
+            - ./*.html
+        when: always
+        expire_in: "30 days"
+
+doc-compile_paper:
+    stage: doc
+    needs: []
     script:
         - docker run --rm --volume $PWD/paper:/data --user $(id -u):$(id -g)
           --env JOURNAL=joss openjournals/inara
@@ -35,5 +58,5 @@ deploy-compile_paper:
         untracked: false
         paths:
             - ./paper/*.pdf
-        when: on_success
+        when: always
         expire_in: "30 days"
