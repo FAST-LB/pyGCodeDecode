@@ -14,9 +14,10 @@ G1 Z10 F720 ; raise Nozzle
 ; >>> SET VALUES <<<
 G1 X50 Y50 F1800 ; starting position and travel speed
 G4 S1 ; halt for 1s
-M204 P1250 R1250 T1250 ; sets acceleration (P, T) and retract acceleration (R), mm/sec^2
+M204 P50 R50 T50 ; sets acceleration (P, T) and retract acceleration (R), mm/sec^2
 M205 X1.00 Y1.00 Z1.00 E1.00 ; sets the jerk limits, mm/sec
-
+G1 Z11
+G1 Z10
 ; LAYER_CHANGE
 ; CYCLE START
 G1 X100
@@ -78,7 +79,8 @@ G1 X75 Y100
 G1 X50 Y50
 ; CYCLE END 10
 ; LAYER_CHANGE
-
+G1 Z11
+G1 Z10
 G4 S1 ; halt for 1 s
 ; ----- TESTING END -----
 
@@ -86,9 +88,10 @@ G4 S1 ; halt for 1 s
 ; >>> SET VALUES <<<
 G1 X50 Y50 F1800 ; starting position and travel speed
 G4 S1 ; halt for 1s
-M204 P1250 R1250 T1250 ; sets acceleration (P, T) and retract acceleration (R), mm/sec^2
+; M204 P1250 R1250 T1250 ; sets acceleration (P, T) and retract acceleration (R), mm/sec^2
 M205 X5.00 Y5.00 Z5.00 E5.00 ; sets the jerk limits, mm/sec
-
+G1 Z11
+G1 Z10
 ; LAYER_CHANGE
 ; CYCLE START
 G1 X100
@@ -150,7 +153,8 @@ G1 X75 Y100
 G1 X50 Y50
 ; CYCLE END 10
 ; LAYER_CHANGE
-
+G1 Z11
+G1 Z10
 G4 S1 ; halt for 1 s
 ; ----- TESTING END -----
 
@@ -158,9 +162,10 @@ G4 S1 ; halt for 1 s
 ; >>> SET VALUES <<<
 G1 X50 Y50 F1800 ; starting position and travel speed
 G4 S1 ; halt for 1s
-M204 P1250 R1250 T1250 ; sets acceleration (P, T) and retract acceleration (R), mm/sec^2
+; M204 P1250 R1250 T1250 ; sets acceleration (P, T) and retract acceleration (R), mm/sec^2
 M205 X10.00 Y10.00 Z10.00 E10.00 ; sets the jerk limits, mm/sec
-
+G1 Z11
+G1 Z10
 ; LAYER_CHANGE
 ; CYCLE START
 G1 X100
@@ -222,7 +227,8 @@ G1 X75 Y100
 G1 X50 Y50
 ; CYCLE END 10
 ; LAYER_CHANGE
-
+G1 Z11
+G1 Z10
 G4 S1 ; halt for 1 s
 ; ----- TESTING END -----
 
@@ -230,9 +236,10 @@ G4 S1 ; halt for 1 s
 ; >>> SET VALUES <<<
 G1 X50 Y50 F1800 ; starting position and travel speed
 G4 S1 ; halt for 1s
-M204 P1250 R1250 T1250 ; sets acceleration (P, T) and retract acceleration (R), mm/sec^2
+; M204 P1250 R1250 T1250 ; sets acceleration (P, T) and retract acceleration (R), mm/sec^2
 M205 X100.00 Y100.00 Z100.00 E100.00 ; sets the jerk limits, mm/sec
-
+G1 Z11
+G1 Z10
 ; LAYER_CHANGE
 ; CYCLE START
 G1 X100
@@ -294,6 +301,7 @@ G1 X75 Y100
 G1 X50 Y50
 ; CYCLE END 10
 ; LAYER_CHANGE
-
+G1 Z11
+G1 Z10
 G4 S1 ; halt for 1 s
 ; ----- TESTING END -----

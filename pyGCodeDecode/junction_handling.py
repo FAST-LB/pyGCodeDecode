@@ -148,7 +148,8 @@ class junction_handling_marlin_jerk(junction_handling):
     """Marlin classic jerk specific junction handling.
 
     todo: start and end of move has to jump too(?)
-
+    - https://github.com/MarlinFirmware/Marlin/pull/8887
+    - https://github.com/MarlinFirmware/Marlin/pull/8888
     - https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768
     """
 
@@ -162,16 +163,16 @@ class junction_handling_marlin_jerk(junction_handling):
         """Calculate the junction velocity."""
         vel_0 = self.target_vel
         vel_1 = self.vel_next
-        self.jerk = self.state_B.state_p_settings.jerk
+        self.jerk = self.state_B.state_p_settings.jerk  # * 2
 
         vel_diff = vel_0 - vel_1
         jerk_move = vel_diff.get_norm()
-        scale = jerk_move / self.jerk
+        scale = jerk_move / self.jerk if self.jerk > 0 else 0
 
         if scale >= 1:
-            self.junction_vel = (vel_1 / scale).get_norm()
+            self.junction_vel = (vel_0 / scale).get_norm()
         else:
-            self.junction_vel = vel_1.get_norm()
+            self.junction_vel = vel_0.get_norm()
 
         # if abs(jerk_move) > self.jerk:
         #     print("big" + str(jerk_move))
