@@ -8,22 +8,19 @@ start_time = time.time()
 
 setup = gcode_interpreter.setup(filename=r"example\printer_presets.yaml")  # load setup
 setup.select_printer("prusa_mini_klipper")  # Select printer from preset.
-# setup.select_printer("anisoprint_A4")  # Select printer from preset.
 setup.set_property({"layer_cue": "LAYER_CHANGE"})  # Prusa Slicer layer change cue.
 
-# setup.set_property({"p_acc": 2000})
-# setup.set_property({"jerk": 2})
 setup.set_property({"firmware": "marlin_jerk"})
 simulation = gcode_interpreter.simulate(
-    filename=r"example\validation\prusa_mini_jerk\JDJERK_Testing.gcode", initial_machine_setup=setup
-)  # Simulate the gcode. onecirc prusa_mini_2 line
+    filename=r"example\validation\jerk\JDJERK_Testing.gcode", initial_machine_setup=setup
+)  # Simulate the gcode.
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
 
 if True:
     # Write all layer times.
-    p_log = open("./example/validation/layertime.csv", "w")
+    p_log = open("./example/validation/jerk/layertime_prusa.csv", "w")
     # p_log.write("total time " + str(stator_simulation.blocklist[-1].segments[-1].t_end) + "\n")
 
     last_layer = 0
@@ -50,7 +47,5 @@ if True:
             last_layer_time = block.segments[0].t_begin
             travel = 0
     p_log.close()
-
-# simulation.plot_3d_mayavi(extrusion_only=False)
 
 simulation.plot_vel(show=True, filename=False)

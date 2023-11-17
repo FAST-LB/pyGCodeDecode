@@ -163,7 +163,7 @@ class junction_handling_marlin_jerk(junction_handling):
         """Calculate the junction velocity."""
         vel_0 = self.target_vel
         vel_1 = self.vel_next
-        self.jerk = self.state_B.state_p_settings.jerk  # * 2
+        self.jerk = self.state_B.state_p_settings.jerk * 2
 
         vel_diff = vel_0 - vel_1
         jerk_move = vel_diff.get_norm()
