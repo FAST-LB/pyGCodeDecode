@@ -71,17 +71,18 @@ With the initial velocity $v_{\mathrm{0}}$, the target velocity $v_{\mathrm{cons
 In the simplest case, the planner can fit a complete trapez to the boundary conditions. Since real life GCode is often finely discretized, especially in curved surfaces, $v_{\mathrm{const}}$ or even $v_{\mathrm{1}}$ can never be reached with given acceleration settings. In these cases, the parameters which are being solved for change accordingly and the velocity profile is truncated.
 The junction velocities in corners are calculated with the junction deviation model based on the grbl/Marlin firmware implementation.
 <!-- Man könnte überlegen diese noch mit einer kleinen Abbildung und Formel näher zu erklären. Das würde ich aber erst machen wenn wir am ende denken das ist notwendig -->
-All segments of a single move are stored together with its enclosing states in a planner block class. \autoref{fig:general} depicts the general structure and dependencies of the plannerblocks to its states and segments. The package is designed to easily apply modifications to either the interpretation and trajectory modeling as well as overwriting the simulation inputs, e.g. states or acceleration modeling, to create parameter studys without much effort.
+All segments of a single move are stored together with its enclosing states in a planner block class. The package is designed to easily apply modifications to either the interpretation and trajectory modeling as well as overwriting the simulation inputs, e.g. states or acceleration modeling, to create parameter studys without much effort.
 
-![Overview of the planner block class structure.\label{fig:general}](general.svg){width=60%}
+<!-- \autoref{fig:general} depicts the general structure and dependencies of the plannerblocks to its states and segments.  -->
+<!-- ![Overview of the planner block class structure.\label{fig:general}](general.svg){width=60%} -->
 
 <!-- vielleicht dieses bild detaillierter um den programmablauf zu verdeutlichen, wird dann aber viel und ggfs unübersichtlicher.. -->
 `pyGCD` provides many examples for simple GCode analysis with 3D color plots of the trajectory and velocity using Mayavi or vizualizing the axis velocities and positions in Matplotlib. As well as an Abaqus AM Modeler input file generator to use the real process conditions in a process simulation.
 
 # Validation
 
-`pyGCD` has been validated with experiments on a FFF printer running a marlin derived firmware. A sample geometry with constant perimeter length but continously changing turning angle was created in CAD and printed perimeters-only with different firmware settings. In *fig* the layertimes over layercount are plotted, to visualize the impact of trajectory on average printing velocity.
-![Validation of the simulation by measuring layer duration.\label{fig:validation}](\../example/validation/jerk/plot.svg){width=60%}
+`pyGCD` has been validated with experiments on a FFF printer running a marlin derived firmware by Prusa (Prusa Mini). As sample GCode a simple triangle path has been chosen that gets repeated ten times before a layer change is simulated. In \autoref{fig:validation} the layer duration is plotted over different jerk values. By simulating the acceleration, deceleration and the different cornering velocitys, the layer duration is highly dependant on the chosen jerk values. For jerk values equal to the target printing velocity, the effect is expected to converge to a constant velocity solution which has been calculated analytically for the test path distance. For small jerk values, close to zero, the printer is expected to slow down to a stop for each turn in the path. This edgecase has also been validated through analytical calculations.
+![Validation of the simulation by measuring layer duration.\label{fig:validation}](plot.svg){width=60%}
 
 # Acknowledgements
 

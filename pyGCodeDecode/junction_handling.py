@@ -252,3 +252,54 @@ class junction_handling_klipper(junction_handling):
     def get_junction_vel(self):
         """Return the calculated junction velocity."""
         return self.junction_vel
+
+
+class junction_handling_MKA(junction_handling):
+    """Anisoprint A4 like junction handling.
+
+    - https://github.com/anisoprint/MKA-firmware/blob/6e02973b1b8f325040cc3dbf66ac545ffc5c06b3/src/core/planner/planner.cpp#L1830
+    """
+
+    def __init__(self, state_A: state, state_B: state):
+        """Marlin classic jerk specific junction velocity calculation."""
+        super().__init__(state_A, state_B)
+
+        self.calc_j_vel()
+
+    def calc_j_vel(self):
+        """Calculate the junction velocity."""
+        vel_0 = self.target_vel
+        vel_1 = self.vel_next
+        self.jerk = self.state_B.state_p_settings.jerk
+
+        v_max_junc = min(vel_0.get_norm(), vel_1.get_norm())
+        small_speed_fac = v_max_junc / vel_0.get_norm() if v_max_junc > 0 else 0
+
+        v_factor = 1
+        lim_flag = False
+
+        for v_entry, v_exit in zip(vel_0.get_vec(withExtrusion=True), vel_1.get_vec(withExtrusion=True)):
+            v_exit *= small_speed_fac
+
+            if lim_flag:
+                v_entry *= v_factor
+                v_exit *= v_factor
+
+            jerk = (
+                ((v_exit - v_entry) if (v_entry > 0 or v_exit < 0) else max(v_exit, -v_entry))
+                if (v_exit > v_entry)
+                else (v_entry - v_exit if (v_entry < 0 or v_exit > 0) else max(-v_exit, v_entry))
+            )  # calc logic taken from MKA firmware
+
+            if jerk > self.jerk:
+                v_factor *= self.jerk / jerk
+                lim_flag = True
+
+            if lim_flag:
+                v_max_junc *= v_factor
+
+            self.junction_vel = v_max_junc
+
+    def get_junction_vel(self):
+        """Return the calculated junction velocity."""
+        return self.junction_vel
