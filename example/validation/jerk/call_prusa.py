@@ -7,15 +7,15 @@ from pyGCodeDecode import abaqus_file_generator, gcode_interpreter  # noqa F401
 start_time = time.time()
 
 setup = gcode_interpreter.setup(filename=r"example\printer_presets.yaml")  # load setup
-setup.select_printer("prusa_mini_klipper")  # Select printer from preset.
+setup.select_printer("prusa_mini")  # Select printer from preset.
 setup.set_property({"layer_cue": "LAYER_CHANGE"})  # Prusa Slicer layer change cue.
 
 setup.set_property({"firmware": "marlin_jerk"})
 simulation = gcode_interpreter.simulate(
-    filename=r"example\validation\jerk\JDJERK_Testing.gcode", initial_machine_setup=setup
+    filename=r"example\validation\jerk\JDJERK_1_5_7_10_15_20_30.gcode", initial_machine_setup=setup
 )  # Simulate the gcode.
 
-print("--- %s seconds ---" % (time.time() - start_time))
+print("---Simulation took %s seconds ---" % (time.time() - start_time))
 
 
 if True:

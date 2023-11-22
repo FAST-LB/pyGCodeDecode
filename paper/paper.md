@@ -81,6 +81,7 @@ All segments of a single move are stored together with its enclosing states in a
 # Validation
 
 `pyGCD` has been validated with experiments on a FFF printer running a marlin derived firmware. A sample geometry with constant perimeter length but continously changing turning angle was created in CAD and printed perimeters-only with different firmware settings. In *fig* the layertimes over layercount are plotted, to visualize the impact of trajectory on average printing velocity.
+![Validation of the simulation by measuring layer duration.\label{fig:validation}](\../example/validation/jerk/plot.svg){width=60%}
 
 # Acknowledgements
 
