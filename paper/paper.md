@@ -82,7 +82,9 @@ All segments of a single move are stored together with its enclosing states in a
 # Validation
 
 `pyGCD` has been validated with experiments on a FFF printer running a marlin derived firmware by Prusa (Prusa Mini). As sample GCode a simple triangle path has been chosen that gets repeated ten times before a layer change is simulated. In \autoref{fig:validation} the layer duration is plotted over different jerk values. By simulating the acceleration, deceleration and the different cornering velocitys, the layer duration is highly dependant on the chosen jerk values. For jerk values equal to the target printing velocity, the effect is expected to converge to a constant velocity solution which has been calculated analytically for the test path distance. For small jerk values, close to zero, the printer is expected to slow down to a stop for each turn in the path. This edgecase has also been validated through analytical calculations.
+
 ![Validation of the simulation by measuring layer duration.\label{fig:validation}](plot.svg){width=60%}
+
 
 # Acknowledgements
 
