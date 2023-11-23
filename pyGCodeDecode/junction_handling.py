@@ -30,10 +30,10 @@ class junction_handling:
             return velocity(0, 0, 0, 0)
 
         travel_direction = np.asarray((state_B.state_position - state_A.state_position).get_vec(withExtrusion=True))
-        t_distance = np.linalg.norm(travel_direction[:3])
+        self.t_distance = np.linalg.norm(travel_direction[:3])
         e_len = travel_direction[3]
-        if abs(t_distance) > 0:  # regular travel mixed move
-            travel_direction = travel_direction / t_distance
+        if abs(self.t_distance) > 0:  # regular travel mixed move
+            travel_direction = travel_direction / self.t_distance
         elif abs(e_len) > 0:  # for extrusion only move
             travel_direction = travel_direction / abs(e_len)
         else:  # no move at all
@@ -191,8 +191,9 @@ class junction_handling_klipper(junction_handling):
     - corner vel set by: square_corner_velocity
         end_velocity^2 = start_velocity^2 + 2*accel*move_distance
       for 90° turn
-    - smoothed look ahead
-    https://www.klipper3d.org/Kinematics.html
+    - todo: smoothed look ahead
+    - https://www.klipper3d.org/Kinematics.html
+    - https://github.com/Klipper3d/klipper/blob/ea2f6bc0f544132738c7f052ffcc586fa884a19a/klippy/toolhead.py
     """
 
     def __init__(self, state_A: state, state_B: state):
@@ -216,15 +217,15 @@ class junction_handling_klipper(junction_handling):
         vel_0 = self.target_vel
         vel_1 = self.vel_next
 
-        vel_0_vec = vel_0.get_vec()
-        vel_1_vec = vel_1.get_vec()
         if vel_0.get_norm() == 0 or vel_1.get_norm() == 0:
             self.junction_vel = 0
             return
 
         # calculate junction angle
-        j_cos_theta = np.dot(-np.asarray(vel_0_vec), np.asarray(vel_1_vec)) / (
-            np.linalg.norm(vel_0_vec) * np.linalg.norm(vel_1_vec)
+        dir0 = vel_0.get_norm_dir()
+        dir1 = vel_1.get_norm_dir()
+        j_cos_theta = -(
+            dir0[0] * dir1[0] + dir0[1] * dir1[1] + dir0[2] * dir1[2]
         )  # cos of theta, theta: small angle between velocity vectors
 
         j_cos_theta = max(j_cos_theta, -0.999999)  # limit
@@ -233,20 +234,18 @@ class junction_handling_klipper(junction_handling):
             return
 
         j_sin_theta_d2 = math.sqrt(0.5 * (1.0 - j_cos_theta))
+
         j_R = self.j_delta * j_sin_theta_d2 / (1.0 - j_sin_theta_d2)
 
         # [from klipper]: Approximated circle must contact moves no further away than mid-move
         j_tan_theta_d2 = j_sin_theta_d2 / math.sqrt(0.5 * (1.0 + j_cos_theta))
 
-        move_centripetal_v2 = (
-            0.5
-            * self.state_A.state_position.get_t_distance(self.state_B.state_position)
-            * j_tan_theta_d2
-            * self.state_B.state_p_settings.p_acc
-        )
+        move_centripetal_v2 = 0.5 * self.t_distance * j_tan_theta_d2 * self.state_B.state_p_settings.p_acc
 
         self.junction_vel = math.sqrt(
-            min(self.state_B.state_p_settings.p_acc * j_R, move_centripetal_v2, self.state_B.state_p_settings.speed)
+            min(
+                self.state_B.state_p_settings.p_acc * j_R, move_centripetal_v2, self.state_B.state_p_settings.speed**2
+            )
         )
 
     def get_junction_vel(self):
