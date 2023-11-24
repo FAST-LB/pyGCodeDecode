@@ -17,10 +17,10 @@ timepoints generated are always at segment beginnings / endings, so interpolatio
 tolerance = float("1e-12")
 
 
-def generate_abaqus_events(trajectory, output_filename="pyGcodeDecode_abaqus_events.inp"):
+def generate_abaqus_events(simulation: "gi.simulate", filename="pyGcodeDecode_abaqus_events.inp"):
     """Generate abaqus event series."""
     # get all positions and timings
-    unpacked = gi.unpack_blocklist(trajectory.blocklist)
+    unpacked = gi.unpack_blocklist(simulation.blocklist)
     pos = [unpacked[0].pos_begin.get_vec(withExtrusion=True)]
     time = [0]
     for segm in unpacked:
@@ -36,7 +36,7 @@ def generate_abaqus_events(trajectory, output_filename="pyGcodeDecode_abaqus_eve
     pos[-1][3] = 0
 
     # writeout to file
-    f = open(output_filename, "w")
+    f = open(filename, "w")
     for time, pos in zip(time, pos):
         f.write(str(time) + "," + str(pos[0]) + "," + str(pos[1]) + "," + str(pos[2]) + "," + str(pos[3]) + "\n")
     f.close()
