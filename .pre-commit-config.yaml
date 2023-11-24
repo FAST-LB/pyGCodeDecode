@@ -1,5 +1,5 @@
 # This configuration file defines the hooks to be executed at each commit
-exclude: .gcode$
+exclude: .gcode$, .svg$
 repos:
 # Pre-commit itself
 -   repo: https://github.com/pre-commit/pre-commit-hooks
