@@ -74,7 +74,7 @@ class junction_handling:
 
 
 class junction_handling_marlin(junction_handling):
-    """Marlin specific junction handling."""
+    """Marlin specific junction handling with Junction Deviation."""
 
     def calc_JD(self, vel_0: velocity, vel_1: velocity, p_settings: state.p_settings):
         """

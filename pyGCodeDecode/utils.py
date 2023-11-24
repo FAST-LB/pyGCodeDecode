@@ -310,7 +310,6 @@ class segment:
 
         not yet:
         - max acceleration
-        - max velocity
         ..more?
         """
         # position self check:
