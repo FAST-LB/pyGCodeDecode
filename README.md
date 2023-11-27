@@ -13,7 +13,9 @@
 
 ## What is this repository for?
 
-This python package is used to generate time dependent boundary conditions from a .gcode file, needed in additive manufacturing simulations such as Fused Filament Fabrication. This package reads the trajectory as well as some relevant constantly changing printing settings. The output describes the nozzle position and velocity at every point in time. Notably, this method does try to simulate the real printer movements at a higher accuracy. This is achieved by replicating grbl and derivative firmwares specific movement planner solutions, such as Junction Deviation as an interpretation for Jerk.
+This package reads the target trajectory and commands for changing firmware settings from a GCode file. Furthermore it simulates a motion planner with acceleration and jerk / junction control. The simulation result describes the nozzle and extrusion axis position and velocity at every point in time. Notably, this method does try to simulate the real printer movements at a higher accuracy than assuming constant velocity. This is achieved by replicating grbl and derivative firmwares specific movement planner solutions, such as Junction Deviation as an interpretation for Jerk. This python package can be used to generate time dependent boundary conditions from a GCode file, needed in additive manufacturing simulations such as Fused Filament Fabrication. With implemented 3D plotting functions, it also can be useful as a GCode analyzer tool, to visualize local velocities to gain better process understanding.
+
+The package is highly modularized to enable quick modification and extension of all features.
 
 PyGCodeDecode is currently used in:
 
@@ -24,7 +26,7 @@ PyGCodeDecode is currently used in:
 
 ### Installing in Python 3
 
-Set up a virtual environment named `virtual_env` using the `virtualenv` package
+<!-- Set up a virtual environment named `virtual_env` using the `virtualenv` package
 
         python -m pip install .
         virtualenv virtual_env
@@ -36,7 +38,7 @@ If this does not work, you have to install `virtualenv` first (maybe administrat
 
 Activate the virtual environment with
 
-        .\virtual_env\Scripts\activate.bat
+        .\virtual_env\Scripts\activate.bat -->
 
 Now install the repository as a python package in the root directory of this repository using:
 
@@ -44,11 +46,11 @@ Now install the repository as a python package in the root directory of this rep
 
 If you want to contribute to the development, install in development mode with
 
-        pip install -e .
+        pip install -e .[DEVELOPER]
 
 Verify the installation via `pip list` and look for `pyGCodeDecode`.
 
-### Installing in `abaqus` python (2.7)
+<!-- ### Installing in `abaqus` python (2.7)
 
 1. Make sure you have installed pip for Abaqus python. If you do not have it, do the following:
 
@@ -59,7 +61,7 @@ Verify the installation via `pip list` and look for `pyGCodeDecode`.
 
         abq<version> python -m pip install .
 
-3. Verify the package installation via `abaqus python -m pip list` and look for `pyGCodeDecode`.
+3. Verify the package installation via `abaqus python -m pip list` and look for `pyGCodeDecode`. -->
 
 ## Supported GCode commands
 
@@ -77,4 +79,57 @@ partially supported:
 
 ## Workflow
 
-tbd
+### define a printer with default parameters in a .yaml
+
+example definition (also see in [/example/printer_presets.yaml](pyGCodeDecode/example/printer_presets.yaml)):
+
+        prusa_mini:
+                # general properties
+                nozzle_diam: 0.4
+                filament_diam: 1.75
+                # default settings
+                p_vel: 35
+                p_acc: 1250
+                jerk: 8
+                # axis max speeds
+                vX: 180
+                vY: 180
+                vZ: 12
+                vE: 80
+                firmware: marlin
+
+### create a runfile
+
+Create a .py file to call the simulation. (also see in [/example/call.py](pyGCodeDecode/example/call.py))
+Import the package:
+
+        from pyGCodeDecode import gcode_interpreter 
+
+load the setup with:
+
+        setup = gcode_interpreter.setup(filename=r"example\printer_presets.yaml")
+
+select a printer:
+
+        setup.select_printer("prusa_mini")
+
+(optional) set custom properties:
+
+        setup.set_property({"layer_cue": "LAYER_CHANGE"})
+
+run the simulation:
+
+        simulation = gcode_interpreter.simulate(filename=r"example\example.gcode", initial_machine_setup=setup)
+
+use the simulation obj from now on, to retrieve information or use plot functions:
+
+get axis values at a certain time (e.g. 2.6 s):
+
+        simulation.get_values(t=2.6)
+
+
+plot in 3D:
+
+        simulation.plot_3d_mayavi()
+
+for more in depth information have a look into the documentation
