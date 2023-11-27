@@ -67,15 +67,26 @@ Verify the installation via `pip list` and look for `pyGCodeDecode`.
 
 fully supported:
 
-- G1 X** Y** Z** E** F**
-- M82 (absolute extruder mode)
-- M83 (relative extruder mode)
+        "G0": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # non Extrusion Move
+        "G1": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # Extrusion Move
+        "G4": {"P": None, "S": None},  # Dwell
+        "M82": None,  # E Absolute
+        "M83": None,  # E Relative
+        "G20": None,  # Inches
+        "G21": None,  # Milimeters
+        "G90": None,  # Absolute Positioning
+        "G91": None,  # Relative Positioning
+        "G92": {"E": None, "X": None, "Y": None, "Z": None},  # Set Position
+        ";": None,  # Comment
+
 
 partially supported:
 
-- M203 (max axis speed)         *read only
-- M204 P** (acceleration)       *P only
-- M205 X** (jerk)               *X only
+        "M203": {"E": None, "X": None, "Y": None, "Z": None},  # Max Feedrate *read only
+        "M204": {"P": None, "R": None, "S": None, "T": None},  # Starting Acceleration *P only
+        "M205": {"E": None, "J": None, "S": None, "X": None, "Y": None, "Z": None},  # Advanced Settings *X only
+        "G10": {"S": None}, *read only
+        "G11": None, *read only
 
 ## Workflow
 
