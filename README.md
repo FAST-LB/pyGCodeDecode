@@ -92,7 +92,7 @@ partially supported:
 
 ### define a printer with default parameters in a .yaml
 
-example definition (also see in [/example/printer_presets.yaml](pyGCodeDecode/example/printer_presets.yaml)):
+example definition (also see in [/example/printer_presets.yaml](example/printer_presets.yaml)):
 
         prusa_mini:
                 # general properties
