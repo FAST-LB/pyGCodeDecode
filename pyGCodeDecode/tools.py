@@ -15,8 +15,6 @@ def print_layertimes(simulation: simulate, filename="layertimes.csv"):
     for block in simulation.blocklist:
         next_layer = block.state_B.layer
 
-        travel += block.get_block_travel()
-
         if next_layer > current_layer:
             block_begin = block.segments[0].t_begin
             duration = block_begin - last_layer_time
@@ -51,5 +49,6 @@ def print_layertimes(simulation: simulate, filename="layertimes.csv"):
                 + "\n"
                 # + "---end---"
             )
+        travel += block.get_block_travel()
 
     p_log.close()
