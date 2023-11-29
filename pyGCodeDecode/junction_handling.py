@@ -133,7 +133,7 @@ class junction_handling_marlin(junction_handling):
             return p_settings.speed  # angle larger than max angle, full speed pass
 
     def __init__(self, state_A: state, state_B: state):
-        """Marlin specific junction velocity calculation."""
+        """Marlin specific junction velocity calculation with Junction Deviation."""
         super().__init__(state_A, state_B)
         self.junction_vel = self.calc_JD(
             vel_0=self.target_vel, vel_1=self.vel_next, p_settings=self.state_B.state_p_settings
@@ -230,9 +230,8 @@ class junction_handling_klipper(junction_handling):
 
         j_cos_theta = max(j_cos_theta, -0.999999)  # limit
         if j_cos_theta > 0.999999:
-            self.junction_vel = self.target_vel.get_norm()  # if self.target_vel.get_norm() is not None else 0
+            self.junction_vel = 0  # self.target_vel.get_norm()  # if self.target_vel.get_norm() is not None else 0
             return
-
         j_sin_theta_d2 = math.sqrt(0.5 * (1.0 - j_cos_theta))
 
         j_R = self.j_delta * j_sin_theta_d2 / (1.0 - j_sin_theta_d2)
