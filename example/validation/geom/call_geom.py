@@ -12,11 +12,11 @@ setup.select_printer("prusa_mini_klipper")  # Select printer from preset.
 setup.set_property({"layer_cue": "LAYER_CHANGE"})  # Prusa Slicer layer change cue.
 
 simulation = gcode_interpreter.simulate(
-    filename=r"example\validation\geom\iso10circum_1000.gcode", initial_machine_setup=setup
+    filename=r"example\validation\geom\two_slice.gcode", initial_machine_setup=setup
 )  # Simulate the gcode.
 
 print("---Simulation took %s seconds ---" % (time.time() - start_time))
 print_layertimes(simulation=simulation, filename="example/validation/geom/layertime.csv")
 
-# simulation.plot_vel(show=True, filename=False)
-simulation.plot_3d_mayavi()
+simulation.plot_vel(show=True, filename=False)
+simulation.plot_3d_mayavi(extrusion_only=False)
