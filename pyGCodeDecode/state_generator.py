@@ -16,12 +16,12 @@ commands = {
     "M82": None,  # E Absolute
     "M83": None,  # E Relative
     "G20": None,  # Inches
-    "G21": None,  # Milimeters
+    "G21": None,  # Millimeters
     "G90": None,  # Absolute Positioning
     "G91": None,  # Relative Positioning
     "G92": {"E": None, "X": None, "Y": None, "Z": None},  # Set Position
-    "G10": {"S": None},
-    "G11": None,
+    "G10": {"S": None},  # read only
+    "G11": None,  # read only
     ";": None,  # Comment
 }
 
