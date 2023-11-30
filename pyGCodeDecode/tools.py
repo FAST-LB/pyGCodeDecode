@@ -3,14 +3,29 @@
 from .gcode_interpreter import simulate
 
 
-def print_layertimes(simulation: simulate, filename="layertimes.csv"):
-    """Print out all layertimes to a file."""
+def print_layertimes(simulation: simulate, filename="layertimes.csv", locale=None, delimiter=";"):
+    """Print out all layer times (detected by layer cue in GCode comment) to a file.
+
+    Parameters
+    - simulation (simulate) - simulation instance
+    - filename (string, default = "layertimes.csv") - file name
+    - locale (string, default = None) - select locale settings, e.g. "en_us" "de_de", None = use system locale
+    - delimiter (string, default = ";") - select delimiter
+    """
+    import locale as loc
+
+    if locale is None:
+        loc.setlocale(loc.LC_ALL, "")
+    else:
+        loc.setlocale(loc.LC_ALL, locale)
+
+    delimiter = delimiter + " "  # add space after delimiter
     p_log = open(filename, "w")
     next_layer = 0
     current_layer = 0
     last_layer_time = 0
     travel = 0
-    p_log.write("layer, layer time in s, travel distance in mm, avg speed in mm/s\n")
+    p_log.write(f"layer{delimiter}layer time in s{delimiter}travel distance in mm{delimiter}avg speed in mm/s\n")
 
     for block in simulation.blocklist:
         next_layer = block.state_B.layer
@@ -21,12 +36,12 @@ def print_layertimes(simulation: simulate, filename="layertimes.csv"):
             p_log.write(
                 # "Layertime layer "
                 str(current_layer)
-                + ", "
-                + str(duration)
-                + ", "
-                + str(travel)
-                + ", "
-                + str((travel / duration) if duration > 0 else None)
+                + delimiter
+                + loc.str(duration)
+                + delimiter
+                + loc.str(travel)
+                + delimiter
+                + loc.str((travel / duration) if duration > 0 else None)
                 + "\n"
             )
             travel = 0
@@ -40,12 +55,12 @@ def print_layertimes(simulation: simulate, filename="layertimes.csv"):
             p_log.write(
                 # "Layertime layer "
                 str(current_layer)
-                + ", "
-                + str(duration)
-                + ", "
-                + str(travel)
-                + ", "
-                + str((travel / duration) if duration > 0 else None)
+                + delimiter
+                + loc.str(duration)
+                + delimiter
+                + loc.str(travel)
+                + delimiter
+                + loc.str((travel / duration) if duration > 0 else None)
                 + "\n"
                 # + "---end---"
             )
