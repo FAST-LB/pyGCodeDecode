@@ -89,7 +89,7 @@ By simulating the acceleration, deceleration and the different cornering velocit
 
 # Acknowledgements
 
-We acknowledge contributions from * for this project.
+We acknowledge the Baden-Württemberg Ministry of Science, Research and the Arts (MWK) for the funding of the projects "Efficient process design for the processing of polylactides (PLA) in fused filament fabrication (F³FastSim)" and "Basics of a remanufacturing process chain for functional, hybridized polymer components to increase reusability and optimize resource utilization (Restore)" as part of the InnovationCampus Future Mobility (ICM) in which this work was carried out, as well as the German Research Foundation (DFG) for funding the professorship of Prof. Kärger's Heisenberg professorship.
 
 # References
 [@grbl]
