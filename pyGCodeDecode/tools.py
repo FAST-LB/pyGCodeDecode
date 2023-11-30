@@ -6,7 +6,7 @@ from .gcode_interpreter import simulate
 def print_layertimes(simulation: simulate, filename="layertimes.csv", locale=None, delimiter=";"):
     """Print out all layer times (detected by layer cue in GCode comment) to a file.
 
-    Parameters
+    Parameters:
     - simulation (simulate) - simulation instance
     - filename (string, default = "layertimes.csv") - file name
     - locale (string, default = None) - select locale settings, e.g. "en_us" "de_de", None = use system locale

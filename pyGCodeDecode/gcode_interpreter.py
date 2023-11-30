@@ -832,8 +832,31 @@ class simulate:
 class setup:
     """Setup for printing simulation."""
 
+    def __init__(self, filename: str, printer: str = None, layer_cue: str = None) -> None:
+        """Create simulation setup.
+
+        Parameters:
+        - filename (string) - choose setup yaml file with printer presets
+        - printer (string) - select printer from preset file
+        - layer_cue (string) - set slicer specific layer change cue from comment
+        """
+        self.initial_position = {"X": 0, "Y": 0, "Z": 0, "E": 0}  # default initial pos is zero
+        self.setup_dict = self.load_setup(filename)
+
+        self.filename = filename
+        self.printer_select = printer
+        self.layer_cue = layer_cue
+
+        if self.printer_select is not None:
+            self.select_printer(printer_name=self.printer_select)
+            self.firmware = self.get_dict()["firmware"]
+
     def load_setup(self, filename):
-        """Load setup from file."""
+        """Load setup from file.
+
+        Parameters:
+        - filename (string) - specify path to setup file
+        """
         import yaml
         from yaml import Loader
 
@@ -843,19 +866,26 @@ class setup:
         return setup_dict
 
     def select_printer(self, printer_name):
-        """Select printer by name."""
+        """Select printer by name.
+
+        Parameters:
+        - printer_name (string) - select printer by name
+        """
         if printer_name not in self.setup_dict:
             raise ValueError(f"Selected Printer {self.printer_select} not found in setup file: {self.filename}.")
         else:
             self.printer_select = printer_name
 
     def set_initial_position(self, *initial_position):
-        """Set initial Position through dict with keys: {X, Y, Z, E} or as tuple with length 4.
+        """Set initial Position.
+
+        Parameters:
+        - initial_position (dict or tuple) - set initial position with keys: {X, Y, Z, E} or as tuple of len(4).
 
         Example:
         ```python
-        set_initial_position(1, 2, 3, 4)
-        set_initial_position({"X": 1, "Y": 2, "Z": 3, "E": 4})
+        setup.set_initial_position(1, 2, 3, 4)
+        setup.set_initial_position({"X": 1, "Y": 2, "Z": 3, "E": 4})
         ```
 
         """
@@ -872,7 +902,17 @@ class setup:
             raise ValueError("Set initial position through dict with keys: {X, Y, Z, E} or as tuple with length 4.")
 
     def set_property(self, property_dict: dict):
-        """Overwrite or add a property to the printer dictionary. Printer has to be selected through select_printer() beforehand."""
+        """Overwrite or add a property to the printer dictionary. Printer has to be selected through select_printer() beforehand.
+
+        Parameters:
+        - property_dict (dict) - set or add property to the setup
+
+        Example:
+        ```python
+        setup.set_property({"layer_cue": "LAYER_CHANGE"})
+        ```
+
+        """
         if self.printer_select is not None:
             self.setup_dict[self.printer_select].update(property_dict)
         else:
@@ -886,21 +926,3 @@ class setup:
             return_dict.update({"layer_cue": self.layer_cue})  # add layer cue
         return_dict.update({"printer_name": self.printer_select})  # add printer name
         return return_dict
-
-    def __init__(self, filename: str, printer: str = None, layer_cue: str = None) -> None:
-        """Create simulation setup.
-
-        filename    : choose setup yaml file with printer presets <br>
-        printer     : select printer from preset file <br>
-        layer_cue   : set slicer specific layer change cue from comment
-        """
-        self.initial_position = {"X": 0, "Y": 0, "Z": 0, "E": 0}  # default initial pos is zero
-        self.setup_dict = self.load_setup(filename)
-
-        self.filename = filename
-        self.printer_select = printer
-        self.layer_cue = layer_cue
-
-        if self.printer_select is not None:
-            self.select_printer(printer_name=self.printer_select)
-            self.firmware = self.get_dict()["firmware"]
