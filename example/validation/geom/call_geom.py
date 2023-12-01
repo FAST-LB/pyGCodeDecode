@@ -18,5 +18,5 @@ simulation = gcode_interpreter.simulate(
 print("---Simulation took %s seconds ---" % (time.time() - start_time))
 print_layertimes(simulation=simulation, filename="example/validation/geom/layertime.csv")
 
-simulation.plot_vel(show=True, filename=False)
-simulation.plot_3d_mayavi(extrusion_only=False)
+# simulation.plot_vel(show=True, filename=False)
+# simulation.plot_3d_mayavi(extrusion_only=False)
