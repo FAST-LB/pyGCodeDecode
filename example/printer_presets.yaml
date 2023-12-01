@@ -28,7 +28,7 @@ prusa_mini:
   vY: 180
   vZ: 12
   vE: 80
-  firmware: marlin
+  firmware: marlin_jerk
 
 prusa_mini_klipper:
   # general properties

@@ -8,7 +8,7 @@ from pyGCodeDecode.tools import print_layertimes
 start_time = time.time()
 
 setup = gcode_interpreter.setup(filename=r"example\printer_presets.yaml")  # load setup
-setup.select_printer("prusa_mini_klipper")  # Select printer from preset.
+setup.select_printer("prusa_mini")  # Select printer from preset.
 setup.set_property({"layer_cue": "LAYER_CHANGE"})  # Prusa Slicer layer change cue.
 
 simulation = gcode_interpreter.simulate(
@@ -18,5 +18,5 @@ simulation = gcode_interpreter.simulate(
 print("---Simulation took %s seconds ---" % (time.time() - start_time))
 print_layertimes(simulation=simulation, filename="example/validation/geom/layertime.csv")
 
-# simulation.plot_vel(show=True, filename=False)
+# simulation.plot_vel()
 # simulation.plot_3d_mayavi(extrusion_only=False)

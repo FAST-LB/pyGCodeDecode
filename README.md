@@ -107,14 +107,14 @@ example definition (also see in [/example/printer_presets.yaml](example/printer_
                 vY: 180
                 vZ: 12
                 vE: 80
-                firmware: marlin
+                firmware: marlin_jerk
 
 ### create a runfile
 
 Create a .py file to call the simulation. (also see in [/example/call.py](pyGCodeDecode/example/call.py))
 Import the package:
 
-        from pyGCodeDecode import gcode_interpreter 
+        from pyGCodeDecode import gcode_interpreter
 
 load the setup with:
 

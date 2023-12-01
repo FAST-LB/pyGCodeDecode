@@ -22,5 +22,5 @@ afg.generate_abaqus_events(simulation=simulation, filename="example/validation_s
 
 print_layertimes(simulation=simulation, filename="example/validation_submodel/layertime_aniso.csv")
 
-# simulation.plot_vel(show=True, filename=False)
+# simulation.plot_vel()
 simulation.plot_3d_mayavi()
