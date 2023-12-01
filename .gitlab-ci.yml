@@ -38,11 +38,12 @@ doc-compile_docs:
     image: "python:latest"
     needs: []
     script:
-        - python -m pydoc -w pyGCodeDecode
+        - pipx install pydoc-markdown
+        - python -m pydoc-markdown -w pyGCodeDecode
     artifacts:
         untracked: false
         paths:
-            - ./*.html
+            - ./*.md
         when: always
         expire_in: "30 days"
 
