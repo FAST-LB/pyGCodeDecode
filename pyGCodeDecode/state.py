@@ -7,17 +7,22 @@ class state:
     """State contains a Position and Printing Settings (p_settings) to apply for the corresponding move to this State."""
 
     class p_settings:
-        """
-        Store Printing Settings.
-
-        Supports
-            str,repr
-        Class method
-            new:            returns an updated p_settings from given old p_settings and optional changing values
-        """
+        """Store Printing Settings."""
 
         def __init__(self, p_acc, jerk, vX, vY, vZ, vE, speed, absMode=True, units="SImm"):
-            """Initialize printing settings with p_acc, jerk, Vx, Vy, Vz, Ve, speed, absMode=True, units="SImm"."""
+            """Initialize printing settings.
+
+            Args:
+                p_acc: (float) printing acceleration
+                jerk: (float) jerk or similar
+                vX: (float) max x velocity
+                vY: (float) max y velocity
+                vZ: (float) max z velocity
+                vE: (float) max e velocity
+                speed: (float) default target velocity
+                absMode: (bool, default = True) absolute / relative mode
+                units: (string, default = "SImm") unit settings
+            """
             self.p_acc = p_acc  # printing acceleration
             self.jerk = jerk  # jerk settings
             self.vX = vX  # max axis speed X
@@ -57,7 +62,12 @@ class state:
             return self.__str__()
 
     def __init__(self, state_position: position = None, state_p_settings: p_settings = None):
-        """Initialize a state."""
+        """Initialize a state.
+
+        Args:
+            state_position: (position) state position
+            state_p_settings: (p_settings) state printing settings
+        """
         self.state_position = state_position
         self.state_p_settings = state_p_settings
         self.next_state = None
@@ -92,6 +102,11 @@ class state:
 
     @line_nmbr.setter
     def line_nmbr(self, nmbr):
+        """Set line number.
+
+        Args:
+            nmbr: (int) line number
+        """
         self._line_nmbr = nmbr
 
     # Neighbor list
@@ -102,6 +117,11 @@ class state:
 
     @next_state.setter
     def next_state(self, state: "state"):
+        """Set next state.
+
+        Args:
+            state: (state) next state
+        """
         self._next_state = state
 
     @property
@@ -111,6 +131,11 @@ class state:
 
     @prev_state.setter
     def prev_state(self, state: "state"):
+        """Set previous state.
+
+        Args:
+            state: (state) previous state
+        """
         self._prev_state = state
 
     def __str__(self) -> str:

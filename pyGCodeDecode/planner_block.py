@@ -7,7 +7,7 @@ import numpy as np
 from .junction_handling import (
     junction_handling,
     junction_handling_klipper,
-    junction_handling_marlin,
+    junction_handling_marlin_jd,
     junction_handling_marlin_jerk,
     junction_handling_MKA,
 )
@@ -22,25 +22,8 @@ class planner_block:
         """
         Calculate the correct move type (trapezoidal,triangular or singular) and generate the corresponding segments.
 
-        WIP Method that ignores the beginning velocity if end velocity is not reachable
-
-        **Parameters**
-
-            direction   :   float list 1x4
-                travel direction, vectorial
-            mov_vel_end :   velocity
-                target velocity for end of move
-            settings    :   p_settings
-                printing settings for corresponding move
-            distance    :   float
-                travel distance for move
-            previous_segment:   segment
-                the previous segment, used to apply JD-Velocity at begin of move
-
-        **Returns**
-
-            segment list
-                list of Segments for move
+        Args:
+            vel_end: (velocity) target velocity for end of move
         """
 
         def trapez(extrusion_only=False):
@@ -211,9 +194,7 @@ class planner_block:
                     + str(self.state_B)
                     + f"\nv-begin {v_begin} / v-target {v_target} / v-end {v_end} "
                 )
-        # except TypeError:
-        #     print(f"Segment after {self.prev_blck.segments[-1].t_end} could not be modeled.\n " + str(self.state_B))
-        #     print(f"v-begin: {v_begin} / v-end {v_end}")
+
         except ValueError as ve:
             print(f"Segments to state: {str(self.state_B)} could not be modeled.\n {ve}")
             raise RuntimeError()
@@ -230,7 +211,6 @@ class planner_block:
                     self.get_segments()[-1].vel_end.get_norm() - self.next_blck.get_segments()[0].vel_begin.get_norm()
                 )
                 if error_vel > tolerance:
-                    # print("Velocity error: ", error_vel)
                     flag_correct = True
 
         # Correct error by recalculating velocitys with new vel_end
@@ -264,13 +244,21 @@ class planner_block:
         return flag_correct
 
     def timeshift(self, delta_t: float):
-        """Shift planner block in time."""
+        """Shift planner block in time.
+
+        Args:
+            delta_t: (float) time to be shifted
+        """
         if len(self.segments) > 0:
             for segm in self.segments:
                 segm.move_segment_time(delta_t)
 
     def extr_block_max_vel(self):
-        """Return max vel from plannerblock while extruding."""
+        """Return max vel from plannerblock while extruding.
+
+        Returns:
+            block_max_vel: (np.ndarray 1x4) maximum axis velocity while extruding in block
+        """
         if self.is_extruding:
             all_vel_extruding = np.asarray(
                 [
@@ -292,7 +280,10 @@ class planner_block:
     def __init__(self, state: state, prev_blck: "planner_block", firmware=None):
         """Calculate and store planner block consisting of one or multiple segments.
 
-        Move is from state_A to state_B (the current state)
+        Args:
+            state: (state) the current state
+            prev_blck: (planner_block) previous planner block
+            firmware: (string, default = None) firmware selection for junction
         """
         # neighbor list
         self.state_A = state.prev_state  # from state A
@@ -304,8 +295,8 @@ class planner_block:
         self.segments: List[segment] = []  # store segments here
         self.blcktype = None
 
-        if firmware == "marlin":
-            junction = junction_handling_marlin(state_A=self.state_A, state_B=self.state_B)
+        if firmware == "marlin_jd":
+            junction = junction_handling_marlin_jd(state_A=self.state_A, state_B=self.state_B)
         elif firmware == "klipper":
             junction = junction_handling_klipper(state_A=self.state_A, state_B=self.state_B)
         elif firmware == "marlin_jerk":

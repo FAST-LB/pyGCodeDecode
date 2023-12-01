@@ -55,17 +55,12 @@ def arg_extract(string: str, key_dict: dict):
     """
     Extract arguments from known command dictionarys.
 
-    Parameters
-    ----------
-    string  :   str
-        string of Commands
-    key_dict : dict
-        dictionary with known commands and subcommands
+    Args:
+        string: (str) string of Commands
+        key_dict: (dict) dictionary with known commands and subcommands
 
-    Returns
-    ----------
-    dict
-        dictionary with all found keys and their arguments
+    Returns:
+        dict: (dict) dictionary with all found keys and their arguments
 
     """
     arg_dict = dict()  # dict to store found arguments for each key
@@ -126,15 +121,11 @@ def read_gcode_to_dict_list(filename):
     """
     Read gcode from .gcode file.
 
-    Parameters
-    ----------
-    filename : string
-        filename of the .gcode file: e.g. "print.gcode"
+    Args:
+        filename: (string) filename of the .gcode file: e.g. "print.gcode"
 
-    Returns
-    ----------
-    list[dict]
-        list with every line as dict
+    Returns:
+        dict_list: (list[dict]) list with every line as dict
     """
     file_gcode = open(filename)
     dict_list = list()
@@ -153,17 +144,12 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
     """
     Convert the line dictionary to a state.
 
-    Parameters
-    ----------
-    line_dict_list  :  dict
-        dict list with commands
-    initial_machine_setup  :  dict
-        dict with initial machine setup [absolute_position, absolute_extrusion, units, initial_position...]
+    Parameters:
+        line_dict_list: (dict) dict list with commands
+        initial_machine_setup: (dict) dict with initial machine setup [absolute_position, absolute_extrusion, units, initial_position...]
 
-    Returns
-    ----------
-    state
-        state list
+    Returns:
+        state_list: (list[state]) all states in a list
 
     """
     state_list: List[state] = list()
@@ -333,7 +319,15 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
 
 
 def state_generator(filename: str, initial_machine_setup: dict = None):
-    """Generate state list from GCode file."""
+    """Generate state list from GCode file.
+
+    Args:
+        filename: (string) filename of GCode
+        initial_machine_setup: (dict) dictionary with machine setup
+
+    Returns:
+        states: (list[states]) all states in a list
+    """
     line_dict_list = read_gcode_to_dict_list(filename=filename)
     states = dict_list_traveler(line_dict_list=line_dict_list, initial_machine_setup=initial_machine_setup)
 

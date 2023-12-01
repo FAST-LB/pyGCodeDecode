@@ -16,15 +16,12 @@ class junction_handling:
         """
         Connect two states and generates the velocity for the move from state_A to state_B.
 
-        **Parameters**
+        Args:
+            state_A: (state) start state
+            state_B: (state)   end state
 
-            state_A, state_B  :   state
-                two consecutive states
-
-        **Returns**
-
-            velocity
-                the target velocity for that travel move
+        Returns:
+            velocity: (float) the target velocity for that travel move
         """
         if state_A is None or state_B is None:
             return velocity(0, 0, 0, 0)
@@ -62,41 +59,46 @@ class junction_handling:
         return self.target_vel
 
     def __init__(self, state_A: state, state_B: state):
-        """Initialize the junction handling."""
+        """Initialize the junction handling.
+
+        Args:
+            state_A: (state) start state
+            state_B: (state)   end state
+        """
         self.state_A = state_A
         self.state_B = state_B
         self.target_vel = self.connect_state(state_A=state_A, state_B=state_B)
         self.vel_next = self.calc_vel_next()
 
     def get_junction_vel(self):
-        """Return default junction velocity of zero."""
+        """Return default junction velocity of zero.
+
+        Returns:
+            0: zero for default full stop junction handling
+        """
         return 0
 
 
-class junction_handling_marlin(junction_handling):
+class junction_handling_marlin_jd(junction_handling):
     """Marlin specific junction handling with Junction Deviation."""
 
     def calc_JD(self, vel_0: velocity, vel_1: velocity, p_settings: state.p_settings):
         """
         Calculate junction deviation velocity from 2 velocitys.
 
-        **Parameters**
-
-            vel_0,vel_1 : velocity
-                velocity objects
-            p_settings  : state.p_settings
-                print settings, containing acceleration settings
-
-        **Returns**
-
-            velocity
-                velocity abs value
-
-        **Reference**
+        **Reference:**
 
         [https://onehossshay.wordpress.com/2011/09/24/improving_grbl_cornering_algorithm/](https://onehossshay.wordpress.com/2011/09/24/improving_grbl_cornering_algorithm/)
         [http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html](http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html)
 
+
+        Args:
+            vel_0: (velocity) entry
+            vel_1: (velocity) exit
+            p_settings: (state.p_settings) print settings
+
+        Returns:
+            velocity: (float) velocity abs value
         """
         # Junction deviation settings
         JD_acc = p_settings.p_acc
@@ -133,28 +135,42 @@ class junction_handling_marlin(junction_handling):
             return p_settings.speed  # angle larger than max angle, full speed pass
 
     def __init__(self, state_A: state, state_B: state):
-        """Marlin specific junction velocity calculation with Junction Deviation."""
+        """Marlin specific junction velocity calculation with Junction Deviation.
+
+        Args:
+            state_A: (state) start state
+            state_B: (state)   end state
+        """
         super().__init__(state_A, state_B)
         self.junction_vel = self.calc_JD(
             vel_0=self.target_vel, vel_1=self.vel_next, p_settings=self.state_B.state_p_settings
         )
 
     def get_junction_vel(self):
-        """Return junction velocity."""
+        """Return junction velocity.
+
+        Returns:
+            junction_vel: (float) junction velocity
+        """
         return self.junction_vel
 
 
 class junction_handling_marlin_jerk(junction_handling):
     """Marlin classic jerk specific junction handling.
 
-    todo: start and end of move has to jump too(?)
-    - https://github.com/MarlinFirmware/Marlin/pull/8887
-    - https://github.com/MarlinFirmware/Marlin/pull/8888
-    - https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768
+    **Reference**
+    [https://github.com/MarlinFirmware/Marlin/pull/8887](https://github.com/MarlinFirmware/Marlin/pull/8887)
+    [https://github.com/MarlinFirmware/Marlin/pull/8888](https://github.com/MarlinFirmware/Marlin/pull/8888)
+    [https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768](https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768)
     """
 
     def __init__(self, state_A: state, state_B: state):
-        """Marlin classic jerk specific junction velocity calculation."""
+        """Marlin classic jerk specific junction velocity calculation.
+
+        Args:
+            state_A: (state) start state
+            state_B: (state)   end state
+        """
         super().__init__(state_A, state_B)
 
         self.calc_j_vel()
@@ -174,13 +190,12 @@ class junction_handling_marlin_jerk(junction_handling):
         else:
             self.junction_vel = vel_0.get_norm()
 
-        # if abs(jerk_move) > self.jerk:
-        #     print("big" + str(jerk_move))
-        # else:
-        #     print("smool" + str(jerk_move))
-
     def get_junction_vel(self):
-        """Return the calculated junction velocity."""
+        """Return the calculated junction velocity.
+
+        Returns:
+            junction_vel: (float) junction velocity
+        """
         return self.junction_vel
 
 
@@ -190,14 +205,21 @@ class junction_handling_klipper(junction_handling):
     - similar junction deviation calc
     - corner vel set by: square_corner_velocity
         end_velocity^2 = start_velocity^2 + 2*accel*move_distance
-      for 90° turn
+      for 90deg turn
     - todo: smoothed look ahead
-    - https://www.klipper3d.org/Kinematics.html
-    - https://github.com/Klipper3d/klipper/blob/ea2f6bc0f544132738c7f052ffcc586fa884a19a/klippy/toolhead.py
+
+    **Reference:**
+    [https://www.klipper3d.org/Kinematics.html](https://www.klipper3d.org/Kinematics.html)
+    [https://github.com/Klipper3d/klipper/blob/ea2f6bc0f544132738c7f052ffcc586fa884a19a/klippy/toolhead.py](https://github.com/Klipper3d/klipper/blob/ea2f6bc0f544132738c7f052ffcc586fa884a19a/klippy/toolhead.py)
     """
 
     def __init__(self, state_A: state, state_B: state):
-        """Klipper specific junction velocity calculation."""
+        """Klipper specific junction velocity calculation.
+
+        Args:
+            state_A: (state) start state
+            state_B: (state)   end state
+        """
         super().__init__(state_A, state_B)
 
         self.calc_j_delta()
@@ -206,11 +228,10 @@ class junction_handling_klipper(junction_handling):
     def calc_j_delta(self):
         """Calculate the junction deviation with klipper specific values.
 
-        - jerk value represents the square_corner_velocity
+        The jerk value represents the square_corner_velocity!
         """
         sc_vel = (self.state_B.state_p_settings.jerk) ** 2
         self.j_delta = sc_vel * (math.sqrt(2.0) - 1.0) / self.state_B.state_p_settings.p_acc
-        # self.j_delta = 0.013
 
     def calc_j_vel(self):
         """Calculate the junction velocity."""
@@ -248,18 +269,28 @@ class junction_handling_klipper(junction_handling):
         )
 
     def get_junction_vel(self):
-        """Return the calculated junction velocity."""
+        """Return the calculated junction velocity.
+
+        Returns:
+            junction_vel: (float) junction velocity
+        """
         return self.junction_vel
 
 
 class junction_handling_MKA(junction_handling):
     """Anisoprint A4 like junction handling.
 
-    - https://github.com/anisoprint/MKA-firmware/blob/6e02973b1b8f325040cc3dbf66ac545ffc5c06b3/src/core/planner/planner.cpp#L1830
+    **Reference:**
+    [https://github.com/anisoprint/MKA-firmware/blob/6e02973b1b8f325040cc3dbf66ac545ffc5c06b3/src/core/planner/planner.cpp#L1830](https://github.com/anisoprint/MKA-firmware/blob/6e02973b1b8f325040cc3dbf66ac545ffc5c06b3/src/core/planner/planner.cpp#L1830)
     """
 
     def __init__(self, state_A: state, state_B: state):
-        """Marlin classic jerk specific junction velocity calculation."""
+        """Marlin classic jerk specific junction velocity calculation.
+
+        Args:
+            state_A: (state) start state
+            state_B: (state)   end state
+        """
         super().__init__(state_A, state_B)
 
         self.calc_j_vel()
@@ -299,5 +330,9 @@ class junction_handling_MKA(junction_handling):
             self.junction_vel = v_max_junc
 
     def get_junction_vel(self):
-        """Return the calculated junction velocity."""
+        """Return the calculated junction velocity.
+
+        Returns:
+            junction_vel: (float) junction velocity
+        """
         return self.junction_vel

@@ -15,9 +15,9 @@ def update_progress(progress, name="Percent"):
     """
     Display or update a console progress bar.
 
-    Accepts a float between 0 and 1. Any int will be converted to a float.
-    A value under 0 represents a 'halt'.
-    A value at 1 or bigger represents 100%
+    Args:
+        progress: (float, int) between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
+        name: (string, default = "Percent") customizable name for progressbar
     """
     import sys
 
@@ -44,17 +44,14 @@ def update_progress(progress, name="Percent"):
 
 def generate_planner_blocks(states: List[state], firmware=None):
     """
-    Convert list of states to trajectory segments.
+    Convert list of states to trajectory repr. by plannerblocks.
 
-    Parameters
-    ----------
-    states  :   List[state]
-        list of states
+    Args:
+        states: (list[state]) list of states
+        firmware: (string, default = None) select firmware by name
 
-    Returns
-    ----------
-    blck_list[planner_block]
-        list of all plannerblocks to complete travel between all states
+    Returns:
+        blck_list (list[planner_block]) list of all plannerblocks to complete travel between all states
     """
     blck_list = []
     cntr = 0
@@ -73,21 +70,15 @@ def generate_planner_blocks(states: List[state], firmware=None):
 def find_current_segm(path: List[segment], t: float, last_index: int = None, keep_position: bool = False):
     """Find the current segment.
 
-    Parameters:
-        path: List[segment]
-            all segments to be searched
-        t: float
-            time of search
-        last_index: int
-            last found index for optimizing search
-        keep_position: bool
-            keeps position of last segment, use this when working with gaps of no movement inbetween segments
+    Args:
+        path: (list[segment]) all segments to be searched
+        t: (float) time of search
+        last_index: (int) last found index for optimizing search
+        keep_position: (bool) keeps position of last segment, use this when working with gaps of no movement inbetween segments
 
     Returns:
-        segment
-            the segment which defines movement at that point in time
-        last_index
-            last index where something was found, search speed optimization possible
+        segment: (segment) the segment which defines movement at that point in time
+        last_index: (int) last index where something was found, search speed optimization possible
     """
     if keep_position:
         # use this if eval for times where no planner blocks are created
@@ -142,7 +133,14 @@ def find_current_segm(path: List[segment], t: float, last_index: int = None, kee
 
 
 def unpack_blocklist(blocklist: List[planner_block]) -> List[segment]:
-    """Return list of segments by unpacking list of plannerblocks."""
+    """Return list of segments by unpacking list of plannerblocks.
+
+    Args:
+        blocklist: (list[planner_block]) list of planner blocks
+
+    Returns:
+        path: (list[segment]) list of all segments
+    """
     path = []
     for block in blocklist:
         path.extend(block.get_segments()[:])
@@ -151,6 +149,50 @@ def unpack_blocklist(blocklist: List[planner_block]) -> List[segment]:
 
 class simulate:
     """Simulate .gcode with given machine parameters."""
+
+    def __init__(self, filename: str, initial_machine_setup: "setup", output_unit_system: str = "SImm"):
+        r"""Simulate a given GCode with initial machine setup.
+
+        - Generate all states from GCode.
+        - Connect states with planner blocks, consisting of segments
+        - Self correct inconsistencies.
+
+        Args:
+            filename: (string) path to GCode
+            initial_machine_setup: (setup) setup instance
+            output_unit_system: (string, default = "SImm") unit system choosable: SI, SImm & inch
+
+        Example:
+        ```python
+        gcode_interpreter.simulate(filename=r"part.gcode", initial_machine_setup=setup)
+        ```
+        """
+        self.last_index = None  # used to optimize search in segment list
+        self.filename = filename
+        self.firmware = None
+
+        # set scaling to chosen unit system
+        self.available_unit_systems = {"SI": 1e-3, "SImm": 1.0, "inch": 1 / 25.4}
+        if output_unit_system in self.available_unit_systems:
+            self.output_unit_system = output_unit_system
+            self.scaling = self.available_unit_systems[self.output_unit_system]
+        else:
+            raise ValueError("Chosen unit system is unavailable!")
+
+        # SET INITIAL SETTINGS
+        self.initial_machine_setup = initial_machine_setup.get_dict()
+        self.check_initial_setup(initial_machine_setup=self.initial_machine_setup)  # move this to setup class todo
+        self.firmware = self.initial_machine_setup["firmware"]
+
+        self.states: List[state] = state_generator(filename=filename, initial_machine_setup=self.initial_machine_setup)
+
+        print(
+            f"Simulating \"{self.filename}\" with {self.initial_machine_setup['printer_name']} using the {self.firmware} firmware.\n"
+        )
+        self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states, firmware=self.firmware)
+        self.trajectory_self_correct()
+
+        self.print_summary()
 
     def plot_2d_position(
         self,
@@ -162,7 +204,7 @@ class simulate:
         scaled=True,
         show=False,
     ):
-        """Plot 2D position (XY plane) with matplotlib."""
+        """Plot 2D position (XY plane) with matplotlib (unmaintained)."""
         import matplotlib.pyplot as plt
         from matplotlib import cm
         from matplotlib.collections import LineCollection
@@ -271,7 +313,7 @@ class simulate:
     def plot_3d_position_legacy(
         self, filename="trajectory_3D.png", dpi=400, show=False, colvar_spatial_resolution=1, colvar="Velocity"
     ):
-        """Plot 3D position with Matplotlib (legacy)."""
+        """Plot 3D position with Matplotlib (unmaintained)."""
         import matplotlib.pyplot as plt
         from matplotlib import cm
         from mpl_toolkits.mplot3d.art3d import Line3DCollection
@@ -372,10 +414,20 @@ class simulate:
             return color_plot
         plt.close()
 
-    def plot_3d_position(
-        self, filename="trajectory_3D.png", dpi=400, show=False, colvar_spatial_resolution=1, colvar="Velocity"
-    ):
-        """Plot 3D position with Matplotlib."""
+    def plot_3d_position(self, show=True, colvar="Velocity", colvar_spatial_resolution=1, filename=None, dpi=400):
+        """Plot 3D position with Matplotlib.
+
+        Args:
+            show: (bool, default = True) show plot and return plot figure
+            colvar: (string, default = "Velocity") select color variable
+            colvar_spatial_resolution: (float, default = 1) spatial interpolation of color variable
+            filename: (string, default = None) save fig as image if filename is provided
+            dpi: (int, default = 400) select dpi
+
+        Returns:
+        (optionally)
+            fig: (figure)
+        """
         import matplotlib.pyplot as plt
         from matplotlib import cm
         from mpl_toolkits.mplot3d import Axes3D
@@ -459,8 +511,8 @@ class simulate:
         plt.title("Printing " + colvar)
         plt.colorbar(sm, label=colvar_label[colvar], shrink=0.6, location="left")
 
-        if filename is not False:
-            plt.savefig(filename, dpi=400)
+        if filename is not None:
+            plt.savefig(filename, dpi=dpi)
             print("3D Plot saved as ", filename)
         if show:
             plt.show()
@@ -470,7 +522,9 @@ class simulate:
     def plot_3d_mayavi(self, extrusion_only: bool = True, clean_junction=False):
         """Plot 3D Positon with Mayavi (colormap).
 
-        Only plot where material gets extruded. Default = True
+        Args:
+            extrusion_only: (bool, default = True) show only moves with extrusion (slower)
+            clean_junction: (bool, default = False) add extra vertices at junction for prettier plotting (slower)
         """
         import mayavi.mlab as ma
 
@@ -589,15 +643,30 @@ class simulate:
     def plot_vel(
         self,
         axis=("x", "y", "z", "e"),
-        show=False,
+        show=True,
         show_plannerblocks=True,
         show_segments=False,
-        show_JD=True,
+        show_jv=False,
         timesteps="constrained",
-        filename="velplot.png",
+        filename=None,
         dpi=400,
     ):
-        """Plot axis velocity with matplotlib."""
+        """Plot axis velocity with matplotlib.
+
+        Args:
+            axis: (tuple(string), default = ("x", "y", "z", "e")) select plot axis
+            show: (bool, default = True) show plot and return plot figure
+            show_plannerblocks: (bool, default = True) show plannerblocks as vertical lines
+            show_segments: (bool, default = False) show segments as vertical lines
+            show_jv: (bool, default = False) show junction velocity as x
+            timesteps: (int or string, default = "constrained") number of timesteps or constrain plot vertices to segment vertices
+            filename: (string, default = None) save fig as image if filename is provided
+            dpi: (int, default = 400) select dpi
+
+        Returns:
+        (optionally)
+            fig: (figure)
+        """
         import matplotlib.pyplot as plt
 
         axis_dict = {"x": 0, "y": 1, "z": 2, "e": 3}
@@ -647,7 +716,7 @@ class simulate:
                 for segm in blck.get_segments():
                     ax1.axvline(x=segm.t_end, color="green", lw=0.25)
 
-            if show_JD:
+            if show_jv:
                 # absolute JD Marker
                 absJD = np.linalg.norm([blck.JD[0], blck.JD[1], blck.JD[2]])
                 ax1.scatter(x=blck.get_segments()[-1].t_end, y=absJD, color="red", marker="x")
@@ -668,8 +737,8 @@ class simulate:
         ax2.set_ylabel("position in mm")
         ax1.legend(loc="lower left")
         plt.title("Velocity and Position over Time")
-        if filename is not False:
-            plt.savefig(filename, dpi=400)
+        if filename is not None:
+            plt.savefig(filename, dpi=dpi)
         if show:
             plt.show()
             return fig
@@ -682,7 +751,15 @@ class simulate:
             block.self_correction()
 
     def get_values(self, t):
-        """Return unit system scaled values for vel and pos."""
+        """Return unit system scaled values for vel and pos.
+
+        Args:
+            t: (float) time
+
+        Returns:
+            list: [vel_x, vel_y, vel_z, vel_e] velocity
+            list: [pos_x, pos_y, pos_z, pos_e] position
+        """
         segments = unpack_blocklist(blocklist=self.blocklist)
         segm, self.last_index = find_current_segm(path=segments, t=t, last_index=self.last_index)
         tmp_vel = segm.get_velocity(t=t).get_vec(withExtrusion=True)
@@ -695,7 +772,11 @@ class simulate:
         return tmp_vel, tmp_pos
 
     def check_initial_setup(self, initial_machine_setup):
-        """Check the printer Dict for typos or missing parameters."""
+        """Check the printer Dict for typos or missing parameters and raise errors if invalid.
+
+        Args:
+            initial_machine_setup: (dict) initial machine setup dictionary
+        """
         req_keys = [
             "p_vel",
             "p_acc",
@@ -734,14 +815,18 @@ class simulate:
                 )
 
     def print_summary(self):
-        """Print simulation summary."""
+        """Print simulation summary to console."""
         print(
             f" >> pyGCodeDecode extracted {len(self.states)} states from {self.filename} and generated {len(self.blocklist)} plannerblocks.\n"
             f"Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end} seconds."
         )
 
     def refresh(self, new_state_list: List[state] = None):
-        """Refresh simulation. Either through new state list or by rerunning the self.states as input."""
+        """Refresh simulation. Either through new state list or by rerunning the self.states as input.
+
+        Args:
+            new_state_list: (list[state], default = None) new list of states, if None is provided, existing states get resimulated
+        """
         if new_state_list is not None:
             self.states = new_state_list
 
@@ -751,16 +836,27 @@ class simulate:
         self.trajectory_self_correct()
 
     def extr_extend(self):
-        """Return xyz min & max while extruding."""
+        r"""Return xyz min & max while extruding.
+
+        Returns:
+            extend: \[[minX, minY, minZ], [maxX, maxY, maxZ]] (2x3 numpy.ndarray) extend of extruding positions
+        """
         all_positions_extruding = np.asarray(
             [block.state_B.state_position.get_vec() for block in self.blocklist if block.is_extruding]
         )
-        max_pos = np.amax(all_positions_extruding, axis=0)
-        min_pos = np.amin(all_positions_extruding, axis=0)
-        return np.r_[[min_pos], [max_pos]]
+        if len(all_positions_extruding) > 0:
+            max_pos = np.amax(all_positions_extruding, axis=0)
+            min_pos = np.amin(all_positions_extruding, axis=0)
+            return np.r_[[min_pos], [max_pos]]
+        else:
+            raise ValueError("No extrusion happening.")
 
     def extr_max_vel(self):
-        """Return maximum travel velocity while extruding."""
+        """Return maximum travel velocity while extruding.
+
+        Returns:
+            max_vel: (numpy.ndarray, 1x4) maximum axis velocity while extruding
+        """
         all_blocks_max_vel = np.asarray(
             [np.linalg.norm(block.extr_block_max_vel()[:3]) for block in self.blocklist if block.is_extruding]
         )
@@ -770,8 +866,11 @@ class simulate:
     def save_summary(self):
         """Save summary to .yaml file.
 
-        Saved data: filename, t_end, x/y/z _min/_max (extend where positive extrusion),
-                    max_extr_trav_vel (maximum travel velocity where positive extrusion)
+        Saved data keys:
+        - filename (string, filename)
+        - t_end (float, end time)
+        - x/y/z _min/_max (float, extend where positive extrusion)
+        - max_extr_trav_vel (float, maximum travel velocity where positive extrusion)
         """
         import yaml
 
@@ -793,41 +892,6 @@ class simulate:
         yaml.dump(yamldict, file)
         file.close()
 
-    def __init__(self, filename: str, initial_machine_setup: "setup", output_unit_system: str = "SImm"):
-        """Simulate a given GCode with initial machine setup.
-
-        - Generate all states from GCode.
-        - Connect states with planner blocks, consisting of segments
-        - Self correct inconsistencies.
-        Unit system choosable: SI, SImm & inch
-        """
-        self.last_index = None  # used to optimize search in segment list
-        self.filename = filename
-        self.firmware = None
-
-        # set scaling to chosen unit system
-        self.available_unit_systems = {"SI": 1e-3, "SImm": 1.0, "inch": 1 / 25.4}
-        if output_unit_system in self.available_unit_systems:
-            self.output_unit_system = output_unit_system
-            self.scaling = self.available_unit_systems[self.output_unit_system]
-        else:
-            raise ValueError("Chosen unit system is unavailable!")
-
-        # SET INITIAL SETTINGS
-        self.initial_machine_setup = initial_machine_setup.get_dict()
-        self.check_initial_setup(initial_machine_setup=self.initial_machine_setup)  # move this to setup class todo
-        self.firmware = self.initial_machine_setup["firmware"]
-
-        self.states: List[state] = state_generator(filename=filename, initial_machine_setup=self.initial_machine_setup)
-
-        print(
-            f"Simulating \"{self.filename}\" with {self.initial_machine_setup['printer_name']} using the {self.firmware} firmware.\n"
-        )
-        self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states, firmware=self.firmware)
-        self.trajectory_self_correct()
-
-        self.print_summary()
-
 
 class setup:
     """Setup for printing simulation."""
@@ -835,10 +899,10 @@ class setup:
     def __init__(self, filename: str, printer: str = None, layer_cue: str = None) -> None:
         """Create simulation setup.
 
-        Parameters:
-        - filename (string) - choose setup yaml file with printer presets
-        - printer (string) - select printer from preset file
-        - layer_cue (string) - set slicer specific layer change cue from comment
+        Args:
+            filename: (string) choose setup yaml file with printer presets
+            printer: (string) select printer from preset file
+            layer_cue: (string) set slicer specific layer change cue from comment
         """
         self.initial_position = {"X": 0, "Y": 0, "Z": 0, "E": 0}  # default initial pos is zero
         self.setup_dict = self.load_setup(filename)
@@ -854,8 +918,8 @@ class setup:
     def load_setup(self, filename):
         """Load setup from file.
 
-        Parameters:
-        - filename (string) - specify path to setup file
+        Args:
+            filename: (string) specify path to setup file
         """
         import yaml
         from yaml import Loader
@@ -868,8 +932,8 @@ class setup:
     def select_printer(self, printer_name):
         """Select printer by name.
 
-        Parameters:
-        - printer_name (string) - select printer by name
+        Args:
+            printer_name: (string) select printer by name
         """
         if printer_name not in self.setup_dict:
             raise ValueError(f"Selected Printer {self.printer_select} not found in setup file: {self.filename}.")
@@ -879,8 +943,8 @@ class setup:
     def set_initial_position(self, *initial_position):
         """Set initial Position.
 
-        Parameters:
-        - initial_position (dict or tuple) - set initial position with keys: {X, Y, Z, E} or as tuple of len(4).
+        Args:
+            initial_position: (dict or tuple) set initial position with keys: {X, Y, Z, E} or as tuple of len(4).
 
         Example:
         ```python
@@ -904,8 +968,8 @@ class setup:
     def set_property(self, property_dict: dict):
         """Overwrite or add a property to the printer dictionary. Printer has to be selected through select_printer() beforehand.
 
-        Parameters:
-        - property_dict (dict) - set or add property to the setup
+        Args:
+            property_dict: (dict) set or add property to the setup
 
         Example:
         ```python
@@ -919,7 +983,11 @@ class setup:
             raise ValueError("No printer is selected. Select printer through select_printer() beforehand.")
 
     def get_dict(self):
-        """Return the setup for the selected printer."""
+        """Return the setup for the selected printer.
+
+        Returns:
+            return_dict: (dict) setup dictionary
+        """
         return_dict = self.setup_dict[self.printer_select]  # create dict
         return_dict.update(self.initial_position)  # add initial position
         if self.layer_cue is not None:
