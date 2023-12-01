@@ -143,4 +143,4 @@ plot in 3D:
 
         simulation.plot_3d_mayavi()
 
-for more in depth information have a look into the documentation
+for more in depth information have a look into the [documentation](pyGCodeDecode/doc.md)
