@@ -33,19 +33,21 @@ test-lin_py_latest:
                 path: ./pyGCodeDecode/test/coverage.xml
         when: always
 
-doc-compile_docs:
-    stage: doc
-    image: "python:latest"
-    needs: []
-    script:
-        - pipx install pydoc-markdown
-        - python -m pydoc-markdown -w pyGCodeDecode
-    artifacts:
-        untracked: false
-        paths:
-            - ./*.md
-        when: always
-        expire_in: "30 days"
+# doc-compile_docs:
+#     stage: doc
+#     image: "python:latest"
+#     needs: []
+#     script:
+#         - python3 -m pip install --user pipx
+#         - python3 -m pipx ensurepath
+#         - pipx install pydoc-markdown
+#         - python -m pydoc-markdown -w pyGCodeDecode
+#     artifacts:
+#         untracked: false
+#         paths:
+#             - ./*.md
+#         when: always
+#         expire_in: "30 days"
 
 doc-compile_paper:
     stage: doc
