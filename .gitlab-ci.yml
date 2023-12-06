@@ -4,7 +4,7 @@ stages:
 
 test-lint:
     stage: test
-    image: "python:latest"
+    image: "python:3.10"
     needs: []
     script:
         - pip install flake8 flake8-docstrings black[jupyter] black isort
@@ -15,7 +15,7 @@ test-lint:
 
 test-lin_py_latest:
     stage: test
-    image: "python:latest"
+    image: "python:3.10"
     needs: []
     before_script:
         # missing dependencies for docker-container
@@ -52,11 +52,11 @@ test-lin_py_latest:
 doc-compile_paper:
     stage: doc
     needs: []
+    tags:
+        - shell
     script:
         - docker run --rm --volume $PWD/paper:/data --user $(id -u):$(id -g)
           --env JOURNAL=joss openjournals/inara
-    tags:
-        - shell
     artifacts:
         untracked: false
         paths:
