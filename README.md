@@ -2,10 +2,6 @@
 
 ![LOGO](pyGCodeDecode/logo.jpg?raw=true "pyGCD")
 
-[![Latest Release](https://gitlab.kit.edu/%{project_path}/-/badges/release.svg)](https://gitlab.kit.edu/%{project_path}/-/releases)
-[![pipeline status](https://gitlab.kit.edu/%{project_path}/badges/%{default_branch}/pipeline.svg)](https://gitlab.kit.edu/%{project_path}/-/pipelines)
-[![coverage report](https://gitlab.kit.edu/%{project_path}/badges/%{default_branch}/coverage.svg)](https://gitlab.kit.edu/%{project_path}/-/jobs)
-
 [![Python](https://img.shields.io/badge/-Python-4B8BBE?&logo=Python&logoColor=fff)]()
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://black.readthedocs.io/en/stable/)
 [![isort](https://img.shields.io/badge/isort-blue)](https://pycqa.github.io/isort/)
