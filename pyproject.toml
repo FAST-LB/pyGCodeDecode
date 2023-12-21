@@ -51,8 +51,8 @@ DEVELOPER = [
 ]
 
 [project.urls]
-Code = "https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode"
-Issues = "https://git.scc.kit.edu/FAST-LT/additive-manufacturing/pygcodedecode/-/issues"
+Code = "https://gitlab.kit.edu/kit/fast/lb/collaboration/additive-manufacturing/pygcodedecode"
+Issues = "https://gitlab.kit.edu/kit/fast/lb/collaboration/additive-manufacturing/pygcodedecode/-/issues"
 
 [tool.black]
 line-length = 120
