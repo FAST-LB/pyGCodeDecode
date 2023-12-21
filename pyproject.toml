@@ -43,7 +43,6 @@ TEST = ["pytest", "pytest-cov"]
 DEVELOPER = [
     "flake8",
     "isort",
-    "black",
     "black[jupyter]",
     "flake8-docstrings",
     "pre-commit",
