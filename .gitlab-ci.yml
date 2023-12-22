@@ -13,9 +13,8 @@ test-lint:
         - flake8 . -v
     when: always
 
-test-lin_py_latest:
+.test-lin_py:
     stage: test
-    image: "python:3.10"
     needs: []
     before_script:
         # missing dependencies for docker-container
@@ -32,6 +31,18 @@ test-lin_py_latest:
                 coverage_format: cobertura
                 path: ./pyGCodeDecode/test/coverage.xml
         when: always
+
+test-lin_py_3.8:
+    extends: ".test-lin_py"
+    image: "python:3.8"
+
+test-lin_py_3.9:
+    extends: ".test-lin_py"
+    image: "python:3.8"
+
+test-lin_py_3.10:
+    extends: ".test-lin_py"
+    image: "python:3.8"
 
 # doc-compile_docs:
 #     stage: doc
