@@ -1,0 +1,37 @@
+# This configuration file defines the hooks to be executed at each commit
+exclude: .gcode$, .svg$
+repos:
+# Pre-commit itself
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+    -   id: check-added-large-files
+        args:
+        - --maxkb=5000
+    -   id: fix-encoding-pragma
+# Black code style formatter
+-   repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+      - id: black-jupyter
+# isort import sorting
+-   repo: https://github.com/timothycrosley/isort
+    rev: '5.12.0'
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+# Flake8 for linting
+-   repo: https://github.com/pycqa/flake8
+    rev: '6.1.0'
+    hooks:
+    -   id: flake8
+        additional_dependencies: [flake8-docstrings]
+# strip output of notebooks
+# -   repo: https://github.com/kynan/nbstripout
+#     rev: 0.6.1
+#     hooks:
+#         - id: nbstripout

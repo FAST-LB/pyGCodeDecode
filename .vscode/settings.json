@@ -1,0 +1,14 @@
+{
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "python.testing.pytestArgs": [
+        "pyGCodeDecode"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "[yaml]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    "[toml]": {
+        "editor.defaultFormatter": "tamasfe.even-better-toml"
+    }
+}

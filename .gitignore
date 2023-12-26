@@ -1,0 +1,16 @@
+# Ignore result files from example
+*.png
+*.inp
+
+# build artifacts
+__pycache__
+*.egg-info
+
+# directories
+venv/*
+build/*
+.venv/*
+
+# coverage reports
+.coverage
+coverage.xml

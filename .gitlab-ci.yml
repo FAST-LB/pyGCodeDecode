@@ -1,0 +1,84 @@
+stages:
+    - doc
+    - test
+
+test-lint:
+    stage: test
+    image: "python:3.10"
+    needs: []
+    script:
+        - pip install flake8 flake8-docstrings black[jupyter] black isort
+        - isort --check . -v
+        - black --check */ -v
+        - flake8 . -v
+    when: always
+
+.test-lin_py:
+    stage: test
+    needs: []
+    before_script:
+        # missing dependencies for docker-container
+        - apt-get update && apt-get install libgl1 -y
+    script:
+        - pip install .[TEST]
+        - pytest --cov --cov-config=pyproject.toml --cov-report term
+          --cov-report xml:./pyGCodeDecode/test/coverage.xml
+    coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+    artifacts:
+        untracked: false
+        reports:
+            coverage_report:
+                coverage_format: cobertura
+                path: ./pyGCodeDecode/test/coverage.xml
+        when: always
+
+test-lin_py_3.8:
+    extends: ".test-lin_py"
+    image: "python:3.8"
+
+test-lin_py_3.9:
+    extends: ".test-lin_py"
+    image: "python:3.9"
+
+test-lin_py_3.10:
+    extends: ".test-lin_py"
+    image: "python:3.10"
+
+test-lin_py_3.11:
+    extends: ".test-lin_py"
+    image: "python:3.11"
+
+test-lin_py_3.12:
+    extends: ".test-lin_py"
+    image: "python:3.12"
+
+# doc-compile_docs:
+#     stage: doc
+#     image: "python:latest"
+#     needs: []
+#     script:
+#         - python3 -m pip install --user pipx
+#         - python3 -m pipx ensurepath
+#         - pipx install pydoc-markdown
+#         - python -m pydoc-markdown -w pyGCodeDecode
+#     artifacts:
+#         untracked: false
+#         paths:
+#             - ./*.md
+#         when: always
+#         expire_in: "30 days"
+
+doc-compile_paper:
+    stage: doc
+    needs: []
+    tags:
+        - shell
+    script:
+        - docker run --rm --volume $PWD/paper:/data --user $(id -u):$(id -g)
+          --env JOURNAL=joss openjournals/inara
+    artifacts:
+        untracked: false
+        paths:
+            - ./paper/*.pdf
+        when: always
+        expire_in: "30 days"
