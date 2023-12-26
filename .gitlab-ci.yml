@@ -73,9 +73,6 @@ doc-compile_paper:
     needs: []
     tags:
         - shell
-    before_script:
-        - sudo apt-get install git-lfs
-        - git lfs install
     script:
         - docker run --rm --volume $PWD/paper:/data --user $(id -u):$(id -g)
           --env JOURNAL=joss openjournals/inara
