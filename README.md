@@ -2,7 +2,11 @@
 
 ![LOGO](./logo.jpg?raw=true "pyGCD")
 
-[![Python](https://img.shields.io/badge/-Python-4B8BBE?&logo=Python&logoColor=fff)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![tests](https://github.com/FAST-LB/pyGCodeDecode/workflows/Tests/badge.svg)](https://github.com/FAST-LB/pyGCodeDecode/actions/workflows/tests.yaml)
+[![GitHub Release](https://img.shields.io/github/release/FAST-LB/pyGCodeDecode.svg?style=flat)](https://github.com/FAST-LB/pyGCodeDecode/releases)
+
+[![Python](https://img.shields.io/pypi/pyversions/pygcodedecode.svg)]()
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://black.readthedocs.io/en/stable/)
 [![isort](https://img.shields.io/badge/isort-blue)](https://pycqa.github.io/isort/)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
