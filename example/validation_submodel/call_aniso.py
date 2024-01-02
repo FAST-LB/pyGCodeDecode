@@ -8,7 +8,7 @@ from pyGCodeDecode.tools import print_layertimes
 
 # ---SETUP--- #
 printfile = r"example\validation_submodel\submodell_validierung.gcode"
-setup = gcode_interpreter.setup(filename=r"example\default_printer_presets.yaml.yaml")  # load setup
+setup = gcode_interpreter.setup(filename=r"./pygcodedecode/data/default_printer_presets.yaml")  # load setup
 setup.select_printer("anisoprint_a4")  # Select printer from preset.
 setup.set_property({"layer_cue": "LAYER_CHANGE"})  # Prusa Slicer layer change cue.
 
