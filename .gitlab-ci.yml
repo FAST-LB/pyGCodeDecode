@@ -22,14 +22,14 @@ test-lint:
     script:
         - pip install .[TEST]
         - pytest --cov --cov-config=pyproject.toml --cov-report term
-          --cov-report xml:./pyGCodeDecode/test/coverage.xml
+          --cov-report xml:./tests/coverage.xml
     coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
     artifacts:
         untracked: false
         reports:
             coverage_report:
                 coverage_format: cobertura
-                path: ./pyGCodeDecode/test/coverage.xml
+                path: ./tests/coverage.xml
         when: always
 
 test-lin_py_3.8:

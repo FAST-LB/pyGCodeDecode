@@ -64,7 +64,7 @@ profile = "black"
 source = ["./pyGCodeDecode/"]
 
 [tool.coverage.run]
-omit = ["./pyGCodeDecode/test/*", "./example/*"]
+omit = ["./tests/*", "./example/*"]
 
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration

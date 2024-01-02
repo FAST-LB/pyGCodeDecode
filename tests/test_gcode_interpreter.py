@@ -9,7 +9,7 @@ def test_setup():
     from pyGCodeDecode.gcode_interpreter import setup
 
     simulation_setup = setup(
-        filename=os.path.abspath("pyGCodeDecode/test/test_gcode_interpreter_setup_printers.yaml"),
+        filename=os.path.abspath("./tests/data/test_gcode_interpreter_setup_printers.yaml"),
         printer="debugging",
         layer_cue="LAYER CHANGE",
     )
@@ -56,7 +56,7 @@ def test_simulate():
     from pyGCodeDecode.gcode_interpreter import setup, simulate
 
     simulation_setup = setup(
-        filename=os.path.abspath("pyGCodeDecode/test/test_gcode_interpreter_setup_printers.yaml"),
+        filename=os.path.abspath("./tests/data/test_gcode_interpreter_setup_printers.yaml"),
         printer="debugging",
         layer_cue="LAYER CHANGE",
     )
@@ -64,7 +64,7 @@ def test_simulate():
     simulation_setup.set_property({"p_acc": 50})
 
     simulation = simulate(
-        filename=os.path.abspath("pyGCodeDecode/test/test_gcode_interpreter.gcode"),
+        filename=os.path.abspath("./tests/data/test_gcode_interpreter.gcode"),
         initial_machine_setup=simulation_setup,
     )
 
