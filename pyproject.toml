@@ -40,20 +40,19 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-TEST = ["pytest", "pytest-cov"]
+TEST = ["pytest-cov"]
 DEVELOPER = [
     "flake8",
     "isort",
     "black[jupyter]",
     "flake8-docstrings",
     "pre-commit",
-    "pytest",
     "pytest-cov",
 ]
 
 [project.urls]
-Code = "https://gitlab.kit.edu/kit/fast/lb/collaboration/additive-manufacturing/pygcodedecode"
-Issues = "https://gitlab.kit.edu/kit/fast/lb/collaboration/additive-manufacturing/pygcodedecode/-/issues"
+Code = "https://github.com/FAST-LB/pyGCodeDecode"
+Issues = "https://github.com/FAST-LB/pyGCodeDecode/issues"
 
 [tool.black]
 line-length = 120
