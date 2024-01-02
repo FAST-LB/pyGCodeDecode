@@ -9,6 +9,7 @@ packages = ["pyGCodeDecode"]
 name = "pyGCodeDecode"
 version = "0.1.0"
 authors = [
+    { name = "FAST-LB at KIT", email = "lt-github@fast.kit.edu" },
     { name = "Jonathan Knirsch", email = "jonathan.knirsch@student.kit.edu" },
     { name = "Felix Frölich", email = "felix.froelich@kit.edu" },
     { name = "Lukas Hof", email = "lukas.hof@kit.edu" },
