@@ -41,7 +41,7 @@ def print_layertimes(simulation: simulate, filename="layertimes.csv", locale=Non
                 + delimiter
                 + loc.str(travel)
                 + delimiter
-                + loc.str((travel / duration) if duration > 0 else None)
+                + (loc.str((travel / duration)) if duration != 0 else "NaN")
                 + "\n"
             )
             travel = 0
