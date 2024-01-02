@@ -7,7 +7,7 @@ test-lint:
     image: "python:3.10"
     needs: []
     script:
-        - pip install flake8 flake8-docstrings black[jupyter] black isort
+        - pip install isort black[jupyter] flake8-docstrings
         - isort --check . -v
         - black --check */ -v
         - flake8 . -v
@@ -51,22 +51,6 @@ test-lin_py_3.11:
 test-lin_py_3.12:
     extends: ".test-lin_py"
     image: "python:3.12"
-
-# doc-compile_docs:
-#     stage: doc
-#     image: "python:latest"
-#     needs: []
-#     script:
-#         - python3 -m pip install --user pipx
-#         - python3 -m pipx ensurepath
-#         - pipx install pydoc-markdown
-#         - python -m pydoc-markdown -w pyGCodeDecode
-#     artifacts:
-#         untracked: false
-#         paths:
-#             - ./*.md
-#         when: always
-#         expire_in: "30 days"
 
 doc-compile_paper:
     stage: doc
