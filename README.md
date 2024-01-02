@@ -1,6 +1,6 @@
 # pyGCodeDecode
 
-![LOGO](pyGCodeDecode/logo.jpg?raw=true "pyGCD")
+![LOGO](./logo.jpg?raw=true "pyGCD")
 
 [![Python](https://img.shields.io/badge/-Python-4B8BBE?&logo=Python&logoColor=fff)]()
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://black.readthedocs.io/en/stable/)
