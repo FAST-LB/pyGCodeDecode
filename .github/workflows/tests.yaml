@@ -19,7 +19,7 @@ jobs:
             - run: |
                 pip install .[TEST]
                 pytest --cov --cov-config=pyproject.toml --cov-report term \
-                    --cov-report xml:./pyGCodeDecode/test/coverage.xml
+                    --cov-report xml:./tests/coverage.xml
             - name: Upload
               uses: actions/upload-artifact@v1
               with:
