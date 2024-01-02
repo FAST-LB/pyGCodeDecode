@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-anisoprint_A4:
+anisoprint_a4:
   # general properties
   nozzle_diam: 0.4
   filament_diam: 1.75
