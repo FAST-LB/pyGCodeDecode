@@ -88,7 +88,7 @@ partially supported:
 
 ### define a printer with default parameters in a .yaml
 
-example definition (also see in [/example/printer_presets.yaml](example/printer_presets.yaml)):
+example definition (also see in [/example/default_printer_presets.yaml.yaml](example/default_printer_presets.yaml.yaml)):
 
         prusa_mini:
                 # general properties
@@ -114,7 +114,7 @@ Import the package:
 
 load the setup with:
 
-        setup = gcode_interpreter.setup(filename=r"example\printer_presets.yaml")
+        setup = gcode_interpreter.setup(filename=r"example\default_printer_presets.yaml.yaml")
 
 select a printer:
 
