@@ -6,36 +6,44 @@ jobs:
     linting:
         runs-on: ubuntu-latest
         steps:
-            - name: linting
-              uses: actions/setup-python@v4
+            - name: setup Python
+              uses: actions/setup-python@v5
               with:
                 python-version: "3.12"
-            - uses: actions/checkout@v4
-            - run: |
+
+            - name: checkout
+              uses: actions/checkout@v4
+
+            - name: lint
+              run: |
                 pip install isort black[jupyter] flake8-docstrings
                 isort --check . -v
                 black --check */ -v
                 flake8 . -v
 
-    pytest:
+    testing:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
                 os: [ubuntu-latest] # [ubuntu-latest, windows-latest, macos-latest]
                 python-version: ["3.10"] # ["3.8", "3.9", "3.10", "3.11", "3.12"]
         steps:
-            - name: test python ${{ matrix.python-version }} on ${{ matrix.os }}
-              uses: actions/setup-python@v4
-              with:
-                python-version: ${{ matrix.python-version }}
-            - uses: actions/checkout@v4
+          - name: checkout
+            uses: actions/checkout@v4
 
-            - run: |
-                pip install .[TEST]
-                pytest --cov=. --cov-config=pyproject.toml --cov-report term \
-                  --cov-report xml:./tests/coverage.xml
-            - name: Upload
-              uses: actions/upload-artifact@v1
-              with:
-                name: coverage_report
-                path: ./tests/coverage.xml
+          - name: setup python ${{ matrix.python-version }} on ${{ matrix.os }}
+            uses: actions/setup-python@v5
+            with:
+                python-version: ${{ matrix.python-version }}
+
+          - name: run tests
+            run: |
+              pip install .[TEST]
+              pytest --cov=. --cov-config=pyproject.toml --cov-report term \
+                --cov-report xml:./tests/coverage.xml
+
+          - name: upload coverage report
+            uses: actions/upload-artifact@v4
+            with:
+              name: coverage_report
+              path: ./tests/coverage.xml
