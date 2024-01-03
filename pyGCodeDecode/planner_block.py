@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Plannerblock Module."""
+"""Planner block Module."""
 from typing import List
 
 import numpy as np
@@ -26,7 +26,7 @@ class planner_block:
             vel_end: (velocity) target velocity for end of move
         """
 
-        def trapez(extrusion_only=False):
+        def trapezoid(extrusion_only=False):
             # A /
             t0 = previous_segment.t_end
             t1 = t0 + (v_target - v_begin) / acc
@@ -65,7 +65,7 @@ class planner_block:
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_C)
 
-            self.blcktype = "trapez"
+            self.blocktype = "trapezoid"
 
         def triang(extrusion_only=False):
             # A /
@@ -95,7 +95,7 @@ class planner_block:
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_C)
 
-            self.blcktype = "triangle"
+            self.blocktype = "triangle"
 
         def singl_up():
             # A /
@@ -112,7 +112,7 @@ class planner_block:
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_A)
 
-            self.blcktype = "single"
+            self.blocktype = "single"
 
         def singl_dwn():
             # C \ with forced end point met
@@ -129,7 +129,7 @@ class planner_block:
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_C)
 
-            self.blcktype = "single"
+            self.blocktype = "single"
 
         extrusion_only = False  # flag
         self.segments = []  # clear segments
@@ -143,8 +143,8 @@ class planner_block:
         else:
             distance = 0
         previous_segment = (
-            self.prev_blck.get_segments()[-1]
-            if self.prev_blck is not None
+            self.prev_block.get_segments()[-1]
+            if self.prev_block is not None
             else segment.create_initial(initial_position=self.state_A.state_position)
         )
         settings = self.state_B.state_p_settings
@@ -175,7 +175,7 @@ class planner_block:
                 and (travel_ramp_up > 0 or np.isclose(travel_ramp_up, 0.0))
                 and (travel_ramp_down > 0 or np.isclose(travel_ramp_down, 0.0))
             ):
-                trapez(extrusion_only=extrusion_only)
+                trapezoid(extrusion_only=extrusion_only)
             elif (
                 v_peak_tri > v_end
                 and v_peak_tri > v_begin
@@ -202,34 +202,34 @@ class planner_block:
     def self_correction(self, tolerance=float("1e-12")):
         """Check for interfacing vel and self correct."""
         flag_correct = False
-        if self.next_blck is not None:
+        if self.next_block is not None:
             same_vel = (
-                self.get_segments()[-1].vel_end.get_norm() == self.next_blck.get_segments()[0].vel_begin.get_norm()
+                self.get_segments()[-1].vel_end.get_norm() == self.next_block.get_segments()[0].vel_begin.get_norm()
             )
             if not same_vel:
                 error_vel = abs(
-                    self.get_segments()[-1].vel_end.get_norm() - self.next_blck.get_segments()[0].vel_begin.get_norm()
+                    self.get_segments()[-1].vel_end.get_norm() - self.next_block.get_segments()[0].vel_begin.get_norm()
                 )
                 if error_vel > tolerance:
                     flag_correct = True
 
         # Correct error by recalculating velocitys with new vel_end
-        if self.next_blck is not None and flag_correct:
-            vel_end = self.next_blck.get_segments()[0].vel_begin.get_norm()
+        if self.next_block is not None and flag_correct:
+            vel_end = self.next_block.get_segments()[0].vel_begin.get_norm()
             self.move_maker2(v_end=vel_end)
-            if self.blcktype == "single":
-                self.prev_blck.self_correction()  # forward correction?
+            if self.blocktype == "single":
+                self.prev_block.self_correction()  # forward correction?
 
         # Timeshift the corrected blocks
-        if self.next_blck is not None:
-            delta_t = self.get_segments()[-1].t_end - self.next_blck.get_segments()[0].t_begin
-            self.next_blck.timeshift(delta_t=delta_t)
+        if self.next_block is not None:
+            delta_t = self.get_segments()[-1].t_end - self.next_block.get_segments()[0].t_begin
+            self.next_block.timeshift(delta_t=delta_t)
 
         # Check continuity in Position
-        if self.next_blck is not None:
-            same_position = self.get_segments()[-1].pos_end == self.next_blck.get_segments()[0].pos_begin
+        if self.next_block is not None:
+            same_position = self.get_segments()[-1].pos_end == self.next_block.get_segments()[0].pos_begin
             if not same_position:
-                error_position = self.get_segments()[-1].pos_end - self.next_blck.get_segments()[0].pos_begin
+                error_position = self.get_segments()[-1].pos_end - self.next_block.get_segments()[0].pos_begin
                 dist = error_position.get_t_distance()
                 if dist > tolerance:
                     raise NameError(f"Disconinuity of {dist} in segments detected")
@@ -254,7 +254,7 @@ class planner_block:
                 segm.move_segment_time(delta_t)
 
     def extr_block_max_vel(self):
-        """Return max vel from plannerblock while extruding.
+        """Return max vel from planner block while extruding.
 
         Returns:
             block_max_vel: (np.ndarray 1x4) maximum axis velocity while extruding in block
@@ -277,23 +277,23 @@ class planner_block:
         else:
             pass
 
-    def __init__(self, state: state, prev_blck: "planner_block", firmware=None):
+    def __init__(self, state: state, prev_block: "planner_block", firmware=None):
         """Calculate and store planner block consisting of one or multiple segments.
 
         Args:
             state: (state) the current state
-            prev_blck: (planner_block) previous planner block
+            prev_block: (planner_block) previous planner block
             firmware: (string, default = None) firmware selection for junction
         """
         # neighbor list
         self.state_A = state.prev_state  # from state A
         self.state_B = state  # to state B
-        self.prev_blck = prev_blck  # nb list prev
-        self.next_blck = None  # nb list next
+        self.prev_block = prev_block  # nb list prev
+        self.next_block = None  # nb list next
         self.is_extruding = False  # default Value
 
         self.segments: List[segment] = []  # store segments here
-        self.blcktype = None
+        self.blocktype = None
 
         if firmware == "marlin_jd":
             junction = junction_handling_marlin_jd(state_A=self.state_A, state_B=self.state_B)
@@ -307,7 +307,7 @@ class planner_block:
             junction = junction_handling(state_A=self.state_A, state_B=self.state_B)
 
         # planner block calculation
-        target_vel = junction.get_target_vel()  # target velocity for this plannerblock
+        target_vel = junction.get_target_vel()  # target velocity for this planner block
 
         v_JD = junction.get_junction_vel()
 
@@ -328,37 +328,37 @@ class planner_block:
             self.JD = [0, 0, 0, 0]
             self.segments = [
                 segment(
-                    t_begin=self.prev_blck.segments[-1].t_end,
-                    t_end=self.prev_blck.segments[-1].t_end + self.state_B.pause,
-                    pos_begin=self.prev_blck.segments[-1].pos_end,
-                    pos_end=self.prev_blck.segments[-1].pos_end,
+                    t_begin=self.prev_block.segments[-1].t_end,
+                    t_end=self.prev_block.segments[-1].t_end + self.state_B.pause,
+                    pos_begin=self.prev_block.segments[-1].pos_end,
+                    pos_end=self.prev_block.segments[-1].pos_end,
                     vel_begin=velocity(0, 0, 0, 0),
                     vel_end=velocity(0, 0, 0, 0),
                 )
             ]
 
     @property
-    def prev_blck(self):
-        """Define prev_blck as property."""
-        return self._prev_blck
+    def prev_block(self):
+        """Define prev_block as property."""
+        return self._prev_block
 
-    @prev_blck.setter
-    def prev_blck(self, blck: "planner_block"):
-        self._prev_blck = blck
+    @prev_block.setter
+    def prev_block(self, block: "planner_block"):
+        self._prev_block = block
 
     @property
-    def next_blck(self):
-        """Define next_blck as property."""
-        return self._next_blck
+    def next_block(self):
+        """Define next_block as property."""
+        return self._next_block
 
-    @next_blck.setter
-    def next_blck(self, blck: "planner_block"):
-        self._next_blck = blck
+    @next_block.setter
+    def next_block(self, block: "planner_block"):
+        self._next_block = block
 
     def __str__(self) -> str:
-        """Create string from plannerblock."""
+        """Create string from planner block."""
         if len(self.segments) == 3:
-            return "{:-^40}".format("Trapez Planner Block")
+            return "{:-^40}".format("Trapezoid Planner Block")
         elif len(self.segments) == 2:
             return "{:-^40}".format("Triangular Planner Block")
         elif len(self.segments) == 1:
@@ -367,13 +367,13 @@ class planner_block:
             return "{:#^40}".format("Invalid Planner Block")
 
     def __repr__(self) -> str:
-        """Represent plannerblock."""
+        """Represent planner block."""
         return self.__str__()
 
     def get_segments(self):
-        """Return segments, contained by the plannerblock."""
+        """Return segments, contained by the planner block."""
         return self.segments
 
     def get_block_travel(self):
-        """Return the travel length of the plannerblock."""
+        """Return the travel length of the planner block."""
         return self.state_A.state_position.get_t_distance(self.state_B.state_position)

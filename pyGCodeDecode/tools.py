@@ -48,7 +48,7 @@ def print_layertimes(simulation: simulate, filename="layertimes.csv", locale=Non
             last_layer_time = block_begin
             current_layer = next_layer
 
-        if block.next_blck is None:
+        if block.next_block is None:
             block_end = block.segments[-1].t_end
             duration = block_end - last_layer_time
 

@@ -17,7 +17,7 @@ def update_progress(progress, name="Percent"):
 
     Args:
         progress: (float, int) between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
-        name: (string, default = "Percent") customizable name for progressbar
+        name: (string, default = "Percent") customizable name for progress bar
     """
     import sys
 
@@ -44,27 +44,25 @@ def update_progress(progress, name="Percent"):
 
 def generate_planner_blocks(states: List[state], firmware=None):
     """
-    Convert list of states to trajectory repr. by plannerblocks.
+    Convert list of states to trajectory repr. by planner blocks.
 
     Args:
         states: (list[state]) list of states
         firmware: (string, default = None) select firmware by name
 
     Returns:
-        blck_list (list[planner_block]) list of all plannerblocks to complete travel between all states
+        block_list (list[planner_block]) list of all planner blocks to complete travel between all states
     """
-    blck_list = []
-    cntr = 0
-    for state in states:  # noqa
-        cntr += 1
-        prev_blck = blck_list[-1] if len(blck_list) > 0 else None  # grab prev blck from blck_list
-        new_blck = planner_block(state=state, prev_blck=prev_blck, firmware=firmware)  # generate new blck
-        if len(new_blck.get_segments()) > 0:
-            if new_blck.prev_blck is not None:
-                new_blck.prev_blck.next_blck = new_blck  # update nb list
-            blck_list.append(new_blck)
-        update_progress(cntr / len(states), "Planner Block Generation")
-    return blck_list
+    block_list = []
+    for i, this_state in enumerate(states):
+        prev_block = block_list[-1] if len(block_list) > 0 else None  # grab prev block from block_list
+        new_block = planner_block(state=this_state, prev_block=prev_block, firmware=firmware)  # generate new block
+        if len(new_block.get_segments()) > 0:
+            if new_block.prev_block is not None:
+                new_block.prev_block.next_block = new_block  # update nb list
+            block_list.append(new_block)
+        update_progress(i + 1 / len(states), "Planner Block Generation")
+    return block_list
 
 
 def find_current_segm(path: List[segment], t: float, last_index: int = None, keep_position: bool = False):
@@ -74,7 +72,7 @@ def find_current_segm(path: List[segment], t: float, last_index: int = None, kee
         path: (list[segment]) all segments to be searched
         t: (float) time of search
         last_index: (int) last found index for optimizing search
-        keep_position: (bool) keeps position of last segment, use this when working with gaps of no movement inbetween segments
+        keep_position: (bool) keeps position of last segment, use this when working with gaps of no movement between segments
 
     Returns:
         segment: (segment) the segment which defines movement at that point in time
@@ -133,7 +131,7 @@ def find_current_segm(path: List[segment], t: float, last_index: int = None, kee
 
 
 def unpack_blocklist(blocklist: List[planner_block]) -> List[segment]:
-    """Return list of segments by unpacking list of plannerblocks.
+    """Return list of segments by unpacking list of planner blocks.
 
     Args:
         blocklist: (list[planner_block]) list of planner blocks
@@ -243,10 +241,8 @@ class simulate:
             y.append(segments[0].pos_begin.get_vec()[1])
             cvar.append(segments[0].vel_begin.get_norm())
 
-            cntr = 0
-            for segm in segments:
-                cntr += 1
-                update_progress(cntr / len(segments), name="2D Plot Lines")
+            for i, segm in enumerate(segments):
+                update_progress(i + 1 / len(segments), name="2D Plot Lines")
                 x.append(segm.pos_end.get_vec()[0])
                 y.append(segm.pos_end.get_vec()[1])
                 cvar.append(segm.vel_end.get_norm())
@@ -277,22 +273,19 @@ class simulate:
             x, y = [], []
             x.append(segments[0].pos_begin.get_vec()[0])
             y.append(segments[0].pos_begin.get_vec()[1])
-            cntr = 0
-            for segm in segments:
-                cntr += 1
-                update_progress(cntr / len(segments), name="2D Plot Lines")
+            for i, segm in enumerate(segments):
+                update_progress(i + 1 / len(segments), name="2D Plot Lines")
                 x.append(segm.pos_end.get_vec()[0])
                 y.append(segm.pos_end.get_vec()[1])
             fig = plt.subplot()
             fig.plot(x, y, color="black")
 
         if show_points:
-            cntr = 0
-            for blck in self.blocklist:
-                update_progress(cntr / len(self.blocklist), name="2D Plot Points")
+            for i, block in enumerate(self.blocklist):
+                update_progress(i / len(self.blocklist), name="2D Plot Points")
                 fig.scatter(
-                    blck.get_segments()[-1].pos_end.get_vec()[0],
-                    blck.get_segments()[-1].pos_end.get_vec()[1],
+                    block.get_segments()[-1].pos_end.get_vec()[0],
+                    block.get_segments()[-1].pos_end.get_vec()[1],
                     color="blue",
                     marker="x",
                 )
@@ -381,10 +374,8 @@ class simulate:
             z.append(segments[0].pos_begin.get_vec()[2])
             vel.append(segments[0].vel_begin.get_norm())
 
-            cntr = 0
-            for segm in segments:
-                cntr += 1
-                update_progress(cntr / len(segments), name="3D Plot")
+            for i, segm in enumerate(segments):
+                update_progress(i + 1 / len(segments), name="3D Plot")
                 x.append(segm.pos_end.get_vec()[0])
                 y.append(segm.pos_end.get_vec()[1])
                 z.append(segm.pos_end.get_vec()[2])
@@ -479,10 +470,8 @@ class simulate:
             z.append(segments[0].pos_begin.get_vec()[2])
             vel.append(segments[0].vel_begin.get_norm())
 
-            cntr = 0
-            for segm in segments:
-                cntr += 1
-                update_progress(cntr / len(segments), name="3D Plot")
+            for i, segm in enumerate(segments):
+                update_progress(i + 1 / len(segments), name="3D Plot")
                 x.append(segm.pos_end.get_vec()[0])
                 y.append(segm.pos_end.get_vec()[1])
                 z.append(segm.pos_end.get_vec()[2])
@@ -644,7 +633,7 @@ class simulate:
         self,
         axis=("x", "y", "z", "e"),
         show=True,
-        show_plannerblocks=True,
+        show_planner_blocks=True,
         show_segments=False,
         show_jv=False,
         timesteps="constrained",
@@ -656,7 +645,7 @@ class simulate:
         Args:
             axis: (tuple(string), default = ("x", "y", "z", "e")) select plot axis
             show: (bool, default = True) show plot and return plot figure
-            show_plannerblocks: (bool, default = True) show plannerblocks as vertical lines
+            show_planner_blocks: (bool, default = True) show planner_blocks as vertical lines
             show_segments: (bool, default = False) show segments as vertical lines
             show_jv: (bool, default = False) show junction velocity as x
             timesteps: (int or string, default = "constrained") number of timesteps or constrain plot vertices to segment vertices
@@ -688,10 +677,9 @@ class simulate:
         vel = [[], [], [], []]
         abs = []  # initialize value arrays
         index_saved = 0
-        cntr = 0
-        for t in times:
+
+        for i, t in enumerate(times):
             segm, index_saved = find_current_segm(path=segments, t=t, last_index=index_saved, keep_position=True)
-            cntr += 1
 
             tmp_vel = segm.get_velocity(t=t).get_vec(withExtrusion=True)
             tmp_pos = segm.get_position(t=t).get_vec(withExtrusion=True)
@@ -700,29 +688,29 @@ class simulate:
                 vel[axis_dict[ax]].append(tmp_vel[axis_dict[ax]])
 
             abs.append(np.linalg.norm(tmp_vel[:3]))
-            update_progress(cntr / len(times), name="Velocity Plot")
+            update_progress(i + 1 / len(times), name="Velocity Plot")
 
         fig, ax1 = plt.subplots()
         ax2 = ax1.twinx()
 
         # plot JD-Limits
-        for blck in self.blocklist:
-            # plannerblocks vertical line plot
-            if show_plannerblocks:
-                ax1.axvline(x=blck.get_segments()[-1].t_end, color="black", lw=0.5)
+        for block in self.blocklist:
+            # planner blocks vertical line plot
+            if show_planner_blocks:
+                ax1.axvline(x=block.get_segments()[-1].t_end, color="black", lw=0.5)
 
             # segments vertical line plot
             if show_segments:
-                for segm in blck.get_segments():
+                for segm in block.get_segments():
                     ax1.axvline(x=segm.t_end, color="green", lw=0.25)
 
             if show_jv:
                 # absolute JD Marker
-                absJD = np.linalg.norm([blck.JD[0], blck.JD[1], blck.JD[2]])
-                ax1.scatter(x=blck.get_segments()[-1].t_end, y=absJD, color="red", marker="x")
+                absJD = np.linalg.norm([block.JD[0], block.JD[1], block.JD[2]])
+                ax1.scatter(x=block.get_segments()[-1].t_end, y=absJD, color="red", marker="x")
                 for ax in axis:
                     ax1.scatter(
-                        x=blck.get_segments()[-1].t_end, y=blck.JD[axis_dict[ax]], marker="x", color="black", lw=0.5
+                        x=block.get_segments()[-1].t_end, y=block.JD[axis_dict[ax]], marker="x", color="black", lw=0.5
                     )
 
         # plot all axis in velocity and position
@@ -817,7 +805,7 @@ class simulate:
     def print_summary(self):
         """Print simulation summary to console."""
         print(
-            f" >> pyGCodeDecode extracted {len(self.states)} states from {self.filename} and generated {len(self.blocklist)} plannerblocks.\n"
+            f" >> pyGCodeDecode extracted {len(self.states)} states from {self.filename} and generated {len(self.blocklist)} planner blocks.\n"
             f"Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end} seconds."
         )
 

@@ -84,7 +84,7 @@ def arg_extract(string: str, key_dict: dict):
     match_start_list = [match.start() for match in matches]
     next_larger = lambda lst, num: min(  # noqa: E731
         filter(lambda x: x >= num, lst), default=len(string)
-    )  # function to find next largest occurence in list, default to eol
+    )  # function to find next largest occurrence in list, default to eol
     comment_begin = min(
         [start.start() for start in list(filter(lambda x: x.group() == ";", [match for match in matches]))],
         default=len(string),
@@ -130,11 +130,9 @@ def read_gcode_to_dict_list(filename):
     file_gcode = open(filename)
     dict_list = list()
 
-    counter = 0
-    for line in file_gcode:
-        counter += 1
+    for i, line in enumerate(file_gcode):
         line_dict = arg_extract(line, commands)
-        line_dict["line_number"] = counter
+        line_dict["line_number"] = i + 1
         dict_list.append(line_dict)
 
     return dict_list

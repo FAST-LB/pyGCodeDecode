@@ -48,7 +48,7 @@ class junction_handling:
             ):
                 vel_next = self.connect_state(
                     state_A=self.state_B, state_B=next_next_state
-                )  # target velocity for next plannerblock
+                )  # target velocity for next planner block
                 break
             else:
                 next_next_state = next_next_state.next_state
