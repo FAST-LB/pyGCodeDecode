@@ -3,6 +3,20 @@ name: Tests
 on: [push]
 
 jobs:
+    linting:
+        runs-on: ubuntu-latest
+        steps:
+            - name: linting
+              uses: actions/setup-python@v4
+              with:
+                python-version: "3.12"
+            - uses: actions/checkout@v4
+            - run: |
+                pip install isort black[jupyter] flake8-docstrings
+                isort --check . -v
+                black --check */ -v
+                flake8 . -v
+
     pytest:
         runs-on: ${{ matrix.os }}
         strategy:
@@ -18,8 +32,8 @@ jobs:
 
             - run: |
                 pip install .[TEST]
-                pytest --cov --cov-config=pyproject.toml --cov-report term \
-                    --cov-report xml:./pyGCodeDecode/test/coverage.xml
+                pytest --cov=. --cov-config=pyproject.toml --cov-report term \
+                  --cov-report xml:./tests/coverage.xml
             - name: Upload
               uses: actions/upload-artifact@v1
               with:
