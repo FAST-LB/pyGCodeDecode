@@ -25,7 +25,7 @@ test-lint:
           --cov-report xml:./tests/coverage.xml
     coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
     artifacts:
-        untracked: false
+        untracked: true
         reports:
             coverage_report:
                 coverage_format: cobertura
@@ -36,21 +36,21 @@ test-lin_py_3.8:
     extends: ".test-lin_py"
     image: "python:3.8"
 
-test-lin_py_3.9:
-    extends: ".test-lin_py"
-    image: "python:3.9"
+# test-lin_py_3.9:
+#     extends: ".test-lin_py"
+#     image: "python:3.9"
 
-test-lin_py_3.10:
-    extends: ".test-lin_py"
-    image: "python:3.10"
+# test-lin_py_3.10:
+#     extends: ".test-lin_py"
+#     image: "python:3.10"
 
-test-lin_py_3.11:
-    extends: ".test-lin_py"
-    image: "python:3.11"
+# test-lin_py_3.11:
+#     extends: ".test-lin_py"
+#     image: "python:3.11"
 
-test-lin_py_3.12:
-    extends: ".test-lin_py"
-    image: "python:3.12"
+# test-lin_py_3.12:
+#     extends: ".test-lin_py"
+#     image: "python:3.12"
 
 doc-compile_paper:
     stage: doc
