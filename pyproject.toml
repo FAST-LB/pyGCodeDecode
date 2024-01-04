@@ -14,7 +14,7 @@ authors = [
     { name = "Felix Frölich", email = "felix.froelich@kit.edu" },
     { name = "Lukas Hof", email = "lukas.hof@kit.edu" },
 ]
-description = "Generate time dependent boundary conditions from a .gcode file"
+description = "Generate time dependent boundary conditions from a .gcode file."
 readme = "README.md"
 classifiers = [
     "Development Status :: 4 - Beta",
