@@ -508,6 +508,91 @@ class simulate:
             return color_plot
         plt.close()
 
+    def plot_3d(self, extrusion_only: bool = True):
+        """3D Plot with PyVista."""
+        import pyvista as pv
+
+        def lines_from_points(points):
+            """Given an array of points, make a line set."""
+            poly = pv.PolyData()
+            poly.points = points
+            cells = np.full((len(points) - 1, 3), 2, dtype=np.int_)
+            cells[:, 1] = np.arange(0, len(points) - 1, dtype=np.int_)
+            cells[:, 2] = np.arange(1, len(points), dtype=np.int_)
+            poly.lines = cells
+            return poly
+
+        # get all data for plots
+        segments = unpack_blocklist(blocklist=self.blocklist)
+
+        x, y, z, e, vel = [], [], [], [], []
+
+        if extrusion_only:
+            # vel_max = self.extr_max_vel()
+            network = pv.MultiBlock()
+
+            for n, segm in enumerate(segments):
+                update_progress(n / len(segments), name="3D Plot")
+                if segm.is_extruding():
+                    if len(x) == 0:
+                        # append segm begin values to plotting array for first segm
+                        posbegin_vec = segm.pos_begin.get_vec(withExtrusion=True)
+                        x.append(posbegin_vec[0])
+                        y.append(posbegin_vec[1])
+                        z.append(posbegin_vec[2])
+                        e.append(posbegin_vec[3])
+                        vel.append(segm.vel_begin.get_norm())
+
+                    # append segm end values to plotting array
+                    posend_vec = segm.pos_end.get_vec(withExtrusion=True)
+
+                    x.append(posend_vec[0])
+                    y.append(posend_vec[1])
+                    z.append(posend_vec[2])
+                    e.append(posend_vec[3])
+                    vel.append(segm.vel_end.get_norm())
+
+                # plot if following segment is not extruding or if it's the last segment
+                if (len(x) > 0 and not segm.is_extruding()) or (len(x) > 0 and n == len(segments) - 1):
+                    points_3d = np.column_stack((x, y, z))
+                    line = lines_from_points(points_3d)
+                    line["scalars"] = vel
+                    tube = line.tube(radius=0.1)
+                    network.append(tube)
+                    # known assertion error thrown when empty plotting array gets plotted. Caused by purge at beginning of many .gcodes
+                    x, y, z, e, vel = [], [], [], [], []  # clear plotting array
+        else:
+            for n, segm in enumerate(segments):
+                update_progress(n / len(segments), name="3D Plot")
+                if len(x) == 0:
+                    # append segm begin values to plotting array for first segm
+                    posbegin_vec = segm.pos_begin.get_vec(withExtrusion=True)
+                    x.append(posbegin_vec[0])
+                    y.append(posbegin_vec[1])
+                    z.append(posbegin_vec[2])
+                    e.append(posbegin_vec[3])
+                    vel.append(segm.vel_begin.get_norm())
+
+                # append segm end values to plotting array
+                posend_vec = segm.pos_end.get_vec(withExtrusion=True)
+                x.append(posend_vec[0])
+                y.append(posend_vec[1])
+                z.append(posend_vec[2])
+                e.append(posend_vec[3])
+                vel.append(segm.vel_end.get_norm())
+
+            # vel_max = np.amax(vel)  # calculate maximumum total velocity
+
+            points_3d = np.column_stack((x, y, z))
+            line = lines_from_points(points_3d)
+            line["scalars"] = np.arange(line.n_points)
+            tube = line.tube(radius=0.1)
+            tube.plot(smooth_shading=True)
+
+        p = pv.Plotter()
+        p.add_mesh(network, scalars="scalars", smooth_shading=True)
+        p.show()
+
     def plot_3d_mayavi(self, extrusion_only: bool = True, clean_junction=False):
         """Plot 3D Positon with Mayavi (colormap).
 
