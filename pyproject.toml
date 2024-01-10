@@ -37,6 +37,7 @@ dependencies = [
     "mayavi @ git+https://github.com/enthought/mayavi.git",
     "PyQt5",
     "PyYAML",
+    "pyvista",
 ]
 
 [project.optional-dependencies]
