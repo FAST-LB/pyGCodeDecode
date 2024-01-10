@@ -510,6 +510,8 @@ class simulate:
 
     def plot_3d(self, extrusion_only: bool = True):
         """3D Plot with PyVista."""
+        # https://docs.pyvista.org/version/stable/examples/01-filter/extrude-rotate
+        # https://docs.pyvista.org/version/stable/api/core/_autosummary/pyvista.polydatafilters.extrude
         import pyvista as pv
 
         def lines_from_points(points):
@@ -555,11 +557,10 @@ class simulate:
                 # plot if following segment is not extruding or if it's the last segment
                 if (len(x) > 0 and not segm.is_extruding()) or (len(x) > 0 and n == len(segments) - 1):
                     points_3d = np.column_stack((x, y, z))
-                    line = lines_from_points(points_3d)
+                    line = pv.lines_from_points(points_3d)
                     line["scalars"] = vel
-                    tube = line.tube(radius=0.1)
+                    tube = line.tube(radius=0.2, n_sides=8)
                     network.append(tube)
-                    # known assertion error thrown when empty plotting array gets plotted. Caused by purge at beginning of many .gcodes
                     x, y, z, e, vel = [], [], [], [], []  # clear plotting array
         else:
             for n, segm in enumerate(segments):
@@ -586,10 +587,11 @@ class simulate:
             points_3d = np.column_stack((x, y, z))
             line = lines_from_points(points_3d)
             line["scalars"] = np.arange(line.n_points)
-            tube = line.tube(radius=0.1)
+            tube = line.tube(radius=0.2, n_sides=8)
             tube.plot(smooth_shading=True)
 
         p = pv.Plotter()
+        network = network.combine()
         p.add_mesh(network, scalars="scalars", smooth_shading=True)
         p.show()
 
