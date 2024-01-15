@@ -38,6 +38,10 @@ def update_progress(progress, name="Percent"):
     block = int(round(barLength * progress))
     progress = round(progress * 100, ndigits=1)
     text = "\r[{1}] {2}% of {0} {3}".format(name, "#" * block + "-" * (barLength - block), progress, status)
+    # LINE_UP = '\033[1A'
+    # LINE_CLEAR = '\x1b[2K'
+    # print(LINE_UP + LINE_UP, end=LINE_CLEAR)
+    # print(text)
     sys.stdout.write(text)
     sys.stdout.flush()
 
@@ -61,7 +65,7 @@ def generate_planner_blocks(states: List[state], firmware=None):
             if new_block.prev_block is not None:
                 new_block.prev_block.next_block = new_block  # update nb list
             block_list.append(new_block)
-        update_progress(i + 1 / len(states), "Planner Block Generation")
+        update_progress((i + 1) / len(states), "Planner Block Generation")
     return block_list
 
 
@@ -242,7 +246,7 @@ class simulate:
             cvar.append(segments[0].vel_begin.get_norm())
 
             for i, segm in enumerate(segments):
-                update_progress(i + 1 / len(segments), name="2D Plot Lines")
+                update_progress((i + 1) / len(segments), name="2D Plot Lines")
                 x.append(segm.pos_end.get_vec()[0])
                 y.append(segm.pos_end.get_vec()[1])
                 cvar.append(segm.vel_end.get_norm())
@@ -274,7 +278,7 @@ class simulate:
             x.append(segments[0].pos_begin.get_vec()[0])
             y.append(segments[0].pos_begin.get_vec()[1])
             for i, segm in enumerate(segments):
-                update_progress(i + 1 / len(segments), name="2D Plot Lines")
+                update_progress((i + 1) / len(segments), name="2D Plot Lines")
                 x.append(segm.pos_end.get_vec()[0])
                 y.append(segm.pos_end.get_vec()[1])
             fig = plt.subplot()
@@ -375,7 +379,7 @@ class simulate:
             vel.append(segments[0].vel_begin.get_norm())
 
             for i, segm in enumerate(segments):
-                update_progress(i + 1 / len(segments), name="3D Plot")
+                update_progress((i + 1) / len(segments), name="3D Plot")
                 x.append(segm.pos_end.get_vec()[0])
                 y.append(segm.pos_end.get_vec()[1])
                 z.append(segm.pos_end.get_vec()[2])
@@ -471,7 +475,7 @@ class simulate:
             vel.append(segments[0].vel_begin.get_norm())
 
             for i, segm in enumerate(segments):
-                update_progress(i + 1 / len(segments), name="3D Plot")
+                update_progress((i + 1) / len(segments), name="3D Plot")
                 x.append(segm.pos_end.get_vec()[0])
                 y.append(segm.pos_end.get_vec()[1])
                 z.append(segm.pos_end.get_vec()[2])
@@ -688,7 +692,7 @@ class simulate:
                 vel[axis_dict[ax]].append(tmp_vel[axis_dict[ax]])
 
             abs.append(np.linalg.norm(tmp_vel[:3]))
-            update_progress(i + 1 / len(times), name="Velocity Plot")
+            update_progress((i + 1) / len(times), name="Velocity Plot")
 
         fig, ax1 = plt.subplots()
         ax2 = ax1.twinx()
