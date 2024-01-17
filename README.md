@@ -21,8 +21,6 @@ PyGCodeDecode is currently as a generator for Abaqus Event Series to model the m
 
 ## Install pyGCodeDecode
 
-### Installation
-
 It is recommended that you first create a virtual Python-environment, e.g. using the `venv`-module built into Python. You can  clone the repository and run
 
         pip install .
