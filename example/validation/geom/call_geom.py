@@ -11,7 +11,7 @@ setup = gcode_interpreter.setup(filename=r"./pygcodedecode/data/default_printer_
 setup.select_printer("prusa_mini")  # Select printer from preset.
 setup.set_property({"layer_cue": "LAYER_CHANGE"})  # Prusa Slicer layer change cue.
 
-simulation = gcode_interpreter.simulate(
+simulation = gcode_interpreter.simulation(
     filename=r"example\validation\geom\two_slice.gcode", initial_machine_setup=setup
 )  # Simulate the gcode.
 

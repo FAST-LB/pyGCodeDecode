@@ -149,11 +149,11 @@ def unpack_blocklist(blocklist: List[planner_block]) -> List[segment]:
     return path
 
 
-class simulate:
-    """Simulate .gcode with given machine parameters."""
+class simulation:
+    """Simulation of .gcode with given machine parameters."""
 
     def __init__(self, filename: str, initial_machine_setup: "setup", output_unit_system: str = "SImm"):
-        r"""Simulate a given GCode with initial machine setup.
+        r"""Initialize the Simulation of a given G-code with initial machine setup.
 
         - Generate all states from GCode.
         - Connect states with planner blocks, consisting of segments
@@ -162,11 +162,11 @@ class simulate:
         Args:
             filename: (string) path to GCode
             initial_machine_setup: (setup) setup instance
-            output_unit_system: (string, default = "SImm") unit system choosable: SI, SImm & inch
+            output_unit_system: (string, default = "SImm") unit system available: SI, SImm & inch
 
         Example:
         ```python
-        gcode_interpreter.simulate(filename=r"part.gcode", initial_machine_setup=setup)
+        gcode_interpreter.simulation(filename=r"part.gcode", initial_machine_setup=setup)
         ```
         """
         self.last_index = None  # used to optimize search in segment list
@@ -827,11 +827,11 @@ class simulate:
         )
         self.trajectory_self_correct()
 
-    def extr_extend(self):
+    def extr_extent(self):
         r"""Return xyz min & max while extruding.
 
         Returns:
-            extend: \[[minX, minY, minZ], [maxX, maxY, maxZ]] (2x3 numpy.ndarray) extend of extruding positions
+            extent: \[[minX, minY, minZ], [maxX, maxY, maxZ]] (2x3 numpy.ndarray) extent of extruding positions
         """
         all_positions_extruding = np.asarray(
             [block.state_B.state_position.get_vec() for block in self.blocklist if block.is_extruding]
@@ -861,23 +861,23 @@ class simulate:
         Saved data keys:
         - filename (string, filename)
         - t_end (float, end time)
-        - x/y/z _min/_max (float, extend where positive extrusion)
+        - x/y/z _min/_max (float, extent where positive extrusion)
         - max_extr_trav_vel (float, maximum travel velocity where positive extrusion)
         """
         import yaml
 
         t_end = self.blocklist[-1].get_segments()[-1].t_end  # print end time
-        extend = self.extr_extend()  # extend in [xmin,ymin,zmin],[xmax,ymax,zmax]
+        extent = self.extr_extent()  # extent in [xmin,ymin,zmin],[xmax,ymax,zmax]
         max_vel = self.extr_max_vel()
         yamldict = {
             "filename": self.filename,
             "t_end": float(t_end),
-            "x_min": float(extend[0, 0]),
-            "y_min": float(extend[0, 1]),
-            "z_min": float(extend[0, 2]),
-            "x_max": float(extend[1, 0]),
-            "y_max": float(extend[1, 1]),
-            "z_max": float(extend[1, 2]),
+            "x_min": float(extent[0, 0]),
+            "y_min": float(extent[0, 1]),
+            "z_min": float(extent[0, 2]),
+            "x_max": float(extent[1, 0]),
+            "y_max": float(extent[1, 1]),
+            "z_max": float(extent[1, 2]),
             "max_extr_trav_vel": float(max_vel),
         }
         file = open(file=self.filename[: len(self.filename) - 6] + "_summary.yaml", mode="w")
