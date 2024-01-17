@@ -17,38 +17,28 @@ This package reads the target trajectory and commands for changing firmware sett
 
 The package is highly modularized to enable quick modification and extension of all features.
 
-PyGCodeDecode is currently used in:
-
-- PySPH FFF
-- Abaqus Event Series Generator
+PyGCodeDecode is currently as a generator for Abaqus Event Series to model the material extrusion process.
 
 ## Install pyGCodeDecode
 
-### Installing in Python 3
+### Installation
 
-<!-- Set up a virtual environment named `virtual_env` using the `virtualenv` package
-
-        python -m pip install .
-        virtualenv virtual_env
-        python -m venv virtual_env
-
-If this does not work, you have to install `virtualenv` first (maybe administrator rights are necessary)
-
-        pip install virtualenv
-
-Activate the virtual environment with
-
-        .\virtual_env\Scripts\activate.bat -->
-
-Now install the repository as a python package in the root directory of this repository using:
+It is recommended that you first create a virtual Python-environment, e.g. using the `venv`-module built into Python. You can  clone the repository and run
 
         pip install .
 
-If you want to contribute to the development, install in development mode with
+from inside the root directory.
+
+If you plan to contribute to the development, install in development mode and with the additional dependencies:
 
         pip install -e .[DEVELOPER]
 
-Verify the installation via `pip list` and look for `pyGCodeDecode`.
+You may want to verify the installation and version. Inside your environment, just run:
+
+        python -c "import pyGCodeDecode
+        print(pyGCodeDecode.__version__)"
+
+This should return the correct version
 
 <!-- ### Installing in `abaqus` python (2.7)
 
