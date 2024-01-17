@@ -130,7 +130,7 @@ select a printer:
 
 run the simulation:
 
-        simulation = gcode_interpreter.simulate(filename=r"example\example.gcode", initial_machine_setup=setup)
+        simulation = gcode_interpreter.simulation(filename=r"example\example.gcode", initial_machine_setup=setup)
 
 use the simulation obj from now on, to retrieve information or use plot functions:
 

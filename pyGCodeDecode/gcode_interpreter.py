@@ -149,11 +149,11 @@ def unpack_blocklist(blocklist: List[planner_block]) -> List[segment]:
     return path
 
 
-class simulate:
-    """Simulate .gcode with given machine parameters."""
+class simulation:
+    """Simulation of .gcode with given machine parameters."""
 
     def __init__(self, filename: str, initial_machine_setup: "setup", output_unit_system: str = "SImm"):
-        r"""Simulate a given GCode with initial machine setup.
+        r"""Initialize the Simulation of a given G-code with initial machine setup.
 
         - Generate all states from GCode.
         - Connect states with planner blocks, consisting of segments
@@ -162,11 +162,11 @@ class simulate:
         Args:
             filename: (string) path to GCode
             initial_machine_setup: (setup) setup instance
-            output_unit_system: (string, default = "SImm") unit system choosable: SI, SImm & inch
+            output_unit_system: (string, default = "SImm") unit system available: SI, SImm & inch
 
         Example:
         ```python
-        gcode_interpreter.simulate(filename=r"part.gcode", initial_machine_setup=setup)
+        gcode_interpreter.simulation(filename=r"part.gcode", initial_machine_setup=setup)
         ```
         """
         self.last_index = None  # used to optimize search in segment list

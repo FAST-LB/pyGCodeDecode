@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """Tools for pyGCD."""
-from .gcode_interpreter import simulate
+from .gcode_interpreter import simulation
 
 
-def print_layertimes(simulation: simulate, filename="layertimes.csv", locale=None, delimiter=";"):
+def print_layertimes(simulation: simulation, filename="layertimes.csv", locale=None, delimiter=";"):
     """Print out all layer times (detected by layer cue in GCode comment) to a file.
 
     Args:
-        simulation: (simulate) simulation instance
+        simulation: (simulation) simulation instance
         filename: (string, default = "layertimes.csv") file name
         locale: (string, default = None) select locale settings, e.g. "en_us" "de_de", None = use system locale
         delimiter: (string, default = ";") select delimiter

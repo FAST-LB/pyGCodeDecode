@@ -12,7 +12,7 @@ setup.select_printer("prusa_mini")  # Select printer from preset.
 setup.set_property({"layer_cue": "LAYER_CHANGE"})  # Prusa Slicer layer change cue.
 
 setup.set_property({"firmware": "marlin_jerk"})
-simulation = gcode_interpreter.simulate(
+simulation = gcode_interpreter.simulation(
     filename=r"example\validation\jerk\JDJERK_1_5_7_10_15_20_30.gcode", initial_machine_setup=setup
 )  # Simulate the gcode.
 

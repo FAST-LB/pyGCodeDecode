@@ -17,11 +17,11 @@ timepoints generated are always at segment beginnings / endings, so interpolatio
 tolerance = float("1e-12")
 
 
-def generate_abaqus_events(simulation: "gi.simulate", filename="pyGcodeDecode_abaqus_events.inp"):
+def generate_abaqus_events(simulation: "gi.simulation", filename="pyGcodeDecode_abaqus_events.inp"):
     """Generate abaqus event series.
 
     Parameters:
-        simulation: (simulate) simulation instance
+        simulation: (simulation) simulation instance
         filename: (string, default = "pyGcodeDecode_abaqus_events.inp") output file name
     """
     # get all positions and timings
