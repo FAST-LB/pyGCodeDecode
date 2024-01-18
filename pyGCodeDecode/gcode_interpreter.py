@@ -898,21 +898,21 @@ class setup:
         else:
             self.printer_select = printer_name
 
-    def set_initial_position(self, *initial_position):
+    def set_initial_position(self, initial_position: tuple or dict):
         """Set initial Position.
 
         Args:
-            initial_position: (dict or tuple) set initial position with keys: {X, Y, Z, E} or as tuple of len(4).
+            initial_position: (tuple or dict) set initial position as tuple of len(4) or dictionary with keys: {X, Y, Z, E}.
 
         Example:
         ```python
-        setup.set_initial_position(1, 2, 3, 4)
+        setup.set_initial_position((1, 2, 3, 4))
         setup.set_initial_position({"X": 1, "Y": 2, "Z": 3, "E": 4})
         ```
 
         """
-        if isinstance(initial_position[0], dict) and all(key in initial_position[0] for key in ["X", "Y", "Z", "E"]):
-            self.initial_position = initial_position[0]
+        if isinstance(initial_position, dict) and all(key in initial_position for key in ["X", "Y", "Z", "E"]):
+            self.initial_position = initial_position
         elif isinstance(initial_position, tuple) and len(initial_position) == 4:
             self.initial_position = {
                 "X": initial_position[0],

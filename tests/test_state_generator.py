@@ -35,7 +35,7 @@ def test_state_generator():
     )
 
     initial_pos = (5, 4, 3, 2)  # initial position definition
-    test_setup.set_initial_position(*initial_pos)
+    test_setup.set_initial_position(initial_pos)
 
     states = state_generator(
         filename=os.path.abspath("./tests/data/test_state_generator.gcode"),
