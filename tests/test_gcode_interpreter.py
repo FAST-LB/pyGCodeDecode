@@ -36,7 +36,7 @@ def test_setup():
     assert sim_dict["Z"] == 0
     assert sim_dict["E"] == 0
 
-    simulation_setup.set_initial_position(1, 2, 3, 4)
+    simulation_setup.set_initial_position((1, 2, 3, 4))
     sim_dict = simulation_setup.get_dict()
     assert sim_dict["X"] == 1
     assert sim_dict["Y"] == 2
