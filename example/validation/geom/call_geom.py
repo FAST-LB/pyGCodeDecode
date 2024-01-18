@@ -19,4 +19,4 @@ print("---Simulation took %s seconds ---" % (time.time() - start_time))
 print_layertimes(simulation=simulation, filename="example/validation/geom/layertime.csv")
 
 # simulation.plot_vel()
-# simulation.plot_3d_mayavi(extrusion_only=False)
+# simulation.plot_3d(extrusion_only=False)

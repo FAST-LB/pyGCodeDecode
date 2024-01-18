@@ -13,4 +13,4 @@ new = gcode_interpreter.simulate(filename=r"example\dropshape\dropshape.gcode", 
 # print(new.states)
 
 new.plot_vel(show=True)
-new.plot_3d_mayavi(extrusion_only=False)
+new.plot_3d(extrusion_only=False)

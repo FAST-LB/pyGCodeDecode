@@ -15,7 +15,7 @@ start_time = time.time()
 simulation = gcode_interpreter.simulate(filename=printfile, initial_machine_setup=setup)  # Simulate the gcode.
 print("---Simulation took %s seconds ---" % (time.time() - start_time))
 # simulation.plot_vel()
-# simulation.plot_3d_mayavi(extrusion_only=False)
+# simulation.plot_3d(extrusion_only=False)
 setup.set_property({"firmware": "marlin_jd"})
 start_time = time.time()
 simulation = gcode_interpreter.simulate(filename=printfile, initial_machine_setup=setup)  # Simulate the gcode.
