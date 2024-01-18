@@ -129,6 +129,6 @@ get axis values at a certain time (e.g. 2.6 s):
 
 plot in 3D:
 
-        simulation.plot_3d_mayavi()
+        simulation.plot_3d()
 
 for more in depth information have a look into the [documentation](doc.md)

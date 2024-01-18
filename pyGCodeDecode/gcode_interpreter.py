@@ -512,25 +512,31 @@ class simulation:
             return color_plot
         plt.close()
 
-    def plot_3d_mayavi(self, extrusion_only: bool = True, clean_junction=False):
-        """Plot 3D Positon with Mayavi (colormap).
+    def plot_3d(self, extrusion_only: bool = True):
+        """3D Plot with PyVista."""
+        # https://docs.pyvista.org/version/stable/examples/01-filter/extrude-rotate
+        # https://docs.pyvista.org/version/stable/api/core/_autosummary/pyvista.polydatafilters.extrude
+        import pyvista as pv
 
-        Args:
-            extrusion_only: (bool, default = True) show only moves with extrusion (slower)
-            clean_junction: (bool, default = False) add extra vertices at junction for prettier plotting (slower)
-        """
-        import mayavi.mlab as ma
+        def lines_from_points(points):
+            """Given an array of points, make a line set."""
+            poly = pv.PolyData()
+            poly.points = points
+            cells = np.full((len(points) - 1, 3), 2, dtype=np.int_)
+            cells[:, 1] = np.arange(0, len(points) - 1, dtype=np.int_)
+            cells[:, 2] = np.arange(1, len(points), dtype=np.int_)
+            poly.lines = cells
+            return poly
 
-        # https://mayavi.sourceforge.net/docs/guide/ch04.html ?vtk dump maybe?
         # get all data for plots
         segments = unpack_blocklist(blocklist=self.blocklist)
-        # initialize mayavi fig
-        figure = ma.figure(figure="Velocity", bgcolor=(1.0, 1.0, 1.0))
 
         x, y, z, e, vel = [], [], [], [], []
 
         if extrusion_only:
-            vel_max = self.extr_max_vel()
+            # vel_max = self.extr_max_vel()
+            network = pv.MultiBlock()
+
             for n, segm in enumerate(segments):
                 update_progress(n / len(segments), name="3D Plot")
                 if segm.is_extruding():
@@ -546,32 +552,6 @@ class simulation:
                     # append segm end values to plotting array
                     posend_vec = segm.pos_end.get_vec(withExtrusion=True)
 
-                    if clean_junction:
-                        # interpolate initial movement for clean plotted tubes
-                        temp_dir = [
-                            posend_vec[0] - x[-1],
-                            posend_vec[1] - y[-1],
-                            posend_vec[2] - z[-1],
-                            posend_vec[3] - e[-1],
-                        ]
-                        length = np.linalg.norm(temp_dir)
-                        if length > 0.4:
-                            temp_dir = temp_dir / length
-
-                            # add 0.2 mm after junction
-                            x.append(x[-1] + temp_dir[0] * 0.2)
-                            y.append(y[-1] + temp_dir[1] * 0.2)
-                            z.append(z[-1] + temp_dir[2] * 0.2)
-                            e.append(e[-1] + temp_dir[3] * 0.2)
-                            vel.append(vel[-1])
-
-                            # # add 0.2 mm before junction
-                            x.append(posend_vec[0] - temp_dir[0] * 0.2)
-                            y.append(posend_vec[1] - temp_dir[1] * 0.2)
-                            z.append(posend_vec[2] - temp_dir[2] * 0.2)
-                            e.append(posend_vec[3] - temp_dir[3] * 0.2)
-                            vel.append(segm.vel_end.get_norm())
-
                     x.append(posend_vec[0])
                     y.append(posend_vec[1])
                     z.append(posend_vec[2])
@@ -580,18 +560,11 @@ class simulation:
 
                 # plot if following segment is not extruding or if it's the last segment
                 if (len(x) > 0 and not segm.is_extruding()) or (len(x) > 0 and n == len(segments) - 1):
-                    plot = ma.plot3d(
-                        x,
-                        y,
-                        z,
-                        vel,
-                        figure=figure,
-                        vmin=0,
-                        vmax=vel_max,
-                        colormap="viridis",
-                        tube_radius=0.2,
-                    )
-                    # known assertion error thrown when empty plotting array gets plotted. Caused by purge at beginning of many .gcodes
+                    points_3d = np.column_stack((x, y, z))
+                    line = pv.lines_from_points(points_3d)
+                    line["scalars"] = vel
+                    tube = line.tube(radius=0.2, n_sides=8)
+                    network.append(tube)
                     x, y, z, e, vel = [], [], [], [], []  # clear plotting array
         else:
             for n, segm in enumerate(segments):
@@ -613,25 +586,18 @@ class simulation:
                 e.append(posend_vec[3])
                 vel.append(segm.vel_end.get_norm())
 
-            vel_max = np.amax(vel)  # calculate maximumum total velocity
-            plot = ma.plot3d(x, y, z, vel, tube_radius=0.2, figure=figure, vmin=0, vmax=vel_max, colormap="viridis")
+            # vel_max = np.amax(vel)  # calculate maximumum total velocity
 
-        # ma.view(azimuth=0, elevation=180, distance="auto", focalpoint="auto")  # view preset
-        figure.scene.parallel_projection = True
+            points_3d = np.column_stack((x, y, z))
+            line = lines_from_points(points_3d)
+            line["scalars"] = np.arange(line.n_points)
+            tube = line.tube(radius=0.2, n_sides=8)
+            tube.plot(smooth_shading=True)
 
-        cb = ma.colorbar(object=plot, orientation="vertical", title="printing velocity in mm/s")
-        cb.label_text_property.font_family = "times"
-        cb.title_text_property.color = (0.0, 0.0, 0.0)
-        cb.label_text_property.color = (0.0, 0.0, 0.0)
-        cb.scalar_bar.unconstrained_font_size = True
-        cb.label_text_property.font_size = 24
-        cb.title_text_property.font_size = 24
-        cb.title_text_property.italic = False
-        cb.title_text_property.bold = False
-        cb.label_text_property.italic = False
-        cb.label_text_property.bold = False
-
-        ma.show()
+        p = pv.Plotter()
+        network = network.combine()
+        p.add_mesh(network, scalars="scalars", smooth_shading=True)
+        p.show()
 
     def plot_vel(
         self,
