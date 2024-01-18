@@ -34,7 +34,6 @@ requires-python = ">=3.8"
 dependencies = [
     "numpy",
     "matplotlib",
-    "mayavi @ git+https://github.com/enthought/mayavi.git",
     "PyQt5",
     "PyYAML",
     "pyvista",
