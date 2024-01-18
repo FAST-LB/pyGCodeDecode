@@ -25,7 +25,9 @@ It is recommended that you first create a virtual Python-environment, e.g. using
 
         pip install .
 
-from inside the root directory.
+from inside the root directory. Alternatively you can simply install from PyPI:
+
+        pip install pyGCodeDecode
 
 If you plan to contribute to the development, install in development mode and with the additional dependencies:
 
