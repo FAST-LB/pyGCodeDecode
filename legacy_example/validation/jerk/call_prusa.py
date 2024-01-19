@@ -7,7 +7,7 @@ from pyGCodeDecode.tools import print_layertimes
 
 start_time = time.time()
 
-setup = gcode_interpreter.setup(filename=r"./pygcodedecode/data/default_printer_presets.yaml")  # load setup
+setup = gcode_interpreter.setup(presets_file=r"./pygcodedecode/data/default_printer_presets.yaml")  # load setup
 setup.select_printer("prusa_mini")  # Select printer from preset.
 setup.set_property({"layer_cue": "LAYER_CHANGE"})  # Prusa Slicer layer change cue.
 

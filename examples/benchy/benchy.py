@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Simulating the print of a 3DBenchy on a Prusa MINI."""
+"""Simulating the G-code of a 3DBenchy from PrusaSlicer on a Prusa MINI."""
 import pathlib
 
 from pyGCodeDecode.abaqus_file_generator import generate_abaqus_event_series
@@ -10,15 +10,18 @@ if __name__ == "__main__":
 
     # setting up the printer
     printer_setup = setup(
-        filename=pathlib.Path(script_dir) / "data" / "printer_presets.yaml",
+        presets_file=pathlib.Path(script_dir) / "data" / "printer_presets.yaml",
         printer="prusa_mini",
-        layer_cue="LAYER_CHANGE",
     )
+
+    # set the start position of the extruder
+    setup.set_initial_position({"X": 0.0, "Y": 0.0, "Z": 0.0, "E": 0.0})
 
     # running the simulation by creating a simulation object
     benchy_simulation = simulation(
         filename=pathlib.Path(script_dir) / "data" / "benchy.gcode",
         initial_machine_setup=printer_setup,
+        output_unit_system="SImm",
     )
 
     # create an event series to use as input for an ABAQUS-simulation
