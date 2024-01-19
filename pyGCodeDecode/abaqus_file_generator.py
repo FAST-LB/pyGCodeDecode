@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 """Module for generating Abaqus .inp files for AMSIM."""
+
+import pathlib
+
 from pyGCodeDecode import gcode_interpreter as gi
 
 """
@@ -17,13 +20,13 @@ time points generated are always at segment beginnings / endings, so interpolati
 
 
 def generate_abaqus_event_series(
-    simulation: gi.simulation, filename: str = "pyGcodeDecode_abaqus_events.inp", tolerance: float = 1e-12
+    simulation: gi.simulation, filepath: str = "pyGcodeDecode_abaqus_events.inp", tolerance: float = 1e-12
 ) -> tuple:
     """Generate abaqus event series.
 
     Args:
         simulation (gi.simulation): simulation instance
-        filename (string, default = "pyGcodeDecode_abaqus_events.inp"): output file name
+        filepath (string, default = "pyGcodeDecode_abaqus_events.inp"): output file path
         tolerance (float, default = 1e-12): tolerance to determine whether extrusion is happening
 
     Returns:
@@ -32,9 +35,9 @@ def generate_abaqus_event_series(
     unpacked = gi.unpack_blocklist(simulation.blocklist)
     pos = [unpacked[0].pos_begin.get_vec(withExtrusion=True)]
     time = [0]
-    for segm in unpacked:
-        pos.append(segm.pos_end.get_vec(withExtrusion=True))
-        time.append(segm.t_end)
+    for segment in unpacked:
+        pos.append(segment.pos_end.get_vec(withExtrusion=True))
+        time.append(segment.t_end)
 
     # figure out if extrusion happens from this to the next step, if yes -> 1, if no -> 0
     for id in range(len(pos) - 1):
@@ -46,12 +49,17 @@ def generate_abaqus_event_series(
 
     event_series_list = []
 
+    # create directory if necessary
+    pathlib.Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+
     # write to file
-    with open(filename, "w") as outfile:
+    with open(filepath, "w") as outfile:
         for time, pos in zip(time, pos):
             outfile.write(
                 str(time) + "," + str(pos[0]) + "," + str(pos[1]) + "," + str(pos[2]) + "," + str(pos[3]) + "\n"
             )
             event_series_list.append((time, pos[0], pos[1], pos[2], pos[3]))
+
+        print(f"ABAQUS event series written to: \n{outfile.name}")
 
     return tuple(event_series_list)

@@ -8,7 +8,7 @@ from pyGCodeDecode.tools import print_layertimes
 
 # ---SETUP--- #
 printfile = r"example\validation_submodel\submodell_validierung.gcode"
-setup = gcode_interpreter.setup(filename=r"./pygcodedecode/data/default_printer_presets.yaml")  # load setup
+setup = gcode_interpreter.setup(presets_file=r"./pygcodedecode/data/default_printer_presets.yaml")  # load setup
 setup.select_printer("anisoprint_a4")  # Select printer from preset.
 setup.set_property({"layer_cue": "LAYER_CHANGE"})  # Prusa Slicer layer change cue.
 
@@ -18,7 +18,7 @@ simulation = gcode_interpreter.simulation(filename=printfile, initial_machine_se
 print("---Simulation took %s seconds ---" % (time.time() - start_time))
 
 # ---RESULTS--- #
-afg.generate_abaqus_event_series(simulation=simulation, filename="example/validation_submodel/time_series.inp")
+afg.generate_abaqus_event_series(simulation=simulation, filepath="example/validation_submodel/time_series.inp")
 
 print_layertimes(simulation=simulation, filename="example/validation_submodel/layertime_aniso.csv")
 

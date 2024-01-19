@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 """GCode Interpreter Module."""
 
-from typing import List
+import pathlib
+import sys
+import time
+from typing import List, Union
 
 import numpy as np
 
@@ -11,16 +14,13 @@ from .state_generator import state_generator
 from .utils import segment, velocity
 
 
-def update_progress(progress, name="Percent"):
-    """
-    Display or update a console progress bar.
+def update_progress(progress: Union[float, int], name: str = "Percent") -> None:
+    """Display or update a console progress bar.
 
     Args:
-        progress: (float, int) between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
+        progress: (float | int) between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
         name: (string, default = "Percent") customizable name for progress bar
     """
-    import sys
-
     barLength = 10
     status = ""
 
@@ -37,7 +37,7 @@ def update_progress(progress, name="Percent"):
         status = "Done...\r\n"
     block = int(round(barLength * progress))
     progress = round(progress * 100, ndigits=1)
-    text = "\r[{1}] {2}% of {0} {3}".format(name, "#" * block + "-" * (barLength - block), progress, status)
+    text = f"\r[{'#' * block + '-' * (barLength - block)}] {progress} % of {name} {status}"
     # LINE_UP = '\033[1A'
     # LINE_CLEAR = '\x1b[2K'
     # print(LINE_UP + LINE_UP, end=LINE_CLEAR)
@@ -47,8 +47,7 @@ def update_progress(progress, name="Percent"):
 
 
 def generate_planner_blocks(states: List[state], firmware=None):
-    """
-    Convert list of states to trajectory repr. by planner blocks.
+    """Convert list of states to trajectory repr. by planner blocks.
 
     Args:
         states: (list[state]) list of states
@@ -152,8 +151,14 @@ def unpack_blocklist(blocklist: List[planner_block]) -> List[segment]:
 class simulation:
     """Simulation of .gcode with given machine parameters."""
 
-    def __init__(self, filename: str, initial_machine_setup: "setup", output_unit_system: str = "SImm"):
-        r"""Initialize the Simulation of a given G-code with initial machine setup.
+    def __init__(
+        self,
+        filename: str,
+        machine_name: str = None,
+        initial_machine_setup: "setup" = None,
+        output_unit_system: str = "SImm",
+    ):
+        """Initialize the Simulation of a given G-code with initial machine setup.
 
         - Generate all states from GCode.
         - Connect states with planner blocks, consisting of segments
@@ -161,7 +166,7 @@ class simulation:
 
         Args:
             filename: (string) path to GCode
-            initial_machine_setup: (setup) setup instance
+            initial_machine_setup: (setup, default = None) setup instance
             output_unit_system: (string, default = "SImm") unit system available: SI, SImm & inch
 
         Example:
@@ -169,6 +174,7 @@ class simulation:
         gcode_interpreter.simulation(filename=r"part.gcode", initial_machine_setup=setup)
         ```
         """
+        simulation_start_time = time.time()
         self.last_index = None  # used to optimize search in segment list
         self.filename = filename
         self.firmware = None
@@ -180,6 +186,24 @@ class simulation:
             self.scaling = self.available_unit_systems[self.output_unit_system]
         else:
             raise ValueError("Chosen unit system is unavailable!")
+
+        # create a printer setup with default values if none was specified
+        if initial_machine_setup is not None:
+            if machine_name is not None and initial_machine_setup.get_dict()["printer_name"] != machine_name:
+                raise ValueError("Both a printer name and a printer setup were specified, but they do not match!")
+            else:
+                pass
+        else:
+            if machine_name is None:
+                raise ValueError("Neither a printer name nor a printer setup was specified. At least one is required!")
+            else:
+                print(
+                    "Only a machine name was specified but no full setup. Trying to create a setup from pyGCD's default values..."
+                )
+                initial_machine_setup = setup(
+                    presets_file=pathlib.Path(__file__).parent / "data" / "default_printer_presets.yaml",
+                    printer=machine_name,
+                )
 
         # SET INITIAL SETTINGS
         self.initial_machine_setup = initial_machine_setup.get_dict()
@@ -194,7 +218,7 @@ class simulation:
         self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states, firmware=self.firmware)
         self.trajectory_self_correct()
 
-        self.print_summary()
+        self.print_summary(start_time=simulation_start_time)
 
     def plot_2d_position(
         self,
@@ -772,11 +796,16 @@ class simulation:
                     f'Missing Key: "{key}" is not provided in Setup Dictionary, check for typos. Required keys are: {req_keys}'
                 )
 
-    def print_summary(self):
-        """Print simulation summary to console."""
+    def print_summary(self, start_time: float):
+        """Print simulation summary to console.
+
+        Args:
+            start_time (float): time when the simulation run was started
+        """
         print(
             f" >> pyGCodeDecode extracted {len(self.states)} states from {self.filename} and generated {len(self.blocklist)} planner blocks.\n"
-            f"Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end:.2f} seconds."
+            f"Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end:.2f} seconds.\n"
+            f"The Simulation took {(time.time()-start_time):.2f} s."
         )
 
     def refresh(self, new_state_list: List[state] = None):
@@ -854,18 +883,18 @@ class simulation:
 class setup:
     """Setup for printing simulation."""
 
-    def __init__(self, filename: str, printer: str = None, layer_cue: str = None) -> None:
+    def __init__(self, presets_file: str, printer: str = None, layer_cue: str = None) -> None:
         """Create simulation setup.
 
         Args:
-            filename: (string) choose setup yaml file with printer presets
+            presets_file: (string) choose setup yaml file with printer presets
             printer: (string) select printer from preset file
             layer_cue: (string) set slicer specific layer change cue from comment
         """
         self.initial_position = {"X": 0, "Y": 0, "Z": 0, "E": 0}  # default initial pos is zero
-        self.setup_dict = self.load_setup(filename)
+        self.setup_dict = self.load_setup(presets_file)
 
-        self.filename = filename
+        self.filename = presets_file
         self.printer_select = printer
         self.layer_cue = layer_cue
 
@@ -873,16 +902,16 @@ class setup:
             self.select_printer(printer_name=self.printer_select)
             self.firmware = self.get_dict()["firmware"]
 
-    def load_setup(self, filename):
+    def load_setup(self, filepath):
         """Load setup from file.
 
         Args:
-            filename: (string) specify path to setup file
+            filepath: (string) specify path to setup file
         """
         import yaml
         from yaml import Loader
 
-        file = open(file=filename, mode="r")
+        file = open(file=filepath, mode="r")
 
         setup_dict = yaml.load(file, Loader=Loader)
         return setup_dict
@@ -940,7 +969,7 @@ class setup:
         else:
             raise ValueError("No printer is selected. Select printer through select_printer() beforehand.")
 
-    def get_dict(self):
+    def get_dict(self) -> dict:
         """Return the setup for the selected printer.
 
         Returns:
@@ -951,4 +980,5 @@ class setup:
         if self.layer_cue is not None:
             return_dict.update({"layer_cue": self.layer_cue})  # add layer cue
         return_dict.update({"printer_name": self.printer_select})  # add printer name
+
         return return_dict

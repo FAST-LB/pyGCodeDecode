@@ -2,7 +2,7 @@
 
 
 ;
-; 
+;
 
 ; external perimeters extrusion width = 0.45mm
 ; perimeters extrusion width = 0.45mm
@@ -9410,7 +9410,7 @@ G1 E57.49604 F2400
 G92 E0
 M107 P1
 ;TYPE:Custom
-; Filament-specific end gcode 
+; Filament-specific end gcode
 ;END gcode for filament
 ;BEGIN OF END-SEQUENCE
 
@@ -9447,8 +9447,8 @@ M73 P100 R0
 ; bed_custom_texture = C:\\Users\\om3169\\Repos\\fffprofiles\\Anisoprint A4 Configuration\\aniso_baseplate.png
 ; bed_shape = -10x-15,298x-15,298x230,-10x230
 ; bed_temperature = 55
-; before_layer_gcode = 
-; between_objects_gcode = 
+; before_layer_gcode =
+; between_objects_gcode =
 ; bottom_fill_pattern = monotonic
 ; bottom_solid_layers = 0
 ; bottom_solid_min_thickness = 0
@@ -9466,8 +9466,8 @@ M73 P100 R0
 ; cooling_tube_length = 5
 ; cooling_tube_retraction = 91.5
 ; default_acceleration = 0
-; default_filament_profile = 
-; default_print_profile = 
+; default_filament_profile =
+; default_print_profile =
 ; deretract_speed = 0
 ; disable_fan_first_layers = 3
 ; dont_support_bridges = 1
@@ -9559,7 +9559,7 @@ M73 P100 R0
 ; ironing_spacing = 0.1
 ; ironing_speed = 15
 ; ironing_type = top
-; layer_gcode = 
+; layer_gcode =
 ; layer_height = 0.2
 ; machine_limits_usage = time_estimate_only
 ; machine_max_acceleration_e = 10000,5000
@@ -9594,7 +9594,7 @@ M73 P100 R0
 ; min_skirt_length = 25
 ; mmu_segmented_region_interlocking_depth = 0
 ; mmu_segmented_region_max_width = 0
-; notes = 
+; notes =
 ; nozzle_diameter = 0.4
 ; only_retract_when_crossing_perimeters = 0
 ; ooze_prevention = 0
@@ -9616,15 +9616,15 @@ M73 P100 R0
 ; perimeter_generator = arachne
 ; perimeter_speed = 60
 ; perimeters = 0
-; physical_printer_settings_id = 
-; post_process = 
+; physical_printer_settings_id =
+; post_process =
 ; print_settings_id = submodell_validierung.3mf (submodell_validierung.3mf (Anisoprint_A4_PLA_0_2.ini (Anisoprint A4 - 0.2 mm)))
-; printer_model = 
-; printer_notes = 
+; printer_model =
+; printer_notes =
 ; printer_settings_id = submodell_validierung.3mf (submodell_validierung.3mf (Anisoprint_A4_PLA_0_2.ini (Anisoprint A4)))
 ; printer_technology = FFF
-; printer_variant = 
-; printer_vendor = 
+; printer_variant =
+; printer_vendor =
 ; raft_contact_distance = 0.1
 ; raft_expansion = 1.5
 ; raft_first_layer_density = 90%
@@ -9699,13 +9699,13 @@ M73 P100 R0
 ; support_tree_tip_diameter = 0.8
 ; support_tree_top_rate = 15%
 ; temperature = 212
-; template_custom_gcode = 
+; template_custom_gcode =
 ; thick_bridges = 1
 ; thin_walls = 1
 ; threads = 16
 ; thumbnails = 16x16,200x200
 ; thumbnails_format = PNG
-; toolchange_gcode = 
+; toolchange_gcode =
 ; top_fill_pattern = monotonic
 ; top_infill_extrusion_width = 0.4
 ; top_solid_infill_acceleration = 0
