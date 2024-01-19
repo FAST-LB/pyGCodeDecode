@@ -99,7 +99,7 @@ example definition (also see in [./pygcodedecode/data/default_printer_presets.ya
                 vE: 80
                 firmware: marlin_jerk
 
-### create a runfile
+### create a script to run pyGCD
 
 Create a .py file to call the simulation. (also see in [/example/call.py](pyGCodeDecode/example/call.py))
 Import the package:
@@ -134,3 +134,10 @@ plot in 3D:
         simulation.plot_3d()
 
 for more in depth information have a look into the [documentation](doc.md)
+
+pyGCD can also be used to create files defining an event series for ABAQUS simulations:
+
+        generate_abaqus_event_series(
+                simulation=simulation,
+                filpath="path/to/event_series.csv"
+        )
