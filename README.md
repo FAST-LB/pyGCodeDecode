@@ -38,7 +38,7 @@ You may want to verify the installation and version. Inside your environment, ju
         python -c "import pyGCodeDecode
         print(pyGCodeDecode.__version__)"
 
-This should return the correct version
+This should return the correct version.
 
 <!-- ### Installing in `abaqus` python (2.7)
 
@@ -101,7 +101,7 @@ example definition (also see in [./pygcodedecode/data/default_printer_presets.ya
 
 ### create a script to run pyGCD
 
-Create a .py file to call the simulation. (also see in [/example/call.py](pyGCodeDecode/example/call.py))
+Create a .py file to set up and run the simulation.
 Import the package:
 
         from pyGCodeDecode import gcode_interpreter
@@ -133,7 +133,6 @@ plot in 3D:
 
         simulation.plot_3d()
 
-for more in depth information have a look into the [documentation](doc.md)
 
 pyGCD can also be used to create files defining an event series for ABAQUS simulations:
 
@@ -141,3 +140,5 @@ pyGCD can also be used to create files defining an event series for ABAQUS simul
                 simulation=simulation,
                 filpath="path/to/event_series.csv"
         )
+
+For more in depth information have a look into the [documentation](doc.md).
