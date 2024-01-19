@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Minimum example simulating the G-code of a brace from Aura-slicer on an Anisoprint Composer A4."""
+"""Minimal example simulating the G-code of a brace from Aura-slicer on an Anisoprint Composer A4."""
 import pathlib
 
 from pyGCodeDecode.gcode_interpreter import simulation
