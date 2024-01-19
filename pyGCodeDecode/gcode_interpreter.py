@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """GCode Interpreter Module."""
 
+import time
 from typing import List
 
 import numpy as np
@@ -153,7 +154,7 @@ class simulation:
     """Simulation of .gcode with given machine parameters."""
 
     def __init__(self, filename: str, initial_machine_setup: "setup", output_unit_system: str = "SImm"):
-        r"""Initialize the Simulation of a given G-code with initial machine setup.
+        """Initialize the Simulation of a given G-code with initial machine setup.
 
         - Generate all states from GCode.
         - Connect states with planner blocks, consisting of segments
@@ -169,6 +170,7 @@ class simulation:
         gcode_interpreter.simulation(filename=r"part.gcode", initial_machine_setup=setup)
         ```
         """
+        simulation_start_time = time.time()
         self.last_index = None  # used to optimize search in segment list
         self.filename = filename
         self.firmware = None
@@ -194,7 +196,7 @@ class simulation:
         self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states, firmware=self.firmware)
         self.trajectory_self_correct()
 
-        self.print_summary()
+        self.print_summary(start_time=simulation_start_time)
 
     def plot_2d_position(
         self,
@@ -772,11 +774,16 @@ class simulation:
                     f'Missing Key: "{key}" is not provided in Setup Dictionary, check for typos. Required keys are: {req_keys}'
                 )
 
-    def print_summary(self):
-        """Print simulation summary to console."""
+    def print_summary(self, start_time: float):
+        """Print simulation summary to console.
+
+        Args:
+            start_time (float): time when the simulation run was started
+        """
         print(
             f" >> pyGCodeDecode extracted {len(self.states)} states from {self.filename} and generated {len(self.blocklist)} planner blocks.\n"
-            f"Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end:.2f} seconds."
+            f"Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end:.2f} seconds.\n"
+            f"The Simulation took {(time.time()-start_time):.2f} s."
         )
 
     def refresh(self, new_state_list: List[state] = None):
