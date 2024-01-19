@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """GCode Interpreter Module."""
 
+import sys
 import time
-from typing import List
+from typing import List, Union
 
 import numpy as np
 
@@ -12,16 +13,13 @@ from .state_generator import state_generator
 from .utils import segment, velocity
 
 
-def update_progress(progress, name="Percent"):
-    """
-    Display or update a console progress bar.
+def update_progress(progress: Union[float, int], name: str = "Percent") -> None:
+    """Display or update a console progress bar.
 
     Args:
-        progress: (float, int) between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
+        progress: (float | int) between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
         name: (string, default = "Percent") customizable name for progress bar
     """
-    import sys
-
     barLength = 10
     status = ""
 
@@ -38,7 +36,7 @@ def update_progress(progress, name="Percent"):
         status = "Done...\r\n"
     block = int(round(barLength * progress))
     progress = round(progress * 100, ndigits=1)
-    text = "\r[{1}] {2}% of {0} {3}".format(name, "#" * block + "-" * (barLength - block), progress, status)
+    text = f"\r[{'#' * block + '-' * (barLength - block)}] {progress} % of {name} {status}"
     # LINE_UP = '\033[1A'
     # LINE_CLEAR = '\x1b[2K'
     # print(LINE_UP + LINE_UP, end=LINE_CLEAR)
@@ -48,8 +46,7 @@ def update_progress(progress, name="Percent"):
 
 
 def generate_planner_blocks(states: List[state], firmware=None):
-    """
-    Convert list of states to trajectory repr. by planner blocks.
+    """Convert list of states to trajectory repr. by planner blocks.
 
     Args:
         states: (list[state]) list of states

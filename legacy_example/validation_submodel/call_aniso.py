@@ -18,7 +18,7 @@ simulation = gcode_interpreter.simulation(filename=printfile, initial_machine_se
 print("---Simulation took %s seconds ---" % (time.time() - start_time))
 
 # ---RESULTS--- #
-afg.generate_abaqus_event_series(simulation=simulation, filename="example/validation_submodel/time_series.inp")
+afg.generate_abaqus_event_series(simulation=simulation, filepath="example/validation_submodel/time_series.inp")
 
 print_layertimes(simulation=simulation, filename="example/validation_submodel/layertime_aniso.csv")
 

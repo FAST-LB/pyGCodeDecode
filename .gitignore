@@ -1,6 +1,7 @@
-# Ignore result files from example
+# Ignore results from examples
 *.png
 *.inp
+*.csv
 
 # build artifacts
 __pycache__
