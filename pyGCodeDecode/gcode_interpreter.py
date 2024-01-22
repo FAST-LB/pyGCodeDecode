@@ -927,7 +927,7 @@ class setup:
         else:
             self.printer_select = printer_name
 
-    def set_initial_position(self, initial_position: tuple or dict):
+    def set_initial_position(self, initial_position: Union[tuple, dict]):
         """Set initial Position.
 
         Args:

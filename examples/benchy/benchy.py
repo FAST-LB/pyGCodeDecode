@@ -15,7 +15,7 @@ if __name__ == "__main__":
     )
 
     # set the start position of the extruder
-    setup.set_initial_position({"X": 0.0, "Y": 0.0, "Z": 0.0, "E": 0.0})
+    printer_setup.set_initial_position(initial_position={"X": 0.0, "Y": 0.0, "Z": 0.0, "E": 0.0})
 
     # running the simulation by creating a simulation object
     benchy_simulation = simulation(
