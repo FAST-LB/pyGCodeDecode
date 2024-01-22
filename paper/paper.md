@@ -17,14 +17,18 @@ tags:
 authors:
   - name: Jonathan Knirsch
     orcid: 0009-0008-8663-8721
-    equal-contrib: false
+    equal-contrib: true
     affiliation: 1
   - name: Felix Frölich
     orcid: 0000-0002-2575-4752
-    equal-contrib: false
+    equal-contrib: true
     affiliation: 1
   - name: Lukas Hof
     orcid: 0009-0000-4931-2409
+    equal-contrib: true
+    affiliation: 1
+  - name: Florian Wittemann
+    orcid: 0000-0001-8693-7264
     equal-contrib: false
     affiliation: 1
   - name: Luise Kärger
