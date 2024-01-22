@@ -50,7 +50,7 @@ However, the GCode itself does not accurately reflect the eventual printing proc
 Setting a higher target printing velocity on a machine with insufficient acceleration capabilities will lead to a large difference between target and actual printing velocity as illustrated in \autoref{fig:acc_comp}. This can lead to unexpected behavior and a slower print than anticipated. Many slicers will predict the progression of the print but these predictions might deviate significantly from the actual process. A good understanding and accurate modeling of trajectory behaviors can contribute significantly to the improvement of slicing algorithms and printer hardware through the virtual evaluation of GCode. In addition, modeling of those behaviors enables more accurate virtual replication of the process through process simulations such as thermomechanical modeling and small-scale fluid simulations.
 <span style="font-variant:small-caps;">pyGCodeDecode</span> is a Python package for GCode interpretation and MEX Firmware simulation. The package was developed to enable researchers and users to better understand time-dependent process variables and enable a more accurate study of the printing process.
 
-![Printing velocity of the raw GCode (left) in comparison to the printing velocity with simulated acceleration (right).\label{fig:acc_comp}](comparison.png){width=80%}
+![Printing velocity of the raw GCode (left) in comparison to the printing velocity with simulated acceleration (right). \label{fig:acc_comp}](comparison.png){width=80%}
 
 # Methodology
 
@@ -59,23 +59,18 @@ Setting a higher target printing velocity on a machine with insufficient acceler
 ![Trapezoidal velocity profile.\label{fig:trapezoid}](trapezoid_profile.svg){width=60%}
 
 Using
-\begin{equation}\label{eq:S}
-
-S=S_{\text{acc}} + S_{\text{const}} + S_{\text{dec}},
-
-\end{equation}
 $$
-S = S_{\mathrm{acc}} + S_{\mathrm{const}} + S_{\mathrm{dec},}
+S = S_{\mathrm{acc}} + S_{\mathrm{const}} + S_{\mathrm{dec},} \tag{1}
 $$
 the sum of all segment distances is the total planner block distance $S$. The individual distances for linear acceleration $S_{\mathrm{acc}}$, constant velocity $S_{\mathrm{const}}$ and deceleration $S_{\mathrm{dec}}$ are given by
 $$
-S_{\mathrm{acc}} = \frac{1}{2} (v_{\mathrm{const}} + v_{\mathrm{0}}) t_{\mathrm{acc}}
+S_{\mathrm{acc}} = \frac{1}{2} (v_{\mathrm{const}} + v_{\mathrm{0}}) t_{\mathrm{acc}} \tag{2}
 $$
 $$
-S_{\mathrm{const}} =  v_{\mathrm{const}} t_{\mathrm{const}}
+S_{\mathrm{const}} =  v_{\mathrm{const}} t_{\mathrm{const}} \tag{3}
 $$
 $$
-S_{\mathrm{dec}} = \frac{1}{2} (v_{\mathrm{1}} + v_{\mathrm{const}}) t_{\mathrm{dec}}.
+S_{\mathrm{dec}} = \frac{1}{2} (v_{\mathrm{1}} + v_{\mathrm{const}}) t_{\mathrm{dec}}. \tag{4}
 $$
 With the initial velocity $v_{\mathrm{0}}$, the target velocity $v_{\mathrm{const}}$ and ending velocity $v_{\mathrm{1}}$ of the planner block given and using a constant printing acceleration $a$ resp. corresponding deceleration $-a$, one can solve for the acceleration time $t_{\mathrm{acc}}$, the constant velocity time $t_{\mathrm{const}}$ and the deceleration time $t_{\mathrm{dec}}$ to construct the trapezoid.
 In the simplest case, the planner can fit a complete trapezoid to the boundary conditions. Since real life GCode is often finely discretized, especially for curved surfaces this is not always possible and $v_{\mathrm{const}}$ or $v_{\mathrm{1}}$ cannot be reached with the given acceleration settings. In these cases, the parameters which are being solved change accordingly and the velocity profile is truncated.
