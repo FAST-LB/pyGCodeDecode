@@ -59,6 +59,11 @@ Setting a higher target printing velocity on a machine with insufficient acceler
 ![Trapezoidal velocity profile.\label{fig:trapezoid}](trapezoid_profile.svg){width=60%}
 
 Using
+\begin{equation}\label{eq:S}
+
+S=S_{\text{acc}} + S_{\text{const}} + S_{\text{dec}},
+
+\end{equation}
 $$
 S = S_{\mathrm{acc}} + S_{\mathrm{const}} + S_{\mathrm{dec},}
 $$
