@@ -61,7 +61,7 @@ Setting a higher target printing velocity on a machine with insufficient acceler
 Using
 \begin{equation}\label{eq:S}
 
-S=S_{\text{acc}} + S_{\text{const}} + S_{\text{dec}},
+S = S_{\mathrm{acc}} + S_{\mathrm{const}} + S_{\mathrm{dec}},
 
 \end{equation}
 $$
