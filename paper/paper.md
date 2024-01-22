@@ -59,6 +59,7 @@ Setting a higher target printing velocity on a machine with insufficient acceler
 ![Trapezoidal velocity profile.\label{fig:trapezoid}](trapezoid_profile.svg){width=60%}
 
 Using
+$$
 S = S_{\mathrm{acc}} + S_{\mathrm{const}} + S_{\mathrm{dec},}
 $$
 the sum of all segment distances is the total planner block distance $S$. The individual distances for linear acceleration $S_{\mathrm{acc}}$, constant velocity $S_{\mathrm{const}}$ and deceleration $S_{\mathrm{dec}}$ are given by
