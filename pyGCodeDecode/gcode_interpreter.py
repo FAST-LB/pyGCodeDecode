@@ -158,7 +158,7 @@ class simulation:
         initial_machine_setup: "setup" = None,
         output_unit_system: str = "SImm",
     ):
-        """Initialize the Simulation of a given G-code with initial machine setup.
+        """Initialize the Simulation of a given G-code with initial machine setup or default machine.
 
         - Generate all states from GCode.
         - Connect states with planner blocks, consisting of segments
@@ -166,8 +166,9 @@ class simulation:
 
         Args:
             filename: (string) path to GCode
+            machine name: (string, default = None) name of the default machine to use
             initial_machine_setup: (setup, default = None) setup instance
-            output_unit_system: (string, default = "SImm") unit system available: SI, SImm & inch
+            output_unit_system: (string, default = "SImm") available unit systems: SI, SImm & inch
 
         Example:
         ```python
