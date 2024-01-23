@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     # running the simulation by creating a simulation object
     benchy_simulation = simulation(
-        filename=pathlib.Path(script_dir) / "data" / "benchy.gcode",
+        gcode_path=pathlib.Path(script_dir) / "data" / "benchy.gcode",
         initial_machine_setup=printer_setup,
         output_unit_system="SImm",
     )

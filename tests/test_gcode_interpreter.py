@@ -64,7 +64,7 @@ def test_simulation_class():
     simulation_setup.set_property({"p_acc": 50})
 
     simulation = simulation(
-        filename=os.path.abspath("./tests/data/test_gcode_interpreter.gcode"),
+        gcode_path=os.path.abspath("./tests/data/test_gcode_interpreter.gcode"),
         initial_machine_setup=simulation_setup,
     )
 

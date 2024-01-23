@@ -153,7 +153,7 @@ class simulation:
 
     def __init__(
         self,
-        filename: str,
+        gcode_path: str,
         machine_name: str = None,
         initial_machine_setup: "setup" = None,
         output_unit_system: str = "SImm",
@@ -165,19 +165,19 @@ class simulation:
         - Self correct inconsistencies.
 
         Args:
-            filename: (string) path to GCode
+            gcode_path: (string) path to GCode
             machine name: (string, default = None) name of the default machine to use
             initial_machine_setup: (setup, default = None) setup instance
             output_unit_system: (string, default = "SImm") available unit systems: SI, SImm & inch
 
         Example:
         ```python
-        gcode_interpreter.simulation(filename=r"part.gcode", initial_machine_setup=setup)
+        gcode_interpreter.simulation(gcode_path=r"path/to/part.gcode", initial_machine_setup=printer_setup)
         ```
         """
         simulation_start_time = time.time()
         self.last_index = None  # used to optimize search in segment list
-        self.filename = filename
+        self.filename = gcode_path
         self.firmware = None
 
         # set scaling to chosen unit system
@@ -211,7 +211,9 @@ class simulation:
         self.check_initial_setup(initial_machine_setup=self.initial_machine_setup)  # move this to setup class todo
         self.firmware = self.initial_machine_setup["firmware"]
 
-        self.states: List[state] = state_generator(filename=filename, initial_machine_setup=self.initial_machine_setup)
+        self.states: List[state] = state_generator(
+            filename=gcode_path, initial_machine_setup=self.initial_machine_setup
+        )
 
         print(
             f"Simulating \"{self.filename}\" with {self.initial_machine_setup['printer_name']} using the {self.firmware} firmware.\n"

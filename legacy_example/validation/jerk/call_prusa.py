@@ -13,7 +13,7 @@ setup.set_property({"layer_cue": "LAYER_CHANGE"})  # Prusa Slicer layer change c
 
 setup.set_property({"firmware": "marlin_jerk"})
 simulation = gcode_interpreter.simulation(
-    filename=r"example\validation\jerk\JDJERK_1_5_7_10_15_20_30.gcode", initial_machine_setup=setup
+    gcode_path=r"example\validation\jerk\JDJERK_1_5_7_10_15_20_30.gcode", initial_machine_setup=setup
 )  # Simulate the gcode.
 
 print("---Simulation took %s seconds ---" % (time.time() - start_time))

@@ -9,7 +9,7 @@ if __name__ == "__main__":
 
     # running the simulation by creating a simulation object using default machine parameters
     brace_simulation = simulation(
-        filename=pathlib.Path(script_dir) / "data" / "brace.gcode", machine_name="anisoprint_a4"
+        gcode_path=pathlib.Path(script_dir) / "data" / "brace.gcode", machine_name="anisoprint_a4"
     )
 
     # create a 3D-plot

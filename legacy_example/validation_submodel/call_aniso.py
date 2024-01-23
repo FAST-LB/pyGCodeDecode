@@ -14,7 +14,7 @@ setup.set_property({"layer_cue": "LAYER_CHANGE"})  # Prusa Slicer layer change c
 
 # ---SIMULATION--- #
 start_time = time.time()
-simulation = gcode_interpreter.simulation(filename=printfile, initial_machine_setup=setup)  # Simulate the gcode.
+simulation = gcode_interpreter.simulation(gcode_path=printfile, initial_machine_setup=setup)  # Simulate the gcode.
 print("---Simulation took %s seconds ---" % (time.time() - start_time))
 
 # ---RESULTS--- #

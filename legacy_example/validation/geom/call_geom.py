@@ -12,7 +12,7 @@ setup.select_printer("prusa_mini")  # Select printer from preset.
 setup.set_property({"layer_cue": "LAYER_CHANGE"})  # Prusa Slicer layer change cue.
 
 simulation = gcode_interpreter.simulation(
-    filename=r"example\validation\geom\two_slice.gcode", initial_machine_setup=setup
+    gcode_path=r"example\validation\geom\two_slice.gcode", initial_machine_setup=setup
 )  # Simulate the gcode.
 
 print("---Simulation took %s seconds ---" % (time.time() - start_time))
