@@ -4,7 +4,7 @@ import pathlib
 
 from pyGCodeDecode.abaqus_file_generator import generate_abaqus_event_series
 from pyGCodeDecode.gcode_interpreter import setup, simulation
-from pyGCodeDecode.tools import print_layer_metrics
+from pyGCodeDecode.tools import save_layer_metrics
 
 if __name__ == "__main__":
     script_dir = pathlib.Path(__file__).parent.resolve()
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     benchy_simulation.save_summary(filepath=output_dir / "benchy_summary.yaml")
 
     # print a file containing some metrics for each layer
-    print_layer_metrics(
+    save_layer_metrics(
         simulation=benchy_simulation,
         filepath=output_dir / "layer_metrics.csv",
         locale="en_us",

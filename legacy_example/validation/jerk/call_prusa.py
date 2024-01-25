@@ -3,7 +3,7 @@
 import time
 
 from pyGCodeDecode import abaqus_file_generator, gcode_interpreter  # noqa F401
-from pyGCodeDecode.tools import print_layer_metrics
+from pyGCodeDecode.tools import save_layer_metrics
 
 start_time = time.time()
 
@@ -17,6 +17,6 @@ simulation = gcode_interpreter.simulation(
 )  # Simulate the gcode.
 
 print("---Simulation took %s seconds ---" % (time.time() - start_time))
-print_layer_metrics(simulation=simulation, filepath="./example/validation/jerk/layertime.csv")
+save_layer_metrics(simulation=simulation, filepath="./example/validation/jerk/layertime.csv")
 
 simulation.plot_vel()

@@ -4,7 +4,7 @@ import time
 
 from pyGCodeDecode import abaqus_file_generator as afg
 from pyGCodeDecode import gcode_interpreter  # noqa F401
-from pyGCodeDecode.tools import print_layer_metrics
+from pyGCodeDecode.tools import save_layer_metrics
 
 # ---SETUP--- #
 printfile = r"example\validation_submodel\submodell_validierung.gcode"
@@ -20,7 +20,7 @@ print("---Simulation took %s seconds ---" % (time.time() - start_time))
 # ---RESULTS--- #
 afg.generate_abaqus_event_series(simulation=simulation, filepath="example/validation_submodel/time_series.inp")
 
-print_layer_metrics(simulation=simulation, filepath="example/validation_submodel/layertime_aniso.csv")
+save_layer_metrics(simulation=simulation, filepath="example/validation_submodel/layertime_aniso.csv")
 
 # simulation.plot_vel()
 simulation.plot_3d()

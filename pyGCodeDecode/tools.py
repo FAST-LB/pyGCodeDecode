@@ -7,7 +7,7 @@ from typing import Union
 from .gcode_interpreter import simulation
 
 
-def print_layer_metrics(
+def save_layer_metrics(
     simulation: simulation,
     filepath: Union[pathlib.Path, str] = "./layer_metrics.csv",
     locale: str = None,
@@ -75,3 +75,5 @@ def print_layer_metrics(
                     + "\n"
                 )
             travel += block.get_block_travel()
+
+    print(f"Layer metrics written to:\n{str(filepath)}")

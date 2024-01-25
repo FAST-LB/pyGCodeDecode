@@ -887,6 +887,8 @@ class simulation:
         with open(file=filepath, mode="w") as file:
             yaml.dump(data=summary, stream=file)
 
+        print(f"Summary written to:\n{str(filepath)}")
+
 
 class setup:
     """Setup for printing simulation."""
