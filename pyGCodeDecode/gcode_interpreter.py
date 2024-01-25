@@ -880,6 +880,10 @@ class simulation:
             "z_max": float(extent[1, 2]),
             "max_extr_trav_vel": float(max_vel),
         }
+
+        # create directory if necessary
+        pathlib.Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+
         with open(file=filepath, mode="w") as file:
             yaml.dump(data=summary, stream=file)
 

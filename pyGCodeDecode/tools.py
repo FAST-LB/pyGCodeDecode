@@ -30,6 +30,9 @@ def print_layer_metrics(
 
     delimiter = delimiter + " "  # add space after delimiter
 
+    # create directory if necessary
+    pathlib.Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+
     with open(file=filepath, mode="w") as p_log:
         p_log.write(f"layer{delimiter}layer time in s{delimiter}travel distance in mm{delimiter}avg speed in mm/s\n")
 
