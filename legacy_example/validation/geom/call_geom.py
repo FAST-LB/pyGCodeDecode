@@ -3,7 +3,7 @@
 import time
 
 from pyGCodeDecode import gcode_interpreter  # noqa F401
-from pyGCodeDecode.tools import print_layertimes
+from pyGCodeDecode.tools import print_layer_metrics
 
 start_time = time.time()
 
@@ -16,7 +16,7 @@ simulation = gcode_interpreter.simulation(
 )  # Simulate the gcode.
 
 print("---Simulation took %s seconds ---" % (time.time() - start_time))
-print_layertimes(simulation=simulation, filename="example/validation/geom/layertime.csv")
+print_layer_metrics(simulation=simulation, filepath="example/validation/geom/layertime.csv")
 
 # simulation.plot_vel()
 # simulation.plot_3d(extrusion_only=False)

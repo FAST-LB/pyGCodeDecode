@@ -7,6 +7,7 @@ import time
 from typing import List, Union
 
 import numpy as np
+import yaml
 
 from .planner_block import planner_block
 from .state import state
@@ -853,8 +854,11 @@ class simulation:
         max_vel = np.amax(all_blocks_max_vel, axis=0)
         return max_vel
 
-    def save_summary(self):
+    def save_summary(self, filepath: Union[pathlib.Path, str]):
         """Save summary to .yaml file.
+
+        Args:
+            filepath (pathlib.Path | str): path to summary file
 
         Saved data keys:
         - filename (string, filename)
@@ -862,13 +866,11 @@ class simulation:
         - x/y/z _min/_max (float, extent where positive extrusion)
         - max_extr_trav_vel (float, maximum travel velocity where positive extrusion)
         """
-        import yaml
-
         t_end = self.blocklist[-1].get_segments()[-1].t_end  # print end time
         extent = self.extr_extent()  # extent in [xmin,ymin,zmin],[xmax,ymax,zmax]
         max_vel = self.extr_max_vel()
-        yamldict = {
-            "filename": self.filename,
+        summary = {
+            "filename": str(self.filename),
             "t_end": float(t_end),
             "x_min": float(extent[0, 0]),
             "y_min": float(extent[0, 1]),
@@ -878,9 +880,8 @@ class simulation:
             "z_max": float(extent[1, 2]),
             "max_extr_trav_vel": float(max_vel),
         }
-        file = open(file=self.filename[: len(self.filename) - 6] + "_summary.yaml", mode="w")
-        yaml.dump(yamldict, file)
-        file.close()
+        with open(file=filepath, mode="w") as file:
+            yaml.dump(data=summary, stream=file)
 
 
 class setup:

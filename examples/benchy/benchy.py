@@ -4,14 +4,18 @@ import pathlib
 
 from pyGCodeDecode.abaqus_file_generator import generate_abaqus_event_series
 from pyGCodeDecode.gcode_interpreter import setup, simulation
+from pyGCodeDecode.tools import print_layer_metrics
 
 if __name__ == "__main__":
     script_dir = pathlib.Path(__file__).parent.resolve()
+    data_dir = script_dir / "data"
+    output_dir = script_dir / "output"
 
     # setting up the printer
     printer_setup = setup(
-        presets_file=pathlib.Path(script_dir) / "data" / "printer_presets.yaml",
+        presets_file=data_dir / "printer_presets.yaml",
         printer="prusa_mini",
+        layer_cue="LAYER_CHANGE",
     )
 
     # set the start position of the extruder
@@ -19,15 +23,26 @@ if __name__ == "__main__":
 
     # running the simulation by creating a simulation object
     benchy_simulation = simulation(
-        gcode_path=pathlib.Path(script_dir) / "data" / "benchy.gcode",
+        gcode_path=data_dir / "benchy.gcode",
         initial_machine_setup=printer_setup,
         output_unit_system="SImm",
+    )
+
+    # save a short summary of the simulation
+    benchy_simulation.save_summary(filepath=output_dir / "benchy_summary.yaml")
+
+    # print a file containing some metrics for each layer
+    print_layer_metrics(
+        simulation=benchy_simulation,
+        filepath=output_dir / "layer_metrics.csv",
+        locale="en_us",
+        delimiter=",",
     )
 
     # create an event series to use as input for an ABAQUS-simulation
     generate_abaqus_event_series(
         simulation=benchy_simulation,
-        filepath=pathlib.Path(script_dir) / "output" / "benchy_prusa_mini_event_series.csv",
+        filepath=output_dir / "benchy_prusa_mini_event_series.csv",
     )
 
     # create a 3D-plot
