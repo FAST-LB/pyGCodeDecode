@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """State generator module."""
+import pathlib
 import re
-from typing import List, Match
+from typing import List, Match, Union
 
 from .state import state
 from .utils import position
 
-commands = {
+supported_commands = {
     "G0": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # non Extrusion Move
     "G1": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # Extrusion Move
     "M203": {"E": None, "X": None, "Y": None, "Z": None},  # Max Feedrate
@@ -20,10 +21,61 @@ commands = {
     "G90": None,  # Absolute Positioning
     "G91": None,  # Relative Positioning
     "G92": {"E": None, "X": None, "Y": None, "Z": None},  # Set Position
-    "G10": {"S": None},  # read only
-    "G11": None,  # read only
     ";": None,  # Comment
 }
+
+# TODO: Warn the user when an unsupported command is found
+unsupported_commands = {
+    "G2": {
+        "E": None,
+        "F": None,
+        "I": None,
+        "J": None,
+        "P": None,
+        "R": None,
+        "S": None,
+        "X": None,
+        "Y": None,
+    },  # clockwise arc move
+    "G3": {
+        "E": None,
+        "F": None,
+        "I": None,
+        "J": None,
+        "P": None,
+        "R": None,
+        "S": None,
+        "X": None,
+        "Y": None,
+    },  # counter-clockwise arc move,
+    "G10": {"S": None},  # read only
+    "G11": None,  # read only
+    "G28": {"L": None, "O": None, "R": None, "X": None, "Y": None, "Z": None},  # home all axes
+    "G29": {
+        "A": None,
+        "B": None,
+        "C": None,
+        "D": None,
+        "E": None,
+        "F": None,
+        "H": None,
+        "I": None,
+        "J": None,
+        "K": None,
+        "L": None,
+        "P": None,
+        "Q": None,
+        "R": None,
+        "S": None,
+        "T": None,
+        "U": None,
+        "V": None,
+        "W": None,
+        "X": None,
+        "Y": None,
+    },  # bed leveling
+}
+known_commands = {**unsupported_commands, **supported_commands}
 
 default_virtual_machine = {
     "absolute_position": True,
@@ -51,9 +103,9 @@ default_virtual_machine = {
 }
 
 
-def arg_extract(string: str, key_dict: dict):
+def arg_extract(string: str, key_dict: dict) -> dict:
     """
-    Extract arguments from known command dictionarys.
+    Extract arguments from known command dictionaries.
 
     Args:
         string: (str) string of Commands
@@ -114,31 +166,35 @@ def arg_extract(string: str, key_dict: dict):
         # save matches found outside of comments, not applying for comments
         if match.end() <= comment_begin or key == ";":
             arg_dict[key] = arg  # save argument values in dict
+
     return arg_dict
 
 
-def read_gcode_to_dict_list(filename):
+def read_gcode_to_dict_list(filepath: Union[pathlib.Path, str]) -> List[dict]:
     """
     Read gcode from .gcode file.
 
     Args:
-        filename: (string) filename of the .gcode file: e.g. "print.gcode"
+        filename: (Path | string) filepath of the .gcode file
 
     Returns:
         dict_list: (list[dict]) list with every line as dict
     """
-    file_gcode = open(filename)
-    dict_list = list()
+    print("Parsing the gcode...")
+    dict_list = []
 
-    for i, line in enumerate(file_gcode):
-        line_dict = arg_extract(line, commands)
-        line_dict["line_number"] = i + 1
-        dict_list.append(line_dict)
+    with open(file=filepath, mode="r") as file_gcode:
+        for i, line in enumerate(file_gcode):
+            line_dict = arg_extract(line, known_commands)
+            line_dict["line_number"] = i + 1
+            dict_list.append(line_dict)
+
+    print(f"Parsing done. {len(dict_list)} lines parsed.")
 
     return dict_list
 
 
-def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict = None):
+def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) -> List[state]:
     """
     Convert the line dictionary to a state.
 
@@ -168,10 +224,17 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
         layer_counter = 0
 
     # overwrite default values from initial machine setup
+    """TODO: depending on the setting the user should be informed that a default value is used.
+    I prepared a warning below.
+    Are all these settings necessary?"""
     for key in default_virtual_machine:
         if initial_machine_setup is not None and key in initial_machine_setup:
             virtual_machine[key] = initial_machine_setup[key]
         else:
+            """print(
+                f"The parameter '{key}' was not specified in your machine presets. "
+                f"Using the the default value of '{default_virtual_machine[key]}' to continue."
+            )"""
             virtual_machine[key] = default_virtual_machine[key]
 
     # initial state creation
@@ -196,7 +259,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
 
     # add initial state comment
     new_state.comment = "Initial state created by pyGCD."
-    new_state.line_nmbr = None
+    new_state.line_number = None
 
     state_list.append(new_state)
 
@@ -208,7 +271,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
         if "G91" in line_dict:
             virtual_machine["absolute_position"] = False
 
-        # absolute / relative extrusionb mode
+        # absolute / relative extrusion mode
         if "M82" in line_dict:
             virtual_machine["absolute_extrusion"] = True
         if "M83" in line_dict:
@@ -245,7 +308,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
         # set position
         if "G92" in line_dict:
             for key in line_dict["G92"]:
-                if key in commands["G92"]:
+                if key in known_commands["G92"]:
                     virtual_machine["_" + key] = (
                         virtual_machine[key] + line_dict["G92"][key] + virtual_machine["_" + key]
                     )
@@ -258,7 +321,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
         # set max feedrate
         if "M203" in line_dict:
             for key in line_dict["M203"]:
-                if key in commands["M203"]:
+                if key in known_commands["M203"]:
                     virtual_machine["v" + key] = line_dict["M203"][key]
 
         # set advanced settings
@@ -302,7 +365,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
                 layer_counter += 1
             new_state.layer = layer_counter
 
-        new_state.line_nmbr = line_dict["line_number"]
+        new_state.line_number = line_dict["line_number"]
 
         # add pause time to state
         new_state.pause = pause_duration
@@ -316,7 +379,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict =
     return state_list
 
 
-def state_generator(filename: str, initial_machine_setup: dict = None):
+def state_generator(filename: str, initial_machine_setup: dict) -> List[state]:
     """Generate state list from GCode file.
 
     Args:
@@ -326,7 +389,7 @@ def state_generator(filename: str, initial_machine_setup: dict = None):
     Returns:
         states: (list[states]) all states in a list
     """
-    line_dict_list = read_gcode_to_dict_list(filename=filename)
+    line_dict_list = read_gcode_to_dict_list(filepath=filename)
     states = dict_list_traveler(line_dict_list=line_dict_list, initial_machine_setup=initial_machine_setup)
 
     return states
