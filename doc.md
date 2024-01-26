@@ -55,7 +55,7 @@ Convert list of states to trajectory repr. by plannerblocks.
 
 - `states` - (list[state]) list of states
 - `firmware` - (string, default = None) select firmware by name
-  
+
 
 **Returns**:
 
@@ -80,7 +80,7 @@ Find the current segment.
 - `t` - (float) time of search
 - `last_index` - (int) last found index for optimizing search
 - `keep_position` - (bool) keeps position of last segment, use this when working with gaps of no movement inbetween segments
-  
+
 
 **Returns**:
 
@@ -100,7 +100,7 @@ Return list of segments by unpacking list of plannerblocks.
 **Arguments**:
 
 - `blocklist` - (list[planner_block]) list of planner blocks
-  
+
 
 **Returns**:
 
@@ -137,7 +137,7 @@ Simulate a given GCode with initial machine setup.
 - `filename` - (string) path to GCode
 - `initial_machine_setup` - (setup) setup instance
 - `output_unit_system` - (string, default = "SImm") unit system choosable: SI, SImm & inch
-  
+
 
 **Example**:
 
@@ -196,7 +196,7 @@ Plot 3D position with Matplotlib.
 - `colvar_spatial_resolution` - (float, default = 1) spatial interpolation of color variable
 - `filename` - (string, default = None) save fig as image if filename is provided
 - `dpi` - (int, default = 400) select dpi
-  
+
 
 **Returns**:
 
@@ -245,7 +245,7 @@ Plot axis velocity with matplotlib.
 - `timesteps` - (int or string, default = "constrained") number of timesteps or constrain plot vertices to segment vertices
 - `filename` - (string, default = None) save fig as image if filename is provided
 - `dpi` - (int, default = 400) select dpi
-  
+
 
 **Returns**:
 
@@ -275,7 +275,7 @@ Return unit system scaled values for vel and pos.
 **Arguments**:
 
 - `t` - (float) time
-  
+
 
 **Returns**:
 
@@ -433,7 +433,7 @@ Set initial Position.
 **Arguments**:
 
 - `initial_position` - (dict or tuple) set initial position with keys: {X, Y, Z, E} or as tuple of len(4).
-  
+
 
 **Example**:
 
@@ -455,7 +455,7 @@ Overwrite or add a property to the printer dictionary. Printer has to be selecte
 **Arguments**:
 
 - `property_dict` - (dict) set or add property to the setup
-  
+
 
 **Example**:
 
@@ -507,7 +507,7 @@ Connect two states and generates the velocity for the move from state_A to state
 
 - `state_A` - (state) start state
 - `state_B` - (state)   end state
-  
+
 
 **Returns**:
 
@@ -593,7 +593,7 @@ Calculate junction deviation velocity from 2 velocitys.
 - `vel_0` - (velocity) entry
 - `vel_1` - (velocity) exit
 - `p_settings` - (state.p_settings) print settings
-  
+
 
 **Returns**:
 
@@ -1175,7 +1175,7 @@ Extract arguments from known command dictionarys.
 
 - `string` - (str) string of Commands
 - `key_dict` - (dict) dictionary with known commands and subcommands
-  
+
 
 **Returns**:
 
@@ -1194,7 +1194,7 @@ Read gcode from .gcode file.
 **Arguments**:
 
 - `filename` - (string) filename of the .gcode file: e.g. "print.gcode"
-  
+
 
 **Returns**:
 
@@ -1215,7 +1215,7 @@ Convert the line dictionary to a state.
 
 - `line_dict_list` - (dict) dict list with commands
 - `initial_machine_setup` - (dict) dict with initial machine setup [absolute_position, absolute_extrusion, units, initial_position...]
-  
+
 
 **Returns**:
 
@@ -1235,7 +1235,7 @@ Generate state list from GCode file.
 
 - `filename` - (string) filename of GCode
 - `initial_machine_setup` - (dict) dictionary with machine setup
-  
+
 
 **Returns**:
 
@@ -1428,7 +1428,7 @@ Add functionality for 4D vectors.
 **Arguments**:
 
 - `other` - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
-  
+
 
 **Returns**:
 
@@ -1447,7 +1447,7 @@ Sub functionality for 4D vectors.
 **Arguments**:
 
 - `other` - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
-  
+
 
 **Returns**:
 
@@ -1466,7 +1466,7 @@ Scalar multiplication functionality for 4D vectors.
 **Arguments**:
 
 - `other` - (float or int)
-  
+
 
 **Returns**:
 
@@ -1485,7 +1485,7 @@ Scalar division functionality for 4D Vectors.
 **Arguments**:
 
 - `other` - (float or int)
-  
+
 
 **Returns**:
 
@@ -1504,7 +1504,7 @@ Check for equality and return True if equal.
 **Arguments**:
 
 - `other` - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
-  
+
 
 **Returns**:
 
@@ -1523,7 +1523,7 @@ Return the 4D vector, optionally with extrusion.
 **Arguments**:
 
 - `withExtrusion` - (bool, default = False) choose if vec repr contains extrusion
-  
+
 
 **Returns**:
 
@@ -1542,7 +1542,7 @@ Return the 4D vector norm. Optional with extrusion.
 **Arguments**:
 
 - `withExtrusion` - (bool, default = False) choose if norm contains extrusion
-  
+
 
 **Returns**:
 
@@ -1581,7 +1581,7 @@ Get normalized vector (regarding travel distance), if only extrusion occurs, nor
 **Arguments**:
 
 - `withExtrusion` - (bool, default = False) choose if norm dir contains extrusion
-  
+
 
 **Returns**:
 
@@ -1600,7 +1600,7 @@ Return velocity without any axis overspeed.
 **Arguments**:
 
 - `p_settings` - (p_settings) printing settings
-  
+
 
 **Returns**:
 
@@ -1667,7 +1667,7 @@ Return True if there is travel between self and other position.
 **Arguments**:
 
 - `other` - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
-  
+
 
 **Returns**:
 
@@ -1687,7 +1687,7 @@ Return True if there is extrusion between self and other position.
 
 - `other` - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
 - `ignore_retract` - (bool, default = True) if true ignore retract movements else retract is also extrusion
-  
+
 
 **Returns**:
 
@@ -1707,7 +1707,7 @@ Calculate the travel distance between self and other position. If none is provid
 
 - `other` - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray', default = None)
 - `withExtrusion` - (bool, default = False) use or ignore extrusion
-  
+
 
 **Returns**:
 
@@ -1807,7 +1807,7 @@ Get current velocity of segment at a certain time.
 **Arguments**:
 
 - `t` - (float) time
-  
+
 
 **Returns**:
 
@@ -1826,7 +1826,7 @@ Get current position of segment at a certain time.
 **Arguments**:
 
 - `t` - (float) time
-  
+
 
 **Returns**:
 
@@ -1877,9 +1877,8 @@ Create initial static segment with (optionally) initial position else start from
 **Arguments**:
 
 - `initial_position` - (postion, default = None) position to begin segment series
-  
+
 
 **Returns**:
 
 - `segment` - (segment) initial beginning segment
-
