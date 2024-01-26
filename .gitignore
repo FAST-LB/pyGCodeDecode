@@ -12,6 +12,7 @@ venv/*
 build/*
 dist/
 .venv/*
+output/
 
 # coverage reports
 .coverage
