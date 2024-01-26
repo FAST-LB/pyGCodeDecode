@@ -263,9 +263,7 @@ class junction_handling_klipper(junction_handling):
         move_centripetal_v2 = 0.5 * self.t_distance * j_tan_theta_d2 * self.state_B.state_p_settings.p_acc
 
         self.junction_vel = math.sqrt(
-            min(
-                self.state_B.state_p_settings.p_acc * j_R, move_centripetal_v2, self.state_B.state_p_settings.speed**2
-            )
+            min(self.state_B.state_p_settings.p_acc * j_R, move_centripetal_v2, self.state_B.state_p_settings.speed**2)
         )
 
     def get_junction_vel(self):

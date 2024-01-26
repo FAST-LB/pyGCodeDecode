@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 """GCode Interpreter Module."""
 
-from typing import List
+import pathlib
+import sys
+import time
+from typing import List, Union
 
 import numpy as np
+import yaml
 
 from .planner_block import planner_block
 from .state import state
@@ -11,16 +15,13 @@ from .state_generator import state_generator
 from .utils import segment, velocity
 
 
-def update_progress(progress, name="Percent"):
-    """
-    Display or update a console progress bar.
+def update_progress(progress: Union[float, int], name: str = "Percent") -> None:
+    """Display or update a console progress bar.
 
     Args:
-        progress: (float, int) between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
+        progress: (float | int) between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
         name: (string, default = "Percent") customizable name for progress bar
     """
-    import sys
-
     barLength = 10
     status = ""
 
@@ -37,14 +38,17 @@ def update_progress(progress, name="Percent"):
         status = "Done...\r\n"
     block = int(round(barLength * progress))
     progress = round(progress * 100, ndigits=1)
-    text = "\r[{1}] {2}% of {0} {3}".format(name, "#" * block + "-" * (barLength - block), progress, status)
+    text = f"\r[{'#' * block + '-' * (barLength - block)}] {progress} % of {name} {status}"
+    # LINE_UP = '\033[1A'
+    # LINE_CLEAR = '\x1b[2K'
+    # print(LINE_UP + LINE_UP, end=LINE_CLEAR)
+    # print(text)
     sys.stdout.write(text)
     sys.stdout.flush()
 
 
 def generate_planner_blocks(states: List[state], firmware=None):
-    """
-    Convert list of states to trajectory repr. by planner blocks.
+    """Convert list of states to trajectory repr. by planner blocks.
 
     Args:
         states: (list[state]) list of states
@@ -61,7 +65,7 @@ def generate_planner_blocks(states: List[state], firmware=None):
             if new_block.prev_block is not None:
                 new_block.prev_block.next_block = new_block  # update nb list
             block_list.append(new_block)
-        update_progress(i + 1 / len(states), "Planner Block Generation")
+        update_progress((i + 1) / len(states), "Planner Block Generation")
     return block_list
 
 
@@ -145,28 +149,36 @@ def unpack_blocklist(blocklist: List[planner_block]) -> List[segment]:
     return path
 
 
-class simulate:
-    """Simulate .gcode with given machine parameters."""
+class simulation:
+    """Simulation of .gcode with given machine parameters."""
 
-    def __init__(self, filename: str, initial_machine_setup: "setup", output_unit_system: str = "SImm"):
-        r"""Simulate a given GCode with initial machine setup.
+    def __init__(
+        self,
+        gcode_path: str,
+        machine_name: str = None,
+        initial_machine_setup: "setup" = None,
+        output_unit_system: str = "SImm",
+    ):
+        """Initialize the Simulation of a given G-code with initial machine setup or default machine.
 
         - Generate all states from GCode.
         - Connect states with planner blocks, consisting of segments
         - Self correct inconsistencies.
 
         Args:
-            filename: (string) path to GCode
-            initial_machine_setup: (setup) setup instance
-            output_unit_system: (string, default = "SImm") unit system choosable: SI, SImm & inch
+            gcode_path: (string) path to GCode
+            machine name: (string, default = None) name of the default machine to use
+            initial_machine_setup: (setup, default = None) setup instance
+            output_unit_system: (string, default = "SImm") available unit systems: SI, SImm & inch
 
         Example:
         ```python
-        gcode_interpreter.simulate(filename=r"part.gcode", initial_machine_setup=setup)
+        gcode_interpreter.simulation(gcode_path=r"path/to/part.gcode", initial_machine_setup=printer_setup)
         ```
         """
+        simulation_start_time = time.time()
         self.last_index = None  # used to optimize search in segment list
-        self.filename = filename
+        self.filename = gcode_path
         self.firmware = None
 
         # set scaling to chosen unit system
@@ -177,12 +189,32 @@ class simulate:
         else:
             raise ValueError("Chosen unit system is unavailable!")
 
+        # create a printer setup with default values if none was specified
+        if initial_machine_setup is not None:
+            if machine_name is not None and initial_machine_setup.get_dict()["printer_name"] != machine_name:
+                raise ValueError("Both a printer name and a printer setup were specified, but they do not match!")
+            else:
+                pass
+        else:
+            if machine_name is None:
+                raise ValueError("Neither a printer name nor a printer setup was specified. At least one is required!")
+            else:
+                print(
+                    "Only a machine name was specified but no full setup. Trying to create a setup from pyGCD's default values..."
+                )
+                initial_machine_setup = setup(
+                    presets_file=pathlib.Path(__file__).parent / "data" / "default_printer_presets.yaml",
+                    printer=machine_name,
+                )
+
         # SET INITIAL SETTINGS
         self.initial_machine_setup = initial_machine_setup.get_dict()
         self.check_initial_setup(initial_machine_setup=self.initial_machine_setup)  # move this to setup class todo
         self.firmware = self.initial_machine_setup["firmware"]
 
-        self.states: List[state] = state_generator(filename=filename, initial_machine_setup=self.initial_machine_setup)
+        self.states: List[state] = state_generator(
+            filename=gcode_path, initial_machine_setup=self.initial_machine_setup
+        )
 
         print(
             f"Simulating \"{self.filename}\" with {self.initial_machine_setup['printer_name']} using the {self.firmware} firmware.\n"
@@ -190,7 +222,7 @@ class simulate:
         self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states, firmware=self.firmware)
         self.trajectory_self_correct()
 
-        self.print_summary()
+        self.print_summary(start_time=simulation_start_time)
 
     def plot_2d_position(
         self,
@@ -242,7 +274,7 @@ class simulate:
             cvar.append(segments[0].vel_begin.get_norm())
 
             for i, segm in enumerate(segments):
-                update_progress(i + 1 / len(segments), name="2D Plot Lines")
+                update_progress((i + 1) / len(segments), name="2D Plot Lines")
                 x.append(segm.pos_end.get_vec()[0])
                 y.append(segm.pos_end.get_vec()[1])
                 cvar.append(segm.vel_end.get_norm())
@@ -274,7 +306,7 @@ class simulate:
             x.append(segments[0].pos_begin.get_vec()[0])
             y.append(segments[0].pos_begin.get_vec()[1])
             for i, segm in enumerate(segments):
-                update_progress(i + 1 / len(segments), name="2D Plot Lines")
+                update_progress((i + 1) / len(segments), name="2D Plot Lines")
                 x.append(segm.pos_end.get_vec()[0])
                 y.append(segm.pos_end.get_vec()[1])
             fig = plt.subplot()
@@ -303,230 +335,31 @@ class simulate:
             return fig
         plt.close()
 
-    def plot_3d_position_legacy(
-        self, filename="trajectory_3D.png", dpi=400, show=False, colvar_spatial_resolution=1, colvar="Velocity"
-    ):
-        """Plot 3D position with Matplotlib (unmaintained)."""
-        import matplotlib.pyplot as plt
-        from matplotlib import cm
-        from mpl_toolkits.mplot3d.art3d import Line3DCollection
+    def plot_3d(self, extrusion_only: bool = True):
+        """3D Plot with PyVista."""
+        # https://docs.pyvista.org/version/stable/examples/01-filter/extrude-rotate
+        # https://docs.pyvista.org/version/stable/api/core/_autosummary/pyvista.polydatafilters.extrude
+        import pyvista as pv
 
-        # from matplotlib.colors import ListedColormap, BoundaryNorm
-        # from matplotlib.collections import LineCollection
-        # from mpl_toolkits.mplot3d import Axes3D
-
-        colvar_label = {"Velocity": "Velocity in mm/s", "Acceleration": "Acceleration in mm/s^2"}
-
-        def colorline(x, y, z, c):
-            # xyz    = positon
-            # c      = color variable
-            c = cm.jet((c - np.min(c)) / (np.max(c) - np.min(c)))
-            ax = plt.gca()
-
-            for i in np.arange(len(x) - 1):
-                ax.plot([x[i], x[i + 1]], [y[i], y[i + 1]], [z[i], z[i + 1]], c=c[i])
-
-        def interp(x, y, z, colvar, spatial_resolution=1):
-            segm_length = np.linalg.norm([np.ediff1d(x), np.ediff1d(y), np.ediff1d(z)], axis=0)
-            segm_colvar_delt = np.greater(np.abs(np.ediff1d(colvar)), 0)
-            segm_interpol = np.r_[
-                0, np.where(segm_colvar_delt, np.ceil(segm_length / spatial_resolution) + 1, 1)
-            ]  # get nmbr of segments for required resolution, dont interpolate if there is no change
-            points = np.array([x, y, z, colvar]).T
-            points = np.c_[points, segm_interpol]
-
-            # generate intermediate points with set resolution
-            old_point = None
-            interpolated = np.zeros((1, 4))
-            for point in points:
-                if old_point is not None:
-                    steps = np.linspace(0, 1, int(point[4]), endpoint=True)
-                    x_i = np.interp(steps, [0, 1], [old_point[0], point[0]])
-                    y_i = np.interp(steps, [0, 1], [old_point[1], point[1]])
-                    z_i = np.interp(steps, [0, 1], [old_point[2], point[2]])
-                    colvar_i = np.interp(steps, [0, 1], [old_point[3], point[3]])
-                    interpolated = np.r_[interpolated, np.array([x_i, y_i, z_i, colvar_i]).T]
-                old_point = point
-            interpolated = np.delete(interpolated, 0, 0)
-
-            return interpolated
-
-        def w_collection(interpolated):
-            segments = interpolated[:, :3]
-            c = interpolated[:, 3:].T
-            coll = Line3DCollection(segments)
-            coll.set_array(c)
-            fig = plt.figure()
-            ax = fig.gca(projection="3d")
-            plt.title("3D-Figure")
-            ax.add_collection3d(coll)
-
-        # https://matplotlib.org/stable/gallery/lines_bars_and_markers/multicolored_line.html
-        # https://stackoverflow.com/questions/17240694/how-to-plot-one-line-in-different-colors
-        # https://stackoverflow.com/questions/13622909/matplotlib-how-to-colorize-a-large-number-of-line-segments-as-independent-gradi
+        def lines_from_points(points):
+            """Given an array of points, make a line set."""
+            poly = pv.PolyData()
+            poly.points = points
+            cells = np.full((len(points) - 1, 3), 2, dtype=np.int_)
+            cells[:, 1] = np.arange(0, len(points) - 1, dtype=np.int_)
+            cells[:, 2] = np.arange(1, len(points), dtype=np.int_)
+            poly.lines = cells
+            return poly
 
         # get all data for plots
         segments = unpack_blocklist(blocklist=self.blocklist)
-        if colvar == "Velocity":
-            x, y, z, vel = [], [], [], []
-            x.append(segments[0].pos_begin.get_vec()[0])
-            y.append(segments[0].pos_begin.get_vec()[1])
-            z.append(segments[0].pos_begin.get_vec()[2])
-            vel.append(segments[0].vel_begin.get_norm())
-
-            for i, segm in enumerate(segments):
-                update_progress(i + 1 / len(segments), name="3D Plot")
-                x.append(segm.pos_end.get_vec()[0])
-                y.append(segm.pos_end.get_vec()[1])
-                z.append(segm.pos_end.get_vec()[2])
-                vel.append(segm.vel_end.get_norm())
-
-            # create scalar mappable for colormap
-            sm = plt.cm.ScalarMappable(cmap=cm.jet, norm=plt.Normalize(vmin=np.min(vel), vmax=np.max(vel)))
-
-        # create line segments
-        color_plot = plt.figure().add_subplot(projection="3d")
-        interpolated = interp(x, y, z, vel, colvar_spatial_resolution)
-
-        colorline(interpolated.T[0], interpolated.T[1], interpolated.T[2], interpolated.T[3])
-
-        ax = plt.gca()
-        ax.set_xlabel("x Position")
-        ax.set_ylabel("y Position")
-        ax.set_zlabel("z Position")
-        plt.title("Printing " + colvar)
-        plt.colorbar(sm, label=colvar_label[colvar], shrink=0.6, location="left")
-
-        if filename is not False:
-            plt.savefig(filename, dpi=400)
-            print("3D Plot saved as ", filename)
-        if show:
-            plt.show()
-            return color_plot
-        plt.close()
-
-    def plot_3d_position(self, show=True, colvar="Velocity", colvar_spatial_resolution=1, filename=None, dpi=400):
-        """Plot 3D position with Matplotlib.
-
-        Args:
-            show: (bool, default = True) show plot and return plot figure
-            colvar: (string, default = "Velocity") select color variable
-            colvar_spatial_resolution: (float, default = 1) spatial interpolation of color variable
-            filename: (string, default = None) save fig as image if filename is provided
-            dpi: (int, default = 400) select dpi
-
-        Returns:
-        (optionally)
-            fig: (figure)
-        """
-        import matplotlib.pyplot as plt
-        from matplotlib import cm
-        from mpl_toolkits.mplot3d import Axes3D
-        from mpl_toolkits.mplot3d.art3d import Line3DCollection
-
-        colvar_label = {"Velocity": "Velocity in mm/s", "Acceleration": "Acceleration in mm/s^2"}
-
-        def interp(x, y, z, colvar, spatial_resolution=1):
-            segm_length = np.linalg.norm([np.ediff1d(x), np.ediff1d(y), np.ediff1d(z)], axis=0)
-            segm_colvar_delt = np.greater(np.abs(np.ediff1d(colvar)), 0)
-            segm_interpol = np.r_[
-                0, np.where(segm_colvar_delt, np.ceil(segm_length / spatial_resolution) + 1, 1)
-            ]  # get nmbr of segments for required resolution, dont interpolate if there is no change
-            points = np.array([x, y, z, colvar]).T
-            points = np.c_[points, segm_interpol]
-
-            # generate intermediate points with set resolution
-            old_point = None
-            interpolated = np.zeros((1, 4))
-            for point in points:
-                if old_point is not None:
-                    steps = np.linspace(0, 1, int(point[4]), endpoint=True)
-                    x_i = np.interp(steps, [0, 1], [old_point[0], point[0]])
-                    y_i = np.interp(steps, [0, 1], [old_point[1], point[1]])
-                    z_i = np.interp(steps, [0, 1], [old_point[2], point[2]])
-                    colvar_i = np.interp(steps, [0, 1], [old_point[3], point[3]])
-                    interpolated = np.r_[interpolated, np.array([x_i, y_i, z_i, colvar_i]).T]
-                old_point = point
-            interpolated = np.delete(interpolated, 0, 0)
-
-            return interpolated
-
-        def w_collection(interpolated):
-            points = interpolated[:, :3].reshape(-1, 1, 3)  # get points and reshape
-            c = interpolated[:, 3:].reshape(-1)  # color variable
-
-            lsegments = np.concatenate([points[:-1], points[1:]], axis=1)  # create point pairs
-
-            collection = Line3DCollection(lsegments, cmap=cm.jet, norm=plt.Normalize(vmin=np.min(c), vmax=np.max(c)))
-            collection.set_array(c)
-            return collection
-
-        # get all data for plots
-        segments = unpack_blocklist(blocklist=self.blocklist)
-        if colvar == "Velocity":
-            x, y, z, vel = [], [], [], []
-            x.append(segments[0].pos_begin.get_vec()[0])
-            y.append(segments[0].pos_begin.get_vec()[1])
-            z.append(segments[0].pos_begin.get_vec()[2])
-            vel.append(segments[0].vel_begin.get_norm())
-
-            for i, segm in enumerate(segments):
-                update_progress(i + 1 / len(segments), name="3D Plot")
-                x.append(segm.pos_end.get_vec()[0])
-                y.append(segm.pos_end.get_vec()[1])
-                z.append(segm.pos_end.get_vec()[2])
-                vel.append(segm.vel_end.get_norm())
-
-            # create scalar mappable for colormap
-            sm = plt.cm.ScalarMappable(cmap=cm.jet, norm=plt.Normalize(vmin=np.min(vel), vmax=np.max(vel)))
-
-        # create line segments
-        interpolated = interp(x, y, z, vel, colvar_spatial_resolution)
-
-        color_plot = plt.figure()
-        # color_plot.add_subplot(projection="3d")
-        ax = Axes3D(color_plot)
-        collection = w_collection(interpolated=interpolated)
-        ax.add_collection3d(collection)
-
-        ax.set_xlabel("x Position")
-        ax.set_ylabel("y Position")
-        ax.set_zlabel("z Position")
-
-        ax.set_xlim(min(x), max(x))
-        ax.set_ylim(min(y), max(y))
-        ax.set_zlim(min(z), max(z))
-
-        plt.title("Printing " + colvar)
-        plt.colorbar(sm, label=colvar_label[colvar], shrink=0.6, location="left")
-
-        if filename is not None:
-            plt.savefig(filename, dpi=dpi)
-            print("3D Plot saved as ", filename)
-        if show:
-            plt.show()
-            return color_plot
-        plt.close()
-
-    def plot_3d_mayavi(self, extrusion_only: bool = True, clean_junction=False):
-        """Plot 3D Positon with Mayavi (colormap).
-
-        Args:
-            extrusion_only: (bool, default = True) show only moves with extrusion (slower)
-            clean_junction: (bool, default = False) add extra vertices at junction for prettier plotting (slower)
-        """
-        import mayavi.mlab as ma
-
-        # https://mayavi.sourceforge.net/docs/guide/ch04.html ?vtk dump maybe?
-        # get all data for plots
-        segments = unpack_blocklist(blocklist=self.blocklist)
-        # initialize mayavi fig
-        figure = ma.figure(figure="Velocity", bgcolor=(1.0, 1.0, 1.0))
 
         x, y, z, e, vel = [], [], [], [], []
 
         if extrusion_only:
-            vel_max = self.extr_max_vel()
+            # vel_max = self.extr_max_vel()
+            network = pv.MultiBlock()
+
             for n, segm in enumerate(segments):
                 update_progress(n / len(segments), name="3D Plot")
                 if segm.is_extruding():
@@ -542,32 +375,6 @@ class simulate:
                     # append segm end values to plotting array
                     posend_vec = segm.pos_end.get_vec(withExtrusion=True)
 
-                    if clean_junction:
-                        # interpolate initial movement for clean plotted tubes
-                        temp_dir = [
-                            posend_vec[0] - x[-1],
-                            posend_vec[1] - y[-1],
-                            posend_vec[2] - z[-1],
-                            posend_vec[3] - e[-1],
-                        ]
-                        length = np.linalg.norm(temp_dir)
-                        if length > 0.4:
-                            temp_dir = temp_dir / length
-
-                            # add 0.2 mm after junction
-                            x.append(x[-1] + temp_dir[0] * 0.2)
-                            y.append(y[-1] + temp_dir[1] * 0.2)
-                            z.append(z[-1] + temp_dir[2] * 0.2)
-                            e.append(e[-1] + temp_dir[3] * 0.2)
-                            vel.append(vel[-1])
-
-                            # # add 0.2 mm before junction
-                            x.append(posend_vec[0] - temp_dir[0] * 0.2)
-                            y.append(posend_vec[1] - temp_dir[1] * 0.2)
-                            z.append(posend_vec[2] - temp_dir[2] * 0.2)
-                            e.append(posend_vec[3] - temp_dir[3] * 0.2)
-                            vel.append(segm.vel_end.get_norm())
-
                     x.append(posend_vec[0])
                     y.append(posend_vec[1])
                     z.append(posend_vec[2])
@@ -576,18 +383,11 @@ class simulate:
 
                 # plot if following segment is not extruding or if it's the last segment
                 if (len(x) > 0 and not segm.is_extruding()) or (len(x) > 0 and n == len(segments) - 1):
-                    plot = ma.plot3d(
-                        x,
-                        y,
-                        z,
-                        vel,
-                        figure=figure,
-                        vmin=0,
-                        vmax=vel_max,
-                        colormap="viridis",
-                        tube_radius=0.2,
-                    )
-                    # known assertion error thrown when empty plotting array gets plotted. Caused by purge at beginning of many .gcodes
+                    points_3d = np.column_stack((x, y, z))
+                    line = pv.lines_from_points(points_3d)
+                    line["scalars"] = vel
+                    tube = line.tube(radius=0.2, n_sides=8)
+                    network.append(tube)
                     x, y, z, e, vel = [], [], [], [], []  # clear plotting array
         else:
             for n, segm in enumerate(segments):
@@ -609,25 +409,18 @@ class simulate:
                 e.append(posend_vec[3])
                 vel.append(segm.vel_end.get_norm())
 
-            vel_max = np.amax(vel)  # calculate maximumum total velocity
-            plot = ma.plot3d(x, y, z, vel, tube_radius=0.2, figure=figure, vmin=0, vmax=vel_max, colormap="viridis")
+            # vel_max = np.amax(vel)  # calculate maximumum total velocity
 
-        # ma.view(azimuth=0, elevation=180, distance="auto", focalpoint="auto")  # view preset
-        figure.scene.parallel_projection = True
+            points_3d = np.column_stack((x, y, z))
+            line = lines_from_points(points_3d)
+            line["scalars"] = np.arange(line.n_points)
+            tube = line.tube(radius=0.2, n_sides=8)
+            tube.plot(smooth_shading=True)
 
-        cb = ma.colorbar(object=plot, orientation="vertical", title="printing velocity in mm/s")
-        cb.label_text_property.font_family = "times"
-        cb.title_text_property.color = (0.0, 0.0, 0.0)
-        cb.label_text_property.color = (0.0, 0.0, 0.0)
-        cb.scalar_bar.unconstrained_font_size = True
-        cb.label_text_property.font_size = 24
-        cb.title_text_property.font_size = 24
-        cb.title_text_property.italic = False
-        cb.title_text_property.bold = False
-        cb.label_text_property.italic = False
-        cb.label_text_property.bold = False
-
-        ma.show()
+        p = pv.Plotter()
+        network = network.combine()
+        p.add_mesh(network, scalars="scalars", smooth_shading=True)
+        p.show()
 
     def plot_vel(
         self,
@@ -688,7 +481,7 @@ class simulate:
                 vel[axis_dict[ax]].append(tmp_vel[axis_dict[ax]])
 
             abs.append(np.linalg.norm(tmp_vel[:3]))
-            update_progress(i + 1 / len(times), name="Velocity Plot")
+            update_progress((i + 1) / len(times), name="Velocity Plot")
 
         fig, ax1 = plt.subplots()
         ax2 = ax1.twinx()
@@ -802,11 +595,16 @@ class simulate:
                     f'Missing Key: "{key}" is not provided in Setup Dictionary, check for typos. Required keys are: {req_keys}'
                 )
 
-    def print_summary(self):
-        """Print simulation summary to console."""
+    def print_summary(self, start_time: float):
+        """Print simulation summary to console.
+
+        Args:
+            start_time (float): time when the simulation run was started
+        """
         print(
             f" >> pyGCodeDecode extracted {len(self.states)} states from {self.filename} and generated {len(self.blocklist)} planner blocks.\n"
-            f"Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end} seconds."
+            f"Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end:.2f} seconds.\n"
+            f"The Simulation took {(time.time()-start_time):.2f} s."
         )
 
     def refresh(self, new_state_list: List[state] = None):
@@ -823,11 +621,11 @@ class simulate:
         )
         self.trajectory_self_correct()
 
-    def extr_extend(self):
+    def extr_extent(self):
         r"""Return xyz min & max while extruding.
 
         Returns:
-            extend: \[[minX, minY, minZ], [maxX, maxY, maxZ]] (2x3 numpy.ndarray) extend of extruding positions
+            extent: \[[minX, minY, minZ], [maxX, maxY, maxZ]] (2x3 numpy.ndarray) extent of extruding positions
         """
         all_positions_extruding = np.asarray(
             [block.state_B.state_position.get_vec() for block in self.blocklist if block.is_extruding]
@@ -851,51 +649,57 @@ class simulate:
         max_vel = np.amax(all_blocks_max_vel, axis=0)
         return max_vel
 
-    def save_summary(self):
+    def save_summary(self, filepath: Union[pathlib.Path, str]):
         """Save summary to .yaml file.
+
+        Args:
+            filepath (pathlib.Path | str): path to summary file
 
         Saved data keys:
         - filename (string, filename)
         - t_end (float, end time)
-        - x/y/z _min/_max (float, extend where positive extrusion)
+        - x/y/z _min/_max (float, extent where positive extrusion)
         - max_extr_trav_vel (float, maximum travel velocity where positive extrusion)
         """
-        import yaml
-
         t_end = self.blocklist[-1].get_segments()[-1].t_end  # print end time
-        extend = self.extr_extend()  # extend in [xmin,ymin,zmin],[xmax,ymax,zmax]
+        extent = self.extr_extent()  # extent in [xmin,ymin,zmin],[xmax,ymax,zmax]
         max_vel = self.extr_max_vel()
-        yamldict = {
-            "filename": self.filename,
+        summary = {
+            "filename": str(self.filename),
             "t_end": float(t_end),
-            "x_min": float(extend[0, 0]),
-            "y_min": float(extend[0, 1]),
-            "z_min": float(extend[0, 2]),
-            "x_max": float(extend[1, 0]),
-            "y_max": float(extend[1, 1]),
-            "z_max": float(extend[1, 2]),
+            "x_min": float(extent[0, 0]),
+            "y_min": float(extent[0, 1]),
+            "z_min": float(extent[0, 2]),
+            "x_max": float(extent[1, 0]),
+            "y_max": float(extent[1, 1]),
+            "z_max": float(extent[1, 2]),
             "max_extr_trav_vel": float(max_vel),
         }
-        file = open(file=self.filename[: len(self.filename) - 6] + "_summary.yaml", mode="w")
-        yaml.dump(yamldict, file)
-        file.close()
+
+        # create directory if necessary
+        pathlib.Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+
+        with open(file=filepath, mode="w") as file:
+            yaml.dump(data=summary, stream=file)
+
+        print(f"Summary written to:\n{str(filepath)}")
 
 
 class setup:
     """Setup for printing simulation."""
 
-    def __init__(self, filename: str, printer: str = None, layer_cue: str = None) -> None:
+    def __init__(self, presets_file: str, printer: str = None, layer_cue: str = None) -> None:
         """Create simulation setup.
 
         Args:
-            filename: (string) choose setup yaml file with printer presets
+            presets_file: (string) choose setup yaml file with printer presets
             printer: (string) select printer from preset file
             layer_cue: (string) set slicer specific layer change cue from comment
         """
         self.initial_position = {"X": 0, "Y": 0, "Z": 0, "E": 0}  # default initial pos is zero
-        self.setup_dict = self.load_setup(filename)
+        self.setup_dict = self.load_setup(presets_file)
 
-        self.filename = filename
+        self.filename = presets_file
         self.printer_select = printer
         self.layer_cue = layer_cue
 
@@ -903,16 +707,16 @@ class setup:
             self.select_printer(printer_name=self.printer_select)
             self.firmware = self.get_dict()["firmware"]
 
-    def load_setup(self, filename):
+    def load_setup(self, filepath):
         """Load setup from file.
 
         Args:
-            filename: (string) specify path to setup file
+            filepath: (string) specify path to setup file
         """
         import yaml
         from yaml import Loader
 
-        file = open(file=filename, mode="r")
+        file = open(file=filepath, mode="r")
 
         setup_dict = yaml.load(file, Loader=Loader)
         return setup_dict
@@ -928,21 +732,21 @@ class setup:
         else:
             self.printer_select = printer_name
 
-    def set_initial_position(self, *initial_position):
+    def set_initial_position(self, initial_position: Union[tuple, dict]):
         """Set initial Position.
 
         Args:
-            initial_position: (dict or tuple) set initial position with keys: {X, Y, Z, E} or as tuple of len(4).
+            initial_position: (tuple or dict) set initial position as tuple of len(4) or dictionary with keys: {X, Y, Z, E}.
 
         Example:
         ```python
-        setup.set_initial_position(1, 2, 3, 4)
+        setup.set_initial_position((1, 2, 3, 4))
         setup.set_initial_position({"X": 1, "Y": 2, "Z": 3, "E": 4})
         ```
 
         """
-        if isinstance(initial_position[0], dict) and all(key in initial_position[0] for key in ["X", "Y", "Z", "E"]):
-            self.initial_position = initial_position[0]
+        if isinstance(initial_position, dict) and all(key in initial_position for key in ["X", "Y", "Z", "E"]):
+            self.initial_position = initial_position
         elif isinstance(initial_position, tuple) and len(initial_position) == 4:
             self.initial_position = {
                 "X": initial_position[0],
@@ -970,7 +774,7 @@ class setup:
         else:
             raise ValueError("No printer is selected. Select printer through select_printer() beforehand.")
 
-    def get_dict(self):
+    def get_dict(self) -> dict:
         """Return the setup for the selected printer.
 
         Returns:
@@ -981,4 +785,5 @@ class setup:
         if self.layer_cue is not None:
             return_dict.update({"layer_cue": self.layer_cue})  # add layer cue
         return_dict.update({"printer_name": self.printer_select})  # add printer name
+
         return return_dict

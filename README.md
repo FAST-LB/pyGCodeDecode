@@ -17,38 +17,28 @@ This package reads the target trajectory and commands for changing firmware sett
 
 The package is highly modularized to enable quick modification and extension of all features.
 
-PyGCodeDecode is currently used in:
-
-- PySPH FFF
-- Abaqus Event Series Generator
+PyGCodeDecode is currently as a generator for Abaqus Event Series to model the material extrusion process.
 
 ## Install pyGCodeDecode
 
-### Installing in Python 3
-
-<!-- Set up a virtual environment named `virtual_env` using the `virtualenv` package
-
-        python -m pip install .
-        virtualenv virtual_env
-        python -m venv virtual_env
-
-If this does not work, you have to install `virtualenv` first (maybe administrator rights are necessary)
-
-        pip install virtualenv
-
-Activate the virtual environment with
-
-        .\virtual_env\Scripts\activate.bat -->
-
-Now install the repository as a python package in the root directory of this repository using:
+It is recommended that you first create a virtual Python-environment, e.g. using the `venv`-module built into Python. You can  clone the repository and run
 
         pip install .
 
-If you want to contribute to the development, install in development mode with
+from inside the root directory. Alternatively you can simply install from PyPI:
+
+        pip install pyGCodeDecode
+
+If you plan to contribute to the development, install in development mode and with the additional dependencies:
 
         pip install -e .[DEVELOPER]
 
-Verify the installation via `pip list` and look for `pyGCodeDecode`.
+You may want to verify the installation and version. Inside your environment, just run:
+
+        python -c "import pyGCodeDecode
+        print(pyGCodeDecode.__version__)"
+
+This should return the correct version.
 
 <!-- ### Installing in `abaqus` python (2.7)
 
@@ -92,7 +82,7 @@ partially supported:
 
 ### define a printer with default parameters in a .yaml
 
-example definition (also see in [./pygcodedecode/data/default_printer_presets.yaml](./pygcodedecode/data/default_printer_presets.yaml)):
+example definition (also see [./pyGCodeDecode/data/default_printer_presets.yaml](./pyGCodeDecode/data/default_printer_presets.yaml)):
 
         prusa_mini:
                 # general properties
@@ -109,9 +99,9 @@ example definition (also see in [./pygcodedecode/data/default_printer_presets.ya
                 vE: 80
                 firmware: marlin_jerk
 
-### create a runfile
+### create a script to run pyGCD
 
-Create a .py file to call the simulation. (also see in [/example/call.py](pyGCodeDecode/example/call.py))
+Create a .py file to set up and run the simulation.
 Import the package:
 
         from pyGCodeDecode import gcode_interpreter
@@ -130,7 +120,7 @@ select a printer:
 
 run the simulation:
 
-        simulation = gcode_interpreter.simulate(filename=r"example\example.gcode", initial_machine_setup=setup)
+        simulation = gcode_interpreter.simulation(filename=r"example\example.gcode", initial_machine_setup=setup)
 
 use the simulation obj from now on, to retrieve information or use plot functions:
 
@@ -141,6 +131,14 @@ get axis values at a certain time (e.g. 2.6 s):
 
 plot in 3D:
 
-        simulation.plot_3d_mayavi()
+        simulation.plot_3d()
 
-for more in depth information have a look into the [documentation](doc.md)
+
+pyGCD can also be used to create files defining an event series for ABAQUS simulations:
+
+        generate_abaqus_event_series(
+                simulation=simulation,
+                filpath="path/to/event_series.csv"
+        )
+
+For more in depth information have a look into the [documentation](doc.md).

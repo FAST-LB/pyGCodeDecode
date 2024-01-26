@@ -9,7 +9,7 @@ def test_setup():
     from pyGCodeDecode.gcode_interpreter import setup
 
     simulation_setup = setup(
-        filename=os.path.abspath("./tests/data/test_gcode_interpreter_setup_printers.yaml"),
+        presets_file=os.path.abspath("./tests/data/test_gcode_interpreter_setup_printers.yaml"),
         printer="debugging",
         layer_cue="LAYER CHANGE",
     )
@@ -36,7 +36,7 @@ def test_setup():
     assert sim_dict["Z"] == 0
     assert sim_dict["E"] == 0
 
-    simulation_setup.set_initial_position(1, 2, 3, 4)
+    simulation_setup.set_initial_position((1, 2, 3, 4))
     sim_dict = simulation_setup.get_dict()
     assert sim_dict["X"] == 1
     assert sim_dict["Y"] == 2
@@ -49,22 +49,22 @@ def test_setup():
     assert sim_dict["p_acc"] == 1250
 
 
-def test_simulate():
-    """Test for simulate class."""
+def test_simulation_class():
+    """Test for simulation class."""
     import os
 
-    from pyGCodeDecode.gcode_interpreter import setup, simulate
+    from pyGCodeDecode.gcode_interpreter import setup, simulation
 
     simulation_setup = setup(
-        filename=os.path.abspath("./tests/data/test_gcode_interpreter_setup_printers.yaml"),
+        presets_file=os.path.abspath("./tests/data/test_gcode_interpreter_setup_printers.yaml"),
         printer="debugging",
         layer_cue="LAYER CHANGE",
     )
     simulation_setup.set_property({"jerk": 0})
     simulation_setup.set_property({"p_acc": 50})
 
-    simulation = simulate(
-        filename=os.path.abspath("./tests/data/test_gcode_interpreter.gcode"),
+    simulation = simulation(
+        gcode_path=os.path.abspath("./tests/data/test_gcode_interpreter.gcode"),
         initial_machine_setup=simulation_setup,
     )
 

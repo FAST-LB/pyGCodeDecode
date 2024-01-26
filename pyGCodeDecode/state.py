@@ -72,7 +72,7 @@ class state:
         self.state_p_settings = state_p_settings
         self.next_state = None
         self.prev_state = None
-        self.line_nmbr = None
+        self.line_number = None
         self.comment = None
         self.layer = None
         self.pause = None
@@ -96,12 +96,12 @@ class state:
         self._state_p_settings = set_p_settings
 
     @property
-    def line_nmbr(self):
+    def line_number(self):
         """Define property line_nmbr."""
         return self._line_nmbr
 
-    @line_nmbr.setter
-    def line_nmbr(self, nmbr):
+    @line_number.setter
+    def line_number(self, nmbr):
         """Set line number.
 
         Args:
@@ -141,9 +141,9 @@ class state:
     def __str__(self) -> str:
         """Generate string for representation."""
         if self.layer is not None:
-            return f"<state: line: {str(self.line_nmbr)}, layer: {self.layer}, {self.state_position}, settings: {self.state_p_settings}, comment: {self.comment}, pause: {str(self.pause)}>\n"  # noqa E501
+            return f"<state: line: {str(self.line_number)}, layer: {self.layer}, {self.state_position}, settings: {self.state_p_settings}, comment: {self.comment}, pause: {str(self.pause)}>\n"  # noqa E501
         else:
-            return f"<state: line: {str(self.line_nmbr)}, {self.state_position}, settings: {self.state_p_settings}, comment: {self.comment}, pause: {str(self.pause)}>\n"  # noqa E501
+            return f"<state: line: {str(self.line_number)}, {self.state_position}, settings: {self.state_p_settings}, comment: {self.comment}, pause: {str(self.pause)}>\n"  # noqa E501
 
     def __repr__(self) -> str:
         """Call __str__() for representation."""

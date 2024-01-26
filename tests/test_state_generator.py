@@ -29,13 +29,13 @@ def test_state_generator():
     from pyGCodeDecode.gcode_interpreter import setup
 
     test_setup = setup(
-        filename=os.path.abspath("./tests/data/test_state_generator_setup.yaml"),
+        presets_file=os.path.abspath("./tests/data/test_state_generator_setup.yaml"),
         printer="test",
         layer_cue="LAYER cue",
     )
 
     initial_pos = (5, 4, 3, 2)  # initial position definition
-    test_setup.set_initial_position(*initial_pos)
+    test_setup.set_initial_position(initial_pos)
 
     states = state_generator(
         filename=os.path.abspath("./tests/data/test_state_generator.gcode"),
