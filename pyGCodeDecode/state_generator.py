@@ -185,7 +185,7 @@ def read_gcode_to_dict_list(filepath: Union[pathlib.Path, str]) -> List[dict]:
 
     with open(file=filepath, mode="r") as file_gcode:
         for i, line in enumerate(file_gcode):
-            line_dict = arg_extract(line, known_commands)
+            line_dict = arg_extract(string=line, key_dict=known_commands)
             line_dict["line_number"] = i + 1
             dict_list.append(line_dict)
 
@@ -379,6 +379,37 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
     return state_list
 
 
+def check_for_unsupported_commands(line_dict_list: dict) -> dict:
+    """Search for unsupported commands used in the G-code, warn the user and return the occurrences.
+
+    Args:
+        line_dict_list (dict): list of dicts containing all commands appearing
+
+    Returns:
+        dict: a dict containing the appearing unsupported commands and how often they appear.
+    """
+    # search for unsupported commands
+    print("Searching for known but unsupported G-code commands...")
+    unsupported_commands_found = []
+    for line_dict in line_dict_list:
+        for key in line_dict.keys():
+            if key in unsupported_commands.keys():
+                unsupported_commands_found.append(key)
+
+    unsupported_command_counts = {
+        command: unsupported_commands_found.count(command) for command in unsupported_commands_found
+    }
+
+    if unsupported_commands_found != []:
+        print(f"Warning: {len(unsupported_command_counts.keys())} known but unsupported commands found:")
+        for key, value in unsupported_command_counts.items():
+            print(f"Command '{key}' found {value} times.")
+    else:
+        print("Great, the G-code does not contain any unsupported commands known to pyGCD 🎈.")
+
+    return unsupported_command_counts
+
+
 def state_generator(filename: str, initial_machine_setup: dict) -> List[state]:
     """Generate state list from GCode file.
 
@@ -390,6 +421,7 @@ def state_generator(filename: str, initial_machine_setup: dict) -> List[state]:
         states: (list[states]) all states in a list
     """
     line_dict_list = read_gcode_to_dict_list(filepath=filename)
+    check_for_unsupported_commands(line_dict_list=line_dict_list)
     states = dict_list_traveler(line_dict_list=line_dict_list, initial_machine_setup=initial_machine_setup)
 
     return states
