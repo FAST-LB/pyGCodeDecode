@@ -8,9 +8,7 @@ if __name__ == "__main__":
     script_dir = pathlib.Path(__file__).parent.resolve()
 
     # running the simulation by creating a simulation object using default machine parameters
-    brace_simulation = simulation(
-        gcode_path=pathlib.Path(script_dir) / "data" / "brace.gcode", machine_name="anisoprint_a4"
-    )
+    brace_simulation = simulation(gcode_path=script_dir / "data" / "brace.gcode", machine_name="anisoprint_a4")
 
     # create a 3D-plot
     brace_simulation.plot_3d(extrusion_only=True)
