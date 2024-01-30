@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 """Test for gcode interpreter."""
+import pathlib
 
 
 def test_setup():
     """Test for the simulation setup class."""
-    import os
-
     from pyGCodeDecode.gcode_interpreter import setup
 
     simulation_setup = setup(
-        presets_file=os.path.abspath("./tests/data/test_gcode_interpreter_setup_printers.yaml"),
+        presets_file=pathlib.Path("./tests/data/test_gcode_interpreter_setup_printers.yaml"),
         printer="debugging",
         layer_cue="LAYER CHANGE",
     )
@@ -51,12 +50,10 @@ def test_setup():
 
 def test_simulation_class():
     """Test for simulation class."""
-    import os
-
     from pyGCodeDecode.gcode_interpreter import setup, simulation
 
     simulation_setup = setup(
-        presets_file=os.path.abspath("./tests/data/test_gcode_interpreter_setup_printers.yaml"),
+        presets_file=pathlib.Path("./tests/data/test_gcode_interpreter_setup_printers.yaml"),
         printer="debugging",
         layer_cue="LAYER CHANGE",
     )
@@ -64,7 +61,7 @@ def test_simulation_class():
     simulation_setup.set_property({"p_acc": 50})
 
     simulation = simulation(
-        gcode_path=os.path.abspath("./tests/data/test_gcode_interpreter.gcode"),
+        gcode_path=pathlib.Path("./tests/data/test_gcode_interpreter.gcode"),
         initial_machine_setup=simulation_setup,
     )
 

@@ -7,7 +7,9 @@ import time
 from typing import List, Union
 
 import numpy as np
+import pyvista as pv
 import yaml
+from matplotlib.figure import Figure
 
 from .planner_block import planner_block
 from .state import state
@@ -154,7 +156,7 @@ class simulation:
 
     def __init__(
         self,
-        gcode_path: str,
+        gcode_path: pathlib.Path,
         machine_name: str = None,
         initial_machine_setup: "setup" = None,
         output_unit_system: str = "SImm",
@@ -166,7 +168,7 @@ class simulation:
         - Self correct inconsistencies.
 
         Args:
-            gcode_path: (string) path to GCode
+            gcode_path: (Path) path to GCode
             machine name: (string, default = None) name of the default machine to use
             initial_machine_setup: (setup, default = None) setup instance
             output_unit_system: (string, default = "SImm") available unit systems: SI, SImm & inch
@@ -213,7 +215,7 @@ class simulation:
         self.firmware = self.initial_machine_setup["firmware"]
 
         self.states: List[state] = state_generator(
-            filename=gcode_path, initial_machine_setup=self.initial_machine_setup
+            filepath=gcode_path, initial_machine_setup=self.initial_machine_setup
         )
 
         print(
@@ -337,9 +339,6 @@ class simulation:
 
     def plot_3d(self, extrusion_only: bool = True):
         """3D Plot with PyVista."""
-        # https://docs.pyvista.org/version/stable/examples/01-filter/extrude-rotate
-        # https://docs.pyvista.org/version/stable/api/core/_autosummary/pyvista.polydatafilters.extrude
-        import pyvista as pv
 
         def lines_from_points(points):
             """Given an array of points, make a line set."""
@@ -350,6 +349,9 @@ class simulation:
             cells[:, 2] = np.arange(1, len(points), dtype=np.int_)
             poly.lines = cells
             return poly
+
+        # https://docs.pyvista.org/version/stable/api/core/_autosummary/pyvista.polydatafilters.extrude
+        # https://docs.pyvista.org/version/stable/examples/01-filter/extrude-rotate
 
         # get all data for plots
         segments = unpack_blocklist(blocklist=self.blocklist)
@@ -424,15 +426,15 @@ class simulation:
 
     def plot_vel(
         self,
-        axis=("x", "y", "z", "e"),
-        show=True,
-        show_planner_blocks=True,
-        show_segments=False,
-        show_jv=False,
-        timesteps="constrained",
-        filename=None,
-        dpi=400,
-    ):
+        axis: tuple[str] = ("x", "y", "z", "e"),
+        show: bool = True,
+        show_planner_blocks: bool = True,
+        show_segments: bool = False,
+        show_jv: bool = False,
+        time_steps: Union[int, str] = "constrained",
+        filepath: pathlib.Path = None,
+        dpi: int = 400,
+    ) -> Figure:
         """Plot axis velocity with matplotlib.
 
         Args:
@@ -441,8 +443,8 @@ class simulation:
             show_planner_blocks: (bool, default = True) show planner_blocks as vertical lines
             show_segments: (bool, default = False) show segments as vertical lines
             show_jv: (bool, default = False) show junction velocity as x
-            timesteps: (int or string, default = "constrained") number of timesteps or constrain plot vertices to segment vertices
-            filename: (string, default = None) save fig as image if filename is provided
+            time_steps: (int or string, default = "constrained") number of time steps or constrain plot vertices to segment vertices
+            filepath: (Path, default = None) save fig as image if filepath is provided
             dpi: (int, default = 400) select dpi
 
         Returns:
@@ -455,15 +457,15 @@ class simulation:
 
         segments = unpack_blocklist(blocklist=self.blocklist)  # unpack
 
-        # timesteps
-        if type(timesteps) is int:  # evenly distributed timesteps
-            times = np.linspace(0, self.blocklist[-1].get_segments()[-1].t_end, timesteps, endpoint=False)
-        elif timesteps == "constrained":  # use segment timepoints as plot constrains
+        # time steps
+        if type(time_steps) is int:  # evenly distributed times teps
+            times = np.linspace(0, self.blocklist[-1].get_segments()[-1].t_end, time_steps, endpoint=False)
+        elif time_steps == "constrained":  # use segment time points as plot constrains
             times = [0]
             for segm in segments:
                 times.append(segm.t_end)
         else:
-            raise ValueError('Invalid value for Timesteps, either use Integer or "constrained" as argument.')
+            raise ValueError("Invalid value for 'time_steps', either use Integer or 'constrained' as argument.")
 
         # gathering values
         pos = [[], [], [], []]
@@ -518,15 +520,15 @@ class simulation:
         ax2.set_ylabel("position in mm")
         ax1.legend(loc="lower left")
         plt.title("Velocity and Position over Time")
-        if filename is not None:
-            plt.savefig(filename, dpi=dpi)
+        if filepath is not None:
+            plt.savefig(filepath, dpi=dpi)
         if show:
             plt.show()
-            return fig
         plt.close()
+        return fig
 
     def trajectory_self_correct(self):
-        """Self correct all blocks in the blocklist with self_corection() method."""
+        """Self correct all blocks in the blocklist with self_correction() method."""
         # self correction
         for block in self.blocklist:
             block.self_correction()

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test for state generator module."""
+import pathlib
+
 from pyGCodeDecode.state_generator import state_generator
 
 
@@ -24,12 +26,10 @@ def test_state_generator():
     To-Do:
         --> rest of supported commands + glitch/inject tests
     """
-    import os
-
     from pyGCodeDecode.gcode_interpreter import setup
 
     test_setup = setup(
-        presets_file=os.path.abspath("./tests/data/test_state_generator_setup.yaml"),
+        presets_file=pathlib.Path("./tests/data/test_state_generator_setup.yaml"),
         printer="test",
         layer_cue="LAYER cue",
     )
@@ -38,7 +38,7 @@ def test_state_generator():
     test_setup.set_initial_position(initial_pos)
 
     states = state_generator(
-        filename=os.path.abspath("./tests/data/test_state_generator.gcode"),
+        filepath=pathlib.Path("./tests/data/test_state_generator.gcode"),
         initial_machine_setup=test_setup.get_dict(),
     )
 
