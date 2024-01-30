@@ -356,72 +356,49 @@ class simulation:
         # get all data for plots
         segments = unpack_blocklist(blocklist=self.blocklist)
 
+        network = pv.MultiBlock()
+
         x, y, z, e, vel = [], [], [], [], []
 
-        if extrusion_only:
-            # vel_max = self.extr_max_vel()
-            network = pv.MultiBlock()
+        for n, segm in enumerate(segments):
+            update_progress((n + 1) / len(segments), name="3D Plot")
 
-            for n, segm in enumerate(segments):
-                update_progress(n / len(segments), name="3D Plot")
-                if segm.is_extruding():
-                    if len(x) == 0:
-                        # append segm begin values to plotting array for first segm
-                        posbegin_vec = segm.pos_begin.get_vec(withExtrusion=True)
-                        x.append(posbegin_vec[0])
-                        y.append(posbegin_vec[1])
-                        z.append(posbegin_vec[2])
-                        e.append(posbegin_vec[3])
-                        vel.append(segm.vel_begin.get_norm())
-
-                    # append segm end values to plotting array
-                    posend_vec = segm.pos_end.get_vec(withExtrusion=True)
-
-                    x.append(posend_vec[0])
-                    y.append(posend_vec[1])
-                    z.append(posend_vec[2])
-                    e.append(posend_vec[3])
-                    vel.append(segm.vel_end.get_norm())
-
-                # plot if following segment is not extruding or if it's the last segment
-                if (len(x) > 0 and not segm.is_extruding()) or (len(x) > 0 and n == len(segments) - 1):
-                    points_3d = np.column_stack((x, y, z))
-                    line = pv.lines_from_points(points_3d)
-                    line["scalars"] = vel
-                    tube = line.tube(radius=0.2, n_sides=8)
-                    network.append(tube)
-                    x, y, z, e, vel = [], [], [], [], []  # clear plotting array
-        else:
-            for n, segm in enumerate(segments):
-                update_progress(n / len(segments), name="3D Plot")
+            if (not extrusion_only) or (segm.is_extruding()):
                 if len(x) == 0:
                     # append segm begin values to plotting array for first segm
-                    posbegin_vec = segm.pos_begin.get_vec(withExtrusion=True)
-                    x.append(posbegin_vec[0])
-                    y.append(posbegin_vec[1])
-                    z.append(posbegin_vec[2])
-                    e.append(posbegin_vec[3])
+                    pos_begin_vec = segm.pos_begin.get_vec(withExtrusion=True)
+                    x.append(pos_begin_vec[0])
+                    y.append(pos_begin_vec[1])
+                    z.append(pos_begin_vec[2])
+                    e.append(pos_begin_vec[3])
                     vel.append(segm.vel_begin.get_norm())
 
                 # append segm end values to plotting array
-                posend_vec = segm.pos_end.get_vec(withExtrusion=True)
-                x.append(posend_vec[0])
-                y.append(posend_vec[1])
-                z.append(posend_vec[2])
-                e.append(posend_vec[3])
+                pos_end_vec = segm.pos_end.get_vec(withExtrusion=True)
+
+                x.append(pos_end_vec[0])
+                y.append(pos_end_vec[1])
+                z.append(pos_end_vec[2])
+                e.append(pos_end_vec[3])
                 vel.append(segm.vel_end.get_norm())
 
-            # vel_max = np.amax(vel)  # calculate maximumum total velocity
+            # plot if following segment is not extruding or if it's the last segment
+            if (extrusion_only and (len(x) > 0 and not segm.is_extruding())) or (len(x) > 0 and n == len(segments) - 1):
+                points_3d = np.column_stack((x, y, z))
+                line = pv.lines_from_points(points_3d)
+                line["velocity"] = vel
+                tube = line.tube(radius=0.2, n_sides=6)
+                network.append(tube)
+                x, y, z, e, vel = [], [], [], [], []  # clear plotting array
 
-            points_3d = np.column_stack((x, y, z))
-            line = lines_from_points(points_3d)
-            line["scalars"] = np.arange(line.n_points)
-            tube = line.tube(radius=0.2, n_sides=8)
-            tube.plot(smooth_shading=True)
-
-        p = pv.Plotter()
         network = network.combine()
-        p.add_mesh(network, scalars="scalars", smooth_shading=True)
+        p = pv.Plotter()
+        p.add_mesh(
+            network,
+            scalars="velocity",
+            smooth_shading=True,
+            scalar_bar_args={"title": "travel velocity in mm/s"},
+        )
         p.show()
 
     def plot_vel(
