@@ -4,7 +4,7 @@
 import pathlib
 import sys
 import time
-from typing import List, Union
+from typing import List, Tuple, Union
 
 import numpy as np
 import pyvista as pv
@@ -338,18 +338,11 @@ class simulation:
         plt.close()
 
     def plot_3d(self, extrusion_only: bool = True):
-        """3D Plot with PyVista."""
+        """3D Plot with PyVista.
 
-        def lines_from_points(points):
-            """Given an array of points, make a line set."""
-            poly = pv.PolyData()
-            poly.points = points
-            cells = np.full((len(points) - 1, 3), 2, dtype=np.int_)
-            cells[:, 1] = np.arange(0, len(points) - 1, dtype=np.int_)
-            cells[:, 2] = np.arange(1, len(points), dtype=np.int_)
-            poly.lines = cells
-            return poly
-
+        Args:
+            extrusion_only (bool, default=True): Plot only parts where material is extruded.
+        """
         # https://docs.pyvista.org/version/stable/api/core/_autosummary/pyvista.polydatafilters.extrude
         # https://docs.pyvista.org/version/stable/examples/01-filter/extrude-rotate
 
@@ -403,7 +396,7 @@ class simulation:
 
     def plot_vel(
         self,
-        axis: tuple[str] = ("x", "y", "z", "e"),
+        axis: Tuple[str] = ("x", "y", "z", "e"),
         show: bool = True,
         show_planner_blocks: bool = True,
         show_segments: bool = False,
