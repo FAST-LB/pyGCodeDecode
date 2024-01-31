@@ -183,7 +183,7 @@ class simulation:
         self.filename = gcode_path
         self.firmware = None
 
-        # set scaling to chosen unit system
+        # set output unit system
         self.available_unit_systems = {"SI": 1e-3, "SImm": 1.0, "inch": 1 / 25.4}
         if output_unit_system in self.available_unit_systems:
             self.output_unit_system = output_unit_system
@@ -696,7 +696,12 @@ class simulation:
 class setup:
     """Setup for printing simulation."""
 
-    def __init__(self, presets_file: str, printer: str = None, layer_cue: str = None) -> None:
+    def __init__(
+        self,
+        presets_file: str,
+        printer: str = None,
+        layer_cue: str = None,
+    ) -> None:
         """Create simulation setup.
 
         Args:
@@ -704,6 +709,11 @@ class setup:
             printer: (string) select printer from preset file
             layer_cue: (string) set slicer specific layer change cue from comment
         """
+        # the input unit system is only implemented for 'set_initial_position'.
+        # Regardless, the class has this attribute so it's more similar to the simulation class.
+        self.available_unit_systems = {"SI": 1e3, "SImm": 1.0, "inch": 25.4}
+        self.input_unit_system = "SImm"
+
         self.initial_position = {"X": 0, "Y": 0, "Z": 0, "E": 0}  # default initial pos is zero
         self.setup_dict = self.load_setup(presets_file)
 
@@ -740,11 +750,13 @@ class setup:
         else:
             self.printer_select = printer_name
 
-    def set_initial_position(self, initial_position: Union[tuple, dict]):
+    def set_initial_position(self, initial_position: Union[tuple, dict], input_unit_system: str = None):
         """Set initial Position.
 
         Args:
             initial_position: (tuple or dict) set initial position as tuple of len(4) or dictionary with keys: {X, Y, Z, E}.
+            input_unit_system (str, optional): Wanted input unit system.
+                Uses the one specified for the setup if None is specified.
 
         Example:
         ```python
@@ -753,14 +765,17 @@ class setup:
         ```
 
         """
+        scaling = self.get_scaling_factor(input_unit_system=input_unit_system)
+
         if isinstance(initial_position, dict) and all(key in initial_position for key in ["X", "Y", "Z", "E"]):
-            self.initial_position = initial_position
+            for key in initial_position:
+                self.initial_position[key] = scaling * initial_position[key]
         elif isinstance(initial_position, tuple) and len(initial_position) == 4:
             self.initial_position = {
-                "X": initial_position[0],
-                "Y": initial_position[1],
-                "Z": initial_position[2],
-                "E": initial_position[3],
+                "X": scaling * initial_position[0],
+                "Y": scaling * initial_position[1],
+                "Z": scaling * initial_position[2],
+                "E": scaling * initial_position[3],
             }
         else:
             raise ValueError("Set initial position through dict with keys: {X, Y, Z, E} or as tuple with length 4.")
@@ -795,3 +810,19 @@ class setup:
         return_dict.update({"printer_name": self.printer_select})  # add printer name
 
         return return_dict
+
+    def get_scaling_factor(self, input_unit_system: str = None) -> float:
+        """Get a scaling factor to convert lengths from mm to another supported unit system.
+
+        Args:
+            input_unit_system (str, optional): Wanted input unit system.
+                Uses the one specified for the setup if None is specified.
+
+        Returns:
+            float: scaling factor
+        """
+        # set the output unit system to the one for the simulation
+        if input_unit_system is None:
+            input_unit_system = self.input_unit_system
+
+        return self.available_unit_systems[input_unit_system]
