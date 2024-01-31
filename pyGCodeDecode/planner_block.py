@@ -253,7 +253,7 @@ class planner_block:
             for segm in self.segments:
                 segm.move_segment_time(delta_t)
 
-    def extr_block_max_vel(self):
+    def extrusion_block_max_vel(self):
         """Return max vel from planner block while extruding.
 
         Returns:

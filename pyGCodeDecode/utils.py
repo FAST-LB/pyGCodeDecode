@@ -367,7 +367,7 @@ class segment:
         self.t_begin = self.t_begin + delta_t
         self.t_end = self.t_end + delta_t
 
-    def get_velocity(self, t):
+    def get_velocity(self, t: float) -> velocity:
         """Get current velocity of segment at a certain time.
 
         Args:
@@ -386,7 +386,7 @@ class segment:
             current_vel = self.vel_begin + slope * (t - self.t_begin)
             return current_vel
 
-    def get_position(self, t):
+    def get_position(self, t: float) -> position:
         """Get current position of segment at a certain time.
 
         Args:
@@ -436,7 +436,7 @@ class segment:
             if self.vel_end.get_norm() > p_settings.speed and not np.isclose(self.vel_end.get_norm(), p_settings.speed):
                 raise ValueError(f"Target Velocity of {p_settings.speed} exceeded with {self.vel_end.get_norm()}.")
 
-    def is_extruding(self):
+    def is_extruding(self) -> bool:
         """Return true if the segment is pos. extruding.
 
         Returns:

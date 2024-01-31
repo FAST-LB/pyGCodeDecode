@@ -71,7 +71,7 @@ def generate_planner_blocks(states: List[state], firmware=None):
     return block_list
 
 
-def find_current_segm(path: List[segment], t: float, last_index: int = None, keep_position: bool = False):
+def find_current_segment(path: List[segment], t: float, last_index: int = None, keep_position: bool = False):
     """Find the current segment.
 
     Args:
@@ -187,7 +187,6 @@ class simulation:
         self.available_unit_systems = {"SI": 1e-3, "SImm": 1.0, "inch": 1 / 25.4}
         if output_unit_system in self.available_unit_systems:
             self.output_unit_system = output_unit_system
-            self.scaling = self.available_unit_systems[self.output_unit_system]
         else:
             raise ValueError("Chosen unit system is unavailable!")
 
@@ -428,7 +427,7 @@ class simulation:
         segments = unpack_blocklist(blocklist=self.blocklist)  # unpack
 
         # time steps
-        if type(time_steps) is int:  # evenly distributed times teps
+        if type(time_steps) is int:  # evenly distributed time steps
             times = np.linspace(0, self.blocklist[-1].get_segments()[-1].t_end, time_steps, endpoint=False)
         elif time_steps == "constrained":  # use segment time points as plot constrains
             times = [0]
@@ -444,7 +443,7 @@ class simulation:
         index_saved = 0
 
         for i, t in enumerate(times):
-            segm, index_saved = find_current_segm(path=segments, t=t, last_index=index_saved, keep_position=True)
+            segm, index_saved = find_current_segment(path=segments, t=t, last_index=index_saved, keep_position=True)
 
             tmp_vel = segm.get_velocity(t=t).get_vec(withExtrusion=True)
             tmp_pos = segm.get_position(t=t).get_vec(withExtrusion=True)
@@ -503,24 +502,28 @@ class simulation:
         for block in self.blocklist:
             block.self_correction()
 
-    def get_values(self, t):
+    def get_values(self, t: float, output_unit_system: str = None) -> Tuple[List[float]]:
         """Return unit system scaled values for vel and pos.
 
         Args:
             t: (float) time
+            output_unit_system (str, optional): Unit system for the output.
+                The one from the simulation is used, in None is specified.
 
         Returns:
             list: [vel_x, vel_y, vel_z, vel_e] velocity
             list: [pos_x, pos_y, pos_z, pos_e] position
         """
         segments = unpack_blocklist(blocklist=self.blocklist)
-        segm, self.last_index = find_current_segm(path=segments, t=t, last_index=self.last_index)
+        segm, self.last_index = find_current_segment(path=segments, t=t, last_index=self.last_index)
         tmp_vel = segm.get_velocity(t=t).get_vec(withExtrusion=True)
         tmp_pos = segm.get_position(t=t).get_vec(withExtrusion=True)
 
+        scaling = self.__get_scaling_factor(output_unit_system=output_unit_system)
+
         # scale to required unit system
-        tmp_vel = [self.scaling * num for num in tmp_vel]
-        tmp_pos = [self.scaling * num for num in tmp_pos]
+        tmp_vel = [scaling * num for num in tmp_vel]
+        tmp_pos = [scaling * num for num in tmp_pos]
 
         return tmp_vel, tmp_pos
 
@@ -593,11 +596,18 @@ class simulation:
         )
         self.trajectory_self_correct()
 
-    def extr_extent(self):
-        r"""Return xyz min & max while extruding.
+    def extrusion_extent(self, output_unit_system: str = None) -> np.ndarray:
+        """Return scaled xyz min & max while extruding.
+
+        Args:
+            output_unit_system (str, optional): Unit system for the output.
+                The one from the simulation is used, in None is specified.
+
+        Raises:
+            ValueError: if nothing is extruded
 
         Returns:
-            extent: \[[minX, minY, minZ], [maxX, maxY, maxZ]] (2x3 numpy.ndarray) extent of extruding positions
+            np.ndarray: extent of extruding positions
         """
         all_positions_extruding = np.asarray(
             [block.state_B.state_position.get_vec() for block in self.blocklist if block.is_extruding]
@@ -605,21 +615,31 @@ class simulation:
         if len(all_positions_extruding) > 0:
             max_pos = np.amax(all_positions_extruding, axis=0)
             min_pos = np.amin(all_positions_extruding, axis=0)
-            return np.r_[[min_pos], [max_pos]]
+
+            scaling = self.__get_scaling_factor(output_unit_system=output_unit_system)
+
+            return scaling * np.r_[[min_pos], [max_pos]]
         else:
             raise ValueError("No extrusion happening.")
 
-    def extr_max_vel(self):
-        """Return maximum travel velocity while extruding.
+    def extrusion_max_vel(self, output_unit_system: str = None) -> np.ndarray:
+        """Return scaled maximum velocity while extruding.
+
+        Args:
+            output_unit_system (str, optional): Unit system for the output.
+                The one from the simulation is used, in None is specified.
 
         Returns:
             max_vel: (numpy.ndarray, 1x4) maximum axis velocity while extruding
         """
         all_blocks_max_vel = np.asarray(
-            [np.linalg.norm(block.extr_block_max_vel()[:3]) for block in self.blocklist if block.is_extruding]
+            [np.linalg.norm(block.extrusion_block_max_vel()[:3]) for block in self.blocklist if block.is_extruding]
         )
         max_vel = np.amax(all_blocks_max_vel, axis=0)
-        return max_vel
+
+        scaling = self.__get_scaling_factor(output_unit_system=output_unit_system)
+
+        return scaling * max_vel
 
     def save_summary(self, filepath: Union[pathlib.Path, str]):
         """Save summary to .yaml file.
@@ -631,11 +651,11 @@ class simulation:
         - filename (string, filename)
         - t_end (float, end time)
         - x/y/z _min/_max (float, extent where positive extrusion)
-        - max_extr_trav_vel (float, maximum travel velocity where positive extrusion)
+        - max_extrusion_travel_velocity (float, maximum travel velocity where positive extrusion)
         """
         t_end = self.blocklist[-1].get_segments()[-1].t_end  # print end time
-        extent = self.extr_extent()  # extent in [xmin,ymin,zmin],[xmax,ymax,zmax]
-        max_vel = self.extr_max_vel()
+        extent = self.extrusion_extent()  # extent in [minX, minY, minZ], [maxX, maxY, maxZ]
+        max_vel = self.extrusion_max_vel()
         summary = {
             "filename": str(self.filename),
             "t_end": float(t_end),
@@ -645,7 +665,7 @@ class simulation:
             "x_max": float(extent[1, 0]),
             "y_max": float(extent[1, 1]),
             "z_max": float(extent[1, 2]),
-            "max_extr_trav_vel": float(max_vel),
+            "max_extrusion_travel_velocity": float(max_vel),
         }
 
         # create directory if necessary
@@ -655,6 +675,22 @@ class simulation:
             yaml.dump(data=summary, stream=file)
 
         print(f"Summary written to:\n{str(filepath)}")
+
+    def __get_scaling_factor(self, output_unit_system: str = None) -> float:
+        """Get a scaling factor to convert lengths from mm to another supported unit system.
+
+        Args:
+            output_unit_system (str, optional): Wanted output unit system.
+                Uses the one specified for the simulation on None is specified.
+
+        Returns:
+            float: scaling factor
+        """
+        # set the output unit system to the one for the simulation
+        if output_unit_system is None:
+            output_unit_system = self.output_unit_system
+
+        return self.available_unit_systems[output_unit_system]
 
 
 class setup:
