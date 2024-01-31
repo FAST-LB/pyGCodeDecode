@@ -9,7 +9,7 @@ class state:
     class p_settings:
         """Store Printing Settings."""
 
-        def __init__(self, p_acc, jerk, vX, vY, vZ, vE, speed, absMode=True, units="SImm"):
+        def __init__(self, p_acc, jerk, vX, vY, vZ, vE, speed, units="SImm"):
             """Initialize printing settings.
 
             Args:
@@ -20,7 +20,6 @@ class state:
                 vZ: (float) max z velocity
                 vE: (float) max e velocity
                 speed: (float) default target velocity
-                absMode: (bool, default = True) absolute / relative mode
                 units: (string, default = "SImm") unit settings
             """
             self.p_acc = p_acc  # printing acceleration
@@ -30,7 +29,6 @@ class state:
             self.vZ = vZ  # max axis speed Z
             self.vE = vE  # max axis speed E
             self.speed = speed  # travel speed for move
-            self.absMode = absMode  # abs extrusion mode, default = True [deprecated]
             self.units = units  # unit system used
 
         def __str__(self) -> str:
@@ -51,8 +49,6 @@ class state:
                 + "]"
                 + ", p_vel: "
                 + str(self.speed)
-                + " Abs Extr: "
-                + str(self.absMode)
                 + ", units: "
                 + str(self.units)
             )
