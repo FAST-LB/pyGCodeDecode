@@ -47,7 +47,7 @@ class vector_4D:
 
     def __str__(self) -> str:
         """Return string representation."""
-        return "[" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ", " + str(self.e) + "]"
+        return f"[{self.x}, {self.y}, {self.z}, {self.e}]"
 
     def __add__(self, other):
         """Add functionality for 4D vectors.
