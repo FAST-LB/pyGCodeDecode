@@ -43,6 +43,8 @@ if __name__ == "__main__":
     generate_abaqus_event_series(
         simulation=benchy_simulation,
         filepath=output_dir / "benchy_prusa_mini_event_series.csv",
+        tolerance=1.0e-12,
+        output_unit_system="SImm",
     )
 
     # create a 3D-plot

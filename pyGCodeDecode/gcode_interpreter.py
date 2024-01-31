@@ -519,7 +519,7 @@ class simulation:
         tmp_vel = segm.get_velocity(t=t).get_vec(withExtrusion=True)
         tmp_pos = segm.get_position(t=t).get_vec(withExtrusion=True)
 
-        scaling = self.__get_scaling_factor(output_unit_system=output_unit_system)
+        scaling = self.get_scaling_factor(output_unit_system=output_unit_system)
 
         # scale to required unit system
         tmp_vel = [scaling * num for num in tmp_vel]
@@ -616,7 +616,7 @@ class simulation:
             max_pos = np.amax(all_positions_extruding, axis=0)
             min_pos = np.amin(all_positions_extruding, axis=0)
 
-            scaling = self.__get_scaling_factor(output_unit_system=output_unit_system)
+            scaling = self.get_scaling_factor(output_unit_system=output_unit_system)
 
             return scaling * np.r_[[min_pos], [max_pos]]
         else:
@@ -637,7 +637,7 @@ class simulation:
         )
         max_vel = np.amax(all_blocks_max_vel, axis=0)
 
-        scaling = self.__get_scaling_factor(output_unit_system=output_unit_system)
+        scaling = self.get_scaling_factor(output_unit_system=output_unit_system)
 
         return scaling * max_vel
 
@@ -676,7 +676,7 @@ class simulation:
 
         print(f"Summary written to:\n{str(filepath)}")
 
-    def __get_scaling_factor(self, output_unit_system: str = None) -> float:
+    def get_scaling_factor(self, output_unit_system: str = None) -> float:
         """Get a scaling factor to convert lengths from mm to another supported unit system.
 
         Args:

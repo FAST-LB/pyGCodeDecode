@@ -3,7 +3,7 @@
 
 import pathlib
 
-from pyGCodeDecode import gcode_interpreter as gi
+from . import gcode_interpreter as gi
 
 """
 This script is to convert gcode into an event series as abaqus input
@@ -20,7 +20,10 @@ time points generated are always at segment beginnings / endings, so interpolati
 
 
 def generate_abaqus_event_series(
-    simulation: gi.simulation, filepath: str = "pyGcodeDecode_abaqus_events.inp", tolerance: float = 1e-12
+    simulation: gi.simulation,
+    filepath: str = "pyGcodeDecode_abaqus_events.inp",
+    tolerance: float = 1e-12,
+    output_unit_system: str = None,
 ) -> tuple:
     """Generate abaqus event series.
 
@@ -28,6 +31,8 @@ def generate_abaqus_event_series(
         simulation (gi.simulation): simulation instance
         filepath (string, default = "pyGcodeDecode_abaqus_events.inp"): output file path
         tolerance (float, default = 1e-12): tolerance to determine whether extrusion is happening
+        output_unit_system (str, optional): Unit system for the output.
+                The one from the simulation is used, in None is specified.
 
     Returns:
         tuple: the event series as a tuple for use in ABAQUS-Python
@@ -52,13 +57,13 @@ def generate_abaqus_event_series(
     # create directory if necessary
     pathlib.Path(filepath).parent.mkdir(parents=True, exist_ok=True)
 
+    scaling = simulation.get_scaling_factor(output_unit_system=output_unit_system)
+
     # write to file
     with open(filepath, "w") as outfile:
         for time, pos in zip(time, pos):
-            outfile.write(
-                str(time) + "," + str(pos[0]) + "," + str(pos[1]) + "," + str(pos[2]) + "," + str(pos[3]) + "\n"
-            )
-            event_series_list.append((time, pos[0], pos[1], pos[2], pos[3]))
+            outfile.write(f"{time},{scaling*pos[0]},{scaling*pos[1]},{scaling*pos[2]},{pos[3]}\n")
+            event_series_list.append((time, scaling * pos[0], scaling * pos[1], scaling * pos[2], pos[3]))
 
         print(f"ABAQUS event series written to: \n{outfile.name}")
 
