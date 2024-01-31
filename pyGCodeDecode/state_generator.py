@@ -252,7 +252,6 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
         vY=virtual_machine["vY"],
         vZ=virtual_machine["vZ"],
         vE=virtual_machine["vE"],
-        absMode=virtual_machine["absolute_extrusion"],
     )
     new_state = state(state_position=state_position, state_p_settings=p_settings)  # create new state
 
@@ -350,7 +349,6 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
             vY=virtual_machine["vY"],
             vZ=virtual_machine["vZ"],
             vE=virtual_machine["vE"],
-            absMode=virtual_machine["absolute_extrusion"],
             units=virtual_machine["units"],
         )
         new_state = state(state_position=state_position, state_p_settings=p_settings)  # create new state

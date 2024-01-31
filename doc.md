@@ -982,7 +982,7 @@ Store Printing Settings.
 #### \_\_init\_\_
 
 ```python
-def __init__(p_acc, jerk, vX, vY, vZ, vE, speed, absMode=True, units="SImm")
+def __init__(p_acc, jerk, vX, vY, vZ, vE, speed, units="SImm")
 ```
 
 Initialize printing settings.
@@ -996,7 +996,6 @@ Initialize printing settings.
 - `vZ` - (float) max z velocity
 - `vE` - (float) max e velocity
 - `speed` - (float) default target velocity
-- `absMode` - (bool, default = True) absolute / relative mode
 - `units` - (string, default = "SImm") unit settings
 
 <a id="pyGCodeDecode.state.state.p_settings.__str__"></a>

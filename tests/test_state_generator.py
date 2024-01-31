@@ -46,11 +46,9 @@ def test_state_generator():
     print(states)
     assert states[0].state_position.get_vec(withExtrusion=True) == list(initial_pos)  # test for inital position
     # assert states[1]  # set pos to abs
-    assert states[2].state_p_settings.absMode is True  # set E abs
     assert states[3].state_position.get_vec(withExtrusion=True) == [10, 20, 30, initial_pos[-1]]  # test for second pos
     assert states[4].state_position.get_vec(withExtrusion=True) == [300, 200, 100, 50]  # test for another pos with extr
     assert states[5].state_position.get_vec(withExtrusion=True) == [-5, -5, 0, -0.2]  # test for pos with abs extr
-    assert states[6].state_p_settings.absMode is False  # set E to rel
     assert states[7].state_position.get_vec(withExtrusion=True) == [-5, -5, 0, 10]  # test for another pos with rel extr
     # assert states[8]  # set pos to rel
     assert states[9].state_position.get_vec(withExtrusion=True) == [5, -5, 0, 10]  # test for rel_move
