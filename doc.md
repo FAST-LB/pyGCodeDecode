@@ -1371,7 +1371,7 @@ Store 3D position + extrusion axis.
 
 **Arguments**:
 
-- `args` - (tuple or list) as x,y,z,e or [x,y,z,e]
+- `args` - coordinates as arguments x,y,z,e or (tuple or list) [x,y,z,e]
 
 <a id="pyGCodeDecode.utils.vector_4D.__str__"></a>
 

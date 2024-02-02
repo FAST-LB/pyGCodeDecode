@@ -27,7 +27,7 @@ class vector_4D:
         """Store 3D position + extrusion axis.
 
         Args:
-            args: (tuple or list) as x,y,z,e or [x,y,z,e]
+            args: coordinates as arguments x,y,z,e or (tuple or list) [x,y,z,e]
 
         """
         self.x = None
