@@ -53,4 +53,4 @@ jobs:
         - name: Publish distribution 📦 to PyPI
           uses: pypa/gh-action-pypi-publish@release/v1
           with:
-            repository-url: https://pypi.org/legacy/
+            repository-url: https://github.com/FAST-LB/pyGCodeDecode/
