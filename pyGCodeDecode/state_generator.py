@@ -407,7 +407,7 @@ def check_for_unsupported_commands(line_dict_list: dict) -> dict:
     return unsupported_command_counts
 
 
-def state_generator(filepath: pathlib.Path, initial_machine_setup: dict) -> List[state]:
+def generate_states(filepath: pathlib.Path, initial_machine_setup: dict) -> List[state]:
     """Generate state list from GCode file.
 
     Args:

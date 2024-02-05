@@ -14,7 +14,7 @@ from matplotlib.figure import Figure
 
 from .planner_block import planner_block
 from .state import state
-from .state_generator import state_generator
+from .state_generator import generate_states
 from .utils import segment, velocity
 
 
@@ -217,7 +217,7 @@ class simulation:
         self.check_initial_setup(initial_machine_setup=self.initial_machine_setup)  # move this to setup class todo
         self.firmware = self.initial_machine_setup["firmware"]
 
-        self.states: List[state] = state_generator(
+        self.states: List[state] = generate_states(
             filepath=gcode_path, initial_machine_setup=self.initial_machine_setup
         )
 
