@@ -346,14 +346,17 @@ class simulation:
         screenshot_path: pathlib.Path = None,
         vtk_path: pathlib.Path = None,
         mesh: pv.MultiBlock = None,
-    ):
+    ) -> pv.MultiBlock:
         """3D Plot with PyVista.
 
         Args:
             extrusion_only (bool, optional): Plot only parts where material is extruded. Defaults to True.
             screenshot_path (pathlib.Path, optional): Path to screenshot to be saved. Prevents interactive plot. Defaults to None.
             vtk_path (pathlib.Path, optional): Path to vtk to be saved. Prevents interactive plot. Defaults to None.
-            mesh (_type_, optional): A pyvista mesh from a previous run to avoid running the mesh generation again. Defaults to None.
+            mesh (pv.MultiBlock, optional): A pyvista mesh from a previous run to avoid running the mesh generation again. Defaults to None.
+
+        Returns:
+            pv.MultiBlock: The mesh used in the plot so it can be used (e.g. in subsequent plots).
         """
         # https://docs.pyvista.org/version/stable/api/core/_autosummary/pyvista.polydatafilters.extrude
         # https://docs.pyvista.org/version/stable/examples/01-filter/extrude-rotate
