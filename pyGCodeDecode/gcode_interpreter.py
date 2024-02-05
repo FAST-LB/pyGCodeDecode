@@ -340,11 +340,23 @@ class simulation:
             return fig
         plt.close()
 
-    def plot_3d(self, extrusion_only: bool = True):
+    def plot_3d(
+        self,
+        extrusion_only: bool = True,
+        screenshot_path: pathlib.Path = None,
+        vtk_path: pathlib.Path = None,
+        mesh: pv.MultiBlock = None,
+    ) -> pv.MultiBlock:
         """3D Plot with PyVista.
 
         Args:
-            extrusion_only (bool, default=True): Plot only parts where material is extruded.
+            extrusion_only (bool, optional): Plot only parts where material is extruded. Defaults to True.
+            screenshot_path (pathlib.Path, optional): Path to screenshot to be saved. Prevents interactive plot. Defaults to None.
+            vtk_path (pathlib.Path, optional): Path to vtk to be saved. Prevents interactive plot. Defaults to None.
+            mesh (pv.MultiBlock, optional): A pyvista mesh from a previous run to avoid running the mesh generation again. Defaults to None.
+
+        Returns:
+            pv.MultiBlock: The mesh used in the plot so it can be used (e.g. in subsequent plots).
         """
         # https://docs.pyvista.org/version/stable/api/core/_autosummary/pyvista.polydatafilters.extrude
         # https://docs.pyvista.org/version/stable/examples/01-filter/extrude-rotate
@@ -352,50 +364,71 @@ class simulation:
         # get all data for plots
         segments = unpack_blocklist(blocklist=self.blocklist)
 
-        network = pv.MultiBlock()
+        # mesh generation is skipped, if a mesh is given already
+        if mesh is None:
+            mesh = pv.MultiBlock()
 
-        x, y, z, e, vel = [], [], [], [], []
+            x, y, z, e, vel = [], [], [], [], []
 
-        for n, segm in enumerate(segments):
-            update_progress((n + 1) / len(segments), name="3D Plot")
+            for n, segm in enumerate(segments):
+                update_progress((n + 1) / len(segments), name="3D Plot")
 
-            if (not extrusion_only) or (segm.is_extruding()):
-                if len(x) == 0:
-                    # append segm begin values to plotting array for first segm
-                    pos_begin_vec = segm.pos_begin.get_vec(withExtrusion=True)
-                    x.append(pos_begin_vec[0])
-                    y.append(pos_begin_vec[1])
-                    z.append(pos_begin_vec[2])
-                    e.append(pos_begin_vec[3])
-                    vel.append(segm.vel_begin.get_norm())
+                if (not extrusion_only) or (segm.is_extruding()):
+                    if len(x) == 0:
+                        # append segm begin values to plotting array for first segm
+                        pos_begin_vec = segm.pos_begin.get_vec(withExtrusion=True)
+                        x.append(pos_begin_vec[0])
+                        y.append(pos_begin_vec[1])
+                        z.append(pos_begin_vec[2])
+                        e.append(pos_begin_vec[3])
+                        vel.append(segm.vel_begin.get_norm())
 
-                # append segm end values to plotting array
-                pos_end_vec = segm.pos_end.get_vec(withExtrusion=True)
+                    # append segm end values to plotting array
+                    pos_end_vec = segm.pos_end.get_vec(withExtrusion=True)
 
-                x.append(pos_end_vec[0])
-                y.append(pos_end_vec[1])
-                z.append(pos_end_vec[2])
-                e.append(pos_end_vec[3])
-                vel.append(segm.vel_end.get_norm())
+                    x.append(pos_end_vec[0])
+                    y.append(pos_end_vec[1])
+                    z.append(pos_end_vec[2])
+                    e.append(pos_end_vec[3])
+                    vel.append(segm.vel_end.get_norm())
 
-            # plot if following segment is not extruding or if it's the last segment
-            if (extrusion_only and (len(x) > 0 and not segm.is_extruding())) or (len(x) > 0 and n == len(segments) - 1):
-                points_3d = np.column_stack((x, y, z))
-                line = pv.lines_from_points(points_3d)
-                line["velocity"] = vel
-                tube = line.tube(radius=0.2, n_sides=6)
-                network.append(tube)
-                x, y, z, e, vel = [], [], [], [], []  # clear plotting array
+                # plot if following segment is not extruding or if it's the last segment
+                if (extrusion_only and (len(x) > 0 and not segm.is_extruding())) or (
+                    len(x) > 0 and n == len(segments) - 1
+                ):
+                    points_3d = np.column_stack((x, y, z))
+                    line = pv.lines_from_points(points_3d)
+                    line["velocity"] = vel
+                    tube = line.tube(radius=0.2, n_sides=6)
+                    mesh.append(tube)
+                    x, y, z, e, vel = [], [], [], [], []  # clear plotting array
 
-        network = network.combine()
-        p = pv.Plotter()
+            mesh = mesh.combine()
+
+        # the image can't be saved when the plot is interactive
+        if screenshot_path is None and vtk_path is None:
+            off_screen = False
+        else:
+            off_screen = True
+
+        p = pv.Plotter(off_screen=off_screen)
         p.add_mesh(
-            network,
+            mesh,
             scalars="velocity",
             smooth_shading=True,
             scalar_bar_args={"title": "travel velocity in mm/s"},
         )
         p.show()
+
+        if off_screen:
+            if vtk_path is not None:
+                mesh.save(filename=vtk_path)
+                print(f"VTK saved to:\n{vtk_path}")
+            if screenshot_path is not None:
+                p.screenshot(filename=screenshot_path)
+                print(f"Screenshot saved to:\n{screenshot_path}")
+
+        return mesh
 
     def plot_vel(
         self,

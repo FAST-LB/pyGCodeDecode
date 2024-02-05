@@ -49,5 +49,11 @@ if __name__ == "__main__":
         output_unit_system="SImm",
     )
 
-    # create a 3D-plot
-    benchy_simulation.plot_3d(extrusion_only=True)
+    # create a 3D-plot and save a VTK as well as a screenshot
+    benchy_mesh = benchy_simulation.plot_3d(
+        extrusion_only=True, screenshot_path=output_dir / "benchy.png", vtk_path=output_dir / "benchy.vtk"
+    )
+
+    # create an interactive 3D-plot
+    # the mesh from the previous run can be used to avoid generating a mesh again
+    benchy_simulation.plot_3d(mesh=benchy_mesh)
