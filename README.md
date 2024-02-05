@@ -141,4 +141,4 @@ pyGCD can also be used to create files defining an event series for ABAQUS simul
                 filpath="path/to/event_series.csv"
         )
 
-For more in depth information have a look into the [documentation]((https://github.com/FAST-LB/pyGCodeDecode/blob/main/doc.md)https://github.com/FAST-LB/pyGCodeDecode/blob/main/doc.md).
+For more in depth information have a look into the [documentation](https://github.com/FAST-LB/pyGCodeDecode/blob/main/doc.md).
