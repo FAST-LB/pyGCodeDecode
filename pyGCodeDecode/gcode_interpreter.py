@@ -18,11 +18,11 @@ from .state_generator import generate_states
 from .utils import segment, velocity
 
 
-def update_progress(progress: Union[float, int], name: str = "Percent") -> None:
+def update_progress(progress: float, name: str = "Percent") -> None:
     """Display or update a console progress bar.
 
     Args:
-        progress: (float | int) between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
+        progress: float between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
         name: (string, default = "Percent") customizable name for progress bar
     """
     barLength = 10
@@ -42,10 +42,6 @@ def update_progress(progress: Union[float, int], name: str = "Percent") -> None:
     block = int(round(barLength * progress))
     progress = round(progress * 100, ndigits=1)
     text = f"\r[{'#' * block + '-' * (barLength - block)}] {progress} % of {name} {status}"
-    # LINE_UP = '\033[1A'
-    # LINE_CLEAR = '\x1b[2K'
-    # print(LINE_UP + LINE_UP, end=LINE_CLEAR)
-    # print(text)
     sys.stdout.write(text)
     sys.stdout.flush()
 
@@ -535,8 +531,15 @@ class simulation:
 
     def trajectory_self_correct(self):
         """Self correct all blocks in the blocklist with self_correction() method."""
-        # self correction
-        for block in self.blocklist:
+        n_max = len(self.blocklist)
+        last_progress_update = 0
+
+        for n, block in enumerate(self.blocklist):
+            progress = round(n / n_max, ndigits=3)
+            if progress > last_progress_update:
+                update_progress((n + 1) / len(self.blocklist), name="Block Correction")
+                last_progress_update = progress
+
             block.self_correction()
 
     def get_values(self, t: float, output_unit_system: str = None) -> Tuple[List[float]]:
