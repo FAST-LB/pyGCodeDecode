@@ -2,12 +2,16 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-packages = ["pyGCodeDecode"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pyGCodeDecode"]
+
+[tool.setuptools.package-data]
+"pyGCodeDecode" = ["data/*"]
 
 [project]
 name = "pyGCodeDecode"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
     { name = "FAST-LB at KIT", email = "lt-github@fast.kit.edu" },
     { name = "Jonathan Knirsch", email = "jonathan.knirsch@student.kit.edu" },
@@ -31,12 +35,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 requires-python = ">=3.8"
-dependencies = [
-    "numpy",
-    "matplotlib",
-    "PyYAML",
-    "pyvista",
-]
+dependencies = ["numpy", "matplotlib", "PyYAML", "pyvista"]
 
 [project.optional-dependencies]
 TEST = ["pytest-cov"]
@@ -71,7 +70,7 @@ exclude_also = ["if __name__ == .__main__.:", "except", "import"]
 
 [[tool.pydoc-markdown.loaders]]
 type = "python"
-search_path = [ "." ]
+search_path = ["."]
 
 [tool.pydoc-markdown.renderer]
 type = "mkdocs"
@@ -79,4 +78,4 @@ type = "mkdocs"
 [[tool.pydoc-markdown.renderer.pages]]
 title = "API Documentation"
 name = "index"
-contents = [ "pyGCodeDecode.*" ]
+contents = ["pyGCodeDecode.*"]

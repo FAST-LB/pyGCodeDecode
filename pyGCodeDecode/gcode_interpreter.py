@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """GCode Interpreter Module."""
 
+import importlib
 import pathlib
 import sys
 import time
@@ -203,8 +204,11 @@ class simulation:
                 print(
                     "Only a machine name was specified but no full setup. Trying to create a setup from pyGCD's default values..."
                 )
+                default_presets_file = importlib.resources.files("pyGCodeDecode").joinpath(
+                    "data/default_printer_presets.yaml"
+                )
                 initial_machine_setup = setup(
-                    presets_file=pathlib.Path(__file__).parent / "data" / "default_printer_presets.yaml",
+                    presets_file=default_presets_file,
                     printer=machine_name,
                 )
 
