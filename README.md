@@ -82,7 +82,7 @@ partially supported:
 
 ### define a printer with default parameters in a .yaml
 
-example definition (also see [./pyGCodeDecode/data/default_printer_presets.yaml](./pyGCodeDecode/data/default_printer_presets.yaml)):
+example definition (also see [./pyGCodeDecode/data/default_printer_presets.yaml](https://github.com/FAST-LB/pyGCodeDecode/blob/main/pyGCodeDecode/data/default_printer_presets.yaml)):
 
         prusa_mini:
                 # general properties
@@ -141,4 +141,4 @@ pyGCD can also be used to create files defining an event series for ABAQUS simul
                 filpath="path/to/event_series.csv"
         )
 
-For more in depth information have a look into the [documentation](doc.md).
+For more in depth information have a look into the [documentation]([doc.md](https://github.com/FAST-LB/pyGCodeDecode/blob/main/doc.md)https://github.com/FAST-LB/pyGCodeDecode/blob/main/doc.md).
