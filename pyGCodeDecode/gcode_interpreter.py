@@ -17,6 +17,8 @@ from .state import state
 from .state_generator import generate_states
 from .utils import segment, velocity
 
+last_progress_update: float = 0.0
+
 
 def update_progress(progress: float, name: str = "Percent") -> None:
     """Display or update a console progress bar.
@@ -25,25 +27,35 @@ def update_progress(progress: float, name: str = "Percent") -> None:
         progress: float between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
         name: (string, default = "Percent") customizable name for progress bar
     """
+    global last_progress_update
+
     barLength = 10
     status = ""
 
-    if isinstance(progress, int):
+    # check whether the input is valid
+    if progress is int:
         progress = float(progress)
     if not isinstance(progress, float):
-        progress = 0
+        progress = 0.0
         status = "error: progress var must be float\r\n"
-    if progress < 0:
-        progress = 0
+
+    # progress outside [0, 1]
+    if progress < 0.0:
+        progress = 0.0
         status = "Halt...\r\n"
-    if progress >= 1:
-        progress = 1
+    if progress >= 1.0:
+        progress = 1.0
         status = "Done...\r\n"
-    block = int(round(barLength * progress))
-    progress = round(progress * 100, ndigits=1)
-    text = f"\r[{'#' * block + '-' * (barLength - block)}] {progress} % of {name} {status}"
-    sys.stdout.write(text)
-    sys.stdout.flush()
+
+    progress_percent = round(progress * 100, ndigits=1)
+
+    # check whether the progress has changed
+    if last_progress_update != progress_percent or status != "":
+        block = int(round(barLength * progress, ndigits=0))
+        text = f"\r[{'#' * block + '-' * (barLength - block)}] {progress_percent} % of {name} {status}"
+        sys.stdout.write(text)
+        sys.stdout.flush()
+        last_progress_update = progress_percent
 
 
 def generate_planner_blocks(states: List[state], firmware=None):
