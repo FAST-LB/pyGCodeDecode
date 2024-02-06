@@ -2,12 +2,12 @@
 """Test for state generator module."""
 import pathlib
 
-from pyGCodeDecode.state_generator import state_generator
+from pyGCodeDecode.state_generator import generate_states
 
 
 def test_state_generator():
     """
-    Test the state generator function.
+    Test the generate_states function.
 
     Functionality:
     - G0,G1
@@ -37,7 +37,7 @@ def test_state_generator():
     initial_pos = (5, 4, 3, 2)  # initial position definition
     test_setup.set_initial_position(initial_pos)
 
-    states = state_generator(
+    states = generate_states(
         filepath=pathlib.Path("./tests/data/test_state_generator.gcode"),
         initial_machine_setup=test_setup.get_dict(),
     )
