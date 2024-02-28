@@ -116,7 +116,7 @@ class vector_4D:
             z = self.z * other
             e = self.e * other
         else:
-            raise TypeError("Mutiplication of 4D vectors only supports float and int.")
+            raise TypeError("Multiplication of 4D vectors only supports float and int.")
         return self.__class__(x, y, z, e)
 
     def __truediv__(self, other):
@@ -146,8 +146,6 @@ class vector_4D:
         Returns:
             eq: (bool) true if equal (with tolerance)
         """
-        import numpy as np
-
         if isinstance(other, type(self)):
             if (
                 np.isclose(self.x, other.x)
@@ -166,7 +164,7 @@ class vector_4D:
             ):
                 return True
 
-    def get_vec(self, withExtrusion=False):
+    def get_vec(self, withExtrusion=False) -> list[float]:
         """Return the 4D vector, optionally with extrusion.
 
         Args:
@@ -180,7 +178,7 @@ class vector_4D:
         else:
             return [self.x, self.y, self.z]
 
-    def get_norm(self, withExtrusion=False):
+    def get_norm(self, withExtrusion=False) -> float:
         """Return the 4D vector norm. Optional with extrusion.
 
         Args:
