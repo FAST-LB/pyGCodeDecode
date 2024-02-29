@@ -8,6 +8,8 @@ Utils for the GCode Reader contains:
     - position
 """
 
+from typing import List
+
 import numpy as np
 
 
@@ -116,7 +118,7 @@ class vector_4D:
             z = self.z * other
             e = self.e * other
         else:
-            raise TypeError("Mutiplication of 4D vectors only supports float and int.")
+            raise TypeError("Multiplication of 4D vectors only supports float and int.")
         return self.__class__(x, y, z, e)
 
     def __truediv__(self, other):
@@ -146,8 +148,6 @@ class vector_4D:
         Returns:
             eq: (bool) true if equal (with tolerance)
         """
-        import numpy as np
-
         if isinstance(other, type(self)):
             if (
                 np.isclose(self.x, other.x)
@@ -166,7 +166,7 @@ class vector_4D:
             ):
                 return True
 
-    def get_vec(self, withExtrusion=False):
+    def get_vec(self, withExtrusion=False) -> List[float]:
         """Return the 4D vector, optionally with extrusion.
 
         Args:
@@ -180,7 +180,7 @@ class vector_4D:
         else:
             return [self.x, self.y, self.z]
 
-    def get_norm(self, withExtrusion=False):
+    def get_norm(self, withExtrusion=False) -> float:
         """Return the 4D vector norm. Optional with extrusion.
 
         Args:
@@ -193,7 +193,7 @@ class vector_4D:
 
 
 class velocity(vector_4D):
-    """4D - Velocity object for (cartesian) 3D printer."""
+    """4D - Velocity object for (Cartesian) 3D printer."""
 
     def __str__(self) -> str:
         """Print out velocity."""
@@ -251,7 +251,7 @@ class velocity(vector_4D):
 
 
 class position(vector_4D):
-    """4D - Position object for (cartesian) 3D printer."""
+    """4D - Position object for (Cartesian) 3D printer."""
 
     def __str__(self) -> str:
         """Print out position."""
@@ -281,9 +281,9 @@ class position(vector_4D):
         Returns:
             is_extruding: (bool) true if between self and other is extrusion
         """
-        extr = other.e - self.e if ignore_retract else abs(other.e - self.e)
+        extrusion = other.e - self.e if ignore_retract else abs(other.e - self.e)
 
-        if extr > 0:
+        if extrusion > 0:
             return True
         else:
             return False

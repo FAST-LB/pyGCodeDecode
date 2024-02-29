@@ -662,8 +662,10 @@ class simulation:
             np.ndarray: extent of extruding positions
         """
         all_positions_extruding = np.asarray(
-            [block.state_B.state_position.get_vec() for block in self.blocklist if block.is_extruding]
+            [block.state_A.state_position.get_vec() for block in self.blocklist if block.is_extruding]
+            + [block.state_B.state_position.get_vec() for block in self.blocklist if block.is_extruding]
         )
+
         if len(all_positions_extruding) > 0:
             max_pos = np.amax(all_positions_extruding, axis=0)
             min_pos = np.amin(all_positions_extruding, axis=0)
