@@ -14,7 +14,7 @@ repos:
     -   id: fix-encoding-pragma
 # Black code style formatter
 -   repo: https://github.com/psf/black
-    rev: 24.1.0
+    rev: 24.2.0
     hooks:
       - id: black
       - id: black-jupyter
@@ -32,6 +32,6 @@ repos:
         additional_dependencies: [flake8-docstrings]
 # strip output of notebooks
 -   repo: https://github.com/kynan/nbstripout
-    rev: 0.6.1
+    rev: 0.7.1
     hooks:
         - id: nbstripout
