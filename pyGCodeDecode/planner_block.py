@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Planner block Module."""
-from typing import List
+from typing import List, Union
 
 import numpy as np
 
@@ -253,11 +253,12 @@ class planner_block:
             for segm in self.segments:
                 segm.move_segment_time(delta_t)
 
-    def extrusion_block_max_vel(self):
+    def extrusion_block_max_vel(self) -> Union[np.ndarray, None]:
         """Return max vel from planner block while extruding.
 
         Returns:
-            block_max_vel: (np.ndarray 1x4) maximum axis velocity while extruding in block
+            block_max_vel: (np.ndarray 1x4) maximum axis velocity while extruding in block or None
+                if no extrusion is happening
         """
         if self.is_extruding:
             all_vel_extruding = np.asarray(
@@ -270,12 +271,10 @@ class planner_block:
                 ]
             )
             all_vel_extruding = np.reshape(all_vel_extruding, (-1, 4))
-            # print("all_vel:", all_vel_extruding)
             block_max_vel = np.amax(all_vel_extruding, axis=0)
-            # print("maxvel", block_max_vel)
             return block_max_vel
         else:
-            pass
+            return None
 
     def __init__(self, state: state, prev_block: "planner_block", firmware=None):
         """Calculate and store planner block consisting of one or multiple segments.
