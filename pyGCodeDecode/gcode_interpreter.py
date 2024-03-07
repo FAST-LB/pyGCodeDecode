@@ -676,7 +676,7 @@ class simulation:
         else:
             raise ValueError("No extrusion happening.")
 
-    def extrusion_max_vel(self, output_unit_system: str = None) -> np.ndarray:
+    def extrusion_max_vel(self, output_unit_system: str = None) -> np.float64:
         """Return scaled maximum velocity while extruding.
 
         Args:
@@ -684,7 +684,7 @@ class simulation:
                 The one from the simulation is used, in None is specified.
 
         Returns:
-            max_vel: (numpy.ndarray, 1x4) maximum axis velocity while extruding
+            max_vel: (np.float64) maximum travel velocity while extruding
         """
         all_blocks_max_vel = np.asarray(
             [np.linalg.norm(block.extrusion_block_max_vel()[:3]) for block in self.blocklist if block.is_extruding]
