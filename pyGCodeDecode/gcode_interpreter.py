@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """GCode Interpreter Module."""
 
-import importlib
+import importlib.resources
 import pathlib
 import sys
 import time
