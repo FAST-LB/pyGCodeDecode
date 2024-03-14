@@ -29,10 +29,6 @@ test-lint:
                 path: ./tests/coverage.xml
         when: always
 
-test-lin_py_3.8:
-    extends: ".test-lin_py"
-    image: "python:3.8"
-
 test-lin_py_3.9:
     extends: ".test-lin_py"
     image: "python:3.9"
