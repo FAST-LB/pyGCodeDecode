@@ -38,6 +38,8 @@ jobs:
 
           - name: run tests
             run: |
+              git lfs fetch
+              git lfs checkout
               pip install .[TEST]
               pytest --cov=. --cov-config=pyproject.toml --cov-report term \
                 --cov-report xml:./tests/coverage.xml
