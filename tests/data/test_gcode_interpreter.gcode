@@ -1,8 +1,3 @@
-G0 X100 F1800
-G0 Y100
-G0 Z0.2
-M83
-G1 X110 E0.1
-G1 Y110 E0.1
-G1 X100 E0.1
-G1 Y100 E0.1
+version https://git-lfs.github.com/spec/v1
+oid sha256:f1a31eafc10a34225a005db663c58be75dc60f5ae7e5253c339bc4f22839a4a9
+size 86
