@@ -37,7 +37,7 @@ if __name__ == "__main__":
     save_layer_metrics(
         simulation=benchy_simulation,
         filepath=output_dir / "layer_metrics.csv",
-        locale="en_us",
+        locale="en_US.utf8",
         delimiter=",",
     )
 
