@@ -12,12 +12,12 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
 ## What is this repository for?
+![comparison](https://media.githubusercontent.com/media/FAST-LB/pyGCodeDecode/main/paper/comparison.png)
 
-This package reads the target trajectory and commands for changing firmware settings from a GCode file. Furthermore it simulates a motion planner with acceleration and jerk / junction control. The simulation result describes the nozzle and extrusion axis position and velocity at every point in time. Notably, this method does try to simulate the real printer movements at a higher accuracy than assuming constant velocity. This is achieved by replicating grbl and derivative firmwares specific movement planner solutions, such as Junction Deviation as an interpretation for Jerk. This python package can be used to generate time dependent boundary conditions from a GCode file, needed in additive manufacturing simulations such as Fused Filament Fabrication. With implemented 3D plotting functions, it also can be useful as a GCode analyzer tool, to visualize local velocities to gain better process understanding.
+This package reads the target trajectory and commands for changing firmware settings from a GCode file. Furthermore it simulates a motion planner with acceleration and jerk / junction control. The simulation result describes the nozzle and extrusion axis position and velocity at every point in time. Notably, this method does try to simulate the real printer movements at a higher accuracy than assuming constant velocity. A comparison between the simulated accceleration approach and a constant velocity assumption is illustrated above. Constant velocity is usually also pictured in slicer previews and other GCode analyzing tools such as <span style="font-variant:small-caps;">Prusa Slicer</span> [1][prusa_slicer] or <span style="font-variant:small-caps;">gCode Viewer</span> [2][gcodeviewer]. The more accurate modeling is only achieved by replicating grbl and derivative firmwares specific movement planner solutions, such as Junction Deviation as an interpretation for Jerk. This python package can be used to generate time dependent boundary conditions from a GCode file, needed in additive manufacturing simulations such as Fused Filament Fabrication. With implemented 3D plotting functions, it also can be useful as a GCode analyzer tool, to visualize local velocities to gain better process understanding.
 
-The package is highly modularized to enable quick modification and extension of all features.
+The package is modularized to enable quick modification and extension of all features.
 
-PyGCodeDecode is currently as a generator for Abaqus Event Series to model the material extrusion process.
 
 ## Install pyGCodeDecode
 
@@ -55,6 +55,7 @@ This should return the correct version.
 
 
 ## Workflow
+Example simulations are provided in [./examples/](https://github.com/FAST-LB/pyGCodeDecode/blob/main/examples/) and can be modified to suit your needs. If you want to start from scratch, the following instructions will help you setup & run a simulation.
 
 ### Define your printer defaults in a `.yaml` file
 
@@ -125,7 +126,7 @@ For more in depth information have a look into the [documentation](https://githu
 
 ## Supported GCode commands
 
-fully supported:
+Fully supported commands:
 
         "G0": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # non Extrusion Move
         "G1": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # Extrusion Move
@@ -140,10 +141,20 @@ fully supported:
         ";": None,  # Comment
 
 
-partially supported:
+Only partially supported commands:
 
         "M203": {"E": None, "X": None, "Y": None, "Z": None},  # Max Feedrate *read only
         "M204": {"P": None, "R": None, "S": None, "T": None},  # Starting Acceleration *P only
         "M205": {"E": None, "J": None, "S": None, "X": None, "Y": None, "Z": None},  # Advanced Settings *X only
         "G10": {"S": None}, *read only
         "G11": None, *read only
+
+Known unsupported commands that may cause issues:
+
+        "G2" / "G3: {-} Arc/Circle move, please disable this command in your Slicer settings
+        
+### References
+
+[prusa_slicer]: <https://github.com/prusa3d/PrusaSlicer> "[1] Prusa Slicer"
+
+[gcodeviewer]: <https://gcode.ws/> "[2] GCodeViewer"
