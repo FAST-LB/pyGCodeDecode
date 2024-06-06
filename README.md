@@ -53,6 +53,76 @@ This should return the correct version.
 
 3. Verify the package installation via `abaqus python -m pip list` and look for `pyGCodeDecode`. -->
 
+
+## Workflow
+
+### Define your printer defaults in a `.yaml` file
+
+For example, the definition may look like this (also see [./pyGCodeDecode/data/default_printer_presets.yaml](https://github.com/FAST-LB/pyGCodeDecode/blob/main/pyGCodeDecode/data/default_printer_presets.yaml)):
+
+        prusa_mini:
+                # general properties
+                nozzle_diam: 0.4
+                filament_diam: 1.75
+                # default settings
+                p_vel: 35
+                p_acc: 1250
+                jerk: 8
+                # axis max speeds
+                vX: 180
+                vY: 180
+                vZ: 12
+                vE: 80
+                firmware: marlin_jerk
+The default settings usually are machine specific and often can be read from the printer using a Serial Connection with a GCode command. you can use `M503` for Marlin, Prusa and some other firmwares.
+
+### Use pyGCD to run a GCode Simulation
+
+An easy way to use pyGCD is by creating a .py file to set up and run the simulation.
+
+1. Import the package and modules you want to use:
+
+        from pyGCodeDecode import gcode_interpreter
+
+1. Load your setup `.yaml` file through:
+
+        setup = gcode_interpreter.setup(filename=r"e./pygcodedecode/data/default_printer_presets.yaml")
+
+1. Select your printer from the setup by name:
+
+        setup.select_printer("prusa_mini")
+
+1. You can optionally set or modify custom properties after loading the setup:
+
+        setup.set_property({"layer_cue": "LAYER_CHANGE"})
+
+1. Finally, run the simulation by providing a `GCode` and passing the setup defined before:
+
+        simulation = gcode_interpreter.simulation(filename=r"example\example.gcode", initial_machine_setup=setup)
+
+
+### Access the Results
+
+Now `simulation` contains the simulation results, you can access it through the instance.
+
+Get the individual axis values (position and velocity) at a certain time (e.g. after 2.6 s) to use it in further simulation by:
+
+        simulation.get_values(t=2.6)
+
+You can visualize the GCode by plotting it in 3D:
+
+        simulation.plot_3d()
+
+pyGCD can also be used to create files defining an event series for ABAQUS simulations:
+
+        generate_abaqus_event_series(
+                simulation=simulation,
+                filpath="path/to/event_series.csv"
+        )
+
+For more in depth information have a look into the [documentation](https://github.com/FAST-LB/pyGCodeDecode/blob/main/doc.md).
+
+
 ## Supported GCode commands
 
 fully supported:
@@ -77,68 +147,3 @@ partially supported:
         "M205": {"E": None, "J": None, "S": None, "X": None, "Y": None, "Z": None},  # Advanced Settings *X only
         "G10": {"S": None}, *read only
         "G11": None, *read only
-
-## Workflow
-
-### define a printer with default parameters in a .yaml
-
-example definition (also see [./pyGCodeDecode/data/default_printer_presets.yaml](https://github.com/FAST-LB/pyGCodeDecode/blob/main/pyGCodeDecode/data/default_printer_presets.yaml)):
-
-        prusa_mini:
-                # general properties
-                nozzle_diam: 0.4
-                filament_diam: 1.75
-                # default settings
-                p_vel: 35
-                p_acc: 1250
-                jerk: 8
-                # axis max speeds
-                vX: 180
-                vY: 180
-                vZ: 12
-                vE: 80
-                firmware: marlin_jerk
-
-### create a script to run pyGCD
-
-Create a .py file to set up and run the simulation.
-Import the package:
-
-        from pyGCodeDecode import gcode_interpreter
-
-load the setup with:
-
-        setup = gcode_interpreter.setup(filename=r"e./pygcodedecode/data/default_printer_presets.yaml")
-
-select a printer:
-
-        setup.select_printer("prusa_mini")
-
-(optional) set custom properties:
-
-        setup.set_property({"layer_cue": "LAYER_CHANGE"})
-
-run the simulation:
-
-        simulation = gcode_interpreter.simulation(filename=r"example\example.gcode", initial_machine_setup=setup)
-
-use the simulation obj from now on, to retrieve information or use plot functions:
-
-get axis values at a certain time (e.g. 2.6 s):
-
-        simulation.get_values(t=2.6)
-
-
-plot in 3D:
-
-        simulation.plot_3d()
-
-
-pyGCD can also be used to create files defining an event series for ABAQUS simulations:
-
-        generate_abaqus_event_series(
-                simulation=simulation,
-                filpath="path/to/event_series.csv"
-        )
-
-For more in depth information have a look into the [documentation](https://github.com/FAST-LB/pyGCodeDecode/blob/main/doc.md).
