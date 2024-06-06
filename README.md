@@ -14,7 +14,7 @@
 ## What is this repository for?
 ![comparison](https://media.githubusercontent.com/media/FAST-LB/pyGCodeDecode/main/paper/comparison.png)
 
-This package reads the target trajectory and commands for changing firmware settings from a GCode file. Furthermore it simulates a motion planner with acceleration and jerk / junction control. The simulation result describes the nozzle and extrusion axis position and velocity at every point in time. Notably, this method does try to simulate the real printer movements at a higher accuracy than assuming constant velocity. A comparison between the simulated accceleration approach and a constant velocity assumption is illustrated above. Constant velocity is usually also pictured in slicer previews and other GCode analyzing tools such as <span style="font-variant:small-caps;">Prusa Slicer</span> [1][prusa_slicer] or <span style="font-variant:small-caps;">gCode Viewer</span> [2][gcodeviewer]. The more accurate modeling is only achieved by replicating grbl and derivative firmwares specific movement planner solutions, such as Junction Deviation as an interpretation for Jerk. This python package can be used to generate time dependent boundary conditions from a GCode file, needed in additive manufacturing simulations such as Fused Filament Fabrication. With implemented 3D plotting functions, it also can be useful as a GCode analyzer tool, to visualize local velocities to gain better process understanding.
+This package reads the target trajectory and commands for changing firmware settings from a GCode file. Furthermore it simulates a motion planner with acceleration and jerk / junction control. The simulation result describes the nozzle and extrusion axis position and velocity at every point in time. Notably, this method does try to simulate the real printer movements at a higher accuracy than assuming constant velocity. A comparison between the simulated accceleration approach and a constant velocity assumption is illustrated above. Constant velocity is usually also pictured in slicer previews and other GCode analyzing tools such as <span style="font-variant:small-caps;">Prusa Slicer</span> [1][prusa_slicer] or <span style="font-variant:small-caps;">gCodeViewer</span> [2][gcodeviewer]. The more accurate modeling is only achieved by replicating grbl and derivative firmwares specific movement planner solutions, such as Junction Deviation as an interpretation for Jerk. This python package can be used to generate time dependent boundary conditions from a GCode file, needed in additive manufacturing simulations such as Fused Filament Fabrication. With implemented 3D plotting functions, it also can be useful as a GCode analyzer tool, to visualize local velocities to gain better process understanding.
 
 The package is modularized to enable quick modification and extension of all features.
 
@@ -153,8 +153,7 @@ Known unsupported commands that may cause issues:
 
         "G2" / "G3: {-} Arc/Circle move, please disable this command in your Slicer settings
         
-### References
 
-[prusa_slicer]: <https://github.com/prusa3d/PrusaSlicer> "[1] Prusa Slicer"
+[prusa_slicer]: <https://github.com/prusa3d/PrusaSlicer> "Prusa Slicer"
 
-[gcodeviewer]: <https://gcode.ws/> "[2] GCodeViewer"
+[gcodeviewer]: <https://gcode.ws/> "gCodeViewer"
