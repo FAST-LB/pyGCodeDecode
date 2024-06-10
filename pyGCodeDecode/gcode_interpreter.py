@@ -2,6 +2,7 @@
 """GCode Interpreter Module."""
 
 import importlib.resources
+import os
 import pathlib
 import sys
 import time
@@ -413,8 +414,14 @@ class simulation:
 
             mesh = mesh.combine()
 
+        # check wether a display is available or Windows is used
+        if os.name == "nt" or "DISPLAY" in os.environ:
+            display_available = True
+        else:
+            display_available = False
+
         # the image can't be saved when the plot is interactive
-        if screenshot_path is None and vtk_path is None:
+        if screenshot_path is None:
             off_screen = False
         else:
             off_screen = True
@@ -426,15 +433,19 @@ class simulation:
             smooth_shading=True,
             scalar_bar_args={"title": "travel velocity in mm/s"},
         )
-        p.show()
 
-        if off_screen:
-            if vtk_path is not None:
-                mesh.save(filename=vtk_path)
-                print(f"VTK saved to:\n{vtk_path}")
-            if screenshot_path is not None:
+        if vtk_path is not None:
+            mesh.save(filename=vtk_path)
+            print(f"VTK saved to:\n{vtk_path}")
+        if screenshot_path is not None:
+            if display_available:
                 p.screenshot(filename=screenshot_path)
                 print(f"Screenshot saved to:\n{screenshot_path}")
+            else:
+                print("Screenshot can not be created without a display!")
+
+        if not off_screen and display_available:
+            p.show()
 
         return mesh
 
