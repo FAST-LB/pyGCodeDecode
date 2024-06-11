@@ -49,7 +49,6 @@ def test_end_to_end_extensive():
     save_layer_metrics(
         simulation=end_to_end_simulation,
         filepath=output_dir / "layer_metrics.csv",
-        locale="en_US.utf8",
         delimiter=",",
     )
 
@@ -68,6 +67,7 @@ def test_end_to_end_extensive():
         vtk_path=output_dir / "test_end_to_end.vtk",
     )
 
+    # assert that the output files exists
     output_files = [
         "layer_metrics.csv",
         "test_end_to_end_event_series.csv",
