@@ -63,17 +63,24 @@ def test_end_to_end_extensive():
     # create a 3D-plot and save a VTK as well as a screenshot
     end_to_end_simulation.plot_3d(
         extrusion_only=True,
-        screenshot_path=output_dir / "test_end_to_end.png",
+        screenshot_path=output_dir / "test_end_to_end_3d.png",
         vtk_path=output_dir / "test_end_to_end.vtk",
     )
 
-    # assert that the output files exists
+    # create a 2D-plot with matplotlib
+    end_to_end_simulation.plot_2d_position(filepath=output_dir / "test_end_to_end_2d.png", show=False)
+
+    # plotting velocities with matplotlib
+    end_to_end_simulation.plot_vel(show=False, filepath=output_dir / "velocities.png")
+
+    # assert that the output files exists (pyvista screenshot cannot be created without a display)
     output_files = [
         "layer_metrics.csv",
         "test_end_to_end_event_series.csv",
         "test_end_to_end_summary.yaml",
-        "test_end_to_end.png",
+        "test_end_to_end_2d.png",
         "test_end_to_end.vtk",
+        "velocities.png",
     ]
     for file in output_files:
         assert (output_dir / file).exists()

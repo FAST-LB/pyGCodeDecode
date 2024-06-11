@@ -240,7 +240,7 @@ class simulation:
 
     def plot_2d_position(
         self,
-        filename="trajectory_2D.png",
+        filepath: pathlib.Path = pathlib.Path("trajectory_2D.png"),
         colvar="Velocity",
         show_points=False,
         colvar_spatial_resolution=1,
@@ -341,9 +341,9 @@ class simulation:
         plt.title("2D Position")
         if scaled:
             plt.axis("scaled")
-        if filename is not False:
-            plt.savefig(filename, dpi=dpi)
-            print("2D Plot saved as ", filename)
+        if filepath is not False:
+            plt.savefig(filepath, dpi=dpi)
+            print(f"2D Plot saved:\n👉 {filepath}")
         if show:
             plt.show()
             return fig
