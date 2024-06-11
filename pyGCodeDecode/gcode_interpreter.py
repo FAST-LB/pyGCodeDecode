@@ -420,7 +420,7 @@ class simulation:
         else:
             display_available = False
 
-        # the image can't be saved when the plot is interactive
+        # saving a screenshot and an interactive plot aren't possible at the same tim
         if screenshot_path is None:
             off_screen = False
         else:
