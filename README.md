@@ -16,7 +16,7 @@ The analysis of GCode either in Slicer softwares or in dedicated GCode analyzer 
 
 ![comparison](https://media.githubusercontent.com/media/FAST-LB/pyGCodeDecode/main/paper/comparison.png)
 
-In detail, this package reads the target trajectory and commands for changing firmware settings from a GCode file. Subsequently it simulates a motion planner with acceleration and jerk / junction control. The more accurate modeling can only be achieved by replicating grbl and derivative firmwares specific movement planner solutions, such as Junction Deviation as an interpretation for Jerk. The simulation result describes the nozzle and extrusion axis position and velocity at every point in time and are easily accessible. This python package can be used to generate time dependent boundary conditions from a GCode file, needed in additive manufacturing simulations such as Fused Filament Fabrication. With implemented 3D plotting functions, it also can be useful as a GCode analyzer tool, to visualize local velocities to gain better process understanding.
+In detail, this package reads the target trajectory and commands for changing firmware settings from a GCode file. Subsequently it simulates a motion planner with acceleration and jerk / junction control. The more accurate modeling can only be achieved by replicating [grbl][grbl] and derivative firmwares specific movement planner solutions, such as Classic Jerk and Junction Deviation as an interpretation for Jerk. The simulation result describes the nozzle and extrusion axis position and velocity at every point in time and are easily accessible. This python package can be used to generate time dependent boundary conditions from a GCode file, needed in additive manufacturing simulations such as Fused Filament Fabrication. With implemented 3D plotting functions, it also can be useful as a GCode analyzer tool, to visualize local velocities to gain better process understanding.
 
 
 ## Install pyGCodeDecode
@@ -158,3 +158,5 @@ Known unsupported commands that may cause issues:
 [prusa_slicer]: <https://github.com/prusa3d/PrusaSlicer> "Prusa Slicer"
 
 [gcodeviewer]: <https://gcode.ws/> "gCodeViewer"
+
+[grbl]: <https://github.com/grbl/grbl> "grbl"
