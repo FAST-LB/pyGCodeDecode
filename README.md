@@ -12,12 +12,12 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
 ## What is this repository for?
+For the analysis of GCode, slicers or dedicated analyzer tools, such as [Prusa Slicer][prusa_slicer] or [gCodeViewer][gcodeviewer], merely display target process parameters. The actual process velocity however is determined by the firmware of the printer. Velocities are expected to deviate significantly from the target velocity at times of acceleration and deceleration. `pyGCodeDecode` aims to model the machine's actual behavior and visualize its influence. A visual comparison between the simulated acceleration approach and the raw GCode target velocity is shown below.
 
-This package reads the target trajectory and commands for changing firmware settings from a GCode file. Furthermore it simulates a motion planner with acceleration and jerk / junction control. The simulation result describes the nozzle and extrusion axis position and velocity at every point in time. Notably, this method does try to simulate the real printer movements at a higher accuracy than assuming constant velocity. This is achieved by replicating grbl and derivative firmwares specific movement planner solutions, such as Junction Deviation as an interpretation for Jerk. This python package can be used to generate time dependent boundary conditions from a GCode file, needed in additive manufacturing simulations such as Fused Filament Fabrication. With implemented 3D plotting functions, it also can be useful as a GCode analyzer tool, to visualize local velocities to gain better process understanding.
+![comparison](https://media.githubusercontent.com/media/FAST-LB/pyGCodeDecode/main/paper/comparison.png)
 
-The package is highly modularized to enable quick modification and extension of all features.
+This package reads the target trajectory firmware settings changes from a GCode file. Subsequently, it simulates a motion planner with acceleration and jerk or junction control respectively. The more accurate modeling is achieved by replicating [grbl][grbl]'s and its derivatives' firmware-specific movement planner solutions, such as "Classic Jerk" and "Junction Deviation", as an interpretation for Jerk. The simulation result is a description of the nozzle and extrusion axis position and velocity over time and is easily accessible for further analysis. For example it can be used to generate time dependent boundary conditions, needed in additive manufacturing simulations for the Fused Filament Fabrication (FFF) process. The package includes 3D plotting functions, so it can be used to visualize local velocities before printing to improve your process understanding.
 
-PyGCodeDecode is currently as a generator for Abaqus Event Series to model the material extrusion process.
 
 ## Install pyGCodeDecode
 
@@ -53,36 +53,13 @@ This should return the correct version.
 
 3. Verify the package installation via `abaqus python -m pip list` and look for `pyGCodeDecode`. -->
 
-## Supported GCode commands
-
-fully supported:
-
-        "G0": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # non Extrusion Move
-        "G1": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # Extrusion Move
-        "G4": {"P": None, "S": None},  # Dwell
-        "M82": None,  # E Absolute
-        "M83": None,  # E Relative
-        "G20": None,  # Inches
-        "G21": None,  # Milimeters
-        "G90": None,  # Absolute Positioning
-        "G91": None,  # Relative Positioning
-        "G92": {"E": None, "X": None, "Y": None, "Z": None},  # Set Position
-        ";": None,  # Comment
-
-
-partially supported:
-
-        "M203": {"E": None, "X": None, "Y": None, "Z": None},  # Max Feedrate *read only
-        "M204": {"P": None, "R": None, "S": None, "T": None},  # Starting Acceleration *P only
-        "M205": {"E": None, "J": None, "S": None, "X": None, "Y": None, "Z": None},  # Advanced Settings *X only
-        "G10": {"S": None}, *read only
-        "G11": None, *read only
 
 ## Workflow
+Example simulations are provided in [./examples/](https://github.com/FAST-LB/pyGCodeDecode/blob/main/examples/) and can be modified to suit your needs. If you want to start from scratch, the following instructions will help you setup and run a simulation.
 
-### define a printer with default parameters in a .yaml
+### Define your printer defaults in a `.yaml` file
 
-example definition (also see [./pyGCodeDecode/data/default_printer_presets.yaml](https://github.com/FAST-LB/pyGCodeDecode/blob/main/pyGCodeDecode/data/default_printer_presets.yaml)):
+For example, the definition may look like this: [./pyGCodeDecode/data/default_printer_presets.yaml](https://github.com/FAST-LB/pyGCodeDecode/blob/main/pyGCodeDecode/data/default_printer_presets.yaml):
 
         prusa_mini:
                 # general properties
@@ -98,43 +75,46 @@ example definition (also see [./pyGCodeDecode/data/default_printer_presets.yaml]
                 vZ: 12
                 vE: 80
                 firmware: marlin_jerk
+The default settings usually are machine specific and often can be read from the printer using a serial connection by sending a GCode command. You can use `M503` for Marlin, Prusa and some other firmwares.
 
-### create a script to run pyGCD
+### Use pyGCD to run a GCode Simulation
 
-Create a .py file to set up and run the simulation.
-Import the package:
+An easy way to use pyGCD is by creating a .py file to set up and run the simulation.
+
+1. Import the package and modules you want to use:
 
         from pyGCodeDecode import gcode_interpreter
 
-load the setup with:
+1. Load your setup `.yaml` file through:
 
         setup = gcode_interpreter.setup(filename=r"e./pygcodedecode/data/default_printer_presets.yaml")
 
-select a printer:
+1. Select your printer from the setup by name:
 
         setup.select_printer("prusa_mini")
 
-(optional) set custom properties:
+1. You can optionally set or modify custom properties after loading the setup:
 
         setup.set_property({"layer_cue": "LAYER_CHANGE"})
 
-run the simulation:
+1. Finally, run the simulation by providing a `GCode` and passing the setup defined before:
 
         simulation = gcode_interpreter.simulation(filename=r"example\example.gcode", initial_machine_setup=setup)
 
-use the simulation obj from now on, to retrieve information or use plot functions:
 
-get axis values at a certain time (e.g. 2.6 s):
+### Access the Results
+
+The `simulation` object contains the simulation results, you can access them through various methods:
+
+Get the individual axis values (position and velocity) at a certain time (e.g. after 2.6 s) to use it in further simulation by:
 
         simulation.get_values(t=2.6)
 
-
-plot in 3D:
+You can visualize the GCode by plotting it in 3D:
 
         simulation.plot_3d()
 
-
-pyGCD can also be used to create files defining an event series for ABAQUS simulations:
+pyGCD can also be used to create files defining an event series for ABAQUS simulations.
 
         generate_abaqus_event_series(
                 simulation=simulation,
@@ -142,3 +122,41 @@ pyGCD can also be used to create files defining an event series for ABAQUS simul
         )
 
 For more in depth information have a look into the [documentation](https://github.com/FAST-LB/pyGCodeDecode/blob/main/doc.md).
+
+
+## Supported GCode commands
+
+Fully supported commands:
+
+        "G0": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # non Extrusion Move
+        "G1": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # Extrusion Move
+        "G4": {"P": None, "S": None},  # Dwell
+        "M82": None,  # E Absolute
+        "M83": None,  # E Relative
+        "G20": None,  # Inches
+        "G21": None,  # Milimeters
+        "G90": None,  # Absolute Positioning
+        "G91": None,  # Relative Positioning
+        "G92": {"E": None, "X": None, "Y": None, "Z": None},  # Set Position
+        ";": None,  # Comment
+
+
+Only partially supported commands:
+
+        "M203": {"E": None, "X": None, "Y": None, "Z": None},  # Max Feedrate *read only
+        "M204": {"P": None, "R": None, "S": None, "T": None},  # Starting Acceleration *P only
+        "M205": {"E": None, "J": None, "S": None, "X": None, "Y": None, "Z": None},  # Advanced Settings *X only
+        "G10": {"S": None}, *read only
+        "G11": None, *read only
+
+Known unsupported commands that may cause issues:
+
+        "G2" / "G3: {-} Arc/Circle move, please disable this command in your Slicer settings
+
+
+ <!-- REFERENCES   -->
+[prusa_slicer]: <https://github.com/prusa3d/PrusaSlicer> "Prusa Slicer"
+
+[gcodeviewer]: <https://gcode.ws/> "gCodeViewer"
+
+[grbl]: <https://github.com/grbl/grbl> "grbl"
