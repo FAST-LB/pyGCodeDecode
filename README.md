@@ -12,7 +12,7 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
 ## What is this repository for?
-The analysis of GCode either in Slicer softwares or in dedicated GCode analyzer tools just shows target process parameters. The real process velocity is determined by the firmware of the real printer. The real velocity is expected to deviate from the target velocity at times of acceleration and deceleration. To model this behaviour `pyGCodeDecode` has been developed, which in contrast to existing software such as [Prusa Slicer][prusa_slicer] or [gCodeViewer][gcodeviewer] consideres and visualizes these influences. A comparison between the simulated acceleration approach and the raw GCode target velocity is illustrated below.
+For the analysis of GCode, slicers or dedicated analyzer tools, such as [Prusa Slicer][prusa_slicer] or [gCodeViewer][gcodeviewer], merely display target process parameters. The actual process velocity however is determined by the firmware of the printer. Velocities are expected to deviate significantly from the target velocity at times of acceleration and deceleration. `pyGCodeDecode` aims to model the machine's actual behavior and visualize its influence. A visual comparison between the simulated acceleration approach and the raw GCode target velocity is shown below.
 
 ![comparison](https://media.githubusercontent.com/media/FAST-LB/pyGCodeDecode/main/paper/comparison.png)
 
@@ -55,11 +55,11 @@ This should return the correct version.
 
 
 ## Workflow
-Example simulations are provided in [./examples/](https://github.com/FAST-LB/pyGCodeDecode/blob/main/examples/) and can be modified to suit your needs. If you want to start from scratch, the following instructions will help you setup & run a simulation.
+Example simulations are provided in [./examples/](https://github.com/FAST-LB/pyGCodeDecode/blob/main/examples/) and can be modified to suit your needs. If you want to start from scratch, the following instructions will help you setup and run a simulation.
 
 ### Define your printer defaults in a `.yaml` file
 
-For example, the definition may look like this (also see [./pyGCodeDecode/data/default_printer_presets.yaml](https://github.com/FAST-LB/pyGCodeDecode/blob/main/pyGCodeDecode/data/default_printer_presets.yaml)):
+For example, the definition may look like this: [./pyGCodeDecode/data/default_printer_presets.yaml](https://github.com/FAST-LB/pyGCodeDecode/blob/main/pyGCodeDecode/data/default_printer_presets.yaml):
 
         prusa_mini:
                 # general properties
@@ -75,7 +75,7 @@ For example, the definition may look like this (also see [./pyGCodeDecode/data/d
                 vZ: 12
                 vE: 80
                 firmware: marlin_jerk
-The default settings usually are machine specific and often can be read from the printer using a Serial Connection with a GCode command. You can use `M503` for Marlin, Prusa and some other firmwares.
+The default settings usually are machine specific and often can be read from the printer using a serial connection by sending a GCode command. You can use `M503` for Marlin, Prusa and some other firmwares.
 
 ### Use pyGCD to run a GCode Simulation
 
@@ -104,7 +104,7 @@ An easy way to use pyGCD is by creating a .py file to set up and run the simulat
 
 ### Access the Results
 
-Now `simulation` contains the simulation results, you can access it through the instance.
+The `simulation` object contains the simulation results, you can access them through various methods:
 
 Get the individual axis values (position and velocity) at a certain time (e.g. after 2.6 s) to use it in further simulation by:
 
@@ -114,7 +114,7 @@ You can visualize the GCode by plotting it in 3D:
 
         simulation.plot_3d()
 
-pyGCD can also be used to create files defining an event series for ABAQUS simulations:
+pyGCD can also be used to create files defining an event series for ABAQUS simulations.
 
         generate_abaqus_event_series(
                 simulation=simulation,
