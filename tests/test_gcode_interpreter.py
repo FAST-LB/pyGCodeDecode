@@ -8,7 +8,7 @@ def test_setup():
     from pyGCodeDecode.gcode_interpreter import setup
 
     simulation_setup = setup(
-        presets_file=pathlib.Path("./tests/data/test_gcode_interpreter_setup_printers.yaml"),
+        presets_file=pathlib.Path("./tests/data/test_printer_setups.yaml"),
         printer="debugging",
         layer_cue="LAYER CHANGE",
     )
@@ -53,7 +53,7 @@ def test_simulation_class():
     from pyGCodeDecode.gcode_interpreter import setup, simulation
 
     simulation_setup = setup(
-        presets_file=pathlib.Path("./tests/data/test_gcode_interpreter_setup_printers.yaml"),
+        presets_file=pathlib.Path("./tests/data/test_printer_setups.yaml"),
         printer="debugging",
         layer_cue="LAYER CHANGE",
     )

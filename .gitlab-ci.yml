@@ -16,6 +16,9 @@ test-lint:
 .test-lin_py:
     stage: test
     needs: []
+    before_script:
+        # missing dependencies for pyvista
+        - apt-get update && apt-get install libgl1 -y
     script:
         - pip install .[TEST]
         - pytest --cov=. --cov-config=pyproject.toml --cov-report term
