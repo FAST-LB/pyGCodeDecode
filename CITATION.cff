@@ -48,9 +48,9 @@ abstract: >-
 keywords:
   - GCode
   - Simulation
-  - Fused Filament Deposition
-  - Fused Filament Fabrication
   - Material Extrusion
+  - Fused Filament Fabrication
+  - Fused Deposition Modeling
   - Additive Manufacturing
   - 3D Printing
   - Machine Code
