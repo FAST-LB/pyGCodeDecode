@@ -4,9 +4,9 @@ tags:
   - Python
   - GCode
   - Simulation
-  - Fused Filament Deposition
-  - Fused Filament Fabrication
   - Material Extrusion
+  - Fused Filament Fabrication
+  - Fused Deposition Modeling
   - Additive Manufacturing
   - 3D Printing
   - Machine Code
@@ -15,6 +15,7 @@ tags:
   - FDM
   - MEX
   - Process Simulation
+  - Engineering
 authors:
   - name: Jonathan Knirsch
     orcid: 0009-0008-8663-8721
@@ -37,7 +38,7 @@ authors:
     equal-contrib: false
     affiliation: 1
 affiliations:
- - name: Karlsruhe Institute of Technology (KIT), Institute of Vehicle System Technology, Germany
+ - name: Institute of Vehicle System Technology - Lightweight Engineering, Karlsruhe Institute of Technology (KIT), Rintheimer Querallee 2, Karlsruhe, 76131, Germany
    index: 1
 date: 21 August 2023
 bibliography: paper.bib
