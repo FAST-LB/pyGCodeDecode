@@ -11,7 +11,7 @@ include = ["pyGCodeDecode"]
 
 [project]
 name = "pyGCodeDecode"
-version = "0.2.2"
+version = "0.2.3"
 authors = [
     { name = "FAST-LB at KIT", email = "lt-github@fast.kit.edu" },
     { name = "Jonathan Knirsch", email = "jonathan.knirsch@student.kit.edu" },

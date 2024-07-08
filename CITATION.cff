@@ -4,47 +4,76 @@
 cff-version: 1.2.0
 title: pyGCodeDecode
 message: >-
-  You are welcome to cite pyGCodeDecode using the metadata
-  from this file.
+  This package reads the target trajectory firmware settings
+  changes from a GCode file. Subsequently, it simulates a
+  motion planner with acceleration and jerk or junction
+  control respectively. The more accurate modeling is
+  achieved by replicating grbl's and its derivatives'
+  firmware-specific movement planner solutions, such as
+  "Classic Jerk" and "Junction Deviation", as an
+  interpretation for Jerk. The simulation result is a
+  description of the nozzle and extrusion axis position and
+  velocity over time and is easily accessible for further
+  analysis. For example it can be used to generate time
+  dependent boundary conditions, needed in additive
+  manufacturing simulations for the Fused Filament
+  Fabrication (FFF) process. The package includes 3D
+  plotting functions, so it can be used to visualize local
+  velocities before printing to improve your process
+  understanding.
 type: software
 authors:
-  - name: FAST-LB at the Karlsruhe Institute of Technology (KIT)
-    address: Rintheimer Queeralle 2
-    city: Karlsruhe
-    post-code: '76131'
-    location: Building 70.04
-    email: lt-github@fast.kit.edu
-    website: 'https://www.fast.kit.edu/english/lbt/index.php'
-    country: DE
   - given-names: Jonathan
     family-names: Knirsch
     email: jonathan.knirsch@student.kit.edu
-    affiliation: FAST-LB at KIT
+    affiliation: >-
+      Institute of Vehicle System Technology - Lightweight
+      Engineering, Karlsruhe Institute of Technology (KIT),
+      Rintheimer Querallee 2, Karlsruhe, 76131, Germany
     orcid: 'https://orcid.org/0009-0008-8663-8721'
   - given-names: Felix
     family-names: Frölich
     email: felix.froelich@kit.edu
-    affiliation: FAST-LB at KIT
+    affiliation: >-
+      Institute of Vehicle System Technology - Lightweight
+      Engineering, Karlsruhe Institute of Technology (KIT),
+      Rintheimer Querallee 2, Karlsruhe, 76131, Germany
     orcid: 'https://orcid.org/0000-0002-2575-4752'
   - given-names: Lukas
     family-names: Hof
     orcid: 'https://orcid.org/0009-0000-4931-2409'
-    affiliation: FAST-LB at KIT
+    affiliation: >-
+      Institute of Vehicle System Technology - Lightweight
+      Engineering, Karlsruhe Institute of Technology (KIT),
+      Rintheimer Querallee 2, Karlsruhe, 76131, Germany
     email: lukas.hof@kit.edu
   - given-names: Florian
     family-names: Wittemann
     email: florian.wittemann@kit.edu
-    affiliation: FAST-LB at KIT
+    affiliation: >-
+      Institute of Vehicle System Technology - Lightweight
+      Engineering, Karlsruhe Institute of Technology (KIT),
+      Rintheimer Querallee 2, Karlsruhe, 76131, Germany
     orcid: 'https://orcid.org/0000-0001-8693-7264'
   - given-names: Luise
     family-names: Kärger
     email: luise.kaerger@kit.edu
-    affiliation: FAST-LB at KIT
+    affiliation: >-
+      Institute of Vehicle System Technology - Lightweight
+      Engineering, Karlsruhe Institute of Technology (KIT),
+      Rintheimer Querallee 2, Karlsruhe, 76131, Germany
     orcid: 'https://orcid.org/0000-0002-6534-6518'
 repository-code: 'https://github.com/FAST-LB/pyGCodeDecode'
+repository-artifact: 'https://pypi.org/project/pyGCodeDecode/'
 abstract: >-
-  Generate time dependent boundary conditions from a .gcode
-  file.
+  For the analysis of GCode, slicers or dedicated analyzer
+  tools, such as Prusa Slicer or  gCodeViewer, merely
+  display target process parameters. The actual process
+  velocity however is  determined by the firmware of the
+  printer. Velocities are expected to deviate significantly
+  from  the target velocity at times of acceleration and
+  deceleration. pyGCodeDecode aims to model the  machine's
+  actual behavior and visualize its influence.
 keywords:
   - GCode
   - Simulation
