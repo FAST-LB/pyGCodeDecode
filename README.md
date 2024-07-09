@@ -5,19 +5,21 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![tests](https://github.com/FAST-LB/pyGCodeDecode/workflows/Tests/badge.svg)](https://github.com/FAST-LB/pyGCodeDecode/actions/workflows/tests.yaml)
 [![GitHub Release](https://img.shields.io/github/release/FAST-LB/pyGCodeDecode.svg?style=flat)](https://github.com/FAST-LB/pyGCodeDecode/releases)
+[![Repo DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12663658.svg)]( https://doi.org/10.5281/zenodo.12663658)
+[![Paper DOI](https://joss.theoj.org/papers/tbd/status.svg)](https://doi.org/tbd)
 
-[![Python](https://img.shields.io/pypi/pyversions/pygcodedecode.svg)]()
+![Python](https://img.shields.io/pypi/pyversions/pygcodedecode.svg)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://black.readthedocs.io/en/stable/)
 [![isort](https://img.shields.io/badge/isort-blue)](https://pycqa.github.io/isort/)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
 ## What is this repository for?
+
 For the analysis of GCode, slicers or dedicated analyzer tools, such as [Prusa Slicer][prusa_slicer] or [gCodeViewer][gcodeviewer], merely display target process parameters. The actual process velocity however is determined by the firmware of the printer. Velocities are expected to deviate significantly from the target velocity at times of acceleration and deceleration. `pyGCodeDecode` aims to model the machine's actual behavior and visualize its influence. A visual comparison between the simulated acceleration approach and the raw GCode target velocity is shown below.
 
 ![comparison](https://media.githubusercontent.com/media/FAST-LB/pyGCodeDecode/main/paper/comparison.png)
 
 This package reads the target trajectory firmware settings changes from a GCode file. Subsequently, it simulates a motion planner with acceleration and jerk or junction control respectively. The more accurate modeling is achieved by replicating [grbl][grbl]'s and its derivatives' firmware-specific movement planner solutions, such as "Classic Jerk" and "Junction Deviation", as an interpretation for Jerk. The simulation result is a description of the nozzle and extrusion axis position and velocity over time and is easily accessible for further analysis. For example it can be used to generate time dependent boundary conditions, needed in additive manufacturing simulations for the Fused Filament Fabrication (FFF) process. The package includes 3D plotting functions, so it can be used to visualize local velocities before printing to improve your process understanding.
-
 
 ## Install pyGCodeDecode
 
@@ -40,21 +42,8 @@ You may want to verify the installation and version. Inside your environment, ju
 
 This should return the correct version.
 
-<!-- ### Installing in `abaqus` python (2.7)
-
-1. Make sure you have installed pip for Abaqus python. If you do not have it, do the following:
-
-        curl -s https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
-        abq<version> python get-pip.py --no-warn-script-location
-
-2. Install the package via pip in the root directory of this repository:
-
-        abq<version> python -m pip install .
-
-3. Verify the package installation via `abaqus python -m pip list` and look for `pyGCodeDecode`. -->
-
-
 ## Workflow
+
 Example simulations are provided in [./examples/](https://github.com/FAST-LB/pyGCodeDecode/blob/main/examples/) and can be modified to suit your needs. If you want to start from scratch, the following instructions will help you setup and run a simulation.
 
 ### Define your printer defaults in a `.yaml` file
@@ -101,7 +90,6 @@ An easy way to use pyGCD is by creating a .py file to set up and run the simulat
 
         simulation = gcode_interpreter.simulation(filename=r"example\example.gcode", initial_machine_setup=setup)
 
-
 ### Access the Results
 
 The `simulation` object contains the simulation results, you can access them through various methods:
@@ -123,7 +111,6 @@ pyGCD can also be used to create files defining an event series for ABAQUS simul
 
 For more in depth information have a look into the [documentation](https://github.com/FAST-LB/pyGCodeDecode/blob/main/doc.md).
 
-
 ## Supported GCode commands
 
 Fully supported commands:
@@ -140,7 +127,6 @@ Fully supported commands:
         "G92": {"E": None, "X": None, "Y": None, "Z": None},  # Set Position
         ";": None,  # Comment
 
-
 Only partially supported commands:
 
         "M203": {"E": None, "X": None, "Y": None, "Z": None},  # Max Feedrate *read only
@@ -152,7 +138,6 @@ Only partially supported commands:
 Known unsupported commands that may cause issues:
 
         "G2" / "G3: {-} Arc/Circle move, please disable this command in your Slicer settings
-
 
  <!-- REFERENCES   -->
 [prusa_slicer]: <https://github.com/prusa3d/PrusaSlicer> "Prusa Slicer"
