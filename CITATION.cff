@@ -63,6 +63,10 @@ authors:
       Engineering, Karlsruhe Institute of Technology (KIT),
       Rintheimer Querallee 2, Karlsruhe, 76131, Germany
     orcid: 'https://orcid.org/0000-0002-6534-6518'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.12663658
+    description: Zenodo archive
 repository-code: 'https://github.com/FAST-LB/pyGCodeDecode'
 repository-artifact: 'https://pypi.org/project/pyGCodeDecode/'
 abstract: >-
