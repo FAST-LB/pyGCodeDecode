@@ -6,7 +6,7 @@
 [![tests](https://github.com/FAST-LB/pyGCodeDecode/workflows/Tests/badge.svg)](https://github.com/FAST-LB/pyGCodeDecode/actions/workflows/tests.yaml)
 [![GitHub Release](https://img.shields.io/github/release/FAST-LB/pyGCodeDecode.svg?style=flat)](https://github.com/FAST-LB/pyGCodeDecode/releases)
 [![Repo DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12663658.svg)]( https://doi.org/10.5281/zenodo.12663658)
-[![Paper DOI](https://joss.theoj.org/papers/tbd/status.svg)](https://doi.org/tbd)
+[![Paper_DOI](https://joss.theoj.org/papers/10.21105/joss.06465/status.svg)](https://doi.org/10.21105/joss.06465)
 
 ![Python](https://img.shields.io/pypi/pyversions/pygcodedecode.svg)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://black.readthedocs.io/en/stable/)
