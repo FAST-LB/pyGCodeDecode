@@ -1,15 +1,32 @@
 # -*- coding: utf-8 -*-
 """Simulating the G-code of a 3DBenchy from PrusaSlicer on a Prusa MINI."""
+
+import importlib.resources
 import pathlib
 
 from pyGCodeDecode.abaqus_file_generator import generate_abaqus_event_series
 from pyGCodeDecode.gcode_interpreter import setup, simulation
 from pyGCodeDecode.tools import save_layer_metrics
 
-if __name__ == "__main__":
-    script_dir = pathlib.Path(__file__).parent.resolve()
-    data_dir = script_dir / "data"
-    output_dir = script_dir / "output"
+
+def benchy_example():
+    """Extensive example for the usage of pyGCodeDecode simulating G-code for the famous 3DBenchy."""
+    # setting the paths to the input and output directories
+    data_dir = importlib.resources.files("pyGCodeDecode").joinpath("examples/data/")
+    output_dir = pathlib.Path.cwd() / "output_benchy_example"
+
+    print(
+        "Running pyGCD's benchy example! 🛥️"
+        "\nThis example illustrates an extensive use of the package: A gcode is simulated with default presets from a "
+        "file provided alongside this example. After the simulation, an interactive 3D-plot is shown."
+        "The following files are saved to a new folder in your current directory: 💾\n",
+        output_dir.__str__(),
+        "\n   - a screenshot of the 3D-plot 📸"
+        "\n   - a .vtk of the mesh 🕸️"
+        "\n   - a summary of the simulation 📝"
+        "\n   - some metrics for each layer 📊"
+        "\n   - an event series to use with ABAQUS. 📄",
+    )
 
     # setting up the printer
     printer_setup = setup(
@@ -20,7 +37,8 @@ if __name__ == "__main__":
 
     # set the start position of the extruder
     printer_setup.set_initial_position(
-        initial_position={"X": 0.0, "Y": 0.0, "Z": 0.0, "E": 0.0}, input_unit_system="SImm"
+        initial_position={"X": 0.0, "Y": 0.0, "Z": 0.0, "E": 0.0},
+        input_unit_system="SImm",
     )
 
     # running the simulation by creating a simulation object
@@ -51,9 +69,15 @@ if __name__ == "__main__":
 
     # create a 3D-plot and save a VTK as well as a screenshot
     benchy_mesh = benchy_simulation.plot_3d(
-        extrusion_only=True, screenshot_path=output_dir / "benchy.png", vtk_path=output_dir / "benchy.vtk"
+        extrusion_only=True,
+        screenshot_path=output_dir / "benchy.png",
+        vtk_path=output_dir / "benchy.vtk",
     )
 
     # create an interactive 3D-plot
     # the mesh from the previous run can be used to avoid generating a mesh again
     benchy_simulation.plot_3d(mesh=benchy_mesh)
+
+
+if __name__ == "__main__":
+    benchy_example()
