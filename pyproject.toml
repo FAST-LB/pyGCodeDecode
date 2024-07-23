@@ -50,6 +50,9 @@ DEVELOPER = [
 Code = "https://github.com/FAST-LB/pyGCodeDecode"
 Issues = "https://github.com/FAST-LB/pyGCodeDecode/issues"
 
+[project.scripts]
+pygcd = "pyGCodeDecode.cli:main"
+
 [tool.black]
 line-length = 120
 

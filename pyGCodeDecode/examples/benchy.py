@@ -19,7 +19,7 @@ def benchy_example():
         "Running pyGCD's benchy example! 🛥️"
         "\nThis example illustrates an extensive use of the package: A gcode is simulated with default presets from a "
         "file provided alongside this example. After the simulation, an interactive 3D-plot is shown."
-        "The following files are saved to a new folder in your current directory: 💾\n",
+        "\nThe following files are saved to a new folder in your current directory: 💾\n",
         output_dir.__str__(),
         "\n   - a screenshot of the 3D-plot 📸"
         "\n   - a .vtk of the mesh 🕸️"
@@ -54,7 +54,7 @@ def benchy_example():
     # print a file containing some metrics for each layer
     save_layer_metrics(
         simulation=benchy_simulation,
-        filepath=output_dir / "layer_metrics.csv",
+        filepath=output_dir / "benchy_layer_metrics.csv",
         locale="en_US.utf8",
         delimiter=",",
     )

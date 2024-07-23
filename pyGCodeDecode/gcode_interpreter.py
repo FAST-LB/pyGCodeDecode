@@ -223,7 +223,7 @@ class simulation:
 
         # SET INITIAL SETTINGS
         self.initial_machine_setup = initial_machine_setup.get_dict()
-        self.check_initial_setup(initial_machine_setup=self.initial_machine_setup)  # move this to setup class todo
+        self.check_initial_setup(initial_machine_setup=self.initial_machine_setup)  # TODO: move this to setup class
         self.firmware = self.initial_machine_setup["firmware"]
 
         self.states: List[state] = generate_states(
@@ -253,13 +253,17 @@ class simulation:
         from matplotlib import cm
         from matplotlib.collections import LineCollection
 
-        colvar_label = {"Velocity": "Velocity in mm/s", "Acceleration": "Acceleration in mm/s^2"}
+        colvar_label = {
+            "Velocity": "Velocity in mm/s",
+            "Acceleration": "Acceleration in mm/s^2",
+        }
 
         def interp_2D(x, y, cvar, spatial_resolution=1):
             segm_length = np.linalg.norm([np.ediff1d(x), np.ediff1d(y)], axis=0)
             segm_cvar_delt = np.greater(np.abs(np.ediff1d(cvar)), 0)
             segm_interpol = np.r_[
-                0, np.where(segm_cvar_delt, np.ceil(segm_length / spatial_resolution) + 1, 1)
+                0,
+                np.where(segm_cvar_delt, np.ceil(segm_length / spatial_resolution) + 1, 1),
             ]  # get nmbr of segments for required resolution, dont interpolate if there is no change
             points = np.array([x, y, cvar]).T
             points = np.c_[points, segm_interpol]
@@ -484,7 +488,12 @@ class simulation:
 
         # time steps
         if type(time_steps) is int:  # evenly distributed time steps
-            times = np.linspace(0, self.blocklist[-1].get_segments()[-1].t_end, time_steps, endpoint=False)
+            times = np.linspace(
+                0,
+                self.blocklist[-1].get_segments()[-1].t_end,
+                time_steps,
+                endpoint=False,
+            )
         elif time_steps == "constrained":  # use segment time points as plot constrains
             times = [0]
             for segm in segments:
@@ -530,7 +539,11 @@ class simulation:
                 ax1.scatter(x=block.get_segments()[-1].t_end, y=absJD, color="red", marker="x")
                 for ax in axis:
                     ax1.scatter(
-                        x=block.get_segments()[-1].t_end, y=block.JD[axis_dict[ax]], marker="x", color="black", lw=0.5
+                        x=block.get_segments()[-1].t_end,
+                        y=block.JD[axis_dict[ax]],
+                        marker="x",
+                        color="black",
+                        lw=0.5,
                     )
 
         # plot all axis in velocity and position
@@ -779,7 +792,12 @@ class setup:
         self.available_unit_systems = {"SI": 1e3, "SImm": 1.0, "inch": 25.4}
         self.input_unit_system = "SImm"
 
-        self.initial_position = {"X": 0, "Y": 0, "Z": 0, "E": 0}  # default initial pos is zero
+        self.initial_position = {
+            "X": 0,
+            "Y": 0,
+            "Z": 0,
+            "E": 0,
+        }  # default initial pos is zero
         self.setup_dict = self.load_setup(presets_file)
 
         self.filename = presets_file
