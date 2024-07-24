@@ -21,7 +21,7 @@ def save_layer_metrics(
     Args:
         simulation: (simulation) simulation instance
         filepath: (Path | string, default = "./layer_metrics.csv") file name
-        locale: (string, default = None) select locale settings, e.g. "en_us" "de_de", None = use system locale
+        locale: (string, default = None) select locale settings, e.g. "en_US.utf8" "de_DE.utf8", None = use system locale
         delimiter: (string, default = ";") select delimiter
 
     Layers are detected using the given layer cue.
