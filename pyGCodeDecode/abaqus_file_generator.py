@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Module for generating Abaqus .inp files for AMSIM."""
 
 import pathlib

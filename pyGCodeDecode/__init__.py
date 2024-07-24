@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Generate time dependent boundary conditions from a .gcode file."""
 
 from importlib import metadata

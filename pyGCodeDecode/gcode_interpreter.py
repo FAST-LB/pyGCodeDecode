@@ -816,7 +816,7 @@ class setup:
         import yaml
         from yaml import Loader
 
-        file = open(file=filepath, mode="r")
+        file = open(file=filepath)
 
         setup_dict = yaml.load(file, Loader=Loader)
         return setup_dict

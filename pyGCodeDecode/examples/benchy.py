@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Simulating the G-code of a 3DBenchy from PrusaSlicer on a Prusa MINI."""
 
 import importlib.resources

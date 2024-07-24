@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Test for gcode interpreter."""
+
 import pathlib
 
 

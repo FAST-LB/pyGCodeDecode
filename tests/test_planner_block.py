@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Test for planner block module."""
+
 import numpy as np
 
 from pyGCodeDecode.planner_block import planner_block

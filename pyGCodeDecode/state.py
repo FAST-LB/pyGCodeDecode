@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """State module with state."""
+
 from .utils import position
 
 
