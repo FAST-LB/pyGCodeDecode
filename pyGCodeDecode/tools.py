@@ -83,9 +83,7 @@ def save_layer_metrics(
 
         print(f"Layer metrics written to:\n{str(filepath)}")
     else:
-        raise RuntimeError(
-            "No layer cue provided in setup, save_layer_metrics() cannot be used. Please provide layer_cue in simulation setup."
-        )
+        print("⚠️ No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!")
 
 
 def write_submodel_times(
