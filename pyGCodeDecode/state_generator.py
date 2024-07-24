@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """State generator module."""
+
 import pathlib
 import re
 from typing import List, Match
@@ -182,7 +182,7 @@ def read_gcode_to_dict_list(filepath: pathlib.Path) -> List[dict]:
     print("Parsing the gcode...")
     dict_list = []
 
-    with open(file=filepath, mode="r") as file_gcode:
+    with open(file=filepath) as file_gcode:
         for i, line in enumerate(file_gcode):
             line_dict = arg_extract(string=line, key_dict=known_commands)
             line_dict["line_number"] = i + 1

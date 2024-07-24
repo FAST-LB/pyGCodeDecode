@@ -9,10 +9,13 @@ __pycache__
 
 # directories
 venv/*
+.venv/*
 build/*
 dist/
-.venv/*
-output/
+# output folders from examples and tests
+/output_benchy_example/*
+/tests/output/*
+
 
 # coverage reports
 .coverage

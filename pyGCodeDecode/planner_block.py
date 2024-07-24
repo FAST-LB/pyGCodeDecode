@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Planner block Module."""
+
 from typing import List, Union
 
 import numpy as np

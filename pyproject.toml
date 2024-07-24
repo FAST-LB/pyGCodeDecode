@@ -4,10 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["pyGCodeDecode"]
 
 [tool.setuptools.package-data]
-"pyGCodeDecode" = ["data/*"]
+"pyGCodeDecode" = ["data/*", "examples/data/*"]
 
 [project]
 name = "pyGCodeDecode"
@@ -50,6 +49,9 @@ DEVELOPER = [
 [project.urls]
 Code = "https://github.com/FAST-LB/pyGCodeDecode"
 Issues = "https://github.com/FAST-LB/pyGCodeDecode/issues"
+
+[project.scripts]
+pygcd = "pyGCodeDecode.cli:_main"
 
 [tool.black]
 line-length = 120

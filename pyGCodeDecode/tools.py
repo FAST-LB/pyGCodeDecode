@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Tools for pyGCD."""
+
 import locale as loc
 import pathlib
 from typing import Union
@@ -58,7 +58,7 @@ def save_layer_metrics(
                         + delimiter
                         + loc.str(travel)
                         + delimiter
-                        + (loc.str((travel / duration)) if duration != 0 else "NaN")
+                        + (loc.str(travel / duration) if duration != 0 else "NaN")
                         + "\n"
                     )
                     travel = 0
@@ -81,7 +81,7 @@ def save_layer_metrics(
                     )
                 travel += block.get_block_travel()
 
-        print(f"Layer metrics written to:\n{str(filepath)}")
+        print(f"💾 Layer metrics written to:\n👉 {str(filepath)}")
     else:
         print("⚠️ No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!")
 

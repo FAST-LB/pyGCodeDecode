@@ -1,5 +1,11 @@
 {
     "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.rulers": [
+        {
+            "column": 120,
+            "color": "#FF0000"
+        }
+    ],
     "python.testing.pytestArgs": [
         "tests"
     ],

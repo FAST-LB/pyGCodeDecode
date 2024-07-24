@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Test for state generator module."""
+
 import pathlib
 
 from pyGCodeDecode.state_generator import generate_states

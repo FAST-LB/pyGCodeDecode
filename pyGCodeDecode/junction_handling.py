@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Junction handling module."""
 
 import math

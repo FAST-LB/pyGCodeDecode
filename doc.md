@@ -31,6 +31,44 @@ Generate abaqus event series.
 
 - `tuple` - the event series as a tuple for use in ABAQUS-Python
 
+<a id="pyGCodeDecode.cli"></a>
+
+# pyGCodeDecode.cli
+
+The CLI for the pyGCodeDecode package.
+
+<a id="pyGCodeDecode.examples.benchy"></a>
+
+# pyGCodeDecode.examples.benchy
+
+Simulating the G-code of a 3DBenchy from PrusaSlicer on a Prusa MINI.
+
+<a id="pyGCodeDecode.examples.benchy.benchy_example"></a>
+
+#### benchy\_example
+
+```python
+def benchy_example()
+```
+
+Extensive example for the usage of pyGCodeDecode simulating G-code for the famous 3DBenchy.
+
+<a id="pyGCodeDecode.examples.brace"></a>
+
+# pyGCodeDecode.examples.brace
+
+Minimal example simulating the G-code of a brace from Aura-slicer on an Anisoprint Composer A4.
+
+<a id="pyGCodeDecode.examples.brace.brace_example"></a>
+
+#### brace\_example
+
+```python
+def brace_example()
+```
+
+Minimal example for the usage of pyGCodeDecode simulating the G-code of a brace.
+
 <a id="pyGCodeDecode.gcode_interpreter"></a>
 
 # pyGCodeDecode.gcode\_interpreter
@@ -42,15 +80,14 @@ GCode Interpreter Module.
 #### update\_progress
 
 ```python
-def update_progress(progress: Union[float, int],
-                    name: str = "Percent") -> None
+def update_progress(progress: float, name: str = "Percent") -> None
 ```
 
 Display or update a console progress bar.
 
 **Arguments**:
 
-- `progress` - (float | int) between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
+- `progress` - float between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
 - `name` - (string, default = "Percent") customizable name for progress bar
 
 <a id="pyGCodeDecode.gcode_interpreter.generate_planner_blocks"></a>
@@ -164,13 +201,14 @@ gcode_interpreter.simulation(gcode_path=r"path/to/part.gcode", initial_machine_s
 #### plot\_2d\_position
 
 ```python
-def plot_2d_position(filename="trajectory_2D.png",
-                     colvar="Velocity",
-                     show_points=False,
-                     colvar_spatial_resolution=1,
-                     dpi=400,
-                     scaled=True,
-                     show=False)
+def plot_2d_position(
+        filepath: pathlib.Path = pathlib.Path("trajectory_2D.png"),
+        colvar="Velocity",
+        show_points=False,
+        colvar_spatial_resolution=1,
+        dpi=400,
+        scaled=True,
+        show=False)
 ```
 
 Plot 2D position (XY plane) with matplotlib (unmaintained).
@@ -180,14 +218,25 @@ Plot 2D position (XY plane) with matplotlib (unmaintained).
 #### plot\_3d
 
 ```python
-def plot_3d(extrusion_only: bool = True)
+def plot_3d(extrusion_only: bool = True,
+            screenshot_path: pathlib.Path = None,
+            vtk_path: pathlib.Path = None,
+            mesh: pv.MultiBlock = None) -> pv.MultiBlock
 ```
 
 3D Plot with PyVista.
 
 **Arguments**:
 
-- `extrusion_only` _bool, default=True_ - Plot only parts where material is extruded.
+- `extrusion_only` _bool, optional_ - Plot only parts where material is extruded. Defaults to True.
+- `screenshot_path` _pathlib.Path, optional_ - Path to screenshot to be saved. Prevents interactive plot. Defaults to None.
+- `vtk_path` _pathlib.Path, optional_ - Path to vtk to be saved. Prevents interactive plot. Defaults to None.
+- `mesh` _pv.MultiBlock, optional_ - A pyvista mesh from a previous run to avoid running the mesh generation again. Defaults to None.
+
+
+**Returns**:
+
+- `pv.MultiBlock` - The mesh used in the plot so it can be used (e.g. in subsequent plots).
 
 <a id="pyGCodeDecode.gcode_interpreter.simulation.plot_vel"></a>
 
@@ -327,7 +376,7 @@ Return scaled xyz min & max while extruding.
 #### extrusion\_max\_vel
 
 ```python
-def extrusion_max_vel(output_unit_system: str = None) -> np.ndarray
+def extrusion_max_vel(output_unit_system: str = None) -> np.float64
 ```
 
 Return scaled maximum velocity while extruding.
@@ -340,7 +389,7 @@ Return scaled maximum velocity while extruding.
 
 **Returns**:
 
-- `max_vel` - (numpy.ndarray, 1x4) maximum axis velocity while extruding
+- `max_vel` - (np.float64) maximum travel velocity while extruding
 
 <a id="pyGCodeDecode.gcode_interpreter.simulation.save_summary"></a>
 
@@ -905,14 +954,15 @@ Shift planner block in time.
 #### extrusion\_block\_max\_vel
 
 ```python
-def extrusion_block_max_vel()
+def extrusion_block_max_vel() -> Union[np.ndarray, None]
 ```
 
 Return max vel from planner block while extruding.
 
 **Returns**:
 
-- `block_max_vel` - (np.ndarray 1x4) maximum axis velocity while extruding in block
+- `block_max_vel` - (np.ndarray 1x4) maximum axis velocity while extruding in block or None
+  if no extrusion is happening
 
 <a id="pyGCodeDecode.planner_block.planner_block.__init__"></a>
 
@@ -1280,12 +1330,12 @@ Search for unsupported commands used in the G-code, warn the user and return the
 
 - `dict` - a dict containing the appearing unsupported commands and how often they appear.
 
-<a id="pyGCodeDecode.state_generator.state_generator"></a>
+<a id="pyGCodeDecode.state_generator.generate_states"></a>
 
-#### state\_generator
+#### generate\_states
 
 ```python
-def state_generator(filepath: pathlib.Path,
+def generate_states(filepath: pathlib.Path,
                     initial_machine_setup: dict) -> List[state]
 ```
 
@@ -1325,10 +1375,34 @@ Print out print times, distance traveled and the average travel speed to a csv-f
 
 - `simulation` - (simulation) simulation instance
 - `filepath` - (Path | string, default = "./layer_metrics.csv") file name
-- `locale` - (string, default = None) select locale settings, e.g. "en_us" "de_de", None = use system locale
+- `locale` - (string, default = None) select locale settings, e.g. "en_US.utf8" "de_DE.utf8", None = use system locale
 - `delimiter` - (string, default = ";") select delimiter
 
   Layers are detected using the given layer cue.
+
+<a id="pyGCodeDecode.tools.write_submodel_times"></a>
+
+#### write\_submodel\_times
+
+```python
+def write_submodel_times(simulation: simulation,
+                         sub_orig: list,
+                         sub_side_x_len: float,
+                         sub_side_y_len: float,
+                         sub_side_z_len: float,
+                         filename="submodel_times.yaml",
+                         **kwargs)
+```
+
+Write the submodel entry and exit times to a yaml file.
+
+**Arguments**:
+
+- `simulation` - (simulation) the simulation instance to analyze
+- `sub_orig` - (list with [xcoord, ycoord, zcoord]) the origin of the submodel control volume
+- `sub_side_len` - (float) the side length of the submodel control volume
+- `filename` - (string) yaml filename
+- `**kwargs` - (any) provide additional info to write into the yaml file
 
 <a id="pyGCodeDecode.utils"></a>
 
@@ -1483,7 +1557,7 @@ Check for equality and return True if equal.
 #### get\_vec
 
 ```python
-def get_vec(withExtrusion=False)
+def get_vec(withExtrusion=False) -> List[float]
 ```
 
 Return the 4D vector, optionally with extrusion.
@@ -1502,7 +1576,7 @@ Return the 4D vector, optionally with extrusion.
 #### get\_norm
 
 ```python
-def get_norm(withExtrusion=False)
+def get_norm(withExtrusion=False) -> float
 ```
 
 Return the 4D vector norm. Optional with extrusion.
@@ -1524,7 +1598,7 @@ Return the 4D vector norm. Optional with extrusion.
 class velocity(vector_4D)
 ```
 
-4D - Velocity object for (cartesian) 3D printer.
+4D - Velocity object for (Cartesian) 3D printer.
 
 <a id="pyGCodeDecode.utils.velocity.__str__"></a>
 
@@ -1610,7 +1684,7 @@ Return True if extrusion velocity is not zero.
 class position(vector_4D)
 ```
 
-4D - Position object for (cartesian) 3D printer.
+4D - Position object for (Cartesian) 3D printer.
 
 <a id="pyGCodeDecode.utils.position.__str__"></a>
 
