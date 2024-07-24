@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """GCode Interpreter Module."""
 
 import importlib.resources
@@ -752,7 +751,7 @@ class simulation:
         with open(file=filepath, mode="w") as file:
             yaml.dump(data=summary, stream=file)
 
-        print(f"Summary written to:\n{str(filepath)}")
+        print(f"💾 Summary written to:\n👉 {str(filepath)}")
 
     def get_scaling_factor(self, output_unit_system: str = None) -> float:
         """Get a scaling factor to convert lengths from mm to another supported unit system.

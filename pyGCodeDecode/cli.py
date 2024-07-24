@@ -11,7 +11,7 @@ from pyGCodeDecode.gcode_interpreter import setup, simulation
 from pyGCodeDecode.tools import save_layer_metrics
 
 
-def run_example_via_cli(args):
+def _run_example(args: argparse.Namespace):
     """Generate a plot from a GCode file."""
     if args.example == "brace":
         brace_example()
@@ -19,10 +19,10 @@ def run_example_via_cli(args):
         benchy_example()
 
 
-def plot_via_cli(args):
+def _plot(args: argparse.Namespace):
     """Generate a plot from a GCode file."""
 
-    def find_gcode_file(specified_path: pathlib.Path | None) -> pathlib.Path:
+    def _find_gcode_file(specified_path: pathlib.Path | None) -> pathlib.Path:
         """Check if the G-code file exists and try to find one in the cwd if not specified."""
         if specified_path is not None and specified_path.is_file():
             g_code_file = specified_path
@@ -47,7 +47,7 @@ def plot_via_cli(args):
         print(f"✅ Using the G-code file:\n{g_code_file.resolve()}")
         return g_code_file
 
-    def get_presets_file(presets_file: pathlib.Path | None) -> pathlib.Path:
+    def _get_presets_file(presets_file: pathlib.Path | None) -> pathlib.Path:
         """Get the machine setup from the presets file."""
         if presets_file is None:
             print("⚠️ No presets file specified. Using the default presets shipped with pyGCD.")
@@ -62,7 +62,7 @@ def plot_via_cli(args):
 
         return presets_file
 
-    def get_out_dir(out_dir: pathlib.Path | None, g_code_file: pathlib.Path) -> pathlib.Path:
+    def _get_out_dir(out_dir: pathlib.Path | None, g_code_file: pathlib.Path) -> pathlib.Path:
         """Get the output directory for the plot."""
         if out_dir is None:
             answer = ""
@@ -82,9 +82,9 @@ def plot_via_cli(args):
         print(f"✅ Using the output directory:\n{out_dir.resolve()}")
         return out_dir
 
-    g_code_file = find_gcode_file(args.gcode)
-    out_dir = get_out_dir(args.out_dir, g_code_file)
-    presets_file = get_presets_file(args.presets)
+    g_code_file = _find_gcode_file(args.gcode)
+    out_dir = _get_out_dir(args.out_dir, g_code_file)
+    presets_file = _get_presets_file(args.presets)
 
     if args.printer_name is not None:
         printer_name = args.printer_name
@@ -97,7 +97,7 @@ def plot_via_cli(args):
     printer_setup = setup(
         presets_file=presets_file,
         printer=printer_name,
-        layer_cue="LAYER_CHANGE",
+        layer_cue=args.layer_queue,
     )
 
     # running the simulation by creating a simulation object
@@ -130,7 +130,7 @@ def plot_via_cli(args):
     sim.plot_3d(mesh=mesh)
 
 
-def main():
+def _main():
     """Entry point function for the command-line interface (CLI)."""
     global_parser = argparse.ArgumentParser(
         prog="pygcd",
@@ -156,11 +156,11 @@ def main():
         help="The name of the example to run.",
         choices=["brace", "benchy"],
     )
-    example_parser.set_defaults(func=run_example_via_cli)
+    example_parser.set_defaults(func=_run_example)
 
     # subparser to plot a GCode file
     plot_parser = subparsers.add_parser("plot", help="Generate a plot from a GCode file.")
-    plot_parser.set_defaults(func=plot_via_cli)
+    plot_parser.set_defaults(func=_plot)
 
     plot_parser.add_argument(
         "-g",
@@ -185,7 +185,6 @@ def main():
         "-pn",
         "--printer_name",
         action="store",
-        nargs=1,
         help="The name of the printer as specified in the presets file or the defaults if no presets were specified",
         default=None,
         type=str,
@@ -200,11 +199,20 @@ def main():
         type=pathlib.Path,
         metavar="<PATH>",
     )
+    plot_parser.add_argument(
+        "-lq",
+        "--layer_queue",
+        action="store",
+        help="The queue indicating a layer switch in the GCode.",
+        default=None,
+        type=str,
+        metavar="<QUEUE>",
+    )
 
     # parse the arguments
     args = global_parser.parse_args()
 
-    # call the function specified by the subparser
+    # call the respective function specified by the subparser
     if hasattr(args, "func"):
         args.func(args)
     else:
