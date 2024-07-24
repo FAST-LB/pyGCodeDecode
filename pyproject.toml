@@ -10,7 +10,7 @@ where = ["."]
 
 [project]
 name = "pyGCodeDecode"
-version = "0.2.4"
+version = "1.0.0"
 authors = [
     { name = "FAST-LB at KIT", email = "lt-github@fast.kit.edu" },
     { name = "Jonathan Knirsch", email = "jonathan.knirsch@student.kit.edu" },
