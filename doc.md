@@ -1380,6 +1380,30 @@ Print out print times, distance traveled and the average travel speed to a csv-f
 
   Layers are detected using the given layer cue.
 
+<a id="pyGCodeDecode.tools.write_submodel_times"></a>
+
+#### write\_submodel\_times
+
+```python
+def write_submodel_times(simulation: simulation,
+                         sub_orig: list,
+                         sub_side_x_len: float,
+                         sub_side_y_len: float,
+                         sub_side_z_len: float,
+                         filename="submodel_times.yaml",
+                         **kwargs)
+```
+
+Write the submodel entry and exit times to a yaml file.
+
+**Arguments**:
+
+- `simulation` - (simulation) the simulation instance to analyze
+- `sub_orig` - (list with [xcoord, ycoord, zcoord]) the origin of the submodel control volume
+- `sub_side_len` - (float) the side length of the submodel control volume
+- `filename` - (string) yaml filename
+- `**kwargs` - (any) provide additional info to write into the yaml file
+
 <a id="pyGCodeDecode.utils"></a>
 
 # pyGCodeDecode.utils
