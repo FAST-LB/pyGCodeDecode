@@ -61,7 +61,7 @@ def generate_abaqus_event_series(
     # write to file
     with open(filepath, "w") as outfile:
         for time, pos in zip(time, pos):
-            outfile.write(f"{time},{scaling*pos[0]},{scaling*pos[1]},{scaling*pos[2]},{pos[3]}\n")
+            outfile.write(f"{time},{scaling*pos[0]},{scaling*pos[1]},{round(scaling*pos[2], 5)},{pos[3]}\n")
             event_series_list.append((time, scaling * pos[0], scaling * pos[1], scaling * pos[2], pos[3]))
 
         print(f"ABAQUS event series written to: \n{outfile.name}")
