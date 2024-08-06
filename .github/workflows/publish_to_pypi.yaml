@@ -12,6 +12,15 @@ jobs:
             - name: checkout
               uses: actions/checkout@v4
 
+            - name: install git lfs
+              run: |
+                sudo apt-get install git-lfs
+                git lfs install
+
+            - name: fetch lfs files
+              run: |
+                  git lfs pull
+
             - name: setup python
               uses: actions/setup-python@v5
               with:
