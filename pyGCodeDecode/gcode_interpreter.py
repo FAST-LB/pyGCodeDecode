@@ -604,6 +604,30 @@ class simulation:
 
         return tmp_vel, tmp_pos
 
+    def get_width(self, t: float, extrusion_h: float, filament_dia: float):
+        """Return the extrusion width for a certain extrusion height at time.
+
+        Args:
+            t (float): time
+            extrusion_h (float): extrusion height / layer height
+            filament_dia (float): filament_diameter
+
+        Returns:
+            float: width
+        """
+        curr_val = self.get_values(t=t)
+
+        feed_rate = np.linalg.norm(curr_val[0][:3])  # calculate feed rate at current time
+        flow_rate = curr_val[0][3]  # get extrusion rate at current time
+
+        filament_cross_sec = (np.pi * filament_dia**2) / 4  # calculate cross area of filament
+
+        width = (
+            (flow_rate * filament_cross_sec) / (extrusion_h * feed_rate) if feed_rate > 0 else 0
+        )  # calculate width, zero if no movement.
+
+        return width
+
     def check_initial_setup(self, initial_machine_setup):
         """Check the printer Dict for typos or missing parameters and raise errors if invalid.
 
