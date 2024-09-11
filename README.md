@@ -122,7 +122,7 @@ setup.set_property({"layer_cue": "LAYER_CHANGE"})
 1. Finally, run the simulation by providing a `GCode` and passing the setup defined before:
 
 ```python
-        simulation = gcode_interpreter.simulation(filename=r"example\example.gcode", initial_machine_setup=setup)
+simulation = gcode_interpreter.simulation(filename=r"example\example.gcode", initial_machine_setup=setup)
 ```
 
 ### Access the Results
@@ -157,25 +157,25 @@ For more in depth information have a look into the [documentation](https://githu
 Fully supported commands:
 
 ```python
-"G0": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # non Extrusion Move
-"G1": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # Extrusion Move
+"G0": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # non extrusion move
+"G1": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # extrusion move
 "G4": {"P": None, "S": None},  # Dwell
-"M82": None,  # E Absolute
-"M83": None,  # E Relative
-"G20": None,  # Inches
-"G21": None,  # Milimeters
-"G90": None,  # Absolute Positioning
-"G91": None,  # Relative Positioning
-"G92": {"E": None, "X": None, "Y": None, "Z": None},  # Set Position
-";": None,  # Comment
+"M82": None,  # E absolute
+"M83": None,  # E relative
+"G20": None,  # inches
+"G21": None,  # millimeters
+"G90": None,  # absolute positioning
+"G91": None,  # relative positioning
+"G92": {"E": None, "X": None, "Y": None, "Z": None},  # set position
+";": None,  # comment
 ```
 
 Only partially supported commands:
 
 ```python
-"M203": {"E": None, "X": None, "Y": None, "Z": None},  # Max Feedrate *read only
-"M204": {"P": None, "R": None, "S": None, "T": None},  # Starting Acceleration *P only
-"M205": {"E": None, "J": None, "S": None, "X": None, "Y": None, "Z": None},  # Advanced Settings *X only
+"M203": {"E": None, "X": None, "Y": None, "Z": None},  # max feedrate *read only
+"M204": {"P": None, "R": None, "S": None, "T": None},  # starting acceleration *P only
+"M205": {"E": None, "J": None, "S": None, "X": None, "Y": None, "Z": None},  # advanced settings *X only
 "G10": {"S": None}, # read only
 "G11": None, # read only
 ```
@@ -183,8 +183,8 @@ Only partially supported commands:
 Known unsupported commands that may cause issues:
 
 ```python
-"G2" : {-}, # Clockwise arc/circle move, please disable this command in your Slicer settings
-"G3" : {-}, # Counter-clockwise arc/circle move, please disable this command in your Slicer settings
+"G2" : {-}, # clockwise arc/circle move, please disable this command in your slicer's settings
+"G3" : {-}, # counter-clockwise arc/circle move, please disable this command in your slicer's settings
 ```
  <!-- REFERENCES   -->
 [prusa_slicer]: <https://github.com/prusa3d/PrusaSlicer> "Prusa Slicer"
