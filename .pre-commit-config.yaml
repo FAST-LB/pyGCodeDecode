@@ -13,7 +13,7 @@ repos:
                 - --maxkb=5000
     # Black code style formatter
     - repo: https://github.com/psf/black
-      rev: 24.4.2
+      rev: 24.8.0
       hooks:
           - id: black
           - id: black-jupyter
@@ -25,7 +25,7 @@ repos:
             args: ["--profile", "black"]
     # Flake8 for linting
     - repo: https://github.com/pycqa/flake8
-      rev: "7.1.0"
+      rev: "7.1.1"
       hooks:
           - id: flake8
             additional_dependencies: [flake8-docstrings]
@@ -36,6 +36,6 @@ repos:
           - id: nbstripout
     # pyupgrade
     - repo: https://github.com/asottile/pyupgrade
-      rev: v3.16.0
+      rev: v3.17.0
       hooks:
           - id: pyupgrade
