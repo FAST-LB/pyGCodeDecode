@@ -8,6 +8,7 @@ from pyGCodeDecode import __version__
 from pyGCodeDecode.examples.benchy import benchy_example
 from pyGCodeDecode.examples.brace import brace_example
 from pyGCodeDecode.gcode_interpreter import setup, simulation
+from pyGCodeDecode.helpers import custom_print
 from pyGCodeDecode.tools import save_layer_metrics
 
 
@@ -27,38 +28,40 @@ def _plot(args: argparse.Namespace):
         if specified_path is not None and specified_path.is_file():
             g_code_file = specified_path
         elif specified_path is not None:
-            print(f"❌ The specified G-code:\n{specified_path.resolve()}\nis not valid.\n" "🛑 Exiting the program.")
+            custom_print(
+                f"❌ The specified G-code:\n{specified_path.resolve()}\nis not valid.\n" "🛑 Exiting the program."
+            )
             exit()
         else:
-            print("⚠️ No G-code file specified. Looking for a G-code file in the current directory... 👀")
+            custom_print("⚠️ No G-code file specified. Looking for a G-code file in the current directory... 👀")
             files_list = list(pathlib.Path.cwd().glob("*.gcode"))
             if files_list.__len__() == 0:
-                print("❌ No G-code file found in the current directory.\n" "🛑 Exiting the program.")
+                custom_print("❌ No G-code file found in the current directory.\n" "🛑 Exiting the program.")
                 exit()
             elif files_list.__len__() == 1:
                 g_code_file = files_list[0]
             else:
-                print("❌ Multiple G-code files found in the current directory:")
+                custom_print("❌ Multiple G-code files found in the current directory:")
                 for file in files_list:
-                    print(f"    - {file.resolve()}")
-                print("🛑 Exiting the program.")
+                    custom_print(f"    - {file.resolve()}")
+                custom_print("🛑 Exiting the program.")
                 exit()
 
-        print(f"✅ Using the G-code file:\n{g_code_file.resolve()}")
+        custom_print(f"✅ Using the G-code file:\n{g_code_file.resolve()}")
         return g_code_file
 
     def _get_presets_file(presets_file: pathlib.Path | None) -> pathlib.Path:
         """Get the machine setup from the presets file."""
         if presets_file is None:
-            print("⚠️ No presets file specified. Using the default presets shipped with pyGCD.")
+            custom_print("⚠️ No presets file specified. Using the default presets shipped with pyGCD.")
             presets_file = importlib.resources.files("pyGCodeDecode").joinpath("data/default_printer_presets.yaml")
         elif not presets_file.is_file():
-            print(
+            custom_print(
                 f"❌ The specified presets file:\n{presets_file.resolve()}\nis not valid.\n" "🛑 Exiting the program."
             )
             exit()
         else:
-            print(f"✅ Using the presets file:\n{presets_file.resolve()}")
+            custom_print(f"✅ Using the presets file:\n{presets_file.resolve()}")
 
         return presets_file
 
@@ -74,12 +77,12 @@ def _plot(args: argparse.Namespace):
                 )
 
             if answer.lower() in ["n", "no"]:
-                print("⚠️ Not creating any output files.")
+                custom_print("⚠️ Not creating any output files.")
                 return None
             elif answer.lower() in ["y", "yes"]:
                 out_dir = pathlib.Path.cwd() / f"output_{g_code_file.stem}"
 
-        print(f"✅ Using the output directory:\n{out_dir.resolve()}")
+        custom_print(f"✅ Using the output directory:\n{out_dir.resolve()}")
         return out_dir
 
     g_code_file = _find_gcode_file(args.gcode)
@@ -88,9 +91,9 @@ def _plot(args: argparse.Namespace):
 
     if args.printer_name is not None:
         printer_name = args.printer_name
-        print(f"✅ Using the printer: {printer_name}")
+        custom_print(f"✅ Using the printer: {printer_name}")
     else:
-        print("⚠️ No printer specified. Using the default printer Anisoprint A4.")
+        custom_print("⚠️ No printer specified. Using the default printer Anisoprint A4.")
         printer_name = "anisoprint_a4"
 
     # setting up the printer
@@ -130,7 +133,7 @@ def _plot(args: argparse.Namespace):
     sim.plot_3d(mesh=mesh)
 
 
-def _main():
+def _main(*args):
     """Entry point function for the command-line interface (CLI)."""
     global_parser = argparse.ArgumentParser(
         prog="pygcd",

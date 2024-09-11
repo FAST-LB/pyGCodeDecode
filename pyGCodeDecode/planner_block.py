@@ -4,6 +4,8 @@ from typing import List, Union
 
 import numpy as np
 
+from pyGCodeDecode.helpers import custom_print
+
 from .junction_handling import (
     junction_handling,
     junction_handling_klipper,
@@ -196,7 +198,7 @@ class planner_block:
                 )
 
         except ValueError as ve:
-            print(f"Segments to state: {str(self.state_B)} could not be modeled.\n {ve}")
+            custom_print(f"Segments to state: {str(self.state_B)} could not be modeled.\n {ve}")
             raise RuntimeError()
 
     def self_correction(self, tolerance=float("1e-12")):
@@ -239,7 +241,7 @@ class planner_block:
             for segm in self.segments:
                 segm.self_check(p_settings=self.state_B.state_p_settings)
         except ValueError as ve:
-            print(f"Segment for {self.state_B} does not adhere to machine limits: {ve}")
+            custom_print(f"Segment for {self.state_B} does not adhere to machine limits: {ve}")
 
         return flag_correct
 

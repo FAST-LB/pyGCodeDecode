@@ -7,6 +7,8 @@ from typing import Union
 import numpy as np
 import yaml
 
+from pyGCodeDecode.helpers import custom_print
+
 from .gcode_interpreter import simulation
 
 
@@ -81,9 +83,9 @@ def save_layer_metrics(
                     )
                 travel += block.get_block_travel()
 
-        print(f"💾 Layer metrics written to:\n👉 {str(filepath)}")
+        custom_print(f"💾 Layer metrics written to:\n👉 {str(filepath)}")
     else:
-        print("⚠️ No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!")
+        custom_print("⚠️ No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!")
 
 
 def write_submodel_times(

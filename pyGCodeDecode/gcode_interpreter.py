@@ -12,6 +12,8 @@ import pyvista as pv
 import yaml
 from matplotlib.figure import Figure
 
+from pyGCodeDecode.helpers import custom_print
+
 from .planner_block import planner_block
 from .state import state
 from .state_generator import generate_states
@@ -131,10 +133,10 @@ def find_current_segment(path: List[segment], t: float, last_index: int = None, 
         # original function untouched
         # some robustness checks
         if path[-1].t_end < t:
-            print("No movement at this time in Path!")
+            custom_print("No movement at this time in Path!")
             return None, None
         elif last_index is None or len(path) - 1 < last_index or path[last_index].t_begin > t:
-            # print(f"unoptimized Search, last index: {last_index}")
+            # custom_print(f"unoptimized Search, last index: {last_index}")
             for last_index, segm in enumerate(path):
                 if t >= segm.t_begin and t < segm.t_end:
                     return segm, last_index
@@ -209,7 +211,7 @@ class simulation:
             if machine_name is None:
                 raise ValueError("Neither a printer name nor a printer setup was specified. At least one is required!")
             else:
-                print(
+                custom_print(
                     "Only a machine name was specified but no full setup. Trying to create a setup from pyGCD's default values..."
                 )
                 default_presets_file = importlib.resources.files("pyGCodeDecode").joinpath(
@@ -229,7 +231,7 @@ class simulation:
             filepath=gcode_path, initial_machine_setup=self.initial_machine_setup
         )
 
-        print(
+        custom_print(
             f"Simulating \"{self.filename}\" with {self.initial_machine_setup['printer_name']} using the {self.firmware} firmware.\n"
         )
         self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states, firmware=self.firmware)
@@ -346,7 +348,7 @@ class simulation:
             plt.axis("scaled")
         if filepath is not False:
             plt.savefig(filepath, dpi=dpi)
-            print(f"2D Plot saved:\n👉 {filepath}")
+            custom_print(f"2D Plot saved:\n👉 {filepath}")
         if show:
             plt.show()
             return fig
@@ -439,13 +441,13 @@ class simulation:
 
         if vtk_path is not None:
             mesh.save(filename=vtk_path)
-            print(f"VTK saved to:\n{vtk_path}")
+            custom_print(f"VTK saved to:\n{vtk_path}")
         if screenshot_path is not None:
             if display_available:
                 p.screenshot(filename=screenshot_path)
-                print(f"Screenshot saved to:\n{screenshot_path}")
+                custom_print(f"Screenshot saved to:\n{screenshot_path}")
             else:
-                print("Screenshot can not be created without a display!")
+                custom_print("Screenshot can not be created without a display!")
 
         if not off_screen and display_available:
             p.show()
@@ -651,7 +653,7 @@ class simulation:
         Args:
             start_time (float): time when the simulation run was started
         """
-        print(
+        custom_print(
             f" >> pyGCodeDecode extracted {len(self.states)} states from {self.filename} and generated {len(self.blocklist)} planner blocks.\n"
             f"Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end:.2f} seconds.\n"
             f"The Simulation took {(time.time()-start_time):.2f} s."
@@ -751,7 +753,7 @@ class simulation:
         with open(file=filepath, mode="w") as file:
             yaml.dump(data=summary, stream=file)
 
-        print(f"💾 Summary written to:\n👉 {str(filepath)}")
+        custom_print(f"💾 Summary written to:\n👉 {str(filepath)}")
 
     def get_scaling_factor(self, output_unit_system: str = None) -> float:
         """Get a scaling factor to convert lengths from mm to another supported unit system.

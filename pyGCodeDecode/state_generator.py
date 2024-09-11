@@ -4,6 +4,8 @@ import pathlib
 import re
 from typing import List, Match
 
+from pyGCodeDecode.helpers import custom_print
+
 from .state import state
 from .utils import position
 
@@ -179,7 +181,7 @@ def read_gcode_to_dict_list(filepath: pathlib.Path) -> List[dict]:
     Returns:
         dict_list: (list[dict]) list with every line as dict
     """
-    print("Parsing the gcode...")
+    custom_print("Parsing the gcode...")
     dict_list = []
 
     with open(file=filepath) as file_gcode:
@@ -188,7 +190,7 @@ def read_gcode_to_dict_list(filepath: pathlib.Path) -> List[dict]:
             line_dict["line_number"] = i + 1
             dict_list.append(line_dict)
 
-    print(f"Parsing done. {len(dict_list)} lines parsed.")
+    custom_print(f"Parsing done. {len(dict_list)} lines parsed.")
 
     return dict_list
 
@@ -386,7 +388,7 @@ def check_for_unsupported_commands(line_dict_list: dict) -> dict:
         dict: a dict containing the appearing unsupported commands and how often they appear.
     """
     # search for unsupported commands
-    print("Searching for known but unsupported G-code commands...")
+    custom_print("Searching for known but unsupported G-code commands...")
     unsupported_commands_found = []
     for line_dict in line_dict_list:
         for key in line_dict.keys():
@@ -398,11 +400,11 @@ def check_for_unsupported_commands(line_dict_list: dict) -> dict:
     }
 
     if unsupported_commands_found != []:
-        print(f"⚠️ Warning: {len(unsupported_command_counts.keys())} known but unsupported command(s) found:")
+        custom_print(f"⚠️ Warning: {len(unsupported_command_counts.keys())} known but unsupported command(s) found:")
         for key, value in unsupported_command_counts.items():
-            print(f" - Command '{key}' found {value} time(s).")
+            custom_print(f" - Command '{key}' found {value} time(s).")
     else:
-        print("Great, the G-code does not contain any unsupported commands known to pyGCD 🎈.")
+        custom_print("Great, the G-code does not contain any unsupported commands known to pyGCD 🎈.")
 
     return unsupported_command_counts
 

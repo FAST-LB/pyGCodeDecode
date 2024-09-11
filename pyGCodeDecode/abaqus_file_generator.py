@@ -2,6 +2,8 @@
 
 import pathlib
 
+from pyGCodeDecode.helpers import custom_print
+
 from . import gcode_interpreter as gi
 
 """
@@ -64,6 +66,6 @@ def generate_abaqus_event_series(
             outfile.write(f"{time},{scaling*pos[0]},{scaling*pos[1]},{round(scaling*pos[2], 5)},{pos[3]}\n")
             event_series_list.append((time, scaling * pos[0], scaling * pos[1], scaling * pos[2], pos[3]))
 
-        print(f"ABAQUS event series written to: \n{outfile.name}")
+        custom_print(f"ABAQUS event series written to: \n{outfile.name}")
 
     return tuple(event_series_list)
