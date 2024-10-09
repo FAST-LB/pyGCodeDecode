@@ -378,3 +378,31 @@ class planner_block:
     def get_block_travel(self):
         """Return the travel length of the planner block."""
         return self.state_A.state_position.get_t_distance(self.state_B.state_position)
+
+    def inverse_time_at_pos(self, dist_local):
+        """Get the global time, at which the local length is reached.
+
+        Args:
+            dist_local: (float) local (relative to planner block start) distance
+
+        Returns:
+            time_global: (float) global time when the point will be reached.
+        """
+        # block_length = sum(segm.get_segm_len() for segm in self.segments)
+
+        cum_dist = 0
+        # last_cum_dist = 0
+        for segm in self.segments:
+            cum_dist += segm.get_segm_len()  # len with current segment
+            # last_cum_dist = len, without curr segm; dist_local >= last_cum_dist and ; last_cum_dist = cum_dist
+            if dist_local <= cum_dist:
+                segm_local_dist = segm.get_segm_len() - (cum_dist - dist_local)
+
+                time_of_isect = segm._interpolate_time_to_space(
+                    scalar_begin=segm.t_begin,
+                    scalar_end=segm.t_end,
+                    x=segm_local_dist,
+                )  # interpolate time over space
+                return time_of_isect
+
+        raise ValueError(f"This Planner Block with length {cum_dist} is not defined for dist: {dist_local}.")
