@@ -403,6 +403,14 @@ class segment:
             )
             return position
 
+    def get_segm_len(self):
+        """Return the length of the segment."""
+        return (self.pos_end - self.pos_begin).get_norm()
+
+    def get_segm_duration(self):
+        """Return the duration of the segment."""
+        return self.t_end - self.t_begin
+
     def self_check(self, p_settings=None):  # ,, state:state=None):
         """Check the segment for self consistency.
 
@@ -442,6 +450,97 @@ class segment:
             is_extruding: (bool) true if positive extrusion
         """
         return self.pos_begin.e < self.pos_end.e
+
+    def _interpolate_time_to_space(self, scalar_begin, scalar_end, x):
+        """
+        Interpolate from linear time dependant to nonlinear space dependant.
+
+        Args:
+            scalar_begin: (float) begin value
+            scalar_end: (float) end value
+            x: (float) x position
+        """
+
+        def lin_scalar(t):
+            slope = (scalar_end - scalar_begin) / (self.t_end - self.t_begin)
+            return slope * t + scalar_begin
+
+        def get_time(x):
+            a = (self.vel_end - self.vel_begin).get_norm() / (self.t_end - self.t_begin)
+            v_sq = 2 * a * x + self.vel_begin.get_norm() ** 2
+            t = (np.sqrt(v_sq) - self.vel_begin.get_norm()) / a if v_sq > 0 else 0
+            if v_sq <= 0:
+                raise ValueError("Could not map time dependant scalar to space.")
+            return t
+
+        t = get_time(x)
+        scalar = lin_scalar(t)
+
+        return scalar
+
+    def calc_results(self, v_target):
+        """Calculate and store the segment results.
+
+        Args:
+            v_target: (float) target velocity
+        """
+        # GLOBAL ERROR METRIC
+
+        def error_integral(a, v_begin, v_target, x_end):
+            sqr = 2 * a * x_end + v_begin**2 if not np.isclose(self.vel_end.get_norm(), 0.0) else 0
+
+            integral = ((v_begin**3) + 3 * a * v_target * x_end - (2 * a * x_end + v_begin**2) * np.sqrt(sqr)) / (
+                3 * a * v_target
+            )
+            return integral
+
+        v_begin = self.vel_begin.get_norm()
+        x_end = self.get_segm_len()  # segment length
+
+        delta_t = self.get_segm_duration()
+        delta_v = self.vel_end.get_norm() - self.vel_begin.get_norm()
+
+        if not np.isclose(v_target, 0.0) and not np.isclose(delta_t, 0.0) and not np.isclose(delta_v, 0.0):
+
+            a = delta_v / delta_t
+
+            # print("vbegin: ", v_begin, "vend", self.vel_end.get_norm(), "vtarget: ", v_target, "xend", x_end )
+            avg_error = error_integral(a=a, v_begin=v_begin, v_target=v_target, x_end=x_end)
+        else:
+            avg_error = 0
+
+        self.result.update({"segm_error": [avg_error]})
+
+        # LOCAL VELOCITY ERROR
+
+        if v_target > 0:
+            vel_rel_err_begin = (v_target - v_begin) / v_target
+            vel_rel_err_end = (v_target - self.vel_end.get_norm()) / v_target
+        else:  # if no target vel, error is zero.
+            vel_rel_err_begin = 0
+            vel_rel_err_end = 0
+        self.result.update({"rel_vel_err": [vel_rel_err_begin, vel_rel_err_end]})
+
+        # LOCAL VELOCITY
+
+        self.result.update({"vel": [self.vel_begin.get_norm(), self.vel_end.get_norm()]})
+
+    def get_result(self, key):
+        """Return the requested result.
+
+        Args:
+            key: (str) choose result
+
+        Returns:
+            result: (list)
+        """
+        if key in self.result:
+            if len(self.result[key]) == 2:  # linear
+                return self.result[key]
+            elif len(self.result[key]) == 1:  # constant
+                return [self.result[key][0], self.result[key][0]]
+        else:
+            raise ValueError(f"Key: {key} not found.")
 
     @classmethod
     def create_initial(cls, initial_position: position = None):
