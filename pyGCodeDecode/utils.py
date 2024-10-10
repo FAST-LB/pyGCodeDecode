@@ -467,11 +467,15 @@ class segment:
 
         def get_time(x):
             a = (self.vel_end - self.vel_begin).get_norm() / (self.t_end - self.t_begin)
-            v_sq = 2 * a * x + self.vel_begin.get_norm() ** 2
-            t = (np.sqrt(v_sq) - self.vel_begin.get_norm()) / a if v_sq > 0 else 0
-            if v_sq <= 0:
-                raise ValueError("Could not map time dependant scalar to space.")
+            if a > 0:
+                v_sq = 2 * a * x + self.vel_begin.get_norm() ** 2
+                t = (np.sqrt(v_sq) - self.vel_begin.get_norm()) / a if v_sq > 0 else 0
+                if v_sq <= 0:
+                    raise ValueError("Could not map time dependant scalar to space.")
+            elif a == 0:
+                t = x / self.vel_begin.get_norm()
             return t
+
 
         t = get_time(x)
         scalar = lin_scalar(t)
