@@ -476,7 +476,6 @@ class segment:
                 t = x / self.vel_begin.get_norm()
             return t
 
-
         t = get_time(x)
         scalar = lin_scalar(t)
 
