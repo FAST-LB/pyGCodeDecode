@@ -61,9 +61,12 @@ def generate_abaqus_event_series(
     scaling = simulation.get_scaling_factor(output_unit_system=output_unit_system)
 
     # write to file
+    round_to = 8
     with open(filepath, "w") as outfile:
         for time, pos in zip(time, pos):
-            outfile.write(f"{time},{scaling*pos[0]},{scaling*pos[1]},{round(scaling*pos[2], 5)},{pos[3]}\n")
+            outfile.write(
+                f"{time},{round(scaling*pos[0], round_to)},{round(scaling*pos[1], round_to)},{round(scaling*pos[2], round_to)},{pos[3]}\n"
+            )
             event_series_list.append((time, scaling * pos[0], scaling * pos[1], scaling * pos[2], pos[3]))
 
         custom_print(f"ABAQUS event series written to: \n{outfile.name}")
