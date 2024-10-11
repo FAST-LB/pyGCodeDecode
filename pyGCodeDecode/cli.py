@@ -100,7 +100,7 @@ def _plot(args: argparse.Namespace):
     printer_setup = setup(
         presets_file=presets_file,
         printer=printer_name,
-        layer_cue=args.layer_queue,
+        layer_cue=args.layer_cue,
     )
 
     # running the simulation by creating a simulation object
@@ -203,13 +203,13 @@ def _main(*args):
         metavar="<PATH>",
     )
     plot_parser.add_argument(
-        "-lq",
-        "--layer_queue",
+        "-lc",
+        "--layer_cue",
         action="store",
-        help="The queue indicating a layer switch in the GCode.",
+        help="The cue indicating a layer switch in the GCode.",
         default=None,
         type=str,
-        metavar="<QUEUE>",
+        metavar="<cue>",
     )
 
     # parse the arguments
