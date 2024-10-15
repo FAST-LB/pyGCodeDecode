@@ -2,7 +2,7 @@
 
 import locale as loc
 import pathlib
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 import yaml
@@ -94,9 +94,9 @@ def write_submodel_times(
     sub_side_x_len: float,
     sub_side_y_len: float,
     sub_side_z_len: float,
-    filename="submodel_times.yaml",
+    filename: Optional[pathlib.Path] = pathlib.Path("submodel_times.yaml"),
     **kwargs,
-):
+) -> dict:
     """Write the submodel entry and exit times to a yaml file.
 
     Args:
@@ -205,7 +205,7 @@ def write_submodel_times(
             # if 'fac' is between (0 - 1) the point intersects with the segment.
             # Otherwise:
             #  < 0.0: behind p0.
-            #  > 1.0: infront of p1.
+            #  > 1.0: in front of p1.
 
             w = p0 - p_co
             fac = -np.dot(p_no, w) / dot
@@ -244,11 +244,16 @@ def write_submodel_times(
     time_in = timetable[:, 0][np.asarray(timetable[:, 1], dtype=bool)]  # filter the data for entering the CV
     time_out = timetable[:, 0][~np.asarray(timetable[:, 1], dtype=bool)]  # filter the data for exiting the CV
 
-    with open(filename, "w") as file:
-        yaml.dump(kwargs, file)  # add all kwargs to the file#
-        yaml.dump({"time_process": float(simulation.blocklist[-1].get_segments()[-1].t_end)}, file)
-        yaml.dump({"n_filaments": len(time_in)}, file)
-        yaml.dump({"time_in": time_in.tolist()}, file)  # write out all time IN
-        yaml.dump({"time_out": time_out.tolist()}, file)  # write out all time OUT
+    result = {
+        **kwargs,  # add all kwargs to the result
+        "time_process": float(simulation.blocklist[-1].get_segments()[-1].t_end),
+        "n_filaments": len(time_in),
+        "time_in": time_in.tolist(),  # all time IN
+        "time_out": time_out.tolist(),  # all time OUT
+    }
 
-    file.close()
+    if filename is not None:
+        with open(filename, "w") as file:
+            yaml.dump(result, file)
+
+    return result
