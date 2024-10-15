@@ -2,7 +2,7 @@
 
 import locale as loc
 import pathlib
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 import yaml
@@ -94,9 +94,9 @@ def write_submodel_times(
     sub_side_x_len: float,
     sub_side_y_len: float,
     sub_side_z_len: float,
-    filename: pathlib.Path | None = pathlib.Path("submodel_times.yaml"),
+    filename: Optional[pathlib.Path] = pathlib.Path("submodel_times.yaml"),
     **kwargs,
-):
+) -> dict:
     """Write the submodel entry and exit times to a yaml file.
 
     Args:
