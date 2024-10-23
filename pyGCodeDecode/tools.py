@@ -2,90 +2,99 @@
 
 import locale as loc
 import pathlib
-from typing import Optional, Union
+from typing import Optional
 
 import numpy as np
 import yaml
 
+from pyGCodeDecode.gcode_interpreter import simulation
 from pyGCodeDecode.helpers import custom_print
-
-from .gcode_interpreter import simulation
 
 
 def save_layer_metrics(
     simulation: simulation,
-    filepath: Union[pathlib.Path, str] = "./layer_metrics.csv",
+    filepath: Optional[pathlib.Path] = pathlib.Path("./layer_metrics.csv"),
     locale: str = None,
     delimiter: str = ";",
-):
+) -> Optional[tuple[list, list, list, list]]:
     """Print out print times, distance traveled and the average travel speed to a csv-file.
 
     Args:
         simulation: (simulation) simulation instance
-        filepath: (Path | string, default = "./layer_metrics.csv") file name
-        locale: (string, default = None) select locale settings, e.g. "en_US.utf8" "de_DE.utf8", None = use system locale
+        filepath: (Path , default = "./layer_metrics.csv") file name
+        locale: (string, default = None) select locale settings, e.g. "en_US.utf8", None = use system locale
         delimiter: (string, default = ";") select delimiter
 
     Layers are detected using the given layer cue.
     """
-    if "layer_cue" in simulation.initial_machine_setup:
-        if locale is None:
-            loc.setlocale(loc.LC_ALL, "")
-        else:
-            loc.setlocale(loc.LC_ALL, locale)
+    # check if a layer cue was specified
+    if "layer_cue" not in simulation.initial_machine_setup:
+        custom_print("⚠️ No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!")
+        return None
 
-        delimiter = delimiter + " "  # add space after delimiter
+    if locale is None:
+        loc.setlocale(loc.LC_ALL, "")
+    else:
+        loc.setlocale(loc.LC_ALL, locale)
 
+    layers = []
+    durations = []
+    travel_distances = []
+    avg_speeds = []
+
+    current_layer = 0
+    last_layer_time = 0
+    travel = 0
+
+    for block in simulation.blocklist:
+        last_block_of_layer = False
+        next_layer = block.state_B.layer
+
+        # calculate the duration of the block
+        if next_layer > current_layer:  # layer switch in this block
+            last_block_of_layer = True
+            block_begin = block.segments[0].t_begin
+            duration = block_begin - last_layer_time
+        elif block.next_block is None:  # last block of the print
+            last_block_of_layer = True
+            block_end = block.segments[-1].t_end
+            duration = block_end - last_layer_time
+
+        if last_block_of_layer:
+            average_speed = travel / duration if duration != 0 else "NaN"
+
+            layers.append(current_layer)
+            durations.append(duration)
+            travel_distances.append(travel)
+            avg_speeds.append(average_speed)
+
+            # set variables for next layer
+            if next_layer > current_layer:
+                travel = 0
+                last_layer_time = block_begin
+                current_layer = next_layer
+
+        # add travel distance of current block
+        travel += block.get_block_travel()
+
+    # write the layer info to a csv if a filepath is given
+    if filepath is not None:
         # create directory if necessary
         pathlib.Path(filepath).parent.mkdir(parents=True, exist_ok=True)
 
-        with open(file=filepath, mode="w") as p_log:
-            p_log.write(
-                f"layer{delimiter}layer time in s{delimiter}travel distance in mm{delimiter}avg speed in mm/s\n"
-            )
+        header = f"layer{delimiter} layer time in s{delimiter} travel distance in mm{delimiter} avg speed in mm/s"
+        data = np.array([layers, durations, travel_distances, avg_speeds], dtype=object).T
+        np.savetxt(
+            fname=filepath,
+            X=data,
+            delimiter=delimiter + " ",
+            fmt="%s",
+            header=header,
+            comments="",
+        )
+        custom_print(f"💾 Layer metrics written to:\n👉 {filepath.__str__()}")
 
-            next_layer = 0
-            current_layer = 0
-            last_layer_time = 0
-            travel = 0
-            for block in simulation.blocklist:
-                next_layer = block.state_B.layer
-                if next_layer > current_layer:
-                    block_begin = block.segments[0].t_begin
-                    duration = block_begin - last_layer_time
-                    p_log.write(
-                        str(current_layer)
-                        + delimiter
-                        + loc.str(duration)
-                        + delimiter
-                        + loc.str(travel)
-                        + delimiter
-                        + (loc.str(travel / duration) if duration != 0 else "NaN")
-                        + "\n"
-                    )
-                    travel = 0
-                    last_layer_time = block_begin
-                    current_layer = next_layer
-
-                if block.next_block is None:
-                    block_end = block.segments[-1].t_end
-                    duration = block_end - last_layer_time
-
-                    p_log.write(
-                        str(current_layer)
-                        + delimiter
-                        + loc.str(duration)
-                        + delimiter
-                        + loc.str(travel)
-                        + delimiter
-                        + loc.str((travel / duration) if duration > 0 else "NaN")
-                        + "\n"
-                    )
-                travel += block.get_block_travel()
-
-        custom_print(f"💾 Layer metrics written to:\n👉 {str(filepath)}")
-    else:
-        custom_print("⚠️ No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!")
+    return layers, durations, travel_distances, avg_speeds
 
 
 def write_submodel_times(
@@ -160,7 +169,10 @@ def write_submodel_times(
     def point_eval(point, pl_lim):
         p_eval = []
         for lim_n, p_n in zip(pl_lim, point):
-            inters_pl = [p_n <= lim_n[0], p_n >= lim_n[1]]  # check if point is inside of [CV+, CV-]
+            inters_pl = [
+                p_n <= lim_n[0],
+                p_n >= lim_n[1],
+            ]  # check if point is inside of [CV+, CV-]
             p_eval.append(inters_pl)
         return p_eval
 
@@ -170,7 +182,6 @@ def write_submodel_times(
     def intersect_possible(p_eval0, p_eval1):
         possible = False
         for ax_eval0, ax_eval1 in zip(p_eval0, p_eval1):
-
             if ax_eval0 != ax_eval1:
                 # crossing
                 possible = True  # if one axis crosses any plane, intersection is possible
@@ -218,7 +229,10 @@ def write_submodel_times(
 
     # METHOD IMPLEMENTATION
     control_volume = cube(
-        origin=sub_orig, side_x_len=sub_side_x_len, side_y_len=sub_side_y_len, side_z_len=sub_side_z_len
+        origin=sub_orig,
+        side_x_len=sub_side_x_len,
+        side_y_len=sub_side_y_len,
+        side_z_len=sub_side_z_len,
     )  # define control volume
     timetable = []
 
