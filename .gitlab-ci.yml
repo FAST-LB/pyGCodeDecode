@@ -4,7 +4,7 @@ stages:
 
 test-lint:
     stage: test
-    image: "python:3.12"
+    image: "python:3.13"
     needs: []
     script:
         - pip install isort black[jupyter] flake8-docstrings
@@ -16,6 +16,9 @@ test-lint:
 .test-lin_py:
     stage: test
     needs: []
+    parallel:
+        matrix:
+            - IMAGE: ["python:3.9", "python:3.10", "python:3.13"]
     before_script:
         # missing dependencies for pyvista
         - apt-get update && apt-get install libgl1 -y
@@ -31,22 +34,6 @@ test-lint:
                 coverage_format: cobertura
                 path: ./tests/coverage.xml
         when: always
-
-test-lin_py_3.9:
-    extends: ".test-lin_py"
-    image: "python:3.9"
-
-test-lin_py_3.10:
-    extends: ".test-lin_py"
-    image: "python:3.10"
-
-test-lin_py_3.11:
-    extends: ".test-lin_py"
-    image: "python:3.11"
-
-test-lin_py_3.12:
-    extends: ".test-lin_py"
-    image: "python:3.12"
 
 doc-compile_paper:
     stage: doc
