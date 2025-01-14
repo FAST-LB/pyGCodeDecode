@@ -9,7 +9,7 @@ class state:
     class p_settings:
         """Store Printing Settings."""
 
-        def __init__(self, p_acc, jerk, vX, vY, vZ, vE, speed, units="SImm"):
+        def __init__(self, p_acc, jerk, vX, vY, vZ, vE, speed, units="SI (mm)"):
             """Initialize printing settings.
 
             Args:
@@ -20,7 +20,7 @@ class state:
                 vZ: (float) max z velocity
                 vE: (float) max e velocity
                 speed: (float) default target velocity
-                units: (string, default = "SImm") unit settings
+                units: (string, default = "SI (mm)") unit settings
             """
             self.p_acc = p_acc  # printing acceleration
             self.jerk = jerk  # jerk settings
