@@ -57,9 +57,9 @@ def test_state_generator():
     assert states[12].state_position.get_vec(withExtrusion=True) == [7, 7, 7, 7]  # abs move
     # assert states[13]  # virtual null all axis
     assert states[14].state_position.get_vec(withExtrusion=True) == [14, 14, 14, 14]  # abs move with offset
-    assert states[14].state_p_settings.units == "SImm"
+    assert states[14].state_p_settings.units == "SI (mm)"
     assert states[15].state_p_settings.units == "inch"
-    assert states[16].state_p_settings.units == "SImm"
+    assert states[16].state_p_settings.units == "SI (mm)"
     assert states[16].layer == 0
     assert states[17].comment == "LAYER cue"
     assert states[17].layer == 1

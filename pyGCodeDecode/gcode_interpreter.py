@@ -170,7 +170,7 @@ class simulation:
         gcode_path: pathlib.Path,
         machine_name: str = None,
         initial_machine_setup: "setup" = None,
-        output_unit_system: str = "SImm",
+        output_unit_system: str = "SI (mm)",
     ):
         """Initialize the Simulation of a given G-code with initial machine setup or default machine.
 
@@ -182,7 +182,7 @@ class simulation:
             gcode_path: (Path) path to GCode
             machine name: (string, default = None) name of the default machine to use
             initial_machine_setup: (setup, default = None) setup instance
-            output_unit_system: (string, default = "SImm") available unit systems: SI, SImm & inch
+            output_unit_system: (string, default = "SI (mm)") available unit systems: SI, SI (mm) & inch
 
         Example:
         ```python
@@ -195,7 +195,7 @@ class simulation:
         self.firmware = None
 
         # set output unit system
-        self.available_unit_systems = {"SI": 1e-3, "SImm": 1.0, "inch": 1 / 25.4}
+        self.available_unit_systems = {"SI": 1e-3, "SI (mm)": 1.0, "inch": 1 / 25.4}
         if output_unit_system in self.available_unit_systems:
             self.output_unit_system = output_unit_system
         else:
@@ -814,8 +814,8 @@ class setup:
         """
         # the input unit system is only implemented for 'set_initial_position'.
         # Regardless, the class has this attribute so it's more similar to the simulation class.
-        self.available_unit_systems = {"SI": 1e3, "SImm": 1.0, "inch": 25.4}
-        self.input_unit_system = "SImm"
+        self.available_unit_systems = {"SI": 1e3, "SI (mm)": 1.0, "inch": 25.4}
+        self.input_unit_system = "SI (mm)"
 
         self.initial_position = {
             "X": 0,

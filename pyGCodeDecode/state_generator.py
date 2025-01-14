@@ -81,7 +81,7 @@ known_commands = {**unsupported_commands, **supported_commands}
 default_virtual_machine = {
     "absolute_position": True,
     "absolute_extrusion": True,
-    "units": "SImm",
+    "units": "SI (mm)",
     "initial_position": None,
     # general properties
     "nozzle_diam": 0.4,
@@ -281,7 +281,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
         if "G20" in line_dict:
             virtual_machine["units"] = "inch"
         if "G21" in line_dict:
-            virtual_machine["units"] = "SImm"
+            virtual_machine["units"] = "SI (mm)"
 
         # position & velocity
         pos_keys = ["X", "Y", "Z"]

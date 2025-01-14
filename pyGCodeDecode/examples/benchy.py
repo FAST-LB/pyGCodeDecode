@@ -37,14 +37,14 @@ def benchy_example():
     # set the start position of the extruder
     printer_setup.set_initial_position(
         initial_position={"X": 0.0, "Y": 0.0, "Z": 0.0, "E": 0.0},
-        input_unit_system="SImm",
+        input_unit_system="SI (mm)",
     )
 
     # running the simulation by creating a simulation object
     benchy_simulation = simulation(
         gcode_path=data_dir / "benchy.gcode",
         initial_machine_setup=printer_setup,
-        output_unit_system="SImm",
+        output_unit_system="SI (mm)",
     )
 
     # save a short summary of the simulation
@@ -63,7 +63,7 @@ def benchy_example():
         simulation=benchy_simulation,
         filepath=output_dir / "benchy_prusa_mini_event_series.csv",
         tolerance=1.0e-12,
-        output_unit_system="SImm",
+        output_unit_system="SI (mm)",
     )
 
     # create a 3D-plot and save a VTK as well as a screenshot
