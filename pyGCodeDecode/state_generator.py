@@ -207,6 +207,26 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
         state_list: (list[state]) all states in a list
 
     """
+
+    def apply_extrusion(line_dict: dict, virtual_machine: dict, command: str, initial_machine_setup: dict) -> dict:
+        import math
+
+        e_value = line_dict[command]["E"]
+
+        # volumetric to length conversion
+        # (1) V = (d/2)^2 * pi * E
+        # (2) E = V / ((d/2)^2 * pi)
+        if initial_machine_setup.get("extrusion_volumetric", False):
+            # volumetric extrusion
+            e_value = e_value / (math.pi * (initial_machine_setup["filament_diam"] / 2) ** 2)
+
+        if virtual_machine["absolute_extrusion"] is True:
+            virtual_machine["E"] = e_value
+        if virtual_machine["absolute_extrusion"] is False:  # redundant
+            virtual_machine["E"] = virtual_machine["E"] + e_value
+
+        return virtual_machine
+
     state_list: List[state] = list()
 
     virtual_machine = {
@@ -298,10 +318,9 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
 
                 # look for extrusion commands and apply abs/rel
                 if "E" in line_dict[command]:
-                    if virtual_machine["absolute_extrusion"] is True:
-                        virtual_machine["E"] = line_dict[command]["E"]
-                    if virtual_machine["absolute_extrusion"] is False:  # redundant
-                        virtual_machine["E"] = virtual_machine["E"] + line_dict[command]["E"]
+                    virtual_machine = apply_extrusion(line_dict, virtual_machine, command, initial_machine_setup)
+
+                # feed rates in unit/min to unit/sec
                 if "F" in line_dict[command]:
                     virtual_machine["p_vel"] = line_dict[command]["F"] / 60
 
