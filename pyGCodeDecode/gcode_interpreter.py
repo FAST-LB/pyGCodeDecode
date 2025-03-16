@@ -634,14 +634,14 @@ class simulation:
         for key in initial_machine_setup:
             if key not in valid_keys:
                 raise ValueError(
-                    f'Invalid Key: "{key}" in Setup Dictionary, check for typos. Valid keys are: {valid_keys}'
+                    f"Invalid Key: '{key}' in Setup Dictionary, check for typos. Valid keys are: {valid_keys}"
                 )
 
         # check if every required key is proivded
         for key in req_keys:
             if key not in initial_machine_setup:
                 raise ValueError(
-                    f'Missing Key: "{key}" is not provided in Setup Dictionary,'
+                    f"Missing Key: '{key}' is not provided in Setup Dictionary,"
                     f" check for typos. Required keys are: {req_keys}"
                 )
 
