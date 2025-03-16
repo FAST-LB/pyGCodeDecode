@@ -400,9 +400,9 @@ def check_for_unsupported_commands(line_dict_list: dict) -> dict:
     }
 
     if unsupported_commands_found != []:
-        custom_print(f"⚠️ Warning: {len(unsupported_command_counts.keys())} known but unsupported command(s) found:")
+        custom_print(f"{len(unsupported_command_counts.keys())} known but unsupported command(s) found:", lvl=1)
         for key, value in unsupported_command_counts.items():
-            custom_print(f" - Command '{key}' found {value} time(s).")
+            custom_print(f" - Command '{key}' found {value} time(s).", lvl=1)
     else:
         custom_print("Great, the G-code does not contain any unsupported commands known to pyGCD 🎈.")
 

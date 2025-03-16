@@ -29,7 +29,9 @@ def save_layer_metrics(
     """
     # check if a layer cue was specified
     if "layer_cue" not in simulation.initial_machine_setup:
-        custom_print("⚠️ No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!")
+        custom_print(
+            "⚠️ No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!", lvl=1
+        )
         return None
 
     if locale is None:

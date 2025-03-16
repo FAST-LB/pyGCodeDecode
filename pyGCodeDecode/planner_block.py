@@ -198,7 +198,7 @@ class planner_block:
                 )
 
         except ValueError as ve:
-            custom_print(f"Segments to state: {str(self.state_B)} could not be modeled.\n {ve}")
+            custom_print(f"Segments to state: {str(self.state_B)} could not be modeled.\n {ve}", lvl=1)
             raise RuntimeError()
 
     def self_correction(self, tolerance=float("1e-12")):
@@ -241,7 +241,7 @@ class planner_block:
             for segm in self.segments:
                 segm.self_check(p_settings=self.state_B.state_p_settings)
         except ValueError as ve:
-            custom_print(f"Segment for {self.state_B} does not adhere to machine limits: {ve}")
+            custom_print(f"Segment for {self.state_B} does not adhere to machine limits: {ve}", lvl=1)
 
         return flag_correct
 
