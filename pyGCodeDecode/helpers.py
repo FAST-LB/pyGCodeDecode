@@ -13,7 +13,7 @@ else:
 VERBOSITY_LEVEL = 2  # default to INFO
 
 
-def set_verbosity_level(level: int) -> None:
+def set_verbosity_level(level: int | None) -> None:
     """Set the global verbosity level."""
     global VERBOSITY_LEVEL
     if level is not None:
@@ -26,7 +26,8 @@ def get_verbosity_level() -> int:
 
 
 def custom_print(*args, lvl=2, **kwargs) -> None:
-    """Sanitize outputs for ABAQUS and print them. Takes regular arguments for print.
+    """Sanitize outputs for ABAQUS and print them if the log level is high enough.
+       Takes all regular arguments for print.
 
     Args:
         *args: arguments to be printed

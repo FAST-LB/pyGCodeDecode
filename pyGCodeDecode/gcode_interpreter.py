@@ -132,7 +132,7 @@ class simulation:
         machine_name: str = None,
         initial_machine_setup: "setup" = None,
         output_unit_system: str = "SI (mm)",
-        verbosity_level: int = None,
+        verbosity_level: int | None = None,
     ):
         """Initialize the Simulation of a given G-code with initial machine setup or default machine.
 
@@ -781,7 +781,7 @@ class setup:
         presets_file: str,
         printer: str = None,
         layer_cue: str = None,
-        verbosity_level: int = None,
+        verbosity_level: int | None = None,
     ):
         """Create simulation setup.
 
