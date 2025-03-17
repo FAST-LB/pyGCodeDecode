@@ -4,7 +4,7 @@ import importlib.resources
 import os
 import pathlib
 import time
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import pyvista as pv
@@ -132,7 +132,7 @@ class simulation:
         machine_name: str = None,
         initial_machine_setup: "setup" = None,
         output_unit_system: str = "SI (mm)",
-        verbosity_level: int | None = None,
+        verbosity_level: Optional[int] = None,
     ):
         """Initialize the Simulation of a given G-code with initial machine setup or default machine.
 
@@ -781,7 +781,7 @@ class setup:
         presets_file: str,
         printer: str = None,
         layer_cue: str = None,
-        verbosity_level: int | None = None,
+        verbosity_level: Optional[int] = None,
     ):
         """Create simulation setup.
 

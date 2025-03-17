@@ -1,6 +1,7 @@
 """Helper functions."""
 
 import sys
+from typing import Optional
 
 # global flags
 # check if program is running in ABAQUS-Python
@@ -13,7 +14,7 @@ else:
 VERBOSITY_LEVEL = 2  # default to INFO
 
 
-def set_verbosity_level(level: int | None) -> None:
+def set_verbosity_level(level: Optional[int]) -> None:
     """Set the global verbosity level."""
     global VERBOSITY_LEVEL
     if level is not None:
