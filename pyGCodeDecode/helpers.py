@@ -26,8 +26,7 @@ def get_verbosity_level() -> int:
 
 
 def custom_print(*args, lvl=2, **kwargs) -> None:
-    """Sanitize outputs for ABAQUS and print them if the log level is high enough.
-       Takes all regular arguments for print.
+    """Sanitize outputs for ABAQUS and print them if the log level is high enough. Takes all arguments for print.
 
     Args:
         *args: arguments to be printed
