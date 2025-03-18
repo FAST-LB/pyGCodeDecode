@@ -142,7 +142,7 @@ class simulation:
 
         Args:
             gcode_path: (Path) path to GCode
-            machine name: (string, default = None) name of the default machine to use
+            machine_name: (string, default = None) name of the default machine to use
             initial_machine_setup: (setup, default = None) setup instance
             output_unit_system: (string, default = "SI (mm)") available unit systems: SI, SI (mm) & inch
             verbosity_level: (int, default = None) set verbosity level (0: no output, 1: warnings, 2: info, 3: debug)
