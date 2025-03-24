@@ -577,7 +577,7 @@ class simulation:
 
         return tmp_vel, tmp_pos
 
-    def get_width(self, t: float, extrusion_h: float, filament_dia: float = None) -> float:
+    def get_width(self, t: float, extrusion_h: float, filament_dia: Optional[float] = None) -> float:
         """Return the extrusion width for a certain extrusion height at time.
 
         Args:

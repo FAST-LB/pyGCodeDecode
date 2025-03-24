@@ -1,5 +1,6 @@
 """State generator module."""
 
+import math
 import pathlib
 import re
 from typing import List, Match
@@ -210,8 +211,6 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
     """
 
     def apply_extrusion(line_dict: dict, virtual_machine: dict, command: str) -> dict:
-        import math
-
         e_value = line_dict[command]["E"]
 
         # volumetric to length conversion
