@@ -3,61 +3,20 @@
 import importlib.resources
 import os
 import pathlib
-import sys
 import time
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import pyvista as pv
 import yaml
 from matplotlib.figure import Figure
 
-from pyGCodeDecode.helpers import custom_print
+from pyGCodeDecode.helpers import ProgressBar, custom_print, set_verbosity_level
 
 from .planner_block import planner_block
 from .state import state
 from .state_generator import generate_states
 from .utils import segment, velocity
-
-last_progress_update: float = 0.0
-
-
-def update_progress(progress: float, name: str = "Percent") -> None:
-    """Display or update a console progress bar.
-
-    Args:
-        progress: float between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
-        name: (string, default = "Percent") customizable name for progress bar
-    """
-    global last_progress_update
-
-    barLength = 10
-    status = ""
-
-    # check whether the input is valid
-    if progress is int:
-        progress = float(progress)
-    if not isinstance(progress, float):
-        progress = 0.0
-        status = "error: progress var must be float\r\n"
-
-    # progress outside [0, 1]
-    if progress < 0.0:
-        progress = 0.0
-        status = "Halt...\r\n"
-    if progress >= 1.0:
-        progress = 1.0
-        status = "Done...\r\n"
-
-    progress_percent = round(progress * 100, ndigits=1)
-
-    # check whether the progress has changed
-    if last_progress_update != progress_percent or status != "":
-        block = int(round(barLength * progress, ndigits=0))
-        text = f"\r[{'#' * block + '-' * (barLength - block)}] {progress_percent} % of {name} {status}"
-        sys.stdout.write(text)
-        sys.stdout.flush()
-        last_progress_update = progress_percent
 
 
 def generate_planner_blocks(states: List[state], firmware=None):
@@ -71,6 +30,7 @@ def generate_planner_blocks(states: List[state], firmware=None):
         block_list (list[planner_block]) list of all planner blocks to complete travel between all states
     """
     block_list = []
+    bar = ProgressBar(name="Planner Blocks")
     for i, this_state in enumerate(states):
         prev_block = block_list[-1] if len(block_list) > 0 else None  # grab prev block from block_list
         new_block = planner_block(state=this_state, prev_block=prev_block, firmware=firmware)  # generate new block
@@ -78,7 +38,7 @@ def generate_planner_blocks(states: List[state], firmware=None):
             if new_block.prev_block is not None:
                 new_block.prev_block.next_block = new_block  # update nb list
             block_list.append(new_block)
-        update_progress((i + 1) / len(states), "Planner Block Generation")
+        bar.update((i + 1) / len(states))
     return block_list
 
 
@@ -89,7 +49,8 @@ def find_current_segment(path: List[segment], t: float, last_index: int = None, 
         path: (list[segment]) all segments to be searched
         t: (float) time of search
         last_index: (int) last found index for optimizing search
-        keep_position: (bool) keeps position of last segment, use this when working with gaps of no movement between segments
+        keep_position: (bool) keeps position of last segment, use this when working with
+            gaps of no movement between segments
 
     Returns:
         segment: (segment) the segment which defines movement at that point in time
@@ -133,10 +94,10 @@ def find_current_segment(path: List[segment], t: float, last_index: int = None, 
         # original function untouched
         # some robustness checks
         if path[-1].t_end < t:
-            custom_print("No movement at this time in Path!")
+            custom_print("No movement at this time in Path!", lvl=1)
             return None, None
         elif last_index is None or len(path) - 1 < last_index or path[last_index].t_begin > t:
-            # custom_print(f"unoptimized Search, last index: {last_index}")
+            custom_print(f"unoptimized Search, last index: {last_index}", lvl=3)
             for last_index, segm in enumerate(path):
                 if t >= segm.t_begin and t < segm.t_end:
                     return segm, last_index
@@ -171,6 +132,7 @@ class simulation:
         machine_name: str = None,
         initial_machine_setup: "setup" = None,
         output_unit_system: str = "SI (mm)",
+        verbosity_level: Optional[int] = None,
     ):
         """Initialize the Simulation of a given G-code with initial machine setup or default machine.
 
@@ -180,9 +142,10 @@ class simulation:
 
         Args:
             gcode_path: (Path) path to GCode
-            machine name: (string, default = None) name of the default machine to use
+            machine_name: (string, default = None) name of the default machine to use
             initial_machine_setup: (setup, default = None) setup instance
             output_unit_system: (string, default = "SI (mm)") available unit systems: SI, SI (mm) & inch
+            verbosity_level: (int, default = None) set verbosity level (0: no output, 1: warnings, 2: info, 3: debug)
 
         Example:
         ```python
@@ -193,6 +156,7 @@ class simulation:
         self.last_index = None  # used to optimize search in segment list
         self.filename = gcode_path
         self.firmware = None
+        set_verbosity_level(verbosity_level)
 
         # set output unit system
         self.available_unit_systems = {"SI": 1e-3, "SI (mm)": 1.0, "inch": 1 / 25.4}
@@ -212,7 +176,9 @@ class simulation:
                 raise ValueError("Neither a printer name nor a printer setup was specified. At least one is required!")
             else:
                 custom_print(
-                    "Only a machine name was specified but no full setup. Trying to create a setup from pyGCD's default values..."
+                    "Only a machine name was specified but no full setup."
+                    "Trying to create a setup from pyGCD's default values...",
+                    lvl=1,
                 )
                 default_presets_file = importlib.resources.files("pyGCodeDecode").joinpath(
                     "data/default_printer_presets.yaml"
@@ -232,7 +198,8 @@ class simulation:
         )
 
         custom_print(
-            f"Simulating \"{self.filename}\" with {self.initial_machine_setup['printer_name']} using the {self.firmware} firmware.\n"
+            f"Simulating \"{self.filename}\" with {self.initial_machine_setup['printer_name']} using "
+            f"the {self.firmware} firmware.\n"
         )
         self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states, firmware=self.firmware)
         self.trajectory_self_correct()
@@ -292,8 +259,9 @@ class simulation:
             y.append(segments[0].pos_begin.get_vec()[1])
             cvar.append(segments[0].vel_begin.get_norm())
 
+            bar = ProgressBar(name="2D Plot Lines")
             for i, segm in enumerate(segments):
-                update_progress((i + 1) / len(segments), name="2D Plot Lines")
+                bar.update((i + 1) / len(segments))
                 x.append(segm.pos_end.get_vec()[0])
                 y.append(segm.pos_end.get_vec()[1])
                 cvar.append(segm.vel_end.get_norm())
@@ -325,7 +293,7 @@ class simulation:
             x.append(segments[0].pos_begin.get_vec()[0])
             y.append(segments[0].pos_begin.get_vec()[1])
             for i, segm in enumerate(segments):
-                update_progress((i + 1) / len(segments), name="2D Plot Lines")
+                bar.update((i + 1) / len(segments))
                 x.append(segm.pos_end.get_vec()[0])
                 y.append(segm.pos_end.get_vec()[1])
             fig = plt.subplot()
@@ -333,7 +301,7 @@ class simulation:
 
         if show_points:
             for i, block in enumerate(self.blocklist):
-                update_progress(i / len(self.blocklist), name="2D Plot Points")
+                bar.update(i / len(self.blocklist))
                 fig.scatter(
                     block.get_segments()[-1].pos_end.get_vec()[0],
                     block.get_segments()[-1].pos_end.get_vec()[1],
@@ -365,9 +333,11 @@ class simulation:
 
         Args:
             extrusion_only (bool, optional): Plot only parts where material is extruded. Defaults to True.
-            screenshot_path (pathlib.Path, optional): Path to screenshot to be saved. Prevents interactive plot. Defaults to None.
+            screenshot_path (pathlib.Path, optional): Path to screenshot to be saved. Prevents
+                interactive plot. Defaults to None.
             vtk_path (pathlib.Path, optional): Path to vtk to be saved. Prevents interactive plot. Defaults to None.
-            mesh (pv.MultiBlock, optional): A pyvista mesh from a previous run to avoid running the mesh generation again. Defaults to None.
+            mesh (pv.MultiBlock, optional): A pyvista mesh from a previous run to avoid running the
+                mesh generation again. Defaults to None.
 
         Returns:
             pv.MultiBlock: The mesh used in the plot so it can be used (e.g. in subsequent plots).
@@ -383,9 +353,9 @@ class simulation:
             mesh = pv.MultiBlock()
 
             x, y, z, e, vel = [], [], [], [], []
-
+            bar = ProgressBar(name="3D Plot")
             for n, segm in enumerate(segments):
-                update_progress((n + 1) / len(segments), name="3D Plot")
+                bar.update((n + 1) / len(segments))
 
                 if (not extrusion_only) or (segm.is_extruding()):
                     if len(x) == 0:
@@ -447,7 +417,7 @@ class simulation:
                 p.screenshot(filename=screenshot_path)
                 custom_print(f"Screenshot saved to:\n{screenshot_path}")
             else:
-                custom_print("Screenshot can not be created without a display!")
+                custom_print("Screenshot can not be created without a display!", lvl=1)
 
         if not off_screen and display_available:
             p.show()
@@ -473,7 +443,8 @@ class simulation:
             show_planner_blocks: (bool, default = True) show planner_blocks as vertical lines
             show_segments: (bool, default = False) show segments as vertical lines
             show_jv: (bool, default = False) show junction velocity as x
-            time_steps: (int or string, default = "constrained") number of time steps or constrain plot vertices to segment vertices
+            time_steps: (int or string, default = "constrained") number of time steps or constrain plot
+                vertices to segment vertices
             filepath: (Path, default = None) save fig as image if filepath is provided
             dpi: (int, default = 400) select dpi
 
@@ -507,6 +478,7 @@ class simulation:
         vel = [[], [], [], []]
         abs = []  # initialize value arrays
         index_saved = 0
+        bar = ProgressBar(name="Velocity Plot")
 
         for i, t in enumerate(times):
             segm, index_saved = find_current_segment(path=segments, t=t, last_index=index_saved, keep_position=True)
@@ -518,7 +490,7 @@ class simulation:
                 vel[axis_dict[ax]].append(tmp_vel[axis_dict[ax]])
 
             abs.append(np.linalg.norm(tmp_vel[:3]))
-            update_progress((i + 1) / len(times), name="Velocity Plot")
+            bar.update((i + 1) / len(times))
 
         fig, ax1 = plt.subplots()
         ax2 = ax1.twinx()
@@ -569,15 +541,16 @@ class simulation:
     def trajectory_self_correct(self):
         """Self correct all blocks in the blocklist with self_correction() method."""
         n_max = len(self.blocklist)
-        last_progress_update = 0
+        bar = ProgressBar(name="Block Correction")
 
         for n, block in enumerate(self.blocklist):
             progress = round(n / n_max, ndigits=3)
-            if progress > last_progress_update:
-                update_progress((n + 1) / len(self.blocklist), name="Block Correction")
-                last_progress_update = progress
+            if progress > bar.last_progress_update:
+                bar.update((n + 1) / len(self.blocklist))
+                bar.last_progress_update = progress
 
             block.self_correction()
+        bar.update(1.0)
 
     def get_values(self, t: float, output_unit_system: str = None) -> Tuple[List[float]]:
         """Return unit system scaled values for vel and pos.
@@ -658,14 +631,15 @@ class simulation:
         for key in initial_machine_setup:
             if key not in valid_keys:
                 raise ValueError(
-                    f'Invalid Key: "{key}" in Setup Dictionary, check for typos. Valid keys are: {valid_keys}'
+                    f"Invalid Key: '{key}' in Setup Dictionary, check for typos. Valid keys are: {valid_keys}"
                 )
 
         # check if every required key is proivded
         for key in req_keys:
             if key not in initial_machine_setup:
                 raise ValueError(
-                    f'Missing Key: "{key}" is not provided in Setup Dictionary, check for typos. Required keys are: {req_keys}'
+                    f"Missing Key: '{key}' is not provided in Setup Dictionary,"
+                    f" check for typos. Required keys are: {req_keys}"
                 )
 
     def print_summary(self, start_time: float):
@@ -675,8 +649,10 @@ class simulation:
             start_time (float): time when the simulation run was started
         """
         custom_print(
-            f" >> pyGCodeDecode extracted {len(self.states)} states from {self.filename} and generated {len(self.blocklist)} planner blocks.\n"
-            f"Estimated time to travel all states with provided printer settings is {self.blocklist[-1].get_segments()[-1].t_end:.2f} seconds.\n"
+            f" >> pyGCodeDecode extracted {len(self.states)} states from {self.filename}"
+            f" and generated {len(self.blocklist)} planner blocks.\n"
+            f"Estimated time to travel all states with provided"
+            f" printer settings is {self.blocklist[-1].get_segments()[-1].t_end:.2f} seconds.\n"
             f"The Simulation took {(time.time()-start_time):.2f} s."
         )
 
@@ -684,7 +660,8 @@ class simulation:
         """Refresh simulation. Either through new state list or by rerunning the self.states as input.
 
         Args:
-            new_state_list: (list[state], default = None) new list of states, if None is provided, existing states get resimulated
+            new_state_list: (list[state], default = None) new list of states,
+                if None is provided, existing states get resimulated
         """
         if new_state_list is not None:
             self.states = new_state_list
@@ -801,18 +778,21 @@ class setup:
         presets_file: str,
         printer: str = None,
         layer_cue: str = None,
-    ) -> None:
+        verbosity_level: Optional[int] = None,
+    ):
         """Create simulation setup.
 
         Args:
             presets_file: (string) choose setup yaml file with printer presets
             printer: (string) select printer from preset file
             layer_cue: (string) set slicer specific layer change cue from comment
+            verbosity_level: (int, default = None) set verbosity level (0: no output, 1: warnings, 2: info, 3: debug)
         """
         # the input unit system is only implemented for 'set_initial_position'.
         # Regardless, the class has this attribute so it's more similar to the simulation class.
         self.available_unit_systems = {"SI": 1e3, "SI (mm)": 1.0, "inch": 25.4}
         self.input_unit_system = "SI (mm)"
+        set_verbosity_level(verbosity_level)
 
         self.initial_position = {
             "X": 0,
@@ -859,7 +839,8 @@ class setup:
         """Set initial Position.
 
         Args:
-            initial_position: (tuple or dict) set initial position as tuple of len(4) or dictionary with keys: {X, Y, Z, E}.
+            initial_position: (tuple or dict) set initial position as tuple of len(4)
+                or dictionary with keys: {X, Y, Z, E}.
             input_unit_system (str, optional): Wanted input unit system.
                 Uses the one specified for the setup if None is specified.
 
@@ -886,7 +867,9 @@ class setup:
             raise ValueError("Set initial position through dict with keys: {X, Y, Z, E} or as tuple with length 4.")
 
     def set_property(self, property_dict: dict):
-        """Overwrite or add a property to the printer dictionary. Printer has to be selected through select_printer() beforehand.
+        """Overwrite or add a property to the printer dictionary.
+
+        Printer has to be selected through select_printer() beforehand.
 
         Args:
             property_dict: (dict) set or add property to the setup

@@ -29,22 +29,23 @@ def _plot(args: argparse.Namespace):
             g_code_file = specified_path
         elif specified_path is not None:
             custom_print(
-                f"❌ The specified G-code:\n{specified_path.resolve()}\nis not valid.\n" "🛑 Exiting the program."
+                f"❌ The specified G-code:\n{specified_path.resolve()}\nis not valid.\n" "🛑 Exiting the program.",
+                lvl=1,
             )
             exit()
         else:
-            custom_print("⚠️ No G-code file specified. Looking for a G-code file in the current directory... 👀")
+            custom_print("⚠️ No G-code file specified. Looking for a G-code file in the current directory... 👀", lvl=1)
             files_list = list(pathlib.Path.cwd().glob("*.gcode"))
             if files_list.__len__() == 0:
-                custom_print("❌ No G-code file found in the current directory.\n" "🛑 Exiting the program.")
+                custom_print("❌ No G-code file found in the current directory.\n" "🛑 Exiting the program.", lvl=1)
                 exit()
             elif files_list.__len__() == 1:
                 g_code_file = files_list[0]
             else:
-                custom_print("❌ Multiple G-code files found in the current directory:")
+                custom_print("❌ Multiple G-code files found in the current directory:", lvl=1)
                 for file in files_list:
-                    custom_print(f"    - {file.resolve()}")
-                custom_print("🛑 Exiting the program.")
+                    custom_print(f"    - {file.resolve()}", lvl=1)
+                custom_print("🛑 Exiting the program.", lvl=1)
                 exit()
 
         custom_print(f"✅ Using the G-code file:\n{g_code_file.resolve()}")
@@ -57,7 +58,8 @@ def _plot(args: argparse.Namespace):
             presets_file = importlib.resources.files("pyGCodeDecode").joinpath("data/default_printer_presets.yaml")
         elif not presets_file.is_file():
             custom_print(
-                f"❌ The specified presets file:\n{presets_file.resolve()}\nis not valid.\n" "🛑 Exiting the program."
+                f"❌ The specified presets file:\n{presets_file.resolve()}\nis not valid.\n" "🛑 Exiting the program.",
+                lvl=1,
             )
             exit()
         else:
