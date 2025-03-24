@@ -577,7 +577,7 @@ class simulation:
 
         return tmp_vel, tmp_pos
 
-    def get_width(self, t: float, extrusion_h: float, filament_dia: float):
+    def get_width(self, t: float, extrusion_h: float, filament_dia: Optional[float] = None) -> float:
         """Return the extrusion width for a certain extrusion height at time.
 
         Args:
@@ -588,13 +588,14 @@ class simulation:
         Returns:
             float: width
         """
+        filament_dia = self.initial_machine_setup["filament_diam"] if filament_dia is None else filament_dia
+
         curr_val = self.get_values(t=t)
 
         feed_rate = np.linalg.norm(curr_val[0][:3])  # calculate feed rate at current time
         flow_rate = curr_val[0][3]  # get extrusion rate at current time
 
-        filament_cross_sec = (np.pi * filament_dia**2) / 4  # calculate cross area of filament
-
+        filament_cross_sec = np.pi * (filament_dia / 2) ** 2  # calculate cross area of filament
         width = (
             (flow_rate * filament_cross_sec) / (extrusion_h * feed_rate) if feed_rate > 0 else 0
         )  # calculate width, zero if no movement.
@@ -622,11 +623,7 @@ class simulation:
             "printer_name",
             "firmware",
         ]
-        optional_keys = [
-            "layer_cue",
-            "nozzle_diam",
-            "filament_diam",
-        ]
+        optional_keys = ["layer_cue", "nozzle_diam", "filament_diam", "volumetric_extrusion"]
 
         valid_keys = req_keys + optional_keys
 

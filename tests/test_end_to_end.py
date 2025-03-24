@@ -2,6 +2,8 @@
 
 import pathlib
 
+import numpy as np
+
 
 def test_end_to_end_compact():
     """Testing the simulation functionality with automatic setup, similarly to the brace example."""
@@ -11,6 +13,38 @@ def test_end_to_end_compact():
         gcode_path=pathlib.Path("./tests/data/test_state_generator.gcode"),
         machine_name="anisoprint_a4",
     )
+
+
+def test_end_to_end_volumetr():
+    """Testing the simulation functionality with automatic setup, using volumetric or distance based extrusion."""
+    from pyGCodeDecode.gcode_interpreter import setup, simulation
+
+    preset = setup(pathlib.Path("./tests/data/test_printer_setups.yaml"), "test")
+    preset.set_property({"volumetric_extrusion": False})
+
+    sim = simulation(
+        gcode_path=pathlib.Path("./tests/data/test_state_generator.gcode"),
+        initial_machine_setup=preset,
+    )
+
+    end_extrusion = sim.blocklist[-1].segments[-1].pos_end.e
+    expected_extrusion = 14.0
+    assert end_extrusion == expected_extrusion, f"Expected {expected_extrusion}, but got {end_extrusion}"
+
+    preset = setup(pathlib.Path("./tests/data/test_printer_setups.yaml"), "test")
+    preset.set_property({"volumetric_extrusion": True})
+
+    sim = simulation(
+        gcode_path=pathlib.Path("./tests/data/test_state_generator.gcode"),
+        initial_machine_setup=preset,
+    )
+
+    end_extrusion = sim.blocklist[-1].segments[-1].pos_end.e
+    expected_extrusion = 14.0 / ((1.75 / 2) ** 2 * np.pi)
+
+    assert np.isclose(
+        end_extrusion, expected_extrusion, rtol=1e-9
+    ), f"Expected {expected_extrusion}, but got {end_extrusion}"
 
 
 def test_end_to_end_extensive():

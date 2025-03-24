@@ -45,7 +45,7 @@ def custom_print(*args, lvl=2, **kwargs) -> None:
 
     # print with verbosity level
     if lvl <= VERBOSITY_LEVEL:
-        levels = {3: "[DEBUG]", 2: "[INFO]: ", 1: "[WARNING]: "}
+        levels = {3: "[DEBUG]:", 2: "[INFO]:", 1: "[WARNING]:"}
         prefix = levels.get(lvl, "")
         print(prefix, *sanitized_args, **kwargs)
 

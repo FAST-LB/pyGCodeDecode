@@ -1,5 +1,6 @@
 """State generator module."""
 
+import math
 import pathlib
 import re
 from typing import List, Match
@@ -81,6 +82,7 @@ known_commands = {**unsupported_commands, **supported_commands}
 default_virtual_machine = {
     "absolute_position": True,
     "absolute_extrusion": True,
+    "volumetric_extrusion": False,
     "units": "SI (mm)",
     "initial_position": None,
     # general properties
@@ -207,6 +209,24 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
         state_list: (list[state]) all states in a list
 
     """
+
+    def apply_extrusion(line_dict: dict, virtual_machine: dict, command: str) -> dict:
+        e_value = line_dict[command]["E"]
+
+        # volumetric to length conversion
+        # (1) V = (d/2)^2 * pi * E
+        # (2) E = V / ((d/2)^2 * pi)
+        if virtual_machine.get("volumetric_extrusion", False):
+            # volumetric extrusion
+            e_value = e_value / (math.pi * (virtual_machine["filament_diam"] / 2) ** 2)
+
+        if virtual_machine["absolute_extrusion"]:
+            virtual_machine["E"] = e_value
+        else:
+            virtual_machine["E"] = virtual_machine["E"] + e_value
+
+        return virtual_machine
+
     state_list: List[state] = list()
 
     virtual_machine = {
@@ -225,17 +245,15 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
         layer_counter = 0
 
     # overwrite default values from initial machine setup
-    """TODO: depending on the setting the user should be informed that a default value is used.
-    I prepared a warning below.
-    Are all these settings necessary?"""
     for key in default_virtual_machine:
         if initial_machine_setup is not None and key in initial_machine_setup:
             virtual_machine[key] = initial_machine_setup[key]
         else:
-            """print(
+            custom_print(
                 f"The parameter '{key}' was not specified in your machine presets. "
-                f"Using the the default value of '{default_virtual_machine[key]}' to continue."
-            )"""
+                f"Using the the default value of '{default_virtual_machine[key]}' to continue.",
+                lvl=3,
+            )
             virtual_machine[key] = default_virtual_machine[key]
 
     # initial state creation
@@ -298,10 +316,9 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
 
                 # look for extrusion commands and apply abs/rel
                 if "E" in line_dict[command]:
-                    if virtual_machine["absolute_extrusion"] is True:
-                        virtual_machine["E"] = line_dict[command]["E"]
-                    if virtual_machine["absolute_extrusion"] is False:  # redundant
-                        virtual_machine["E"] = virtual_machine["E"] + line_dict[command]["E"]
+                    virtual_machine = apply_extrusion(line_dict, virtual_machine, command)
+
+                # feed rates in unit/min to unit/sec
                 if "F" in line_dict[command]:
                     virtual_machine["p_vel"] = line_dict[command]["F"] / 60
 
