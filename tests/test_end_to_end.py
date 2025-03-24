@@ -20,7 +20,7 @@ def test_end_to_end_volumetr():
     from pyGCodeDecode.gcode_interpreter import setup, simulation
 
     preset = setup(pathlib.Path("./tests/data/test_printer_setups.yaml"), "test")
-    preset.set_property({"extrusion_volumetric": False})
+    preset.set_property({"volumetric_extrusion": False})
 
     sim = simulation(
         gcode_path=pathlib.Path("./tests/data/test_state_generator.gcode"),
@@ -32,7 +32,7 @@ def test_end_to_end_volumetr():
     assert end_extrusion == expected_extrusion, f"Expected {expected_extrusion}, but got {end_extrusion}"
 
     preset = setup(pathlib.Path("./tests/data/test_printer_setups.yaml"), "test")
-    preset.set_property({"extrusion_volumetric": True})
+    preset.set_property({"volumetric_extrusion": True})
 
     sim = simulation(
         gcode_path=pathlib.Path("./tests/data/test_state_generator.gcode"),

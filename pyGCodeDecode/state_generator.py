@@ -82,7 +82,7 @@ known_commands = {**unsupported_commands, **supported_commands}
 default_virtual_machine = {
     "absolute_position": True,
     "absolute_extrusion": True,
-    "extrusion_volumetric": False,
+    "volumetric_extrusion": False,
     "units": "SI (mm)",
     "initial_position": None,
     # general properties
@@ -216,7 +216,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
         # volumetric to length conversion
         # (1) V = (d/2)^2 * pi * E
         # (2) E = V / ((d/2)^2 * pi)
-        if virtual_machine.get("extrusion_volumetric", False):
+        if virtual_machine.get("volumetric_extrusion", False):
             # volumetric extrusion
             e_value = e_value / (math.pi * (virtual_machine["filament_diam"] / 2) ** 2)
 

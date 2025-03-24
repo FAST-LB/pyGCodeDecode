@@ -623,7 +623,7 @@ class simulation:
             "printer_name",
             "firmware",
         ]
-        optional_keys = ["layer_cue", "nozzle_diam", "filament_diam", "extrusion_volumetric"]
+        optional_keys = ["layer_cue", "nozzle_diam", "filament_diam", "volumetric_extrusion"]
 
         valid_keys = req_keys + optional_keys
 

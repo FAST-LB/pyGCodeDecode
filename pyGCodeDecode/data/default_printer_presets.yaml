@@ -49,7 +49,7 @@ debugging:
   # general properties
   nozzle_diam: 0.4
   filament_diam: 2.85
-  extrusion_volumetric: True # true: mm3 with UltiGCode, else mm length
+  volumetric_extrusion: True # true: mm3 with UltiGCode, else mm length
   # default settings
   p_vel: 85
   p_acc: 100
