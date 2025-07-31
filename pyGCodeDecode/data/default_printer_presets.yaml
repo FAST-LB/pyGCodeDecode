@@ -1,4 +1,18 @@
 # -*- coding: utf-8 -*-
+prusa_mini:
+  # general properties
+  nozzle_diam: 0.4
+  filament_diam: 1.75
+  # default settings
+  p_vel: 35
+  p_acc: 1250
+  jerk: 8
+  # axis max speeds
+  vX: 180
+  vY: 180
+  vZ: 12
+  vE: 80
+  firmware: prusa
 
 anisoprint_a4:
   # general properties
@@ -13,37 +27,23 @@ anisoprint_a4:
   vY: 180
   vZ: 30
   vE: 33
-  firmware: MKA
+  firmware: mka
 
-prusa_mini:
+ultimaker_2plus:
   # general properties
   nozzle_diam: 0.4
-  filament_diam: 1.75
+  filament_diam: 2.85
+  volumetric_extrusion: True # true: mm3 with UltiGCode, else mm length
   # default settings
-  p_vel: 35
-  p_acc: 1250
+  p_vel: 85
+  p_acc: 100
   jerk: 8
   # axis max speeds
   vX: 180
   vY: 180
   vZ: 12
   vE: 80
-  firmware: marlin_jerk
-
-prusa_mini_klipper:
-  # general properties
-  nozzle_diam: 0.4
-  filament_diam: 1.75
-  # default settings
-  p_vel: 35
-  p_acc: 2500
-  jerk: 8
-  # axis max speeds
-  vX: 180
-  vY: 180
-  vZ: 12
-  vE: 80
-  firmware: klipper
+  firmware: ultimaker
 
 debugging:
   # general properties
@@ -59,4 +59,4 @@ debugging:
   vY: 180
   vZ: 12
   vE: 80
-  firmware:
+  firmware: marlin # junction_deviation

@@ -120,6 +120,7 @@ def arg_extract(string: str, key_dict: dict) -> dict:
     """
     arg_dict = dict()  # dict to store found arguments for each key
     matches: List[Match] = list()  # list to store matching keywords
+    string = str(string)  # typecasting to prevent TypeError
 
     for key in key_dict.keys():  # look for each key in the dictionary
         match = re.search(key, string)  # regex search for key in string

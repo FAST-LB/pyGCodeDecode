@@ -25,6 +25,7 @@ def generate_abaqus_event_series(
     filepath: str = "pyGcodeDecode_abaqus_events.inp",
     tolerance: float = 1e-12,
     output_unit_system: str = None,
+    return_tuple: bool = False,
 ) -> tuple:
     """Generate abaqus event series.
 
@@ -34,9 +35,10 @@ def generate_abaqus_event_series(
         tolerance (float, default = 1e-12): tolerance to determine whether extrusion is happening
         output_unit_system (str, optional): Unit system for the output.
                 The one from the simulation is used, in None is specified.
+        return_tuple (bool, default = False): return the event series as tuple.
 
     Returns:
-        tuple: the event series as a tuple for use in ABAQUS-Python
+        (optional) tuple: the event series as a tuple for use in ABAQUS-Python
     """
     unpacked = gi.unpack_blocklist(simulation.blocklist)
     pos = [unpacked[0].pos_begin.get_vec(withExtrusion=True)]
@@ -71,4 +73,5 @@ def generate_abaqus_event_series(
 
         custom_print(f"ABAQUS event series written to: \n{outfile.name}")
 
-    return tuple(event_series_list)
+    if return_tuple:
+        return tuple(event_series_list)

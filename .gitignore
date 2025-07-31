@@ -2,6 +2,7 @@
 *.png
 *.inp
 *.csv
+*.prof
 
 # build artifacts
 __pycache__

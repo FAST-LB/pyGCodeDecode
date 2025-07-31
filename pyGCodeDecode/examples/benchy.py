@@ -5,6 +5,7 @@ import pathlib
 
 from pyGCodeDecode.abaqus_file_generator import generate_abaqus_event_series
 from pyGCodeDecode.gcode_interpreter import setup, simulation
+from pyGCodeDecode.plotter import plot_3d
 from pyGCodeDecode.tools import save_layer_metrics
 
 
@@ -67,7 +68,8 @@ def benchy_example():
     )
 
     # create a 3D-plot and save a VTK as well as a screenshot
-    benchy_mesh = benchy_simulation.plot_3d(
+    benchy_mesh = plot_3d(
+        benchy_simulation,
         extrusion_only=True,
         screenshot_path=output_dir / "benchy.png",
         vtk_path=output_dir / "benchy.vtk",
@@ -75,7 +77,7 @@ def benchy_example():
 
     # create an interactive 3D-plot
     # the mesh from the previous run can be used to avoid generating a mesh again
-    benchy_simulation.plot_3d(mesh=benchy_mesh)
+    plot_3d(benchy_simulation, mesh=benchy_mesh)
 
 
 if __name__ == "__main__":

@@ -37,7 +37,7 @@ requires-python = ">=3.9"
 dependencies = ["numpy", "matplotlib", "PyYAML", "pyvista"]
 
 [project.optional-dependencies]
-TEST = ["pytest-cov"]
+TEST = ["pytest-cov", "pandas"]
 DEVELOPER = [
     "flake8",
     "isort",
@@ -56,6 +56,9 @@ pygcd = "pyGCodeDecode.cli:_main"
 
 [tool.black]
 line-length = 120
+extend-exclude = '''
+^.*\.ipynb$
+'''
 
 [tool.isort]
 profile = "black"

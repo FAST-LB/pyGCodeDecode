@@ -28,7 +28,7 @@ def save_layer_metrics(
     Layers are detected using the given layer cue.
     """
     # check if a layer cue was specified
-    if "layer_cue" not in simulation.initial_machine_setup:
+    if "layer_cue" not in simulation.initial_machine_setup_dict:
         custom_print(
             "⚠️ No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!", lvl=1
         )

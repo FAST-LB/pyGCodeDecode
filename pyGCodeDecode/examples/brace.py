@@ -3,6 +3,7 @@
 import importlib.resources
 
 from pyGCodeDecode.gcode_interpreter import simulation
+from pyGCodeDecode.plotter import plot_3d
 
 
 def brace_example():
@@ -19,7 +20,7 @@ def brace_example():
     brace_simulation = simulation(gcode_path=gcode_path, machine_name="anisoprint_a4")
 
     # create a 3D-plot
-    brace_simulation.plot_3d(extrusion_only=True)
+    plot_3d(brace_simulation, extrusion_only=True)
 
 
 if __name__ == "__main__":

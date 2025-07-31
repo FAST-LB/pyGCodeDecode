@@ -1,19 +1,17 @@
 """GCode Interpreter Module."""
 
 import importlib.resources
-import os
 import pathlib
 import time
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
-import pyvista as pv
 import yaml
-from matplotlib.figure import Figure
 
 from pyGCodeDecode.helpers import ProgressBar, custom_print, set_verbosity_level
 
 from .planner_block import planner_block
+from .result import get_all_result_calculators
 from .state import state
 from .state_generator import generate_states
 from .utils import segment, velocity
@@ -31,9 +29,21 @@ def generate_planner_blocks(states: List[state], firmware=None):
     """
     block_list = []
     bar = ProgressBar(name="Planner Blocks")
+
+    colordict = {"infill": "blue", "perimeter": "green"}
+    last_type = None
+
     for i, this_state in enumerate(states):
         prev_block = block_list[-1] if len(block_list) > 0 else None  # grab prev block from block_list
         new_block = planner_block(state=this_state, prev_block=prev_block, firmware=firmware)  # generate new block
+
+        if this_state.comment is not None:
+            for key in colordict.keys():
+                if key in this_state.comment.lower():
+                    last_type = key
+
+        new_block.e_type = last_type
+
         if len(new_block.get_segments()) > 0:
             if new_block.prev_block is not None:
                 new_block.prev_block.next_block = new_block  # update nb list
@@ -176,7 +186,7 @@ class simulation:
                 raise ValueError("Neither a printer name nor a printer setup was specified. At least one is required!")
             else:
                 custom_print(
-                    "Only a machine name was specified but no full setup."
+                    "Only a machine name was specified but no full setup. "
                     "Trying to create a setup from pyGCD's default values...",
                     lvl=1,
                 )
@@ -189,354 +199,31 @@ class simulation:
                 )
 
         # SET INITIAL SETTINGS
-        self.initial_machine_setup = initial_machine_setup.get_dict()
-        self.check_initial_setup(initial_machine_setup=self.initial_machine_setup)  # TODO: move this to setup class
-        self.firmware = self.initial_machine_setup["firmware"]
+        self.initial_machine_setup_dict = initial_machine_setup.check_initial_setup()
+        self.firmware = self.initial_machine_setup_dict["firmware"]
 
         self.states: List[state] = generate_states(
-            filepath=gcode_path, initial_machine_setup=self.initial_machine_setup
+            filepath=gcode_path, initial_machine_setup=self.initial_machine_setup_dict
         )
 
         custom_print(
-            f"Simulating \"{self.filename}\" with {self.initial_machine_setup['printer_name']} using "
+            f"Simulating \"{self.filename}\" with {self.initial_machine_setup_dict['printer_name']} using "
             f"the {self.firmware} firmware.\n"
         )
         self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states, firmware=self.firmware)
         self.trajectory_self_correct()
 
+        # calculate results
+        self.results = {}
+        self.calc_results()
+        self.calculate_averages()
+
         self.print_summary(start_time=simulation_start_time)
 
-    def plot_2d_position(
-        self,
-        filepath: pathlib.Path = pathlib.Path("trajectory_2D.png"),
-        colvar="Velocity",
-        show_points=False,
-        colvar_spatial_resolution=1,
-        dpi=400,
-        scaled=True,
-        show=False,
-    ):
-        """Plot 2D position (XY plane) with matplotlib (unmaintained)."""
-        import matplotlib.pyplot as plt
-        from matplotlib import cm
-        from matplotlib.collections import LineCollection
-
-        colvar_label = {
-            "Velocity": "Velocity in mm/s",
-            "Acceleration": "Acceleration in mm/s^2",
-        }
-
-        def interp_2D(x, y, cvar, spatial_resolution=1):
-            segm_length = np.linalg.norm([np.ediff1d(x), np.ediff1d(y)], axis=0)
-            segm_cvar_delt = np.greater(np.abs(np.ediff1d(cvar)), 0)
-            segm_interpol = np.r_[
-                0,
-                np.where(segm_cvar_delt, np.ceil(segm_length / spatial_resolution) + 1, 1),
-            ]  # get nmbr of segments for required resolution, dont interpolate if there is no change
-            points = np.array([x, y, cvar]).T
-            points = np.c_[points, segm_interpol]
-
-            # generate intermediate points with set resolution
-            old_point = None
-            interpolated = np.zeros((1, 3))
-            for point in points:
-                if old_point is not None:
-                    steps = np.linspace(0, 1, int(point[3]), endpoint=True)
-                    x_i = np.interp(steps, [0, 1], [old_point[0], point[0]])
-                    y_i = np.interp(steps, [0, 1], [old_point[1], point[1]])
-                    colvar_i = np.interp(steps, [0, 1], [old_point[2], point[2]])
-                    interpolated = np.r_[interpolated, np.array([x_i, y_i, colvar_i]).T]
-                old_point = point
-            interpolated = np.delete(interpolated, 0, 0)
-
-            return interpolated
-
-        segments = unpack_blocklist(blocklist=self.blocklist)
-        if colvar == "Velocity":
-            # get all planned trajectory vertices + color variable
-            x, y, cvar = [], [], []
-            x.append(segments[0].pos_begin.get_vec()[0])
-            y.append(segments[0].pos_begin.get_vec()[1])
-            cvar.append(segments[0].vel_begin.get_norm())
-
-            bar = ProgressBar(name="2D Plot Lines")
-            for i, segm in enumerate(segments):
-                bar.update((i + 1) / len(segments))
-                x.append(segm.pos_end.get_vec()[0])
-                y.append(segm.pos_end.get_vec()[1])
-                cvar.append(segm.vel_end.get_norm())
-
-            # interpolate values for smooth coloring
-            interpolated = interp_2D(x, y, cvar, spatial_resolution=colvar_spatial_resolution)
-
-            x = interpolated[:, 0]
-            y = interpolated[:, 1]
-            cvar = interpolated[:, 2]  # maybe change interpolation to return tuple?
-
-            # generate point pairs for line collection
-            point_pairs = []
-            for i in np.arange(len(x) - 1):
-                point_pairs.append([(x[i], y[i]), (x[i + 1], y[i + 1])])
-
-            # generate collection from pairs
-            collection = LineCollection(point_pairs)
-            collection.set_array(cvar)
-            collection.set_cmap(cm.jet)
-
-            fig = plt.figure()
-            ax1 = fig.add_subplot(1, 1, 1)
-            ax1.add_collection(collection)
-            ax1.autoscale()
-            plt.colorbar(collection, label=colvar_label[colvar], shrink=0.6, location="right")
-        else:
-            x, y = [], []
-            x.append(segments[0].pos_begin.get_vec()[0])
-            y.append(segments[0].pos_begin.get_vec()[1])
-            for i, segm in enumerate(segments):
-                bar.update((i + 1) / len(segments))
-                x.append(segm.pos_end.get_vec()[0])
-                y.append(segm.pos_end.get_vec()[1])
-            fig = plt.subplot()
-            fig.plot(x, y, color="black")
-
-        if show_points:
-            for i, block in enumerate(self.blocklist):
-                bar.update(i / len(self.blocklist))
-                fig.scatter(
-                    block.get_segments()[-1].pos_end.get_vec()[0],
-                    block.get_segments()[-1].pos_end.get_vec()[1],
-                    color="blue",
-                    marker="x",
-                )
-
-        plt.xlabel("x position")
-        plt.ylabel("y position")
-        plt.title("2D Position")
-        if scaled:
-            plt.axis("scaled")
-        if filepath is not False:
-            plt.savefig(filepath, dpi=dpi)
-            custom_print(f"2D Plot saved:\n👉 {filepath}")
-        if show:
-            plt.show()
-            return fig
-        plt.close()
-
-    def plot_3d(
-        self,
-        extrusion_only: bool = True,
-        screenshot_path: pathlib.Path = None,
-        vtk_path: pathlib.Path = None,
-        mesh: pv.MultiBlock = None,
-    ) -> pv.MultiBlock:
-        """3D Plot with PyVista.
-
-        Args:
-            extrusion_only (bool, optional): Plot only parts where material is extruded. Defaults to True.
-            screenshot_path (pathlib.Path, optional): Path to screenshot to be saved. Prevents
-                interactive plot. Defaults to None.
-            vtk_path (pathlib.Path, optional): Path to vtk to be saved. Prevents interactive plot. Defaults to None.
-            mesh (pv.MultiBlock, optional): A pyvista mesh from a previous run to avoid running the
-                mesh generation again. Defaults to None.
-
-        Returns:
-            pv.MultiBlock: The mesh used in the plot so it can be used (e.g. in subsequent plots).
-        """
-        # https://docs.pyvista.org/version/stable/api/core/_autosummary/pyvista.polydatafilters.extrude
-        # https://docs.pyvista.org/version/stable/examples/01-filter/extrude-rotate
-
-        # get all data for plots
-        segments = unpack_blocklist(blocklist=self.blocklist)
-
-        # mesh generation is skipped, if a mesh is given already
-        if mesh is None:
-            mesh = pv.MultiBlock()
-
-            x, y, z, e, vel = [], [], [], [], []
-            bar = ProgressBar(name="3D Plot")
-            for n, segm in enumerate(segments):
-                bar.update((n + 1) / len(segments))
-
-                if (not extrusion_only) or (segm.is_extruding()):
-                    if len(x) == 0:
-                        # append segm begin values to plotting array for first segm
-                        pos_begin_vec = segm.pos_begin.get_vec(withExtrusion=True)
-                        x.append(pos_begin_vec[0])
-                        y.append(pos_begin_vec[1])
-                        z.append(pos_begin_vec[2])
-                        e.append(pos_begin_vec[3])
-                        vel.append(segm.vel_begin.get_norm())
-
-                    # append segm end values to plotting array
-                    pos_end_vec = segm.pos_end.get_vec(withExtrusion=True)
-
-                    x.append(pos_end_vec[0])
-                    y.append(pos_end_vec[1])
-                    z.append(pos_end_vec[2])
-                    e.append(pos_end_vec[3])
-                    vel.append(segm.vel_end.get_norm())
-
-                # plot if following segment is not extruding or if it's the last segment
-                if (extrusion_only and (len(x) > 0 and not segm.is_extruding())) or (
-                    len(x) > 0 and n == len(segments) - 1
-                ):
-                    points_3d = np.column_stack((x, y, z))
-                    line = pv.lines_from_points(points_3d)
-                    line["velocity"] = vel
-                    tube = line.tube(radius=0.2, n_sides=6)
-                    mesh.append(tube)
-                    x, y, z, e, vel = [], [], [], [], []  # clear plotting array
-
-            mesh = mesh.combine()
-
-        # check wether a display is available or Windows is used
-        if os.name == "nt" or "DISPLAY" in os.environ:
-            display_available = True
-        else:
-            display_available = False
-
-        # saving a screenshot and an interactive plot aren't possible at the same tim
-        if screenshot_path is None:
-            off_screen = False
-        else:
-            off_screen = True
-
-        p = pv.Plotter(off_screen=off_screen)
-        p.add_mesh(
-            mesh,
-            scalars="velocity",
-            smooth_shading=True,
-            scalar_bar_args={"title": "travel velocity in mm/s"},
-        )
-
-        if vtk_path is not None:
-            mesh.save(filename=vtk_path)
-            custom_print(f"VTK saved to:\n{vtk_path}")
-        if screenshot_path is not None:
-            if display_available:
-                p.screenshot(filename=screenshot_path)
-                custom_print(f"Screenshot saved to:\n{screenshot_path}")
-            else:
-                custom_print("Screenshot can not be created without a display!", lvl=1)
-
-        if not off_screen and display_available:
-            p.show()
-
-        return mesh
-
-    def plot_vel(
-        self,
-        axis: Tuple[str] = ("x", "y", "z", "e"),
-        show: bool = True,
-        show_planner_blocks: bool = True,
-        show_segments: bool = False,
-        show_jv: bool = False,
-        time_steps: Union[int, str] = "constrained",
-        filepath: pathlib.Path = None,
-        dpi: int = 400,
-    ) -> Figure:
-        """Plot axis velocity with matplotlib.
-
-        Args:
-            axis: (tuple(string), default = ("x", "y", "z", "e")) select plot axis
-            show: (bool, default = True) show plot and return plot figure
-            show_planner_blocks: (bool, default = True) show planner_blocks as vertical lines
-            show_segments: (bool, default = False) show segments as vertical lines
-            show_jv: (bool, default = False) show junction velocity as x
-            time_steps: (int or string, default = "constrained") number of time steps or constrain plot
-                vertices to segment vertices
-            filepath: (Path, default = None) save fig as image if filepath is provided
-            dpi: (int, default = 400) select dpi
-
-        Returns:
-        (optionally)
-            fig: (figure)
-        """
-        import matplotlib.pyplot as plt
-
-        axis_dict = {"x": 0, "y": 1, "z": 2, "e": 3}
-
-        segments = unpack_blocklist(blocklist=self.blocklist)  # unpack
-
-        # time steps
-        if type(time_steps) is int:  # evenly distributed time steps
-            times = np.linspace(
-                0,
-                self.blocklist[-1].get_segments()[-1].t_end,
-                time_steps,
-                endpoint=False,
-            )
-        elif time_steps == "constrained":  # use segment time points as plot constrains
-            times = [0]
-            for segm in segments:
-                times.append(segm.t_end)
-        else:
-            raise ValueError("Invalid value for 'time_steps', either use Integer or 'constrained' as argument.")
-
-        # gathering values
-        pos = [[], [], [], []]
-        vel = [[], [], [], []]
-        abs = []  # initialize value arrays
-        index_saved = 0
-        bar = ProgressBar(name="Velocity Plot")
-
-        for i, t in enumerate(times):
-            segm, index_saved = find_current_segment(path=segments, t=t, last_index=index_saved, keep_position=True)
-
-            tmp_vel = segm.get_velocity(t=t).get_vec(withExtrusion=True)
-            tmp_pos = segm.get_position(t=t).get_vec(withExtrusion=True)
-            for ax in axis:
-                pos[axis_dict[ax]].append(tmp_pos[axis_dict[ax]])
-                vel[axis_dict[ax]].append(tmp_vel[axis_dict[ax]])
-
-            abs.append(np.linalg.norm(tmp_vel[:3]))
-            bar.update((i + 1) / len(times))
-
-        fig, ax1 = plt.subplots()
-        ax2 = ax1.twinx()
-
-        # plot JD-Limits
-        for block in self.blocklist:
-            # planner blocks vertical line plot
-            if show_planner_blocks:
-                ax1.axvline(x=block.get_segments()[-1].t_end, color="black", lw=0.5)
-
-            # segments vertical line plot
-            if show_segments:
-                for segm in block.get_segments():
-                    ax1.axvline(x=segm.t_end, color="green", lw=0.25)
-
-            if show_jv:
-                # absolute JD Marker
-                absJD = np.linalg.norm([block.JD[0], block.JD[1], block.JD[2]])
-                ax1.scatter(x=block.get_segments()[-1].t_end, y=absJD, color="red", marker="x")
-                for ax in axis:
-                    ax1.scatter(
-                        x=block.get_segments()[-1].t_end,
-                        y=block.JD[axis_dict[ax]],
-                        marker="x",
-                        color="black",
-                        lw=0.5,
-                    )
-
-        # plot all axis in velocity and position
-        for ax in axis:
-            ax1.plot(times, vel[axis_dict[ax]], label=ax)  # velocity
-            ax2.plot(times, pos[axis_dict[ax]], linestyle="--")  # position w/ extrusion
-            # if not ax == "e": ax2.plot(times,pos[axis_dict[ax]],linestyle="--") #position ignoring extrusion
-        ax1.plot(times, abs, color="black", label="abs")  # absolute velocity
-
-        ax1.set_xlabel("time in s")
-        ax1.set_ylabel("velocity in mm/s")
-        ax2.set_ylabel("position in mm")
-        ax1.legend(loc="lower left")
-        plt.title("Velocity and Position over Time")
-        if filepath is not None:
-            plt.savefig(filepath, dpi=dpi)
-        if show:
-            plt.show()
-        plt.close()
-        return fig
+    def __getattr__(self, name):
+        """Get result by name."""
+        if name in self.results:
+            return self.results[name]
 
     def trajectory_self_correct(self):
         """Self correct all blocks in the blocklist with self_correction() method."""
@@ -551,6 +238,51 @@ class simulation:
 
             block.self_correction()
         bar.update(1.0)
+
+    def calc_results(self):
+        """Calculate the results."""
+        calculators = get_all_result_calculators()
+
+        for pb in self.blocklist:
+            pb.calc_results(*calculators)
+
+    def calculate_averages(self):
+        """Calculate averages for averageable results."""
+
+        def spatial_average(calculator):
+            total_dist = 0
+            glob_result = 0
+            for segm in unpack_blocklist(self.blocklist):
+                len = segm.get_segm_len()
+                segm_result = segm.get_result(calculator.name + "_savg")
+                if segm.is_extruding():
+                    total_dist += len
+                    glob_result += segm_result * len
+            if total_dist > 0:
+                return glob_result / total_dist
+
+        def time_average(calculator):
+            total_time = 0
+            glob_result = 0
+            for segm in unpack_blocklist(self.blocklist):
+                duration = segm.get_segm_duration()
+                segm_result = segm.get_result(calculator.name + "_tavg")
+                if segm.is_extruding():
+                    total_time += duration
+                    glob_result += segm_result * duration
+            if total_time > 0:
+                return glob_result / total_time
+
+        calculators = get_all_result_calculators()
+        for calculator in calculators:
+            if hasattr(calculator, "avgs") and isinstance(calculator.avgs, (list, tuple)):
+                for avg in calculator.avgs:
+                    if avg == "_savg":
+                        self.results[calculator.name + "_savg"] = spatial_average(calculator)
+                    elif avg == "_tavg":
+                        self.results[calculator.name + "_tavg"] = time_average(calculator)
+                    else:
+                        raise ValueError(f"Unknown average type: {avg} for {calculator.name}")
 
     def get_values(self, t: float, output_unit_system: str = None) -> Tuple[List[float]]:
         """Return unit system scaled values for vel and pos.
@@ -588,7 +320,7 @@ class simulation:
         Returns:
             float: width
         """
-        filament_dia = self.initial_machine_setup["filament_diam"] if filament_dia is None else filament_dia
+        filament_dia = self.initial_machine_setup_dict["filament_diam"] if filament_dia is None else filament_dia
 
         curr_val = self.get_values(t=t)
 
@@ -601,46 +333,6 @@ class simulation:
         )  # calculate width, zero if no movement.
 
         return width
-
-    def check_initial_setup(self, initial_machine_setup):
-        """Check the printer Dict for typos or missing parameters and raise errors if invalid.
-
-        Args:
-            initial_machine_setup: (dict) initial machine setup dictionary
-        """
-        req_keys = [
-            "p_vel",
-            "p_acc",
-            "jerk",
-            "vX",
-            "vY",
-            "vZ",
-            "vE",
-            "X",
-            "Y",
-            "Z",
-            "E",
-            "printer_name",
-            "firmware",
-        ]
-        optional_keys = ["layer_cue", "nozzle_diam", "filament_diam", "volumetric_extrusion"]
-
-        valid_keys = req_keys + optional_keys
-
-        # check if all provided keys are valid
-        for key in initial_machine_setup:
-            if key not in valid_keys:
-                raise ValueError(
-                    f"Invalid Key: '{key}' in Setup Dictionary, check for typos. Valid keys are: {valid_keys}"
-                )
-
-        # check if every required key is proivded
-        for key in req_keys:
-            if key not in initial_machine_setup:
-                raise ValueError(
-                    f"Missing Key: '{key}' is not provided in Setup Dictionary,"
-                    f" check for typos. Required keys are: {req_keys}"
-                )
 
     def print_summary(self, start_time: float):
         """Print simulation summary to console.
@@ -667,7 +359,7 @@ class simulation:
             self.states = new_state_list
 
         self.blocklist: List[planner_block] = generate_planner_blocks(
-            states=self.states, firmware=self.initial_machine_setup["firmware"]
+            states=self.states, firmware=self.initial_machine_setup_dict["firmware"]
         )
         self.trajectory_self_correct()
 
@@ -823,6 +515,48 @@ class setup:
 
         setup_dict = yaml.load(file, Loader=Loader)
         return setup_dict
+
+    def check_initial_setup(self):
+        """Check the printer Dict for typos or missing parameters and raise errors if invalid.
+
+        Args:
+            initial_machine_setup: (dict) initial machine setup dictionary
+        """
+        req_keys = [
+            "p_vel",
+            "p_acc",
+            "jerk",
+            "vX",
+            "vY",
+            "vZ",
+            "vE",
+            "X",
+            "Y",
+            "Z",
+            "E",
+            "printer_name",
+            "firmware",
+        ]
+        optional_keys = ["layer_cue", "nozzle_diam", "filament_diam", "volumetric_extrusion"]
+
+        valid_keys = req_keys + optional_keys
+        initial_machine_setup = self.get_dict()
+
+        # check if all provided keys are valid
+        for key in initial_machine_setup:
+            if key not in valid_keys:
+                raise ValueError(
+                    f"Invalid Key: '{key}' in Setup Dictionary, check for typos. Valid keys are: {valid_keys}"
+                )
+
+        # check if every required key is proivded
+        for key in req_keys:
+            if key not in initial_machine_setup:
+                raise ValueError(
+                    f"Missing Key: '{key}' is not provided in Setup Dictionary,"
+                    f" check for typos. Required keys are: {req_keys}"
+                )
+        return initial_machine_setup
 
     def select_printer(self, printer_name):
         """Select printer by name.

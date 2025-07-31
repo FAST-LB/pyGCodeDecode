@@ -7,9 +7,45 @@ Utils for the GCode Reader contains:
     - position
 """
 
-from typing import List
+from typing import TYPE_CHECKING, List, Union
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from pyGCodeDecode.state import state
+
+
+class seconds(float):
+    """A float subclass representing a time duration in seconds.
+
+    Args:
+        value (float or int): The time duration in seconds.
+    Examples:
+        >>> t = seconds(5)
+        >>> str(t)
+        '5.0 s'
+        >>> t.seconds
+        5.0
+    """
+
+    """Time class for storing time, behaves like a float with additional methods."""
+
+    def __new__(cls, value):
+        """Create a new instance of seconds."""
+        return float.__new__(cls, value)
+
+    def __str__(self) -> str:
+        """Return string representation of the time in seconds."""
+        return f"{float(self)} s"
+
+    def __repr__(self):
+        """Return a string representation of the seconds object."""
+        return self.__str__()
+
+    @property
+    def seconds(self):
+        """Return the float value of the seconds instance."""
+        return float(self)
 
 
 class vector_4D:
@@ -139,7 +175,7 @@ class vector_4D:
         return self.__class__(x, y, z, e)
 
     def __eq__(self, other):
-        """Check for equality and return True if equal.
+        """Check for equality and return True if equal (with tolerance).
 
         Args:
             other: (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
@@ -148,22 +184,30 @@ class vector_4D:
             eq: (bool) true if equal (with tolerance)
         """
         if isinstance(other, type(self)):
-            if (
-                np.isclose(self.x, other.x)
-                and np.isclose(self.y, other.y)
-                and np.isclose(self.z, other.z)
-                and np.isclose(self.e, other.e)
-            ):
-                return True
+            other_vec = [other.x, other.y, other.z, other.e]
+        elif isinstance(other, (np.ndarray, list, tuple)) and len(other) == 4:
+            other_vec = list(other)
+        else:
+            return False
 
-        elif (isinstance(other, np.ndarray) or isinstance(other, list) or isinstance(other, tuple)) and len(other) == 4:
-            if (
-                np.isclose(self.x, other[0])
-                and np.isclose(self.y, other[1])
-                and np.isclose(self.z, other[2])
-                and np.isclose(self.e, other[3])
-            ):
-                return True
+        self_vec = [self.x, self.y, self.z, self.e]
+        return np.allclose(self_vec, other_vec)
+
+    def __gt__(self, other):
+        """Check for greater than and return True if greater.
+
+        Args:
+            other: (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
+
+        Returns:
+            gt: (bool) true if greater
+        """
+        if isinstance(other, type(self)):
+            return self.get_norm() > other.get_norm()
+        elif (isinstance(other, np.ndarray)) or (isinstance(other, (list, tuple)) and len(other) == 4):
+            return self.get_norm() > np.linalg.norm(other)
+        elif isinstance(other, (float, int)):
+            return self.get_norm() > other
 
     def get_vec(self, withExtrusion=False) -> List[float]:
         """Return the 4D vector, optionally with extrusion.
@@ -189,6 +233,73 @@ class vector_4D:
             norm: (float) length/norm of 3D or 4D vector
         """
         return np.linalg.norm(self.get_vec(withExtrusion=withExtrusion))
+
+
+class position(vector_4D):
+    """4D - Position object for (Cartesian) 3D printer."""
+
+    def __str__(self) -> str:
+        """Print out position."""
+        return "position: " + super().__str__()
+
+    def is_travel(self, other) -> bool:
+        """Return True if there is travel between self and other position.
+
+        Args:
+            other: (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
+
+        Returns:
+            is_travel: (bool) true if between self and other is distance
+        """
+        if abs(other.x - self.x) + abs(other.y - self.y) + abs(other.z - self.z) > 0:
+            return True
+        else:
+            return False
+
+    def is_extruding(self, other: "position", ignore_retract: bool = True) -> bool:
+        """Return True if there is extrusion between self and other position.
+
+        Args:
+            other: (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
+            ignore_retract: (bool, default = True) if true ignore retract movements else retract is also extrusion
+
+        Returns:
+            is_extruding: (bool) true if between self and other is extrusion
+        """
+        extrusion = other.e - self.e if ignore_retract else abs(other.e - self.e)
+
+        if extrusion > 0:
+            return True
+        else:
+            return False
+
+    def get_t_distance(self, other=None, withExtrusion=False) -> float:
+        """Calculate the travel distance between self and other position. If none is provided, zero will be used.
+
+        Args:
+            other: (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray', default = None)
+            withExtrusion: (bool, default = False) use or ignore extrusion
+
+        Returns:
+            travel: (float) travel or extrusion and travel distance
+        """
+        if other is None:
+            other = position(0, 0, 0, 0)
+        return np.linalg.norm(
+            np.subtract(self.get_vec(withExtrusion=withExtrusion), other.get_vec(withExtrusion=withExtrusion))
+        )
+
+    def __truediv__(self, other):
+        """Divide position by seconds to get velocity."""
+        if isinstance(other, seconds):
+            return velocity(
+                self.x / other.seconds,
+                self.y / other.seconds,
+                self.z / other.seconds,
+                self.e / other.seconds,
+            )
+        else:
+            return super().__truediv__(other)
 
 
 class velocity(vector_4D):
@@ -248,60 +359,70 @@ class velocity(vector_4D):
         """
         return True if self.e > 0 else False
 
+    def __mul__(self, other):
+        """Multiply velocity by a time to get position, or by scalar."""
+        if isinstance(other, seconds):
+            # velocity * seconds = position
+            return position(
+                self.x * other.seconds,
+                self.y * other.seconds,
+                self.z * other.seconds,
+                self.e * other.seconds,
+            )
+        elif isinstance(other, (float, int, np.float64)):
+            return self.__class__(
+                self.x * other,
+                self.y * other,
+                self.z * other,
+                self.e * other,
+            )
+        else:
+            raise TypeError("Multiplication only supports seconds, float, or int.")
 
-class position(vector_4D):
-    """4D - Position object for (Cartesian) 3D printer."""
+    def __truediv__(self, other):
+        """Divide velocity by scalar."""
+        if isinstance(other, seconds):
+            # velocity / seconds = acceleration
+            return acceleration(
+                self.x / other.seconds,
+                self.y / other.seconds,
+                self.z / other.seconds,
+                self.e / other.seconds,
+            )
+        else:
+            return super().__truediv__(other)
+
+
+class acceleration(vector_4D):
+    """4D - Acceleration object for (Cartesian) 3D printer."""
 
     def __str__(self) -> str:
-        """Print out position."""
-        return "position: " + super().__str__()
+        """Print out acceleration."""
+        return "acceleration: " + super().__str__()
 
-    def is_travel(self, other) -> bool:
-        """Return True if there is travel between self and other position.
-
-        Args:
-            other: (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
-
-        Returns:
-            is_travel: (bool) true if between self and other is distance
-        """
-        if abs(other.x - self.x) + abs(other.y - self.y) + abs(other.z - self.z) > 0:
-            return True
+    def __mul__(self, other):
+        """Multiply acceleration by a time to get velocity, or by scalar."""
+        if isinstance(other, seconds):
+            # acceleration * time = velocity
+            return velocity(
+                self.x * other.seconds,
+                self.y * other.seconds,
+                self.z * other.seconds,
+                self.e * other.seconds,
+            )
+        elif isinstance(other, (float, int, np.float64)):
+            return self.__class__(
+                self.x * other,
+                self.y * other,
+                self.z * other,
+                self.e * other,
+            )
         else:
-            return False
+            raise TypeError("Multiplication only supports seconds, float, or int.")
 
-    def is_extruding(self, other: "position", ignore_retract: bool = True) -> bool:
-        """Return True if there is extrusion between self and other position.
-
-        Args:
-            other: (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
-            ignore_retract: (bool, default = True) if true ignore retract movements else retract is also extrusion
-
-        Returns:
-            is_extruding: (bool) true if between self and other is extrusion
-        """
-        extrusion = other.e - self.e if ignore_retract else abs(other.e - self.e)
-
-        if extrusion > 0:
-            return True
-        else:
-            return False
-
-    def get_t_distance(self, other=None, withExtrusion=False) -> float:
-        """Calculate the travel distance between self and other position. If none is provided, zero will be used.
-
-        Args:
-            other: (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray', default = None)
-            withExtrusion: (bool, default = False) use or ignore extrusion
-
-        Returns:
-            travel: (float) travel or extrusion and travel distance
-        """
-        if other is None:
-            other = position(0, 0, 0, 0)
-        return np.linalg.norm(
-            np.subtract(self.get_vec(withExtrusion=withExtrusion), other.get_vec(withExtrusion=withExtrusion))
-        )
+    def __truediv__(self, other):
+        """Divide acceleration by scalar."""
+        return super().__truediv__(other)
 
 
 class segment:
@@ -315,6 +436,7 @@ class segment:
     - move_segment_time: moves Segment in time by a specified interval
     - get_velocity: returns the calculated Velocity for all axis at a given point in time
     - get_position: returns the calculated Position for all axis at a given point in time
+    - get_segm_len: returns the length of the segment.
 
     **Class method**
     - create_initial: returns the artificial initial segment where everything is at standstill, intervall length = 0
@@ -323,8 +445,8 @@ class segment:
 
     def __init__(
         self,
-        t_begin: float,
-        t_end: float,
+        t_begin: Union[float, seconds],
+        t_end: Union[float, seconds],
         pos_begin: position,
         vel_begin: velocity,
         pos_end: position = None,
@@ -341,13 +463,15 @@ class segment:
             vel_end: (velocity, default = None) ending velocity of segment
 
         """
-        self.t_begin = t_begin
-        self.t_end = t_end
-        self.pos_begin = pos_begin
-        self.pos_end = pos_end
-        self.vel_begin = vel_begin
-        self.vel_end = vel_end
-        self.self_check()
+        self.t_begin: seconds = seconds(t_begin)
+        self.t_end: seconds = seconds(t_end)
+        self.pos_begin: position = pos_begin
+        self.pos_end: position = pos_end
+        self.vel_begin: velocity = vel_begin
+        self.vel_end: velocity = vel_end
+        # self.self_check()
+
+        self.result = {}
 
     def __str__(self) -> str:
         """Create string from segment."""
@@ -385,6 +509,16 @@ class segment:
             current_vel = self.vel_begin + slope * (t - self.t_begin)
             return current_vel
 
+    def get_velocity_by_dist(self, dist):
+        """Return the velocity at a certain local segment distance."""
+        # t_begin, t_end, vel_begin, vel_end
+        a = (self.vel_end.get_norm() - self.vel_begin.get_norm()) / (self.t_end - self.t_begin)
+
+        v_sq = 2 * a * dist + self.vel_begin.get_norm() ** 2
+        v = np.sqrt(v_sq) if v_sq > 0 else 0
+
+        return v
+
     def get_position(self, t: float) -> position:
         """Get current position of segment at a certain time.
 
@@ -411,12 +545,11 @@ class segment:
         """Return the duration of the segment."""
         return self.t_end - self.t_begin
 
-    def self_check(self, p_settings=None):  # ,, state:state=None):
+    def self_check(self, p_settings: "state.p_settings" = None):
         """Check the segment for self consistency.
 
-        todo:
-        - max acceleration
-
+        Raises:
+            ValueError: if self check fails
         Args:
             p_settings: (p_setting, default = None) printing settings to verify
         """
@@ -442,6 +575,13 @@ class segment:
                 raise ValueError(f"Target Velocity of {p_settings.speed} exceeded with {self.vel_begin.get_norm()}.")
             if self.vel_end.get_norm() > p_settings.speed and not np.isclose(self.vel_end.get_norm(), p_settings.speed):
                 raise ValueError(f"Target Velocity of {p_settings.speed} exceeded with {self.vel_end.get_norm()}.")
+
+        # max acceleration
+        if p_settings is not None:
+            if self.t_end - self.t_begin > 0:
+                acc = (self.vel_end - self.vel_begin) / (self.t_end - self.t_begin)
+                if acc.get_norm() > p_settings.p_acc and not np.isclose(acc.get_norm(), p_settings.p_acc):
+                    raise ValueError(f"Maximum acceleration of {p_settings.p_acc} exceeded with {acc.get_norm()}.")
 
     def is_extruding(self) -> bool:
         """Return true if the segment is pos. extruding.
@@ -481,53 +621,6 @@ class segment:
 
         return scalar
 
-    def calc_results(self, v_target):
-        """Calculate and store the segment results.
-
-        Args:
-            v_target: (float) target velocity
-        """
-        # GLOBAL ERROR METRIC
-
-        def error_integral(a, v_begin, v_target, x_end):
-            sqr = 2 * a * x_end + v_begin**2 if not np.isclose(self.vel_end.get_norm(), 0.0) else 0
-
-            integral = ((v_begin**3) + 3 * a * v_target * x_end - (2 * a * x_end + v_begin**2) * np.sqrt(sqr)) / (
-                3 * a * v_target
-            )
-            return integral
-
-        v_begin = self.vel_begin.get_norm()
-        x_end = self.get_segm_len()  # segment length
-
-        delta_t = self.get_segm_duration()
-        delta_v = self.vel_end.get_norm() - self.vel_begin.get_norm()
-
-        if not np.isclose(v_target, 0.0) and not np.isclose(delta_t, 0.0) and not np.isclose(delta_v, 0.0):
-
-            a = delta_v / delta_t
-
-            # print("vbegin: ", v_begin, "vend", self.vel_end.get_norm(), "vtarget: ", v_target, "xend", x_end )
-            avg_error = error_integral(a=a, v_begin=v_begin, v_target=v_target, x_end=x_end)
-        else:
-            avg_error = 0
-
-        self.result.update({"segm_error": [avg_error]})
-
-        # LOCAL VELOCITY ERROR
-
-        if v_target > 0:
-            vel_rel_err_begin = (v_target - v_begin) / v_target
-            vel_rel_err_end = (v_target - self.vel_end.get_norm()) / v_target
-        else:  # if no target vel, error is zero.
-            vel_rel_err_begin = 0
-            vel_rel_err_end = 0
-        self.result.update({"rel_vel_err": [vel_rel_err_begin, vel_rel_err_end]})
-
-        # LOCAL VELOCITY
-
-        self.result.update({"vel": [self.vel_begin.get_norm(), self.vel_end.get_norm()]})
-
     def get_result(self, key):
         """Return the requested result.
 
@@ -538,10 +631,7 @@ class segment:
             result: (list)
         """
         if key in self.result:
-            if len(self.result[key]) == 2:  # linear
-                return self.result[key]
-            elif len(self.result[key]) == 1:  # constant
-                return [self.result[key][0], self.result[key][0]]
+            return self.result[key]
         else:
             raise ValueError(f"Key: {key} not found.")
 
