@@ -1,20 +1,4 @@
-"""This module provides functionality for 3D plotting of G-code simulation data using PyVista.
-
-Functions:
-    plot_3d: Generates a 3D plot of the simulation data, with options for customization such as
-             extrusion-only plotting, scalar value selection, layer selection, and saving the plot
-             as a screenshot or VTK file.
-    plot_2d: Generates a 2D plot of the simulation data, showing the position of the extruder head
-             over time.
-
-Dependencies:
-    - pyGCodeDecode.gcode_interpreter.simulation
-    - pyGCodeDecode.gcode_interpreter.unpack_blocklist
-    - pyGCodeDecode.utils
-    - numpy
-    - pyvista
-    - pathlib
-"""
+"""This module provides functionality for 3D plotting of G-code simulation data using PyVista."""
 
 import os
 import pathlib

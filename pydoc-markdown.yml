@@ -37,6 +37,18 @@ renderer:
       name: api
       contents:
         - pyGCodeDecode.*
+        # - pyGCodeDecode.cli
+        # - pyGCodeDecode.gcode_interpreter
+        # - pyGCodeDecode.abaqus_file_generator
+        # - pyGCodeDecode.plotter
+        # - pyGCodeDecode.tools
+        # - pyGCodeDecode.result
+        # - pyGCodeDecode.helpers
+        # - pyGCodeDecode.junction_handling
+        # - pyGCodeDecode.planner_block
+        # - pyGCodeDecode.state
+        # - pyGCodeDecode.state_generator
+        # - pyGCodeDecode.utils
   mkdocs_config:
     site_name: pyGCodeDecode Documentation
     site_description: Generate time dependent boundary conditions from a .gcode file
