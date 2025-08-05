@@ -86,7 +86,7 @@ prusa_mini:
         vY: 180
         vZ: 12
         vE: 80
-        firmware: marlin_jerk
+        firmware: prusa
 ```
 
 The default settings usually are machine specific and often can be read from the printer using a serial connection by sending a GCode command. You can use `M503` for Marlin, Prusa and some other firmwares.
@@ -104,7 +104,7 @@ from pyGCodeDecode import gcode_interpreter
 1. Load your setup `.yaml` file through:
 
 ```python
-setup = gcode_interpreter.setup(filename=r"e./pygcodedecode/data/default_printer_presets.yaml")
+setup = gcode_interpreter.setup(filename=r"./pyGCodeDecode/data/default_printer_presets.yaml")
 ```
 
 1. Select your printer from the setup by name:
@@ -138,15 +138,18 @@ simulation.get_values(t=2.6)
 You can visualize the GCode by plotting it in 3D:
 
 ```python
-simulation.plot_3d()
+from pyGCodeDecode.plotter import plot_3d
+plot_3d(simulation)
 ```
 
 pyGCD can also be used to create files defining an event series for ABAQUS simulations.
 
 ```python
+from pyGCodeDecode.abaqus_file_generator import generate_abaqus_event_series
+
 generate_abaqus_event_series(
         simulation=simulation,
-        filpath="path/to/event_series.csv"
+        filepath="path/to/event_series.csv"
 )
 ```
 
