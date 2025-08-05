@@ -66,7 +66,7 @@ pygcd plot --gcode <PATH>
 
 ## Creating a script using pyGCD
 
-Example simulations are provided in [./examples/](https://github.com/FAST-LB/pyGCodeDecode/blob/main/examples/) and can be modified to suit your needs. If you want to start from scratch, the following instructions will help you setup and run a simulation.
+Example simulations are provided in [./examples/](https://github.com/FAST-LB/pyGCodeDecode/blob/main/pyGCodeDecode/examples/) and can be modified to suit your needs. If you want to start from scratch, the following instructions will help you setup and run a simulation.
 
 ### Define your printer defaults in a `.yaml` file
 
