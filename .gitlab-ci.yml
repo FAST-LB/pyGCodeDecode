@@ -45,7 +45,7 @@ doc-build:
     script:
         - pip install -e .[DOCS]
         - pydoc-markdown
-        - mkdocs build
+        - cd docs && mkdocs build
     artifacts:
         untracked: false
         paths:
