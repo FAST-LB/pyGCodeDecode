@@ -1,6 +1,8 @@
+# pyGCodeDecode Reference
+
 <a id="pyGCodeDecode.abaqus_file_generator"></a>
 
-# pyGCodeDecode.abaqus\_file\_generator
+## pyGCodeDecode.abaqus\_file\_generator
 
 Module for generating Abaqus .inp files for AMSIM.
 
@@ -10,85 +12,40 @@ Module for generating Abaqus .inp files for AMSIM.
 
 ```python
 def generate_abaqus_event_series(
-        simulation: gi.simulation,
+        simulation: gcode_interpreter.simulation,
         filepath: str = "pyGcodeDecode_abaqus_events.inp",
         tolerance: float = 1e-12,
-        output_unit_system: str = None) -> tuple
+        output_unit_system: str = None,
+        return_tuple: bool = False) -> tuple
 ```
 
 Generate abaqus event series.
 
 **Arguments**:
 
-- `simulation` _gi.simulation_ - simulation instance
+- `simulation` _gcode_interpreter.simulation_ - simulation instance
 - `filepath` _string, default = "pyGcodeDecode_abaqus_events.inp"_ - output file path
 - `tolerance` _float, default = 1e-12_ - tolerance to determine whether extrusion is happening
 - `output_unit_system` _str, optional_ - Unit system for the output.
   The one from the simulation is used, in None is specified.
+- `return_tuple` _bool, default = False_ - return the event series as tuple.
 
 
 **Returns**:
 
-- `tuple` - the event series as a tuple for use in ABAQUS-Python
+  (optional) tuple: the event series as a tuple for use in ABAQUS-Python
 
 <a id="pyGCodeDecode.cli"></a>
 
-# pyGCodeDecode.cli
+## pyGCodeDecode.cli
 
 The CLI for the pyGCodeDecode package.
 
-<a id="pyGCodeDecode.examples.benchy"></a>
-
-# pyGCodeDecode.examples.benchy
-
-Simulating the G-code of a 3DBenchy from PrusaSlicer on a Prusa MINI.
-
-<a id="pyGCodeDecode.examples.benchy.benchy_example"></a>
-
-#### benchy\_example
-
-```python
-def benchy_example()
-```
-
-Extensive example for the usage of pyGCodeDecode simulating G-code for the famous 3DBenchy.
-
-<a id="pyGCodeDecode.examples.brace"></a>
-
-# pyGCodeDecode.examples.brace
-
-Minimal example simulating the G-code of a brace from Aura-slicer on an Anisoprint Composer A4.
-
-<a id="pyGCodeDecode.examples.brace.brace_example"></a>
-
-#### brace\_example
-
-```python
-def brace_example()
-```
-
-Minimal example for the usage of pyGCodeDecode simulating the G-code of a brace.
-
 <a id="pyGCodeDecode.gcode_interpreter"></a>
 
-# pyGCodeDecode.gcode\_interpreter
+## pyGCodeDecode.gcode\_interpreter
 
 GCode Interpreter Module.
-
-<a id="pyGCodeDecode.gcode_interpreter.update_progress"></a>
-
-#### update\_progress
-
-```python
-def update_progress(progress: float, name: str = "Percent") -> None
-```
-
-Display or update a console progress bar.
-
-**Arguments**:
-
-- `progress` - float between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
-- `name` - (string, default = "Percent") customizable name for progress bar
 
 <a id="pyGCodeDecode.gcode_interpreter.generate_planner_blocks"></a>
 
@@ -128,7 +85,8 @@ Find the current segment.
 - `path` - (list[segment]) all segments to be searched
 - `t` - (float) time of search
 - `last_index` - (int) last found index for optimizing search
-- `keep_position` - (bool) keeps position of last segment, use this when working with gaps of no movement between segments
+- `keep_position` - (bool) keeps position of last segment, use this when working with
+  gaps of no movement between segments
 
 
 **Returns**:
@@ -157,120 +115,13 @@ Return list of segments by unpacking list of planner blocks.
 
 <a id="pyGCodeDecode.gcode_interpreter.simulation"></a>
 
-## simulation Objects
+### simulation Objects
 
 ```python
 class simulation()
 ```
 
 Simulation of .gcode with given machine parameters.
-
-<a id="pyGCodeDecode.gcode_interpreter.simulation.__init__"></a>
-
-#### \_\_init\_\_
-
-```python
-def __init__(gcode_path: pathlib.Path,
-             machine_name: str = None,
-             initial_machine_setup: "setup" = None,
-             output_unit_system: str = "SImm")
-```
-
-Initialize the Simulation of a given G-code with initial machine setup or default machine.
-
-- Generate all states from GCode.
-- Connect states with planner blocks, consisting of segments
-- Self correct inconsistencies.
-
-**Arguments**:
-
-- `gcode_path` - (Path) path to GCode
-  machine name: (string, default = None) name of the default machine to use
-- `initial_machine_setup` - (setup, default = None) setup instance
-- `output_unit_system` - (string, default = "SImm") available unit systems: SI, SImm & inch
-
-
-**Example**:
-
-```python
-gcode_interpreter.simulation(gcode_path=r"path/to/part.gcode", initial_machine_setup=printer_setup)
-```
-
-<a id="pyGCodeDecode.gcode_interpreter.simulation.plot_2d_position"></a>
-
-#### plot\_2d\_position
-
-```python
-def plot_2d_position(
-        filepath: pathlib.Path = pathlib.Path("trajectory_2D.png"),
-        colvar="Velocity",
-        show_points=False,
-        colvar_spatial_resolution=1,
-        dpi=400,
-        scaled=True,
-        show=False)
-```
-
-Plot 2D position (XY plane) with matplotlib (unmaintained).
-
-<a id="pyGCodeDecode.gcode_interpreter.simulation.plot_3d"></a>
-
-#### plot\_3d
-
-```python
-def plot_3d(extrusion_only: bool = True,
-            screenshot_path: pathlib.Path = None,
-            vtk_path: pathlib.Path = None,
-            mesh: pv.MultiBlock = None) -> pv.MultiBlock
-```
-
-3D Plot with PyVista.
-
-**Arguments**:
-
-- `extrusion_only` _bool, optional_ - Plot only parts where material is extruded. Defaults to True.
-- `screenshot_path` _pathlib.Path, optional_ - Path to screenshot to be saved. Prevents interactive plot. Defaults to None.
-- `vtk_path` _pathlib.Path, optional_ - Path to vtk to be saved. Prevents interactive plot. Defaults to None.
-- `mesh` _pv.MultiBlock, optional_ - A pyvista mesh from a previous run to avoid running the mesh generation again. Defaults to None.
-
-
-**Returns**:
-
-- `pv.MultiBlock` - The mesh used in the plot so it can be used (e.g. in subsequent plots).
-
-<a id="pyGCodeDecode.gcode_interpreter.simulation.plot_vel"></a>
-
-#### plot\_vel
-
-```python
-def plot_vel(axis: Tuple[str] = ("x", "y", "z", "e"),
-             show: bool = True,
-             show_planner_blocks: bool = True,
-             show_segments: bool = False,
-             show_jv: bool = False,
-             time_steps: Union[int, str] = "constrained",
-             filepath: pathlib.Path = None,
-             dpi: int = 400) -> Figure
-```
-
-Plot axis velocity with matplotlib.
-
-**Arguments**:
-
-- `axis` - (tuple(string), default = ("x", "y", "z", "e")) select plot axis
-- `show` - (bool, default = True) show plot and return plot figure
-- `show_planner_blocks` - (bool, default = True) show planner_blocks as vertical lines
-- `show_segments` - (bool, default = False) show segments as vertical lines
-- `show_jv` - (bool, default = False) show junction velocity as x
-- `time_steps` - (int or string, default = "constrained") number of time steps or constrain plot vertices to segment vertices
-- `filepath` - (Path, default = None) save fig as image if filepath is provided
-- `dpi` - (int, default = 400) select dpi
-
-
-**Returns**:
-
-  (optionally)
-- `fig` - (figure)
 
 <a id="pyGCodeDecode.gcode_interpreter.simulation.trajectory_self_correct"></a>
 
@@ -281,6 +132,26 @@ def trajectory_self_correct()
 ```
 
 Self correct all blocks in the blocklist with self_correction() method.
+
+<a id="pyGCodeDecode.gcode_interpreter.simulation.calc_results"></a>
+
+#### calc\_results
+
+```python
+def calc_results()
+```
+
+Calculate the results.
+
+<a id="pyGCodeDecode.gcode_interpreter.simulation.calculate_averages"></a>
+
+#### calculate\_averages
+
+```python
+def calculate_averages()
+```
+
+Calculate averages for averageable results.
 
 <a id="pyGCodeDecode.gcode_interpreter.simulation.get_values"></a>
 
@@ -304,19 +175,28 @@ Return unit system scaled values for vel and pos.
 - `list` - [vel_x, vel_y, vel_z, vel_e] velocity
 - `list` - [pos_x, pos_y, pos_z, pos_e] position
 
-<a id="pyGCodeDecode.gcode_interpreter.simulation.check_initial_setup"></a>
+<a id="pyGCodeDecode.gcode_interpreter.simulation.get_width"></a>
 
-#### check\_initial\_setup
+#### get\_width
 
 ```python
-def check_initial_setup(initial_machine_setup)
+def get_width(t: float,
+              extrusion_h: float,
+              filament_dia: Optional[float] = None) -> float
 ```
 
-Check the printer Dict for typos or missing parameters and raise errors if invalid.
+Return the extrusion width for a certain extrusion height at time.
 
 **Arguments**:
 
-- `initial_machine_setup` - (dict) initial machine setup dictionary
+- `t` _float_ - time
+- `extrusion_h` _float_ - extrusion height / layer height
+- `filament_dia` _float_ - filament_diameter
+
+
+**Returns**:
+
+- `float` - width
 
 <a id="pyGCodeDecode.gcode_interpreter.simulation.print_summary"></a>
 
@@ -344,7 +224,8 @@ Refresh simulation. Either through new state list or by rerunning the self.state
 
 **Arguments**:
 
-- `new_state_list` - (list[state], default = None) new list of states, if None is provided, existing states get resimulated
+- `new_state_list` - (list[state], default = None) new list of states,
+  if None is provided, existing states get resimulated
 
 <a id="pyGCodeDecode.gcode_interpreter.simulation.extrusion_extent"></a>
 
@@ -433,31 +314,13 @@ Get a scaling factor to convert lengths from mm to another supported unit system
 
 <a id="pyGCodeDecode.gcode_interpreter.setup"></a>
 
-## setup Objects
+### setup Objects
 
 ```python
 class setup()
 ```
 
 Setup for printing simulation.
-
-<a id="pyGCodeDecode.gcode_interpreter.setup.__init__"></a>
-
-#### \_\_init\_\_
-
-```python
-def __init__(presets_file: str,
-             printer: str = None,
-             layer_cue: str = None) -> None
-```
-
-Create simulation setup.
-
-**Arguments**:
-
-- `presets_file` - (string) choose setup yaml file with printer presets
-- `printer` - (string) select printer from preset file
-- `layer_cue` - (string) set slicer specific layer change cue from comment
 
 <a id="pyGCodeDecode.gcode_interpreter.setup.load_setup"></a>
 
@@ -472,6 +335,16 @@ Load setup from file.
 **Arguments**:
 
 - `filepath` - (string) specify path to setup file
+
+<a id="pyGCodeDecode.gcode_interpreter.setup.check_initial_setup"></a>
+
+#### check\_initial\_setup
+
+```python
+def check_initial_setup()
+```
+
+Check the printer Dict for typos or missing parameters and raise errors if invalid.
 
 <a id="pyGCodeDecode.gcode_interpreter.setup.select_printer"></a>
 
@@ -500,7 +373,8 @@ Set initial Position.
 
 **Arguments**:
 
-- `initial_position` - (tuple or dict) set initial position as tuple of len(4) or dictionary with keys: {X, Y, Z, E}.
+- `initial_position` - (tuple or dict) set initial position as tuple of len(4)
+  or dictionary with keys: {X, Y, Z, E}.
 - `input_unit_system` _str, optional_ - Wanted input unit system.
   Uses the one specified for the setup if None is specified.
 
@@ -520,7 +394,9 @@ setup.set_initial_position({"X": 1, "Y": 2, "Z": 3, "E": 4})
 def set_property(property_dict: dict)
 ```
 
-Overwrite or add a property to the printer dictionary. Printer has to be selected through select_printer() beforehand.
+Overwrite or add a property to the printer dictionary.
+
+Printer has to be selected through select_printer() beforehand.
 
 **Arguments**:
 
@@ -567,15 +443,87 @@ Get a scaling factor to convert lengths from mm to another supported unit system
 
 - `float` - scaling factor
 
+<a id="pyGCodeDecode.helpers"></a>
+
+## pyGCodeDecode.helpers
+
+Helper functions.
+
+<a id="pyGCodeDecode.helpers.VERBOSITY_LEVEL"></a>
+
+#### VERBOSITY\_LEVEL
+
+default to INFO
+
+<a id="pyGCodeDecode.helpers.set_verbosity_level"></a>
+
+#### set\_verbosity\_level
+
+```python
+def set_verbosity_level(level: Optional[int]) -> None
+```
+
+Set the global verbosity level.
+
+<a id="pyGCodeDecode.helpers.get_verbosity_level"></a>
+
+#### get\_verbosity\_level
+
+```python
+def get_verbosity_level() -> int
+```
+
+Get the current global verbosity level.
+
+<a id="pyGCodeDecode.helpers.custom_print"></a>
+
+#### custom\_print
+
+```python
+def custom_print(*args, lvl=2, **kwargs) -> None
+```
+
+Sanitize outputs for ABAQUS and print them if the log level is high enough. Takes all arguments for print.
+
+**Arguments**:
+
+- `*args` - arguments to be printed
+- `lvl` - verbosity level of the print (1 = WARNING, 2 = INFO, 3 = DEBUG)
+- `**kwargs` - keyword arguments to be passed to print
+
+<a id="pyGCodeDecode.helpers.ProgressBar"></a>
+
+### ProgressBar Objects
+
+```python
+class ProgressBar()
+```
+
+A simple progress bar for the console.
+
+<a id="pyGCodeDecode.helpers.ProgressBar.update"></a>
+
+#### update
+
+```python
+def update(progress: float) -> None
+```
+
+Display or update a console progress bar.
+
+**Arguments**:
+
+- `progress` - float between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
+
 <a id="pyGCodeDecode.junction_handling"></a>
 
-# pyGCodeDecode.junction\_handling
+## pyGCodeDecode.junction\_handling
 
 Junction handling module.
 
 <a id="pyGCodeDecode.junction_handling.junction_handling"></a>
 
-## junction\_handling Objects
+### junction\_handling Objects
 
 ```python
 class junction_handling()
@@ -623,21 +571,6 @@ def get_target_vel()
 
 Return target velocity.
 
-<a id="pyGCodeDecode.junction_handling.junction_handling.__init__"></a>
-
-#### \_\_init\_\_
-
-```python
-def __init__(state_A: state, state_B: state)
-```
-
-Initialize the junction handling.
-
-**Arguments**:
-
-- `state_A` - (state) start state
-- `state_B` - (state)   end state
-
 <a id="pyGCodeDecode.junction_handling.junction_handling.get_junction_vel"></a>
 
 #### get\_junction\_vel
@@ -652,17 +585,270 @@ Return default junction velocity of zero.
 
 - `0` - zero for default full stop junction handling
 
-<a id="pyGCodeDecode.junction_handling.junction_handling_marlin_jd"></a>
+<a id="pyGCodeDecode.junction_handling.prusa"></a>
 
-## junction\_handling\_marlin\_jd Objects
+### prusa Objects
 
 ```python
-class junction_handling_marlin_jd(junction_handling)
+class prusa(junction_handling)
+```
+
+Prusa specific classic jerk junction handling (validated on Prusa Mini).
+
+**Reference**
+[Prusa Firmware Buddy GitHub](https://github.com/prusa3d/Prusa-Firmware-Buddy/blob/818d812f954802903ea0ff39bf44376fb0b35dd2/lib/Marlin/Marlin/src/module/planner.cpp#L1911) # noqa: E501
+
+
+**Code reference:**
+[Prusa-Firmware-Buddy/lib/Marlin/Marlin/src/module/planner.cpp](https://github.com/prusa3d/Prusa-Firmware-Buddy/blob/818d812f954802903ea0ff39bf44376fb0b35dd2/lib/Marlin/Marlin/src/module/planner.cpp#L1951)
+
+```cpp
+// ...
+// Factor to multiply the previous / current nominal velocities to get componentwise limited velocities.
+  float v_factor = 1;
+  limited = 0;
+
+  // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
+  // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
+  vmax_junction = _MIN(block->nominal_speed, previous_nominal_speed);
+
+  // Now limit the jerk in all axes.
+  const float smaller_speed_factor = vmax_junction / previous_nominal_speed;
+  `if` HAS_LINEAR_E_JERK
+    LOOP_XYZ(axis)
+  `else`
+    LOOP_XYZE(axis)
+  `endif`
+  {
+    // Limit an axis. We have to differentiate: coasting, reversal of an axis, full stop.
+    float v_exit = previous_speed[axis] * smaller_speed_factor,
+          v_entry = current_speed[axis];
+    if (limited) {
+      v_exit *= v_factor;
+      v_entry *= v_factor;
+    }
+
+    // Calculate jerk depending on whether the axis is coasting in the same direction or reversing.
+    const float jerk = (v_exit > v_entry)
+        ? //                                  coasting             axis reversal
+          ( (v_entry > 0 || v_exit < 0) ? (v_exit - v_entry) : _MAX(v_exit, -v_entry) )
+        : // v_exit <= v_entry                coasting             axis reversal
+          ( (v_entry < 0 || v_exit > 0) ? (v_entry - v_exit) : _MAX(-v_exit, v_entry) );
+
+    if (jerk > settings.max_jerk[axis]) {
+      v_factor *= settings.max_jerk[axis] / jerk;
+      ++limited;
+    }
+  }
+  if (limited) vmax_junction *= v_factor;
+  // Now the transition velocity is known, which maximizes the shared exit / entry velocity while
+  // respecting the jerk factors, it may be possible, that applying separate safe exit / entry velocities will achieve faster prints.
+  const float vmax_junction_threshold = vmax_junction * 0.99f;
+  if (previous_safe_speed > vmax_junction_threshold && safe_speed > vmax_junction_threshold)
+    vmax_junction = safe_speed;
+}
+// ...
+```
+
+<a id="pyGCodeDecode.junction_handling.prusa.calc_j_vel"></a>
+
+#### calc\_j\_vel
+
+```python
+def calc_j_vel()
+```
+
+Calculate the junction velocity.
+
+<a id="pyGCodeDecode.junction_handling.prusa.get_junction_vel"></a>
+
+#### get\_junction\_vel
+
+```python
+def get_junction_vel()
+```
+
+Return the calculated junction velocity.
+
+**Returns**:
+
+- `junction_vel` - (float) junction velocity
+
+<a id="pyGCodeDecode.junction_handling.marlin"></a>
+
+### marlin Objects
+
+```python
+class marlin(junction_handling)
+```
+
+Marlin classic jerk specific junction handling.
+
+**Reference**
+[https://github.com/MarlinFirmware/Marlin/pull/8887](https://github.com/MarlinFirmware/Marlin/pull/8887)
+[https://github.com/MarlinFirmware/Marlin/pull/8888](https://github.com/MarlinFirmware/Marlin/pull/8888)
+[https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768](https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768)
+
+
+**Code reference:**
+[Marlin/src/module/planner.cpp](https://github.com/MarlinFirmware/Marlin/blob/8ec9c379405bb9962aff170d305ddd0725bd64e2/Marlin/src/module/planner.cpp#L2762)
+```cpp
+// ...
+float v_factor = 1.0f;
+LOOP_LOGICAL_AXES(i) {
+  // Jerk is the per-axis velocity difference.
+  const float jerk = ABS(speed_diff[i]), maxj = max_j[i];
+  if (jerk * v_factor > maxj) v_factor = maxj / jerk;
+}
+vmax_junction_sqr = sq(vmax_junction * v_factor);
+// ...
+```
+
+<a id="pyGCodeDecode.junction_handling.marlin.calc_j_vel"></a>
+
+#### calc\_j\_vel
+
+```python
+def calc_j_vel()
+```
+
+Calculate the junction velocity.
+
+<a id="pyGCodeDecode.junction_handling.marlin.get_junction_vel"></a>
+
+#### get\_junction\_vel
+
+```python
+def get_junction_vel()
+```
+
+Return the calculated junction velocity.
+
+**Returns**:
+
+- `junction_vel` - (float) junction velocity
+
+<a id="pyGCodeDecode.junction_handling.ultimaker"></a>
+
+### ultimaker Objects
+
+```python
+class ultimaker(junction_handling)
+```
+
+Ultimaker specific junction handling.
+
+**Code reference:**
+[UM2.1-Firmware/Marlin/planner.cpp](https://github.com/Ultimaker/UM2.1-Firmware/blob/f6e69344c00d7f300dace730990652ba614a2105/Marlin/planner.cpp#L840)
+```cpp
+// ...
+float vmax_junction = max_xy_jerk/2;
+float vmax_junction_factor = 1.0;
+if(fabs(current_speed[Z_AXIS]) > max_z_jerk/2)
+    vmax_junction = min(vmax_junction, max_z_jerk/2);
+if(fabs(current_speed[E_AXIS]) > max_e_jerk/2)
+    vmax_junction = min(vmax_junction, max_e_jerk/2);
+vmax_junction = min(vmax_junction, block->nominal_speed);
+float safe_speed = vmax_junction;
+
+if ((moves_queued > 1) && (previous_nominal_speed > 0.0001)) {
+    float xy_jerk = sqrt(square(current_speed[X_AXIS]-previous_speed[X_AXIS])+square(current_speed[Y_AXIS]-previous_speed[Y_AXIS]));
+    //    if((fabs(previous_speed[X_AXIS]) > 0.0001) || (fabs(previous_speed[Y_AXIS]) > 0.0001)) {
+    vmax_junction = block->nominal_speed;
+    //    }
+    if (xy_jerk > max_xy_jerk) {
+    vmax_junction_factor = (max_xy_jerk / xy_jerk);
+    }
+    if(fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]) > max_z_jerk) {
+    vmax_junction_factor= min(vmax_junction_factor, (max_z_jerk/fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS])));
+    }
+    if(fabs(current_speed[E_AXIS] - previous_speed[E_AXIS]) > max_e_jerk) {
+    vmax_junction_factor = min(vmax_junction_factor, (max_e_jerk/fabs(current_speed[E_AXIS] - previous_speed[E_AXIS])));
+    }
+    vmax_junction = min(previous_nominal_speed, vmax_junction * vmax_junction_factor); // Limit speed to max previous speed
+}
+// Max entry speed of this block equals the max exit speed of the previous block.
+block->max_entry_speed = vmax_junction;
+// ...
+```
+
+<a id="pyGCodeDecode.junction_handling.ultimaker.calc_j_vel"></a>
+
+#### calc\_j\_vel
+
+```python
+def calc_j_vel()
+```
+
+Calculate the junction velocity.
+
+<a id="pyGCodeDecode.junction_handling.ultimaker.get_junction_vel"></a>
+
+#### get\_junction\_vel
+
+```python
+def get_junction_vel()
+```
+
+Return the calculated junction velocity.
+
+**Returns**:
+
+- `junction_vel` - (float) junction velocity
+
+<a id="pyGCodeDecode.junction_handling.mka"></a>
+
+### mka Objects
+
+```python
+class mka(prusa)
+```
+
+Anisoprint A4 like junction handling.
+
+**Code reference:**
+[anisoprint/MKA-firmware/src/core/planner/planner.cpp#L1830](https://github.com/anisoprint/MKA-firmware/blob/6e02973b1b8f325040cc3dbf66ac545ffc5c06b3/src/core/planner/planner.cpp#L1830)
+```cpp
+// ...
+float v_exit = previous_speed[axis] * smaller_speed_factor,
+        v_entry = current_speed[axis];
+  if (limited) {
+    v_exit *= v_factor;
+    v_entry *= v_factor;
+  }
+
+  // Calculate jerk depending on whether the axis is coasting in the same direction or reversing.
+  const float jerk = (v_exit > v_entry)
+      ? //                                  coasting             axis reversal
+        ( (v_entry > 0 || v_exit < 0) ? (v_exit - v_entry) : max(v_exit, -v_entry) )
+      : // v_exit <= v_entry                coasting             axis reversal
+        ( (v_entry < 0 || v_exit > 0) ? (v_entry - v_exit) : max(-v_exit, v_entry) );
+
+  const float maxj = mechanics.max_jerk[axis];
+  if (jerk > maxj) {
+    v_factor *= maxj / jerk;
+    ++limited;
+  }
+}
+if (limited) vmax_junction *= v_factor;
+// ...
+```
+
+<a id="pyGCodeDecode.junction_handling.junction_deviation"></a>
+
+### junction\_deviation Objects
+
+```python
+class junction_deviation(junction_handling)
 ```
 
 Marlin specific junction handling with Junction Deviation.
 
-<a id="pyGCodeDecode.junction_handling.junction_handling_marlin_jd.calc_JD"></a>
+**Reference:**
+1: [Developer Blog](https://onehossshay.wordpress.com/2011/09/24/improving_grbl_cornering_algorithm/)
+2: [Kynetic CNC Blog](http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html)
+
+<a id="pyGCodeDecode.junction_handling.junction_deviation.calc_JD"></a>
 
 #### calc\_JD
 
@@ -670,13 +856,7 @@ Marlin specific junction handling with Junction Deviation.
 def calc_JD(vel_0: velocity, vel_1: velocity, p_settings: state.p_settings)
 ```
 
-Calculate junction deviation velocity from 2 velocitys.
-
-**Reference:**
-
-[https://onehossshay.wordpress.com/2011/09/24/improving_grbl_cornering_algorithm/](https://onehossshay.wordpress.com/2011/09/24/improving_grbl_cornering_algorithm/)
-[http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html](http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html)
-
+Calculate junction deviation velocity from 2 velocities.
 
 **Arguments**:
 
@@ -689,22 +869,7 @@ Calculate junction deviation velocity from 2 velocitys.
 
 - `velocity` - (float) velocity abs value
 
-<a id="pyGCodeDecode.junction_handling.junction_handling_marlin_jd.__init__"></a>
-
-#### \_\_init\_\_
-
-```python
-def __init__(state_A: state, state_B: state)
-```
-
-Marlin specific junction velocity calculation with Junction Deviation.
-
-**Arguments**:
-
-- `state_A` - (state) start state
-- `state_B` - (state)   end state
-
-<a id="pyGCodeDecode.junction_handling.junction_handling_marlin_jd.get_junction_vel"></a>
+<a id="pyGCodeDecode.junction_handling.junction_deviation.get_junction_vel"></a>
 
 #### get\_junction\_vel
 
@@ -718,192 +883,34 @@ Return junction velocity.
 
 - `junction_vel` - (float) junction velocity
 
-<a id="pyGCodeDecode.junction_handling.junction_handling_marlin_jerk"></a>
+<a id="pyGCodeDecode.junction_handling.get_handler"></a>
 
-## junction\_handling\_marlin\_jerk Objects
-
-```python
-class junction_handling_marlin_jerk(junction_handling)
-```
-
-Marlin classic jerk specific junction handling.
-
-**Reference**
-[https://github.com/MarlinFirmware/Marlin/pull/8887](https://github.com/MarlinFirmware/Marlin/pull/8887)
-[https://github.com/MarlinFirmware/Marlin/pull/8888](https://github.com/MarlinFirmware/Marlin/pull/8888)
-[https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768](https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768)
-
-<a id="pyGCodeDecode.junction_handling.junction_handling_marlin_jerk.__init__"></a>
-
-#### \_\_init\_\_
+#### get\_handler
 
 ```python
-def __init__(state_A: state, state_B: state)
+def get_handler(firmware_name: str) -> type[junction_handling]
 ```
 
-Marlin classic jerk specific junction velocity calculation.
+Get the junction handling class for the given firmware name.
 
 **Arguments**:
 
-- `state_A` - (state) start state
-- `state_B` - (state)   end state
+- `firmware_name` - (str) name of the firmware
 
-<a id="pyGCodeDecode.junction_handling.junction_handling_marlin_jerk.calc_j_vel"></a>
-
-#### calc\_j\_vel
-
-```python
-def calc_j_vel()
-```
-
-Calculate the junction velocity.
-
-<a id="pyGCodeDecode.junction_handling.junction_handling_marlin_jerk.get_junction_vel"></a>
-
-#### get\_junction\_vel
-
-```python
-def get_junction_vel()
-```
-
-Return the calculated junction velocity.
 
 **Returns**:
 
-- `junction_vel` - (float) junction velocity
-
-<a id="pyGCodeDecode.junction_handling.junction_handling_klipper"></a>
-
-## junction\_handling\_klipper Objects
-
-```python
-class junction_handling_klipper(junction_handling)
-```
-
-Klipper specific junction handling.
-
-- similar junction deviation calc
-- corner vel set by: square_corner_velocity
-    end_velocity^2 = start_velocity^2 + 2*accel*move_distance
-  for 90deg turn
-- todo: smoothed look ahead
-
-**Reference:**
-[https://www.klipper3d.org/Kinematics.html](https://www.klipper3d.org/Kinematics.html)
-[https://github.com/Klipper3d/klipper/blob/ea2f6bc0f544132738c7f052ffcc586fa884a19a/klippy/toolhead.py](https://github.com/Klipper3d/klipper/blob/ea2f6bc0f544132738c7f052ffcc586fa884a19a/klippy/toolhead.py)
-
-<a id="pyGCodeDecode.junction_handling.junction_handling_klipper.__init__"></a>
-
-#### \_\_init\_\_
-
-```python
-def __init__(state_A: state, state_B: state)
-```
-
-Klipper specific junction velocity calculation.
-
-**Arguments**:
-
-- `state_A` - (state) start state
-- `state_B` - (state)   end state
-
-<a id="pyGCodeDecode.junction_handling.junction_handling_klipper.calc_j_delta"></a>
-
-#### calc\_j\_delta
-
-```python
-def calc_j_delta()
-```
-
-Calculate the junction deviation with klipper specific values.
-
-The jerk value represents the square_corner_velocity!
-
-<a id="pyGCodeDecode.junction_handling.junction_handling_klipper.calc_j_vel"></a>
-
-#### calc\_j\_vel
-
-```python
-def calc_j_vel()
-```
-
-Calculate the junction velocity.
-
-<a id="pyGCodeDecode.junction_handling.junction_handling_klipper.get_junction_vel"></a>
-
-#### get\_junction\_vel
-
-```python
-def get_junction_vel()
-```
-
-Return the calculated junction velocity.
-
-**Returns**:
-
-- `junction_vel` - (float) junction velocity
-
-<a id="pyGCodeDecode.junction_handling.junction_handling_MKA"></a>
-
-## junction\_handling\_MKA Objects
-
-```python
-class junction_handling_MKA(junction_handling)
-```
-
-Anisoprint A4 like junction handling.
-
-**Reference:**
-[https://github.com/anisoprint/MKA-firmware/blob/6e02973b1b8f325040cc3dbf66ac545ffc5c06b3/src/core/planner/planner.cpp#L1830](https://github.com/anisoprint/MKA-firmware/blob/6e02973b1b8f325040cc3dbf66ac545ffc5c06b3/src/core/planner/planner.cpp#L1830)
-
-<a id="pyGCodeDecode.junction_handling.junction_handling_MKA.__init__"></a>
-
-#### \_\_init\_\_
-
-```python
-def __init__(state_A: state, state_B: state)
-```
-
-Marlin classic jerk specific junction velocity calculation.
-
-**Arguments**:
-
-- `state_A` - (state) start state
-- `state_B` - (state)   end state
-
-<a id="pyGCodeDecode.junction_handling.junction_handling_MKA.calc_j_vel"></a>
-
-#### calc\_j\_vel
-
-```python
-def calc_j_vel()
-```
-
-Calculate the junction velocity.
-
-<a id="pyGCodeDecode.junction_handling.junction_handling_MKA.get_junction_vel"></a>
-
-#### get\_junction\_vel
-
-```python
-def get_junction_vel()
-```
-
-Return the calculated junction velocity.
-
-**Returns**:
-
-- `junction_vel` - (float) junction velocity
+- `junction_handling` - (type[junction_handling]) junction handling class
 
 <a id="pyGCodeDecode.planner_block"></a>
 
-# pyGCodeDecode.planner\_block
+## pyGCodeDecode.planner\_block
 
 Planner block Module.
 
 <a id="pyGCodeDecode.planner_block.planner_block"></a>
 
-## planner\_block Objects
+### planner\_block Objects
 
 ```python
 class planner_block()
@@ -911,19 +918,19 @@ class planner_block()
 
 Planner Block Class.
 
-<a id="pyGCodeDecode.planner_block.planner_block.move_maker2"></a>
+<a id="pyGCodeDecode.planner_block.planner_block.move_maker"></a>
 
-#### move\_maker2
+#### move\_maker
 
 ```python
-def move_maker2(v_end)
+def move_maker(v_end)
 ```
 
 Calculate the correct move type (trapezoidal,triangular or singular) and generate the corresponding segments.
 
 **Arguments**:
 
-- `vel_end` - (velocity) target velocity for end of move
+- `v_end` - (velocity) target velocity for end of move
 
 <a id="pyGCodeDecode.planner_block.planner_block.self_correction"></a>
 
@@ -964,21 +971,15 @@ Return max vel from planner block while extruding.
 - `block_max_vel` - (np.ndarray 1x4) maximum axis velocity while extruding in block or None
   if no extrusion is happening
 
-<a id="pyGCodeDecode.planner_block.planner_block.__init__"></a>
+<a id="pyGCodeDecode.planner_block.planner_block.calc_results"></a>
 
-#### \_\_init\_\_
+#### calc\_results
 
 ```python
-def __init__(state: state, prev_block: "planner_block", firmware=None)
+def calc_results(*additional_calculators: abstract_result)
 ```
 
-Calculate and store planner block consisting of one or multiple segments.
-
-**Arguments**:
-
-- `state` - (state) the current state
-- `prev_block` - (planner_block) previous planner block
-- `firmware` - (string, default = None) firmware selection for junction
+Calculate the result of the planner block.
 
 <a id="pyGCodeDecode.planner_block.planner_block.prev_block"></a>
 
@@ -1002,26 +1003,6 @@ def next_block()
 
 Define next_block as property.
 
-<a id="pyGCodeDecode.planner_block.planner_block.__str__"></a>
-
-#### \_\_str\_\_
-
-```python
-def __str__() -> str
-```
-
-Create string from planner block.
-
-<a id="pyGCodeDecode.planner_block.planner_block.__repr__"></a>
-
-#### \_\_repr\_\_
-
-```python
-def __repr__() -> str
-```
-
-Represent planner block.
-
 <a id="pyGCodeDecode.planner_block.planner_block.get_segments"></a>
 
 #### get\_segments
@@ -1042,15 +1023,304 @@ def get_block_travel()
 
 Return the travel length of the planner block.
 
+<a id="pyGCodeDecode.planner_block.planner_block.inverse_time_at_pos"></a>
+
+#### inverse\_time\_at\_pos
+
+```python
+def inverse_time_at_pos(dist_local)
+```
+
+Get the global time, at which the local length is reached.
+
+**Arguments**:
+
+- `dist_local` - (float) local (relative to planner block start) distance
+
+
+**Returns**:
+
+- `time_global` - (float) global time when the point will be reached.
+
+<a id="pyGCodeDecode.plotter"></a>
+
+## pyGCodeDecode.plotter
+
+This module provides functionality for 3D plotting of G-code simulation data using PyVista.
+
+Functions:
+    plot_3d: Generates a 3D plot of the simulation data, with options for customization such as
+             extrusion-only plotting, scalar value selection, layer selection, and saving the plot
+             as a screenshot or VTK file.
+    plot_2d: Generates a 2D plot of the simulation data, showing the position of the extruder head
+             over time.
+
+Dependencies:
+    - pyGCodeDecode.gcode_interpreter.simulation
+    - pyGCodeDecode.gcode_interpreter.unpack_blocklist
+    - pyGCodeDecode.utils
+    - numpy
+    - pyvista
+    - pathlib
+
+<a id="pyGCodeDecode.plotter.plot_3d"></a>
+
+#### plot\_3d
+
+```python
+def plot_3d(
+    sim: simulation,
+    extrusion_only: bool = True,
+    scalar_value: str = "velocity",
+    screenshot_path: pathlib.Path = None,
+    camera_settings: dict = None,
+    vtk_path: pathlib.Path = None,
+    mesh: pv.MultiBlock = None,
+    layer_select: int = None,
+    window_size: tuple = (2048, 1536),
+    mpl_subplot: bool = False,
+    mpl_rcParams: Union[dict, None] = None,
+    solid_color: str = "black",
+    transparent_background: bool = True,
+    parallel_projection: bool = False,
+    lighting: bool = True,
+    block_colorbar: bool = False,
+    extra_plotting: callable = None,
+    overwrite_labels: Union[dict, None] = None,
+    scalar_value_bounds: Union[Tuple[float, float],
+                               None] = None) -> pv.MultiBlock
+```
+
+3D Plot with PyVista.
+
+**Arguments**:
+
+- `extrusion_only` _bool, optional_ - Plot only parts where material is extruded.
+  Defaults to True.
+- `scalar_value` _str, optional_ - scalar value to plot. Defaults to Velocity (vel).
+- `Options` - vel, rel_vel_err, or None.
+- `screenshot_path` _pathlib.Path, optional_ - Path to screenshot to be saved.
+  Prevents interactive plot. Defaults to None.
+- `vtk_path` _pathlib.Path, optional_ - Path to vtk to be saved.
+  Prevents interactive plot. Defaults to None.
+- `mesh` _pv.MultiBlock, optional_ - A pyvista mesh from a previous run to
+  avoid running the mesh generation again. Defaults to None.
+- `layer_select` _int, optional_ - Select the layer to be plotted.
+  Defaults to None, which plots all layers.
+- `window_size` _tuple, optional_ - Size of the plot window.
+  Defaults to (2048, 1536).
+- `mpl_subplot` _bool, optional_ - Use matplotlib subplot for the screenshot.
+  Defaults to False.
+- `solid_color` _str, optional_ - Background color of the plot. Defaults to "black".
+- `transparent_background` _bool, optional_ - Use a transparent background for
+  the screenshot. Defaults to True.
+
+**Returns**:
+
+- `pv.MultiBlock` - The mesh used in the plot so it can be used (e.g. in subsequent plots).
+
+<a id="pyGCodeDecode.plotter.plot_2d"></a>
+
+#### plot\_2d
+
+```python
+def plot_2d(sim: simulation,
+            filepath: pathlib.Path = pathlib.Path("trajectory_2D.png"),
+            colvar="Velocity",
+            show_points=False,
+            colvar_spatial_resolution=1,
+            dpi=400,
+            scaled=True,
+            show=False)
+```
+
+Plot 2D position (XY plane) with matplotlib (unmaintained).
+
+<a id="pyGCodeDecode.plotter.plot_vel"></a>
+
+#### plot\_vel
+
+```python
+def plot_vel(sim: simulation,
+             axis: Tuple[str] = ("x", "y", "z", "e"),
+             show: bool = True,
+             show_planner_blocks: bool = True,
+             show_segments: bool = False,
+             show_jv: bool = False,
+             time_steps: Union[int, str] = "constrained",
+             filepath: pathlib.Path = None,
+             dpi: int = 400) -> Figure
+```
+
+Plot axis velocity with matplotlib.
+
+**Arguments**:
+
+- `axis` - (tuple(string), default = ("x", "y", "z", "e")) select plot axis
+- `show` - (bool, default = True) show plot and return plot figure
+- `show_planner_blocks` - (bool, default = True) show planner_blocks as vertical lines
+- `show_segments` - (bool, default = False) show segments as vertical lines
+- `show_jv` - (bool, default = False) show junction velocity as x
+- `time_steps` - (int or string, default = "constrained") number of time steps or constrain plot
+  vertices to segment vertices
+- `filepath` - (Path, default = None) save fig as image if filepath is provided
+- `dpi` - (int, default = 400) select dpi
+
+
+**Returns**:
+
+  (optionally)
+- `fig` - (figure)
+
+<a id="pyGCodeDecode.result"></a>
+
+## pyGCodeDecode.result
+
+Result calculation for segments and planner blocks.
+
+<a id="pyGCodeDecode.result.abstract_result"></a>
+
+### abstract\_result Objects
+
+```python
+class abstract_result(ABC)
+```
+
+Abstract class for result calculation.
+
+<a id="pyGCodeDecode.result.abstract_result.name"></a>
+
+#### name
+
+```python
+@property
+@abstractmethod
+def name()
+```
+
+Name of the result. Has to be set in the derived class.
+
+<a id="pyGCodeDecode.result.abstract_result.calc_pblock"></a>
+
+#### calc\_pblock
+
+```python
+@abstractmethod
+def calc_pblock(pblock: "planner_block", **kwargs)
+```
+
+Calculate the result for a planner block.
+
+<a id="pyGCodeDecode.result.abstract_result.calc_segm"></a>
+
+#### calc\_segm
+
+```python
+@abstractmethod
+def calc_segm(segm: "segment", **kwargs)
+```
+
+Calculate the result for a segment.
+
+<a id="pyGCodeDecode.result.acceleration_result"></a>
+
+### acceleration\_result Objects
+
+```python
+class acceleration_result(abstract_result)
+```
+
+The acceleration.
+
+<a id="pyGCodeDecode.result.acceleration_result.calc_segm"></a>
+
+#### calc\_segm
+
+```python
+def calc_segm(segm: "segment", **kwargs)
+```
+
+Calculate the acceleration for a segment.
+
+<a id="pyGCodeDecode.result.acceleration_result.calc_pblock"></a>
+
+#### calc\_pblock
+
+```python
+def calc_pblock(pblock, **kwargs)
+```
+
+Calculate the acceleration for a planner block.
+
+<a id="pyGCodeDecode.result.velocity_result"></a>
+
+### velocity\_result Objects
+
+```python
+class velocity_result(abstract_result)
+```
+
+The velocity.
+
+<a id="pyGCodeDecode.result.velocity_result.calc_segm"></a>
+
+#### calc\_segm
+
+```python
+def calc_segm(segm: "segment", **kwargs)
+```
+
+Calculate the velocity for a segment.
+
+<a id="pyGCodeDecode.result.velocity_result.calc_pblock"></a>
+
+#### calc\_pblock
+
+```python
+def calc_pblock(pblock: "planner_block", **kwargs)
+```
+
+Calculate the velocity for a planner block.
+
+<a id="pyGCodeDecode.result.get_all_result_calculators"></a>
+
+#### get\_all\_result\_calculators
+
+```python
+def get_all_result_calculators()
+```
+
+Get all results.
+
+<a id="pyGCodeDecode.result.has_private_results"></a>
+
+#### has\_private\_results
+
+```python
+def has_private_results()
+```
+
+Check if private results are available.
+
+<a id="pyGCodeDecode.result.get_result_info"></a>
+
+#### get\_result\_info
+
+```python
+def get_result_info()
+```
+
+Get information about available result calculators.
+
 <a id="pyGCodeDecode.state"></a>
 
-# pyGCodeDecode.state
+## pyGCodeDecode.state
 
 State module with state.
 
 <a id="pyGCodeDecode.state.state"></a>
 
-## state Objects
+### state Objects
 
 ```python
 class state()
@@ -1060,70 +1330,13 @@ State contains a Position and Printing Settings (p_settings) to apply for the co
 
 <a id="pyGCodeDecode.state.state.p_settings"></a>
 
-## p\_settings Objects
+### p\_settings Objects
 
 ```python
 class p_settings()
 ```
 
 Store Printing Settings.
-
-<a id="pyGCodeDecode.state.state.p_settings.__init__"></a>
-
-#### \_\_init\_\_
-
-```python
-def __init__(p_acc, jerk, vX, vY, vZ, vE, speed, units="SImm")
-```
-
-Initialize printing settings.
-
-**Arguments**:
-
-- `p_acc` - (float) printing acceleration
-- `jerk` - (float) jerk or similar
-- `vX` - (float) max x velocity
-- `vY` - (float) max y velocity
-- `vZ` - (float) max z velocity
-- `vE` - (float) max e velocity
-- `speed` - (float) default target velocity
-- `units` - (string, default = "SImm") unit settings
-
-<a id="pyGCodeDecode.state.state.p_settings.__str__"></a>
-
-#### \_\_str\_\_
-
-```python
-def __str__() -> str
-```
-
-Create summary string for p_settings.
-
-<a id="pyGCodeDecode.state.state.p_settings.__repr__"></a>
-
-#### \_\_repr\_\_
-
-```python
-def __repr__() -> str
-```
-
-Define representation.
-
-<a id="pyGCodeDecode.state.state.__init__"></a>
-
-#### \_\_init\_\_
-
-```python
-def __init__(state_position: position = None,
-             state_p_settings: p_settings = None)
-```
-
-Initialize a state.
-
-**Arguments**:
-
-- `state_position` - (position) state position
-- `state_p_settings` - (p_settings) state printing settings
 
 <a id="pyGCodeDecode.state.state.state_position"></a>
 
@@ -1156,7 +1369,7 @@ Define property state_p_settings.
 def line_number()
 ```
 
-Define property line_nmbr.
+Define property line_number.
 
 <a id="pyGCodeDecode.state.state.line_number"></a>
 
@@ -1225,29 +1438,9 @@ Set previous state.
 
 - `state` - (state) previous state
 
-<a id="pyGCodeDecode.state.state.__str__"></a>
-
-#### \_\_str\_\_
-
-```python
-def __str__() -> str
-```
-
-Generate string for representation.
-
-<a id="pyGCodeDecode.state.state.__repr__"></a>
-
-#### \_\_repr\_\_
-
-```python
-def __repr__() -> str
-```
-
-Call __str__() for representation.
-
 <a id="pyGCodeDecode.state_generator"></a>
 
-# pyGCodeDecode.state\_generator
+## pyGCodeDecode.state\_generator
 
 State generator module.
 
@@ -1283,7 +1476,7 @@ Read gcode from .gcode file.
 
 **Arguments**:
 
-- `filename` - (Path) filepath of the .gcode file
+- `filepath` - (Path) filepath of the .gcode file
 
 
 **Returns**:
@@ -1353,7 +1546,7 @@ Generate state list from GCode file.
 
 <a id="pyGCodeDecode.tools"></a>
 
-# pyGCodeDecode.tools
+## pyGCodeDecode.tools
 
 Tools for pyGCD.
 
@@ -1362,11 +1555,11 @@ Tools for pyGCD.
 #### save\_layer\_metrics
 
 ```python
-def save_layer_metrics(simulation: simulation,
-                       filepath: Union[pathlib.Path,
-                                       str] = "./layer_metrics.csv",
-                       locale: str = None,
-                       delimiter: str = ";")
+def save_layer_metrics(
+        simulation: simulation,
+        filepath: Optional[pathlib.Path] = pathlib.Path("./layer_metrics.csv"),
+        locale: str = None,
+        delimiter: str = ";") -> Optional[tuple[list, list, list, list]]
 ```
 
 Print out print times, distance traveled and the average travel speed to a csv-file.
@@ -1374,8 +1567,8 @@ Print out print times, distance traveled and the average travel speed to a csv-f
 **Arguments**:
 
 - `simulation` - (simulation) simulation instance
-- `filepath` - (Path | string, default = "./layer_metrics.csv") file name
-- `locale` - (string, default = None) select locale settings, e.g. "en_US.utf8" "de_DE.utf8", None = use system locale
+- `filepath` - (Path , default = "./layer_metrics.csv") file name
+- `locale` - (string, default = None) select locale settings, e.g. "en_US.utf8", None = use system locale
 - `delimiter` - (string, default = ";") select delimiter
 
   Layers are detected using the given layer cue.
@@ -1390,8 +1583,9 @@ def write_submodel_times(simulation: simulation,
                          sub_side_x_len: float,
                          sub_side_y_len: float,
                          sub_side_z_len: float,
-                         filename="submodel_times.yaml",
-                         **kwargs)
+                         filename: Optional[pathlib.Path] = pathlib.Path(
+                             "submodel_times.yaml"),
+                         **kwargs) -> dict
 ```
 
 Write the submodel entry and exit times to a yaml file.
@@ -1406,7 +1600,7 @@ Write the submodel entry and exit times to a yaml file.
 
 <a id="pyGCodeDecode.utils"></a>
 
-# pyGCodeDecode.utils
+## pyGCodeDecode.utils
 
 Utilitys.
 
@@ -1415,9 +1609,42 @@ Utils for the GCode Reader contains:
     - velocity
     - position
 
+<a id="pyGCodeDecode.utils.seconds"></a>
+
+### seconds Objects
+
+```python
+class seconds(float)
+```
+
+A float subclass representing a time duration in seconds.
+
+**Arguments**:
+
+- `value` _float or int_ - The time duration in seconds.
+
+**Examples**:
+
+  >>> t = seconds(5)
+  >>> str(t)
+  '5.0 s'
+  >>> t.seconds
+  5.0
+
+<a id="pyGCodeDecode.utils.seconds.seconds"></a>
+
+#### seconds
+
+```python
+@property
+def seconds()
+```
+
+Return the float value of the seconds instance.
+
 <a id="pyGCodeDecode.utils.vector_4D"></a>
 
-## vector\_4D Objects
+### vector\_4D Objects
 
 ```python
 class vector_4D()
@@ -1432,125 +1659,6 @@ The vector_4D class stores 4D vector in x,y,z,e.
 - mul (scalar)
 - truediv (scalar)
 - eq
-
-<a id="pyGCodeDecode.utils.vector_4D.__init__"></a>
-
-#### \_\_init\_\_
-
-```python
-def __init__(*args)
-```
-
-Store 3D position + extrusion axis.
-
-**Arguments**:
-
-- `args` - coordinates as arguments x,y,z,e or (tuple or list) [x,y,z,e]
-
-<a id="pyGCodeDecode.utils.vector_4D.__str__"></a>
-
-#### \_\_str\_\_
-
-```python
-def __str__() -> str
-```
-
-Return string representation.
-
-<a id="pyGCodeDecode.utils.vector_4D.__add__"></a>
-
-#### \_\_add\_\_
-
-```python
-def __add__(other)
-```
-
-Add functionality for 4D vectors.
-
-**Arguments**:
-
-- `other` - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
-
-
-**Returns**:
-
-- `add` - (self) component wise addition
-
-<a id="pyGCodeDecode.utils.vector_4D.__sub__"></a>
-
-#### \_\_sub\_\_
-
-```python
-def __sub__(other)
-```
-
-Sub functionality for 4D vectors.
-
-**Arguments**:
-
-- `other` - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
-
-
-**Returns**:
-
-- `sub` - (self) component wise subtraction
-
-<a id="pyGCodeDecode.utils.vector_4D.__mul__"></a>
-
-#### \_\_mul\_\_
-
-```python
-def __mul__(other)
-```
-
-Scalar multiplication functionality for 4D vectors.
-
-**Arguments**:
-
-- `other` - (float or int)
-
-
-**Returns**:
-
-- `mul` - (self) scalar multiplication, scaling
-
-<a id="pyGCodeDecode.utils.vector_4D.__truediv__"></a>
-
-#### \_\_truediv\_\_
-
-```python
-def __truediv__(other)
-```
-
-Scalar division functionality for 4D Vectors.
-
-**Arguments**:
-
-- `other` - (float or int)
-
-
-**Returns**:
-
-- `div` - (self) scalar division, scaling
-
-<a id="pyGCodeDecode.utils.vector_4D.__eq__"></a>
-
-#### \_\_eq\_\_
-
-```python
-def __eq__(other)
-```
-
-Check for equality and return True if equal.
-
-**Arguments**:
-
-- `other` - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
-
-
-**Returns**:
-
-- `eq` - (bool) true if equal (with tolerance)
 
 <a id="pyGCodeDecode.utils.vector_4D.get_vec"></a>
 
@@ -1590,25 +1698,84 @@ Return the 4D vector norm. Optional with extrusion.
 
 - `norm` - (float) length/norm of 3D or 4D vector
 
+<a id="pyGCodeDecode.utils.position"></a>
+
+### position Objects
+
+```python
+class position(vector_4D)
+```
+
+4D - Position object for (Cartesian) 3D printer.
+
+<a id="pyGCodeDecode.utils.position.is_travel"></a>
+
+#### is\_travel
+
+```python
+def is_travel(other) -> bool
+```
+
+Return True if there is travel between self and other position.
+
+**Arguments**:
+
+- `other` - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
+
+
+**Returns**:
+
+- `is_travel` - (bool) true if between self and other is distance
+
+<a id="pyGCodeDecode.utils.position.is_extruding"></a>
+
+#### is\_extruding
+
+```python
+def is_extruding(other: "position", ignore_retract: bool = True) -> bool
+```
+
+Return True if there is extrusion between self and other position.
+
+**Arguments**:
+
+- `other` - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
+- `ignore_retract` - (bool, default = True) if true ignore retract movements else retract is also extrusion
+
+
+**Returns**:
+
+- `is_extruding` - (bool) true if between self and other is extrusion
+
+<a id="pyGCodeDecode.utils.position.get_t_distance"></a>
+
+#### get\_t\_distance
+
+```python
+def get_t_distance(other=None, withExtrusion=False) -> float
+```
+
+Calculate the travel distance between self and other position. If none is provided, zero will be used.
+
+**Arguments**:
+
+- `other` - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray', default = None)
+- `withExtrusion` - (bool, default = False) use or ignore extrusion
+
+
+**Returns**:
+
+- `travel` - (float) travel or extrusion and travel distance
+
 <a id="pyGCodeDecode.utils.velocity"></a>
 
-## velocity Objects
+### velocity Objects
 
 ```python
 class velocity(vector_4D)
 ```
 
 4D - Velocity object for (Cartesian) 3D printer.
-
-<a id="pyGCodeDecode.utils.velocity.__str__"></a>
-
-#### \_\_str\_\_
-
-```python
-def __str__() -> str
-```
-
-Print out velocity.
 
 <a id="pyGCodeDecode.utils.velocity.get_norm_dir"></a>
 
@@ -1676,88 +1843,19 @@ Return True if extrusion velocity is not zero.
 
 - `is_extruding` - (bool) true if positive extrusion velocity
 
-<a id="pyGCodeDecode.utils.position"></a>
+<a id="pyGCodeDecode.utils.acceleration"></a>
 
-## position Objects
-
-```python
-class position(vector_4D)
-```
-
-4D - Position object for (Cartesian) 3D printer.
-
-<a id="pyGCodeDecode.utils.position.__str__"></a>
-
-#### \_\_str\_\_
+### acceleration Objects
 
 ```python
-def __str__() -> str
+class acceleration(vector_4D)
 ```
 
-Print out position.
-
-<a id="pyGCodeDecode.utils.position.is_travel"></a>
-
-#### is\_travel
-
-```python
-def is_travel(other) -> bool
-```
-
-Return True if there is travel between self and other position.
-
-**Arguments**:
-
-- `other` - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
-
-
-**Returns**:
-
-- `is_travel` - (bool) true if between self and other is distance
-
-<a id="pyGCodeDecode.utils.position.is_extruding"></a>
-
-#### is\_extruding
-
-```python
-def is_extruding(other: "position", ignore_retract: bool = True) -> bool
-```
-
-Return True if there is extrusion between self and other position.
-
-**Arguments**:
-
-- `other` - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
-- `ignore_retract` - (bool, default = True) if true ignore retract movements else retract is also extrusion
-
-
-**Returns**:
-
-- `is_extruding` - (bool) true if between self and other is extrusion
-
-<a id="pyGCodeDecode.utils.position.get_t_distance"></a>
-
-#### get\_t\_distance
-
-```python
-def get_t_distance(other=None, withExtrusion=False) -> float
-```
-
-Calculate the travel distance between self and other position. If none is provided, zero will be used.
-
-**Arguments**:
-
-- `other` - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray', default = None)
-- `withExtrusion` - (bool, default = False) use or ignore extrusion
-
-
-**Returns**:
-
-- `travel` - (float) travel or extrusion and travel distance
+4D - Acceleration object for (Cartesian) 3D printer.
 
 <a id="pyGCodeDecode.utils.segment"></a>
 
-## segment Objects
+### segment Objects
 
 ```python
 class segment()
@@ -1773,54 +1871,11 @@ contains: time, position, velocity
 - move_segment_time: moves Segment in time by a specified interval
 - get_velocity: returns the calculated Velocity for all axis at a given point in time
 - get_position: returns the calculated Position for all axis at a given point in time
+- get_segm_len: returns the length of the segment.
 
 **Class method**
 - create_initial: returns the artificial initial segment where everything is at standstill, intervall length = 0
 - self_check: returns True if all self checks have been successfull
-
-<a id="pyGCodeDecode.utils.segment.__init__"></a>
-
-#### \_\_init\_\_
-
-```python
-def __init__(t_begin: float,
-             t_end: float,
-             pos_begin: position,
-             vel_begin: velocity,
-             pos_end: position = None,
-             vel_end: velocity = None)
-```
-
-Initialize a segment.
-
-**Arguments**:
-
-- `t_begin` - (float) begin of segment
-- `t_end` - (float) end of segment
-- `pos_begin` - (position) beginning position of segment
-- `vel_begin` - (velocity) beginning velocity of segment
-- `pos_end` - (position, default = None) ending position of segment
-- `vel_end` - (velocity, default = None) ending velocity of segment
-
-<a id="pyGCodeDecode.utils.segment.__str__"></a>
-
-#### \_\_str\_\_
-
-```python
-def __str__() -> str
-```
-
-Create string from segment.
-
-<a id="pyGCodeDecode.utils.segment.__repr__"></a>
-
-#### \_\_repr\_\_
-
-```python
-def __repr__()
-```
-
-Segment representation.
 
 <a id="pyGCodeDecode.utils.segment.move_segment_time"></a>
 
@@ -1855,6 +1910,16 @@ Get current velocity of segment at a certain time.
 
 - `current_vel` - (velocity) velocity at time t
 
+<a id="pyGCodeDecode.utils.segment.get_velocity_by_dist"></a>
+
+#### get\_velocity\_by\_dist
+
+```python
+def get_velocity_by_dist(dist)
+```
+
+Return the velocity at a certain local segment distance.
+
 <a id="pyGCodeDecode.utils.segment.get_position"></a>
 
 #### get\_position
@@ -1874,22 +1939,43 @@ Get current position of segment at a certain time.
 
 - `pos` - (position) position at time t
 
+<a id="pyGCodeDecode.utils.segment.get_segm_len"></a>
+
+#### get\_segm\_len
+
+```python
+def get_segm_len()
+```
+
+Return the length of the segment.
+
+<a id="pyGCodeDecode.utils.segment.get_segm_duration"></a>
+
+#### get\_segm\_duration
+
+```python
+def get_segm_duration()
+```
+
+Return the duration of the segment.
+
 <a id="pyGCodeDecode.utils.segment.self_check"></a>
 
 #### self\_check
 
 ```python
-def self_check(p_settings=None)
+def self_check(p_settings: "state.p_settings" = None)
 ```
 
 Check the segment for self consistency.
 
-todo:
-- max acceleration
+**Raises**:
+
+- `ValueError` - if self check fails
 
 **Arguments**:
 
-- `p_settings` - (p_setting, default = None) printing settings to verify
+- `p_settings` - (p_settings, default = None) printing settings to verify
 
 <a id="pyGCodeDecode.utils.segment.is_extruding"></a>
 
@@ -1904,6 +1990,25 @@ Return true if the segment is pos. extruding.
 **Returns**:
 
 - `is_extruding` - (bool) true if positive extrusion
+
+<a id="pyGCodeDecode.utils.segment.get_result"></a>
+
+#### get\_result
+
+```python
+def get_result(key)
+```
+
+Return the requested result.
+
+**Arguments**:
+
+- `key` - (str) choose result
+
+
+**Returns**:
+
+- `result` - (list)
 
 <a id="pyGCodeDecode.utils.segment.create_initial"></a>
 

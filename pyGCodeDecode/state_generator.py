@@ -179,7 +179,7 @@ def read_gcode_to_dict_list(filepath: pathlib.Path) -> List[dict]:
     Read gcode from .gcode file.
 
     Args:
-        filename: (Path) filepath of the .gcode file
+        filepath: (Path) filepath of the .gcode file
 
     Returns:
         dict_list: (list[dict]) list with every line as dict
@@ -202,7 +202,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
     """
     Convert the line dictionary to a state.
 
-    Parameters:
+    Args:
         line_dict_list: (dict) dict list with commands
         initial_machine_setup: (dict) dict with initial machine setup [absolute_position, absolute_extrusion, units, initial_position...]
 

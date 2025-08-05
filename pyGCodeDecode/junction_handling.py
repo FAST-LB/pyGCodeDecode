@@ -90,7 +90,9 @@ class prusa(junction_handling):
 
     **Code reference:**
     [Prusa-Firmware-Buddy/lib/Marlin/Marlin/src/module/planner.cpp](https://github.com/prusa3d/Prusa-Firmware-Buddy/blob/818d812f954802903ea0ff39bf44376fb0b35dd2/lib/Marlin/Marlin/src/module/planner.cpp#L1951)
-    ...
+
+    ```cpp
+    // ...
     // Factor to multiply the previous / current nominal velocities to get componentwise limited velocities.
       float v_factor = 1;
       limited = 0;
@@ -134,7 +136,8 @@ class prusa(junction_handling):
       if (previous_safe_speed > vmax_junction_threshold && safe_speed > vmax_junction_threshold)
         vmax_junction = safe_speed;
     }
-    ...
+    // ...
+    ```
     """
 
     def __init__(self, state_A: state, state_B: state):
@@ -205,7 +208,8 @@ class marlin(junction_handling):
 
     **Code reference:**
     [Marlin/src/module/planner.cpp](https://github.com/MarlinFirmware/Marlin/blob/8ec9c379405bb9962aff170d305ddd0725bd64e2/Marlin/src/module/planner.cpp#L2762)
-    ...
+    ```cpp
+    // ...
     float v_factor = 1.0f;
     LOOP_LOGICAL_AXES(i) {
       // Jerk is the per-axis velocity difference.
@@ -213,7 +217,8 @@ class marlin(junction_handling):
       if (jerk * v_factor > maxj) v_factor = maxj / jerk;
     }
     vmax_junction_sqr = sq(vmax_junction * v_factor);
-    ...
+    // ...
+    ```
     """
 
     def __init__(self, state_A: state, state_B: state):
@@ -260,7 +265,8 @@ class ultimaker(junction_handling):
 
     **Code reference:**
     [UM2.1-Firmware/Marlin/planner.cpp](https://github.com/Ultimaker/UM2.1-Firmware/blob/f6e69344c00d7f300dace730990652ba614a2105/Marlin/planner.cpp#L840)
-    ...
+    ```cpp
+    // ...
     float vmax_junction = max_xy_jerk/2;
     float vmax_junction_factor = 1.0;
     if(fabs(current_speed[Z_AXIS]) > max_z_jerk/2)
@@ -288,7 +294,8 @@ class ultimaker(junction_handling):
     }
     // Max entry speed of this block equals the max exit speed of the previous block.
     block->max_entry_speed = vmax_junction;
-    ...
+    // ...
+    ```
     """
 
     def __init__(self, state_A: state, state_B: state):
@@ -360,7 +367,8 @@ class mka(prusa):
 
     **Code reference:**
     [anisoprint/MKA-firmware/src/core/planner/planner.cpp#L1830](https://github.com/anisoprint/MKA-firmware/blob/6e02973b1b8f325040cc3dbf66ac545ffc5c06b3/src/core/planner/planner.cpp#L1830)
-    ...
+    ```cpp
+    // ...
     float v_exit = previous_speed[axis] * smaller_speed_factor,
             v_entry = current_speed[axis];
       if (limited) {
@@ -382,7 +390,8 @@ class mka(prusa):
       }
     }
     if (limited) vmax_junction *= v_factor;
-    ...
+    // ...
+    ```
 
     """
 
@@ -398,7 +407,7 @@ class junction_deviation(junction_handling):
     """
 
     def calc_JD(self, vel_0: velocity, vel_1: velocity, p_settings: state.p_settings):
-        """Calculate junction deviation velocity from 2 velocitys.
+        """Calculate junction deviation velocity from 2 velocities.
 
         Args:
             vel_0: (velocity) entry

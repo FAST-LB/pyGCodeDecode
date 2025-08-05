@@ -517,11 +517,7 @@ class setup:
         return setup_dict
 
     def check_initial_setup(self):
-        """Check the printer Dict for typos or missing parameters and raise errors if invalid.
-
-        Args:
-            initial_machine_setup: (dict) initial machine setup dictionary
-        """
+        """Check the printer Dict for typos or missing parameters and raise errors if invalid."""
         req_keys = [
             "p_vel",
             "p_acc",

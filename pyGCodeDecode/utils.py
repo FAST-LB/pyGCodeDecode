@@ -551,7 +551,7 @@ class segment:
         Raises:
             ValueError: if self check fails
         Args:
-            p_settings: (p_setting, default = None) printing settings to verify
+            p_settings: (p_settings, default = None) printing settings to verify
         """
         # position self check:
         tolerance = float("1e-6")

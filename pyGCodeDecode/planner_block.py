@@ -25,7 +25,7 @@ class planner_block:
         Calculate the correct move type (trapezoidal,triangular or singular) and generate the corresponding segments.
 
         Args:
-            vel_end: (velocity) target velocity for end of move
+            v_end: (velocity) target velocity for end of move
         """
 
         def trapezoid(extrusion_only=False):

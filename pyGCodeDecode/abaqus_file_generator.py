@@ -4,7 +4,7 @@ import pathlib
 
 from pyGCodeDecode.helpers import custom_print
 
-from . import gcode_interpreter as gi
+from . import gcode_interpreter
 
 """
 This script is to convert gcode into an event series as abaqus input
@@ -21,7 +21,7 @@ time points generated are always at segment beginnings / endings, so interpolati
 
 
 def generate_abaqus_event_series(
-    simulation: gi.simulation,
+    simulation: gcode_interpreter.simulation,
     filepath: str = "pyGcodeDecode_abaqus_events.inp",
     tolerance: float = 1e-12,
     output_unit_system: str = None,
@@ -30,7 +30,7 @@ def generate_abaqus_event_series(
     """Generate abaqus event series.
 
     Args:
-        simulation (gi.simulation): simulation instance
+        simulation (gcode_interpreter.simulation): simulation instance
         filepath (string, default = "pyGcodeDecode_abaqus_events.inp"): output file path
         tolerance (float, default = 1e-12): tolerance to determine whether extrusion is happening
         output_unit_system (str, optional): Unit system for the output.
@@ -40,7 +40,7 @@ def generate_abaqus_event_series(
     Returns:
         (optional) tuple: the event series as a tuple for use in ABAQUS-Python
     """
-    unpacked = gi.unpack_blocklist(simulation.blocklist)
+    unpacked = gcode_interpreter.unpack_blocklist(simulation.blocklist)
     pos = [unpacked[0].pos_begin.get_vec(withExtrusion=True)]
     time = [0]
     for segment in unpacked:

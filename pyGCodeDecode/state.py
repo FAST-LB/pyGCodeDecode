@@ -93,7 +93,7 @@ class state:
 
     @property
     def line_number(self):
-        """Define property line_nmbr."""
+        """Define property line_number."""
         return self._line_nmbr
 
     @line_number.setter
