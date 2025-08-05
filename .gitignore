@@ -16,7 +16,7 @@ dist/
 # output folders from examples and tests
 /output_benchy_example/*
 /tests/output/*
-/docs/site
+/docs/
 
 # coverage reports
 .coverage
