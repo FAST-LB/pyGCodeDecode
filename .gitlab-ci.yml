@@ -36,6 +36,23 @@ test-package:
                 path: ./tests/coverage.xml
         when: always
 
+doc-build:
+    stage: doc
+    image: "python:3.11"
+    needs: []
+    before_script:
+        - pip install --upgrade pip
+    script:
+        - pip install -e .[DOCS]
+        - pydoc-markdown
+        - mkdocs build
+    artifacts:
+        untracked: false
+        paths:
+            - ./docs/site/
+        when: always
+        expire_in: "30 days"
+
 doc-compile_paper:
     stage: doc
     needs: []
