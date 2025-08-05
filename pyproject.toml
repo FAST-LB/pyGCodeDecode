@@ -48,7 +48,7 @@ DEVELOPER = [
 ]
 DOCS = [
     "mkdocs",
-    "pydoc-markdown",
+    "pydoc-markdown @ git+https://github.com/jeknirsch/pydoc-markdown.git",
 ]
 
 [project.urls]
