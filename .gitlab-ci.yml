@@ -50,6 +50,7 @@ doc-build:
         untracked: false
         paths:
             - ./docs/site/
+            - ./docs/content/*.md
         when: always
         expire_in: "30 days"
 
