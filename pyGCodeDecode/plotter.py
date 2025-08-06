@@ -68,7 +68,6 @@ def plot_3d(
         pv.MultiBlock: The PyVista mesh used for plotting.
         or
         np.ndarray: The screenshot image if `screenshot_path` is provided and `return_type` is "image".
-
     """
 
     def safe_screenshot(plotter: pv.Plotter, screenshot_path=None):

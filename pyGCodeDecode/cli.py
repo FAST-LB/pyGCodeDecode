@@ -3,23 +3,18 @@
 Interact with pyGCodeDecode via the command line to run examples and plot GCode files.
 
 Features:
+
 - Run built-in examples: `brace`, `benchy`
 - Plot GCode files with printer presets and output options
 - Save simulation summaries, metrics, screenshots, and VTK files
 
 Usage Examples:
+
 - `pygcd --help`
 - `pygcd run_example brace`
 - `pygcd plot -g myfile.gcode`
 - `pygcd plot -g myfile.gcode -p presets.yaml -pn my_printer`
 - `pygcd plot -g myfile.gcode -o ./outputs -lc ";LAYER"`
-
-Plot Options:
-- `-g, --gcode <PATH>`         Path to GCode file (searches CWD if not specified)
-- `-p, --presets <PATH>`       Printer presets YAML file
-- `-pn, --printer_name <NAME>` Printer name from presets
-- `-o, --out_dir <PATH>`       Output directory
-- `-lc, --layer_cue <cue>`     Layer switch cue in GCode
 """
 
 import argparse
