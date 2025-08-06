@@ -24,6 +24,8 @@ renderer:
     render_toc: false
     use_fixed_header_levels: true
     add_module_prefix: true
+    add_method_class_prefix: true
+    add_member_class_prefix: true
     header_level_by_type:
       Module: 2
       Class: 3
@@ -33,7 +35,7 @@ renderer:
     - title: Home
       name: index
       source: README.md
-    - title: pyGCodeDecode Reference
+    - title: pyGCodeDecode API Reference
       name: api
       contents:
         - pyGCodeDecode.*
