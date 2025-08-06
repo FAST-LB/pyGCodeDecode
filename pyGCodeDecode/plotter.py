@@ -25,6 +25,7 @@ def plot_3d(
     vtk_path: pathlib.Path = None,
     mesh: pv.MultiBlock = None,
     layer_select: int = None,
+    z_scaler: float = None,
     window_size: tuple = (2048, 1536),
     mpl_subplot: bool = False,
     mpl_rcParams: Union[dict, None] = None,
@@ -36,31 +37,38 @@ def plot_3d(
     extra_plotting: callable = None,  # function to add plotting, args: plotter, mesh
     overwrite_labels: Union[dict, None] = None,
     scalar_value_bounds: Union[Tuple[float, float], None] = None,
+    return_type: str = "mesh",  # "mesh" or "image", only available with screenshot_path
 ) -> pv.MultiBlock:
-    """3D Plot with PyVista.
+    """Plot a 3D visualization of G-code simulation data using PyVista.
 
     Args:
-        extrusion_only (bool, optional): Plot only parts where material is extruded.
-            Defaults to True.
-        scalar_value (str, optional): scalar value to plot. Defaults to Velocity (vel).
-            Options: vel, rel_vel_err, or None.
-        screenshot_path (pathlib.Path, optional): Path to screenshot to be saved.
-            Prevents interactive plot. Defaults to None.
-        vtk_path (pathlib.Path, optional): Path to vtk to be saved.
-            Prevents interactive plot. Defaults to None.
-        mesh (pv.MultiBlock, optional): A pyvista mesh from a previous run to
-            avoid running the mesh generation again. Defaults to None.
-        layer_select (int, optional): Select the layer to be plotted.
-            Defaults to None, which plots all layers.
-        window_size (tuple, optional): Size of the plot window.
-            Defaults to (2048, 1536).
-        mpl_subplot (bool, optional): Use matplotlib subplot for the screenshot.
-            Defaults to False.
-        solid_color (str, optional): Background color of the plot. Defaults to "black".
-        transparent_background (bool, optional): Use a transparent background for
-            the screenshot. Defaults to True.
+        sim (simulation): The simulation object containing blocklist and segment data.
+        extrusion_only (bool, optional): If True, plot only segments where extrusion occurs. Defaults to True.
+        scalar_value (str, optional): Scalar value to color the plot. Options: "velocity", "rel_vel_err", "acceleration", or None. Defaults to "velocity".
+        screenshot_path (pathlib.Path, optional): If provided, saves a screenshot to this path and disables interactive plotting. Defaults to None.
+        camera_settings (dict, optional): Camera settings for the plotter. Keys: "camera_position", "elevation", "azimuth", "roll". Defaults to None.
+        vtk_path (pathlib.Path, optional): If provided, saves the mesh as a VTK file to this path. Defaults to None.
+        mesh (pv.MultiBlock, optional): Precomputed PyVista mesh to use instead of generating a new one. Defaults to None.
+        layer_select (int, optional): If provided, only plot the specified layer. Defaults to None (all layers).
+        z_scaler (float, optional): Scaling factor for the z-axis layer squishing (z_scaler = width/height of extrusion). Defaults to None (automatic scaling).
+        window_size (tuple, optional): Size of the plot window in pixels. Defaults to (2048, 1536).
+        mpl_subplot (bool, optional): If True, use matplotlib for screenshot and colorbar. Defaults to False.
+        mpl_rcParams (dict or None, optional): Custom matplotlib rcParams for styling. Defaults to None.
+        solid_color (str, optional): Background color for the plot. Defaults to "black".
+        transparent_background (bool, optional): If True, screenshot background is transparent. Defaults to True.
+        parallel_projection (bool, optional): If True, enables parallel projection in PyVista. Defaults to False.
+        lighting (bool, optional): If True, enables lighting in the plot. Defaults to True.
+        block_colorbar (bool, optional): If True, removes the scalar colorbar from the plot. Defaults to False.
+        extra_plotting (callable, optional): Function to add extra plotting to the PyVista plotter. Signature: (plotter, mesh). Defaults to None.
+        overwrite_labels (dict or None, optional): Dictionary to overwrite colorbar labels. Defaults to None.
+        scalar_value_bounds (tuple or None, optional): Tuple (min, max) to set scalar colorbar range. Defaults to None.
+        return_type (str, optional): Return type, "mesh" or "image". Defaults to "mesh".
+
     Returns:
-        pv.MultiBlock: The mesh used in the plot so it can be used (e.g. in subsequent plots).
+        pv.MultiBlock: The PyVista mesh used for plotting.
+        or
+        np.ndarray: The screenshot image if `screenshot_path` is provided and `return_type` is "image".
+
     """
 
     def safe_screenshot(plotter: pv.Plotter, screenshot_path=None):
@@ -91,13 +99,15 @@ def plot_3d(
     else:
         segments = unpack_blocklist(blocklist=sim.blocklist)
 
+    if z_scaler is None:
+        e_width = 0.45
+        l_height = 0.2
+        z_scaler = e_width / l_height
+
     if mesh is None:
         mesh = pv.MultiBlock()
         x, y, z, e, scalar = [], [], [], [], []
 
-        e_width = 0.45
-        l_height = 0.2
-        z_scaler = e_width / l_height
         bar = ProgressBar(name="3D Plot")
         custom_print("result: ", lvl=3)
         for n, segm in enumerate(segments):
@@ -267,7 +277,10 @@ def plot_3d(
             if block_colorbar:
                 p.remove_scalar_bar()
             image = safe_screenshot(p, screenshot_path)
-        return image  # TODO this not good
+
+        if return_type == "image":
+            return image
+        return mesh
 
     if not off_screen and display_available:
         p.show()
