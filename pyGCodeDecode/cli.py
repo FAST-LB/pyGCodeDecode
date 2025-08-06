@@ -1,4 +1,26 @@
-"""The CLI for the pyGCodeDecode package."""
+"""The pyGCodeDecode CLI Module.
+
+Interact with pyGCodeDecode via the command line to run examples and plot GCode files.
+
+Features:
+- Run built-in examples: `brace`, `benchy`
+- Plot GCode files with printer presets and output options
+- Save simulation summaries, metrics, screenshots, and VTK files
+
+Usage Examples:
+- `pygcd --help`
+- `pygcd run_example brace`
+- `pygcd plot -g myfile.gcode`
+- `pygcd plot -g myfile.gcode -p presets.yaml -pn my_printer`
+- `pygcd plot -g myfile.gcode -o ./outputs -lc ";LAYER"`
+
+Plot Options:
+- `-g, --gcode <PATH>`         Path to GCode file (searches CWD if not specified)
+- `-p, --presets <PATH>`       Printer presets YAML file
+- `-pn, --printer_name <NAME>` Printer name from presets
+- `-o, --out_dir <PATH>`       Output directory
+- `-lc, --layer_cue <cue>`     Layer switch cue in GCode
+"""
 
 import argparse
 import importlib.resources
@@ -135,7 +157,7 @@ def _plot(args: argparse.Namespace):
     sim.plot_3d(mesh=mesh)
 
 
-def _main(*args):
+def _main(args=None):
     """Entry point function for the command-line interface (CLI)."""
     global_parser = argparse.ArgumentParser(
         prog="pygcd",
@@ -148,7 +170,7 @@ def _main(*args):
         version=__version__,
     )
 
-    # subparsers vor various functions
+    # subparsers for various functions
     subparsers = global_parser.add_subparsers(
         title="subcommands",
         description="Functions accessible via this CLI.",
@@ -215,10 +237,10 @@ def _main(*args):
     )
 
     # parse the arguments
-    args = global_parser.parse_args()
+    parsed_args = global_parser.parse_args(args)
 
     # call the respective function specified by the subparser
-    if hasattr(args, "func"):
-        args.func(args)
+    if hasattr(parsed_args, "func"):
+        parsed_args.func(parsed_args)
     else:
         global_parser.print_help()
