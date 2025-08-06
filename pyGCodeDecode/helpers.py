@@ -13,6 +13,9 @@ else:
 # global verbosity level
 VERBOSITY_LEVEL = 2  # default to INFO
 
+# global progress bar state
+_active_progress_bar = None
+
 
 def set_verbosity_level(level: Optional[int]) -> None:
     """Set the global verbosity level."""
@@ -35,6 +38,8 @@ def custom_print(*args, lvl=2, **kwargs) -> None:
         **kwargs: keyword arguments to be passed to print
 
     """
+    global _active_progress_bar
+
     sanitized_args = []
     if FLAG_USING_ABAQUS:
         # remove non-ascii characters like emojis as ABAQUS can't handle them
@@ -45,9 +50,28 @@ def custom_print(*args, lvl=2, **kwargs) -> None:
 
     # print with verbosity level
     if lvl <= VERBOSITY_LEVEL:
-        levels = {3: "[DEBUG]:", 2: "[INFO]:", 1: "[WARNING]:"}
+        # If there's an active progress bar, clear the line first
+        if _active_progress_bar is not None:
+            # Clear the current line
+            sys.stdout.write("\r" + " " * 80 + "\r")
+            sys.stdout.flush()
+
+        levels = {
+            3: "[ DEBUG ]:",
+            2: "[  INFO ]:",
+            1: "[WARNING]:",
+        }
         prefix = levels.get(lvl, "")
-        print(prefix, *sanitized_args, **kwargs)
+
+        # Print the message
+        if _active_progress_bar is not None:
+            # When progress bar is active, print without extra newlines
+            print(prefix, *sanitized_args, **kwargs)
+            # Redraw the progress bar immediately
+            _active_progress_bar._redraw_current_state()
+        else:
+            # Normal print when no progress bar is active
+            print(prefix, *sanitized_args, **kwargs)
 
 
 class ProgressBar:
@@ -58,6 +82,15 @@ class ProgressBar:
         self.name = name
         self.barLength = barLength
         self.last_progress_update = -1
+        self.last_text = ""  # Store the last progress bar text
+
+    def _redraw_current_state(self) -> None:
+        """Redraw the current progress bar state."""
+        if self.last_text and VERBOSITY_LEVEL >= 2:
+            # Remove any existing \r from the stored text and add it fresh
+            clean_text = self.last_text.lstrip("\r")
+            sys.stdout.write("\r" + clean_text)
+            sys.stdout.flush()
 
     def update(self, progress: float) -> None:
         """Display or update a console progress bar.
@@ -65,10 +98,15 @@ class ProgressBar:
         Args:
             progress: float between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
         """
+        global _active_progress_bar
+
         barLength = self.barLength
         status = ""
 
         if VERBOSITY_LEVEL >= 2:  # only print if verbosity level is high enough
+            # Register this progress bar as active
+            _active_progress_bar = self
+
             # check whether the input is valid
             if progress is int:
                 progress = float(progress)
@@ -82,7 +120,7 @@ class ProgressBar:
                 status = "- Waiting \r\n"
             if progress >= 1.0:
                 progress = 1.0
-                status = "- Done\r\n"
+                status = "- Done ✅"
 
             progress_percent = round(progress * 100, ndigits=1)
 
@@ -90,6 +128,14 @@ class ProgressBar:
             if self.last_progress_update != progress_percent or status != "":
                 block = int(round(barLength * progress, ndigits=0))
                 text = f"\r[{'#' * block + '-' * (barLength - block)}] {progress_percent} % of {self.name} {status}"
+                self.last_text = text
                 sys.stdout.write(text)
                 sys.stdout.flush()
                 self.last_progress_update = progress_percent
+
+                # If we're done, add a newline and unregister
+                if progress >= 1.0:
+                    sys.stdout.write("\n")
+                    sys.stdout.flush()
+                    self.last_text = ""
+                    _active_progress_bar = None
