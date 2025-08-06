@@ -38,7 +38,7 @@ def custom_print(*args, lvl=2, **kwargs) -> None:
         **kwargs: keyword arguments to be passed to print
 
     """
-    global _active_progress_bar
+    # global _active_progress_bar
 
     sanitized_args = []
     if FLAG_USING_ABAQUS:
