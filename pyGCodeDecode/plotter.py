@@ -70,7 +70,7 @@ def plot_3d(
         np.ndarray: The screenshot image if `screenshot_path` is provided and `return_type` is "image".
     """
 
-    def safe_screenshot(plotter: pv.Plotter, screenshot_path=None):
+    def _safe_screenshot(plotter: pv.Plotter, screenshot_path=None):
         if display_available:
             img = plotter.screenshot(
                 transparent_background=transparent_background,
@@ -255,7 +255,7 @@ def plot_3d(
                 p.remove_scalar_bar()
 
                 # image = p.screenshot(transparent_background=True, window_size=window_size)
-                image = safe_screenshot(p)
+                image = _safe_screenshot(p)
                 # ax.axis("off")
                 if not block_colorbar:
                     cbar = fig.colorbar(dummy_img, ax=ax, shrink=0.6)
@@ -263,7 +263,7 @@ def plot_3d(
 
             else:
                 # image = p.screenshot(transparent_background=True)
-                image = safe_screenshot(p)
+                image = _safe_screenshot(p)
             ax.axis("off")
             if image is not None:
                 ax.imshow(image)
@@ -275,7 +275,7 @@ def plot_3d(
         else:
             if block_colorbar:
                 p.remove_scalar_bar()
-            image = safe_screenshot(p, screenshot_path)
+            image = _safe_screenshot(p, screenshot_path)
 
         if return_type == "image":
             return image
@@ -307,7 +307,7 @@ def plot_2d(
         "Acceleration": "Acceleration in mm/s^2",
     }
 
-    def interp_2D(x, y, cvar, spatial_resolution=1):
+    def _interp_2D(x, y, cvar, spatial_resolution=1):
         segm_length = np.linalg.norm([np.ediff1d(x), np.ediff1d(y)], axis=0)
         segm_cvar_delt = np.greater(np.abs(np.ediff1d(cvar)), 0)
         segm_interpol = np.r_[
@@ -348,7 +348,7 @@ def plot_2d(
             cvar.append(segm.vel_end.get_norm())
 
         # interpolate values for smooth coloring
-        interpolated = interp_2D(x, y, cvar, spatial_resolution=colvar_spatial_resolution)
+        interpolated = _interp_2D(x, y, cvar, spatial_resolution=colvar_spatial_resolution)
 
         x = interpolated[:, 0]
         y = interpolated[:, 1]

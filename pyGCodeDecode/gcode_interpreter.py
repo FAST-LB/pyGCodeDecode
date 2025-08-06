@@ -208,7 +208,7 @@ class simulation:
 
         custom_print(
             f"Simulating \"{self.filename}\" with {self.initial_machine_setup_dict['printer_name']} using "
-            f"the {self.firmware} firmware.\n"
+            f"the {self.firmware} firmware."
         )
         self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states, firmware=self.firmware)
         self.trajectory_self_correct()

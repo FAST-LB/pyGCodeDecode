@@ -21,11 +21,14 @@ class seconds(float):
     Args:
         value (float or int): The time duration in seconds.
     Examples:
-        >>> t = seconds(5)
-        >>> str(t)
-        '5.0 s'
-        >>> t.seconds
-        5.0
+    ```python
+    >>> from pyGCodeDecode.utils import seconds
+    >>> t = seconds(5)
+    >>> str(t)
+    '5.0 s'
+    >>> t.seconds
+    5.0
+    ```
     """
 
     """Time class for storing time, behaves like a float with additional methods."""

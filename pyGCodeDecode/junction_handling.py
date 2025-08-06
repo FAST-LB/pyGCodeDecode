@@ -1,4 +1,4 @@
-"""Junction handling module."""
+"""Junction handling module for calculating the velocity at junctions."""
 
 import inspect
 import sys
@@ -24,7 +24,7 @@ class junction_handling:
         self.state_A = state_A
         self.state_B = state_B
         self.target_vel = self.connect_state(state_A=state_A, state_B=state_B)
-        self.vel_next = self.calc_vel_next()
+        self.vel_next = self._calc_vel_next()
 
     def connect_state(self, state_A: state, state_B: state):
         """
@@ -52,7 +52,7 @@ class junction_handling:
         target_vel = velocity(state_B.state_p_settings.speed * travel_direction)
         return target_vel
 
-    def calc_vel_next(self):
+    def _calc_vel_next(self):
         """Return the target velocity for the following move."""
         next_next_state = self.state_B.next_state if self.state_B.next_state is not None else self.state_B
         while True:
@@ -83,10 +83,6 @@ class junction_handling:
 
 class prusa(junction_handling):
     """Prusa specific classic jerk junction handling (validated on Prusa Mini).
-
-    **Reference**
-    [Prusa Firmware Buddy GitHub](https://github.com/prusa3d/Prusa-Firmware-Buddy/blob/818d812f954802903ea0ff39bf44376fb0b35dd2/lib/Marlin/Marlin/src/module/planner.cpp#L1911) # noqa: E501
-
 
     **Code reference:**
     [Prusa-Firmware-Buddy/lib/Marlin/Marlin/src/module/planner.cpp](https://github.com/prusa3d/Prusa-Firmware-Buddy/blob/818d812f954802903ea0ff39bf44376fb0b35dd2/lib/Marlin/Marlin/src/module/planner.cpp#L1951)
@@ -200,12 +196,6 @@ class prusa(junction_handling):
 class marlin(junction_handling):
     """Marlin classic jerk specific junction handling.
 
-    **Reference**
-    [https://github.com/MarlinFirmware/Marlin/pull/8887](https://github.com/MarlinFirmware/Marlin/pull/8887)
-    [https://github.com/MarlinFirmware/Marlin/pull/8888](https://github.com/MarlinFirmware/Marlin/pull/8888)
-    [https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768](https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768)
-
-
     **Code reference:**
     [Marlin/src/module/planner.cpp](https://github.com/MarlinFirmware/Marlin/blob/8ec9c379405bb9962aff170d305ddd0725bd64e2/Marlin/src/module/planner.cpp#L2762)
     ```cpp
@@ -219,6 +209,12 @@ class marlin(junction_handling):
     vmax_junction_sqr = sq(vmax_junction * v_factor);
     // ...
     ```
+    """
+
+    """"    **Reference**
+    [https://github.com/MarlinFirmware/Marlin/pull/8887](https://github.com/MarlinFirmware/Marlin/pull/8887)
+    [https://github.com/MarlinFirmware/Marlin/pull/8888](https://github.com/MarlinFirmware/Marlin/pull/8888)
+    [https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768](https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768)
     """
 
     def __init__(self, state_A: state, state_B: state):
@@ -363,10 +359,12 @@ class ultimaker(junction_handling):
 
 
 class mka(prusa):
-    """Anisoprint A4 like junction handling.
+    """Anisoprint Composer models using MKA Firmware junction handling.
+
+    The MKA firmware uses a similar approach to Prusa's classic jerk handling.
 
     **Code reference:**
-    [anisoprint/MKA-firmware/src/core/planner/planner.cpp#L1830](https://github.com/anisoprint/MKA-firmware/blob/6e02973b1b8f325040cc3dbf66ac545ffc5c06b3/src/core/planner/planner.cpp#L1830)
+    [anisoprint/MKA-firmware/src/core/planner/planner.cpp](https://github.com/anisoprint/MKA-firmware/blob/6e02973b1b8f325040cc3dbf66ac545ffc5c06b3/src/core/planner/planner.cpp#L1830)
     ```cpp
     // ...
     float v_exit = previous_speed[axis] * smaller_speed_factor,

@@ -106,7 +106,7 @@ default_virtual_machine = {
 }
 
 
-def arg_extract(string: str, key_dict: dict) -> dict:
+def _arg_extract(string: str, key_dict: dict) -> dict:
     """
     Extract arguments from known command dictionaries.
 
@@ -165,7 +165,7 @@ def arg_extract(string: str, key_dict: dict) -> dict:
             arg = string[match_end:]  # special case for comments where everything coming after match is arg
 
         if key_dict[key] is not None:  # check for nested commands
-            arg = arg_extract(arg, key_dict[key])  # call arg_extract through recursion
+            arg = _arg_extract(arg, key_dict[key])  # call _arg_extract through recursion
 
         # save matches found outside of comments, not applying for comments
         if match.end() <= comment_begin or key == ";":
@@ -174,7 +174,7 @@ def arg_extract(string: str, key_dict: dict) -> dict:
     return arg_dict
 
 
-def read_gcode_to_dict_list(filepath: pathlib.Path) -> List[dict]:
+def _read_gcode_to_dict_list(filepath: pathlib.Path) -> List[dict]:
     """
     Read gcode from .gcode file.
 
@@ -189,7 +189,7 @@ def read_gcode_to_dict_list(filepath: pathlib.Path) -> List[dict]:
 
     with open(file=filepath) as file_gcode:
         for i, line in enumerate(file_gcode):
-            line_dict = arg_extract(string=line, key_dict=known_commands)
+            line_dict = _arg_extract(string=line, key_dict=known_commands)
             line_dict["line_number"] = i + 1
             dict_list.append(line_dict)
 
@@ -198,7 +198,7 @@ def read_gcode_to_dict_list(filepath: pathlib.Path) -> List[dict]:
     return dict_list
 
 
-def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) -> List[state]:
+def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) -> List[state]:
     """
     Convert the line dictionary to a state.
 
@@ -396,7 +396,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
     return state_list
 
 
-def check_for_unsupported_commands(line_dict_list: dict) -> dict:
+def _check_for_unsupported_commands(line_dict_list: dict) -> dict:
     """Search for unsupported commands used in the G-code, warn the user and return the occurrences.
 
     Args:
@@ -437,8 +437,8 @@ def generate_states(filepath: pathlib.Path, initial_machine_setup: dict) -> List
     Returns:
         states: (list[states]) all states in a list
     """
-    line_dict_list = read_gcode_to_dict_list(filepath=filepath)
-    check_for_unsupported_commands(line_dict_list=line_dict_list)
-    states = dict_list_traveler(line_dict_list=line_dict_list, initial_machine_setup=initial_machine_setup)
+    line_dict_list = _read_gcode_to_dict_list(filepath=filepath)
+    _check_for_unsupported_commands(line_dict_list=line_dict_list)
+    states = _dict_list_traveler(line_dict_list=line_dict_list, initial_machine_setup=initial_machine_setup)
 
     return states
