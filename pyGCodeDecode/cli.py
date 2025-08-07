@@ -26,6 +26,7 @@ from pyGCodeDecode.examples.benchy import benchy_example
 from pyGCodeDecode.examples.brace import brace_example
 from pyGCodeDecode.gcode_interpreter import setup, simulation
 from pyGCodeDecode.helpers import custom_print
+from pyGCodeDecode.plotter import plot_3d
 from pyGCodeDecode.tools import save_layer_metrics
 
 
@@ -140,7 +141,8 @@ def _plot(args: argparse.Namespace):
             delimiter=",",
         )
         # create a 3D-plot and save a VTK as well as a screenshot
-        mesh = sim.plot_3d(
+        mesh = plot_3d(
+            sim,
             extrusion_only=True,
             screenshot_path=out_dir / f"{g_code_file.stem}.png",
             vtk_path=out_dir / f"{g_code_file.stem}.vtk",
@@ -149,7 +151,7 @@ def _plot(args: argparse.Namespace):
         mesh = None
 
     # create an interactive 3D-plot
-    sim.plot_3d(mesh=mesh)
+    plot_3d(sim, mesh=mesh)
 
 
 def _main(args=None):
