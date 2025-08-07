@@ -71,7 +71,7 @@ def generate_abaqus_event_series(
             )
             event_series_list.append((time, scaling * pos[0], scaling * pos[1], scaling * pos[2], pos[3]))
 
-        custom_print(f"ABAQUS event series written to: \n{outfile.name}")
+        custom_print(f"💾 ABAQUS event series written to 👉 {outfile.name}")
 
     if return_tuple:
         return tuple(event_series_list)

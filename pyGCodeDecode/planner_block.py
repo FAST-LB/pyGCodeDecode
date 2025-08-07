@@ -241,7 +241,9 @@ class planner_block:
             for segm in self.segments:
                 segm.self_check(p_settings=self.state_B.state_p_settings)
         except ValueError as ve:
-            custom_print(f"Segment for {self.state_B} does not adhere to machine limits: {ve}", lvl=1)
+            custom_print(
+                f"⚠️  Segment modeling travel to \n\t{self.state_B}\ndoes not adhere to machine limits: {ve}", lvl=1
+            )
 
         return flag_correct
 

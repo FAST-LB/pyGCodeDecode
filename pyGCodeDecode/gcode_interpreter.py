@@ -207,7 +207,7 @@ class simulation:
         )
 
         custom_print(
-            f"Simulating \"{self.filename}\" with {self.initial_machine_setup_dict['printer_name']} using "
+            f"Simulating {self.filename} with {self.initial_machine_setup_dict['printer_name']} using "
             f"the {self.firmware} firmware."
         )
         self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states, firmware=self.firmware)
@@ -341,11 +341,11 @@ class simulation:
             start_time (float): time when the simulation run was started
         """
         custom_print(
-            f" >> pyGCodeDecode extracted {len(self.states)} states from {self.filename}"
+            f"✅ Simulation finished: pyGCodeDecode extracted {len(self.states)} states from {self.filename}"
             f" and generated {len(self.blocklist)} planner blocks.\n"
-            f"Estimated time to travel all states with provided"
-            f" printer settings is {self.blocklist[-1].get_segments()[-1].t_end:.2f} seconds.\n"
-            f"The Simulation took {(time.time()-start_time):.2f} s."
+            f"Estimated time to travel all states with provided "
+            f"printer settings is {self.blocklist[-1].get_segments()[-1].t_end:.2f} seconds.\n"
+            f"The Simulation took {(time.time()-start_time):.2f} s of computation time."
         )
 
     def refresh(self, new_state_list: List[state] = None):
@@ -443,7 +443,7 @@ class simulation:
         with open(file=filepath, mode="w") as file:
             yaml.dump(data=summary, stream=file)
 
-        custom_print(f"💾 Summary written to:\n👉 {str(filepath)}")
+        custom_print(f"💾 Summary written to 👉 {str(filepath)}")
 
     def get_scaling_factor(self, output_unit_system: str = None) -> float:
         """Get a scaling factor to convert lengths from mm to another supported unit system.

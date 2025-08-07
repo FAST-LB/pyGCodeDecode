@@ -34,23 +34,13 @@ class state:
         def __str__(self) -> str:
             """Create summary string for p_settings."""
             return (
-                "jerk: "
-                + str(self.jerk)
-                + ", p_acc: "
-                + str(self.p_acc)
-                + ", max_ax_vel: ["
-                + str(self.vX)
-                + ", "
-                + str(self.vY)
-                + ", "
-                + str(self.vZ)
-                + ", "
-                + str(self.vE)
-                + "]"
-                + ", p_vel: "
-                + str(self.speed)
-                + ", units: "
-                + str(self.units)
+                f"Settings:\n"
+                f"    jerk: {self.jerk}\n"
+                f"    acceleration: {self.p_acc}\n"
+                f"    max_velocities: [X: {self.vX}, Y: {self.vY}, Z: {self.vZ}, E: {self.vE}]\n"
+                f"    speed: {self.speed}\n"
+                f"    units: {self.units}"
+                f""
             )
 
         def __repr__(self) -> str:
@@ -136,10 +126,40 @@ class state:
 
     def __str__(self) -> str:
         """Generate string for representation."""
+        # Format the basic state info
+        state_info = f"State(line: {self.line_number or 'N/A'})"
+
+        # Add layer if available
         if self.layer is not None:
-            return f"<state: line: {str(self.line_number)}, layer: {self.layer}, {self.state_position}, settings: {self.state_p_settings}, comment: {self.comment}, pause: {str(self.pause)}>\n"  # noqa E501
+            state_info += f" [Layer: {self.layer}]"
+
+        # Add pause status if set
+        if self.pause:
+            state_info += " [PAUSED]"
+
+        # Build the complete representation
+        result = f"{state_info}\n"
+
+        # Add position information
+        if self.state_position:
+            result += f"\t{self.state_position}\n"
         else:
-            return f"<state: line: {str(self.line_number)}, {self.state_position}, settings: {self.state_p_settings}, comment: {self.comment}, pause: {str(self.pause)}>\n"  # noqa E501
+            result += "Position: Not set\n"
+
+        # Add settings information with indentation
+        if self.state_p_settings:
+            settings_str = str(self.state_p_settings)
+            # Indent each line of settings
+            indented_settings = "\n".join(f"\t{line}" for line in settings_str.split("\n"))
+            result += f"  {indented_settings}"
+        else:
+            result += "Settings: Not set"
+
+        # Add comment if available
+        if self.comment:
+            result += f"Comment: {self.comment}"
+
+        return result
 
     def __repr__(self) -> str:
         """Call __str__() for representation."""

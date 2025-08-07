@@ -30,7 +30,7 @@ def save_layer_metrics(
     # check if a layer cue was specified
     if "layer_cue" not in simulation.initial_machine_setup_dict:
         custom_print(
-            "⚠️ No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!", lvl=1
+            "⚠️  No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!", lvl=1
         )
         return None
 
@@ -94,7 +94,7 @@ def save_layer_metrics(
             header=header,
             comments="",
         )
-        custom_print(f"💾 Layer metrics written to:\n👉 {filepath.__str__()}")
+        custom_print(f"💾 Layer metrics written to 👉 {filepath.__str__()}")
 
     return layers, durations, travel_distances, avg_speeds
 

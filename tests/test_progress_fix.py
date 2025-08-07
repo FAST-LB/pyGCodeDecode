@@ -18,7 +18,7 @@ def test_progress_bar_with_interruptions(capsys):
         time.sleep(0.001)
     assert pb1.last_progress_update == 100
 
-    pb2 = ProgressBar("Test Process 2", 15)
+    pb2 = ProgressBar("Test Process 2", 15, verbosity_level=1)
     for i in range(101):
         pb2.update(i / 100.0)
         if i == 50:
@@ -30,13 +30,21 @@ def test_progress_bar_with_interruptions(capsys):
 
     out, _ = capsys.readouterr()
     expected = (
-        "[WARNING]: This is a warning message during progress\n"
-        "[  INFO ]: This is an info message during progress\n"
-        "[####################] 100.0 % of Test Process 1 - Done ✅\n"
-        "[  INFO ]: Another message in the middle\n"
-        "[###############] 100.0 % of Test Process 2 - Done ✅\n"
-        "[  INFO ]: All tests completed!\n"
+        "[WARN] This is a warning message during progress\n"
+        "[INFO] This is an info message during progress\n"
+        "[INFO] ✅ Done with Test Process 1\n"
+        "[INFO] Another message in the middle\n"
+        "[WARN] ✅ Done with Test Process 2\n"
+        "[INFO] All tests completed!\n"
     )
+    # expected = (
+    #     "[WARNING] This is a warning message during progress\n"
+    #     "[  INFO ] This is an info message during progress\n"
+    #     "[  INFO ] ✅ Done with Test Process 1\n"
+    #     "[  INFO ] Another message in the middle\n"
+    #     "[WARNING] ✅ Done with Test Process 2\n"
+    #     "[  INFO ] All tests completed!\n"
+    # )
 
     # Normalize whitespace for progress bar lines
     def normalize(line):
@@ -46,10 +54,13 @@ def test_progress_bar_with_interruptions(capsys):
     exp_lines = [normalize(lin) for lin in expected.splitlines()]
     # Only keep lines that are expected (messages and final progress bars)
     filtered_out_lines = [
-        lin
-        for lin in out_lines
-        if lin.startswith("[WARNING]:") or lin.startswith("[  INFO ]:") or lin.endswith("- Done ✅")
+        lin for lin in out_lines if lin.startswith("[WARN]") or lin.startswith("[INFO]") or "✅ Done" in lin
     ]
+    # filtered_out_lines = [
+    #     lin
+    #     for lin in out_lines
+    #     if lin.startswith("[WARNING]") or lin.startswith("[  INFO ]") or "✅ Done" in lin
+    # ]
     assert exp_lines == filtered_out_lines
 
 
@@ -63,8 +74,8 @@ def test_progress_bar_no_interruptions(capsys):
     assert pb.last_progress_update == 100
     custom_print("Done without interruptions", lvl=2)
     out, _ = capsys.readouterr()
-    assert "[##########] 100.0 % of No Interruptions - Done ✅" in out
-    assert "[  INFO ]: Done without interruptions" in out
+    assert "[INFO] ✅ Done with No Interruptions" in out
+    assert "[INFO] Done without interruptions" in out
 
 
 def test_progress_bar_multiple_messages(capsys):
@@ -82,7 +93,7 @@ def test_progress_bar_multiple_messages(capsys):
         time.sleep(0.001)
     assert pb.last_progress_update == 100
     out, _ = capsys.readouterr()
-    assert "[  INFO ]: First info" in out
-    assert "[WARNING]: Second warning" in out
-    assert "[  INFO ]: Third info" in out
-    assert "[#####] 100.0 % of Multiple Messages - Done ✅" in out
+    assert "[INFO] First info" in out
+    assert "[WARN] Second warning" in out
+    assert "[INFO] Third info" in out
+    assert "[INFO] ✅ Done with Multiple Messages" in out

@@ -5,6 +5,7 @@ import pathlib
 
 from pyGCodeDecode.abaqus_file_generator import generate_abaqus_event_series
 from pyGCodeDecode.gcode_interpreter import setup, simulation
+from pyGCodeDecode.helpers import custom_print
 from pyGCodeDecode.plotter import plot_3d
 from pyGCodeDecode.tools import save_layer_metrics
 
@@ -15,12 +16,12 @@ def benchy_example():
     data_dir = importlib.resources.files("pyGCodeDecode").joinpath("examples/data/")
     output_dir = pathlib.Path.cwd() / "output_benchy_example"
 
-    print(
+    custom_print(
         "Running pyGCD's benchy example! 🛥️"
-        "\nThis example illustrates an extensive use of the package: A gcode is simulated with default presets from a "
+        "\nThis example illustrates an extensive use of the package: \nA gcode is simulated with default presets from a "
         "file provided alongside this example. After the simulation, an interactive 3D-plot is shown."
-        "\nThe following files are saved to a new folder in your current directory: 💾\n",
-        output_dir.__str__(),
+        "\nThe following files are saved to a new folder in your current directory: ",
+        output_dir.__str__() + " 💾",
         "\n   - a screenshot of the 3D-plot 📸"
         "\n   - a .vtk of the mesh 🕸️"
         "\n   - a summary of the simulation 📝"

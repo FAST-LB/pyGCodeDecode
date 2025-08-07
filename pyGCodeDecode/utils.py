@@ -243,7 +243,7 @@ class position(vector_4D):
 
     def __str__(self) -> str:
         """Print out position."""
-        return "position: " + super().__str__()
+        return "Position: " + super().__str__()
 
     def is_travel(self, other) -> bool:
         """Return True if there is travel between self and other position.

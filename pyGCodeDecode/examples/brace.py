@@ -3,15 +3,16 @@
 import importlib.resources
 
 from pyGCodeDecode.gcode_interpreter import simulation
+from pyGCodeDecode.helpers import custom_print
 from pyGCodeDecode.plotter import plot_3d
 
 
 def brace_example():
     """Minimal example for the usage of pyGCodeDecode simulating the G-code of a brace."""
-    print(
+    custom_print(
         "Running pyGCD's brace example! 📎"
         "\nThis example illustrates the simplest use of the package: A gcode is simulated with default presets "
-        "provided by the package. After the simulation, an interactive 3D-plot is shown. No output is saved."
+        "\nprovided by the package. After the simulation, an interactive 3D-plot is shown. No output is saved."
     )
 
     gcode_path = importlib.resources.files("pyGCodeDecode").joinpath("examples/data/brace.gcode")

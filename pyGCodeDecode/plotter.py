@@ -77,7 +77,7 @@ def plot_3d(
                 filename=screenshot_path,
             )
             if screenshot_path is not None:
-                custom_print(f"PyVista Screenshot saved to:\n{screenshot_path}")
+                custom_print(f"💾 PyVista Screenshot saved to 👉 {screenshot_path}")
         else:
             img = None
             custom_print("PyVista Screenshot can not be created without a display!", lvl=1)
@@ -221,7 +221,7 @@ def plot_3d(
 
     if vtk_path is not None:
         mesh.save(filename=vtk_path)
-        custom_print(f"VTK saved to:\n{vtk_path}", lvl=2)
+        custom_print(f"💾 VTK saved to 👉 {vtk_path}", lvl=2)
 
     if screenshot_path is not None:
         custom_print(f"Offscreen plotting, with resolution {p.window_size}", lvl=3)
@@ -271,7 +271,7 @@ def plot_3d(
             dpi = window_size[1] / fig.get_size_inches()[1]
             fig.savefig(screenshot_path, dpi=dpi, transparent=transparent_background)  # bbox_inches="tight",
 
-            custom_print(f"MPL Screenshot saved to:\n{screenshot_path}")
+            custom_print(f"💾 MPL Screenshot saved to 👉{screenshot_path}")
         else:
             if block_colorbar:
                 p.remove_scalar_bar()
@@ -397,7 +397,7 @@ def plot_2d(
         plt.axis("scaled")
     if filepath is not False:
         plt.savefig(filepath, dpi=dpi)
-        custom_print(f"2D Plot saved:\n👉 {filepath}")
+        custom_print(f"💾 2D Plot saved 👉 {filepath}")
     if show:
         plt.show()
         return fig

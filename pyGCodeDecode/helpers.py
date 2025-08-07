@@ -17,6 +17,20 @@ VERBOSITY_LEVEL = 2  # default to INFO
 _active_progress_bar = None
 
 
+# Define verbosity levels for custom_print
+# _levels = {
+#     3: "[ DEBUG ]",
+#     2: "[  INFO ]",
+#     1: "[WARNING]",
+# }
+
+_levels = {
+    3: "[DEBU]",
+    2: "[INFO]",
+    1: "[WARN]",
+}
+
+
 def set_verbosity_level(level: Optional[int]) -> None:
     """Set the global verbosity level."""
     global VERBOSITY_LEVEL
@@ -56,33 +70,42 @@ def custom_print(*args, lvl=2, **kwargs) -> None:
             sys.stdout.write("\r" + " " * 80 + "\r")
             sys.stdout.flush()
 
-        levels = {
-            3: "[ DEBUG ]:",
-            2: "[  INFO ]:",
-            1: "[WARNING]:",
-        }
-        prefix = levels.get(lvl, "")
+        prefix = _levels.get(lvl, "")
+
+        # Process arguments to handle newline alignment
+        processed_args = []
+        for arg in sanitized_args:
+            if isinstance(arg, str) and "\n" in arg:
+                # Split by newlines and add appropriate spacing after each newline
+                lines = arg.split("\n")
+                # Join with newline followed by spacing to align with prefix
+                spacing = " " * len(prefix + " ")  # +1 for the space after prefix
+                processed_arg = ("\n" + spacing).join(lines)
+                processed_args.append(processed_arg)
+            else:
+                processed_args.append(arg)
 
         # Print the message
         if _active_progress_bar is not None:
             # When progress bar is active, print without extra newlines
-            print(prefix, *sanitized_args, **kwargs)
+            print(prefix, *processed_args, **kwargs)
             # Redraw the progress bar immediately
             _active_progress_bar._redraw_current_state()
         else:
             # Normal print when no progress bar is active
-            print(prefix, *sanitized_args, **kwargs)
+            print(prefix, *processed_args, **kwargs)
 
 
 class ProgressBar:
     """A simple progress bar for the console."""
 
-    def __init__(self, name: str = "Percent", barLength: int = 10):
+    def __init__(self, name: str = "Percent", barLength: int = 4, verbosity_level: int = 2):
         """Initialize a progress bar."""
         self.name = name
         self.barLength = barLength
         self.last_progress_update = -1
         self.last_text = ""  # Store the last progress bar text
+        self.verbosity_level = verbosity_level
 
     def _redraw_current_state(self) -> None:
         """Redraw the current progress bar state."""
@@ -103,7 +126,7 @@ class ProgressBar:
         barLength = self.barLength
         status = ""
 
-        if VERBOSITY_LEVEL >= 2:  # only print if verbosity level is high enough
+        if VERBOSITY_LEVEL >= self.verbosity_level:  # only print if verbosity level is high enough
             # Register this progress bar as active
             _active_progress_bar = self
 
@@ -127,7 +150,11 @@ class ProgressBar:
             # check whether the progress has changed
             if self.last_progress_update != progress_percent or status != "":
                 block = int(round(barLength * progress, ndigits=0))
-                text = f"\r[{'#' * block + '-' * (barLength - block)}] {progress_percent} % of {self.name} {status}"
+                if progress < 1.0:
+                    text = f"\r[{'#' * block + '-' * (barLength - block)}] {progress_percent} % of {self.name} {status}"
+                else:
+                    text = f"\r{_levels.get(self.verbosity_level, '')} ✅ Done with {self.name}"
+                    # text = f"\r[{'#' * block + '-' * (barLength - block)}] ✅ Done with {self.name}"
                 self.last_text = text
                 sys.stdout.write(text)
                 sys.stdout.flush()

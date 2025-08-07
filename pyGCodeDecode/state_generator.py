@@ -5,7 +5,7 @@ import pathlib
 import re
 from typing import List, Match
 
-from pyGCodeDecode.helpers import custom_print
+from pyGCodeDecode.helpers import ProgressBar, custom_print
 
 from .state import state
 from .utils import position
@@ -184,16 +184,27 @@ def _read_gcode_to_dict_list(filepath: pathlib.Path) -> List[dict]:
     Returns:
         dict_list: (list[dict]) list with every line as dict
     """
-    custom_print("Parsing the gcode...")
     dict_list = []
 
+    # First pass to count total lines
+    with open(file=filepath) as file_gcode:
+        total_lines = sum(1 for _ in file_gcode)
+
+    # Initialize progress bar with the total number of lines
+    progress_bar = ProgressBar(name=f"Parsing {total_lines} lines of {filepath.name}")
+
+    # Second pass to process the lines
     with open(file=filepath) as file_gcode:
         for i, line in enumerate(file_gcode):
             line_dict = _arg_extract(string=line, key_dict=known_commands)
             line_dict["line_number"] = i + 1
             dict_list.append(line_dict)
 
-    custom_print(f"Parsing done. {len(dict_list)} lines parsed.")
+            # Update progress bar
+            progress = (i + 1) / total_lines
+            progress_bar.update(progress)
+
+    # custom_print(f"Parsing done. {len(dict_list)} lines parsed.")
 
     return dict_list
 
@@ -418,9 +429,10 @@ def _check_for_unsupported_commands(line_dict_list: dict) -> dict:
     }
 
     if unsupported_commands_found != []:
-        custom_print(f"⚠️ {len(unsupported_command_counts.keys())} known but unsupported command(s) found:", lvl=1)
-        for key, value in unsupported_command_counts.items():
-            custom_print(f" - Command '{key}' found {value} time(s).", lvl=1)
+        commands_str = ", ".join([f"'{key}' ({value} time(s))" for key, value in unsupported_command_counts.items()])
+        custom_print(
+            f"⚠️  {len(unsupported_command_counts.keys())} known but unsupported command(s) found: {commands_str}", lvl=1
+        )
     else:
         custom_print("Great, the G-code does not contain any unsupported commands known to pyGCD 🎈.")
 

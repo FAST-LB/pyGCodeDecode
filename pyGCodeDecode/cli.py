@@ -52,7 +52,7 @@ def _plot(args: argparse.Namespace):
             )
             exit()
         else:
-            custom_print("⚠️ No G-code file specified. Looking for a G-code file in the current directory... 👀", lvl=1)
+            custom_print("⚠️  No G-code file specified. Looking for a G-code file in the current directory... 👀", lvl=1)
             files_list = list(pathlib.Path.cwd().glob("*.gcode"))
             if files_list.__len__() == 0:
                 custom_print("❌ No G-code file found in the current directory.\n" "🛑 Exiting the program.", lvl=1)
@@ -72,7 +72,7 @@ def _plot(args: argparse.Namespace):
     def _get_presets_file(presets_file: pathlib.Path | None) -> pathlib.Path:
         """Get the machine setup from the presets file."""
         if presets_file is None:
-            custom_print("⚠️ No presets file specified. Using the default presets shipped with pyGCD.")
+            custom_print("⚠️  No presets file specified. Using the default presets shipped with pyGCD.")
             presets_file = importlib.resources.files("pyGCodeDecode").joinpath("data/default_printer_presets.yaml")
         elif not presets_file.is_file():
             custom_print(
@@ -91,18 +91,18 @@ def _plot(args: argparse.Namespace):
             answer = ""
             while answer.lower() not in ("y", "yes", "n", "no"):
                 answer = input(
-                    "⚠️ No output directory specified! Do you want to create one in the current working directory?"
+                    "⚠️  No output directory specified! Do you want to create one in the current working directory?"
                     "\nOtherwise no outputs will be saved!"
                     "\nYou must answer with yes (y) or no (n)!\n"
                 )
 
             if answer.lower() in ["n", "no"]:
-                custom_print("⚠️ Not creating any output files.")
+                custom_print("⚠️  Not creating any output files.")
                 return None
             elif answer.lower() in ["y", "yes"]:
                 out_dir = pathlib.Path.cwd() / f"output_{g_code_file.stem}"
 
-        custom_print(f"✅ Using the output directory:\n{out_dir.resolve()}")
+        custom_print(f"✅ Using the output directory: {out_dir.resolve()}")
         return out_dir
 
     g_code_file = _find_gcode_file(args.gcode)
@@ -113,7 +113,7 @@ def _plot(args: argparse.Namespace):
         printer_name = args.printer_name
         custom_print(f"✅ Using the printer: {printer_name}")
     else:
-        custom_print("⚠️ No printer specified. Using the default printer Anisoprint A4.")
+        custom_print("⚠️  No printer specified. Using the default printer Anisoprint A4.")
         printer_name = "anisoprint_a4"
 
     # setting up the printer
