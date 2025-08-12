@@ -1,5 +1,5 @@
 """
-Utilitys.
+Utilities.
 
 Utils for the GCode Reader contains:
 - vector 4D
@@ -7,7 +7,7 @@ Utils for the GCode Reader contains:
     - position
 """
 
-from typing import TYPE_CHECKING, List, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 import numpy as np
 
@@ -41,12 +41,20 @@ class seconds(float):
         """Return string representation of the time in seconds."""
         return f"{float(self)} s"
 
-    def __repr__(self):
+    def __sub__(self, other) -> "seconds":
+        """Subtract seconds or float and return a new seconds instance."""
+        return seconds(float(self) - float(other))
+
+    def __add__(self, other) -> "seconds":
+        """Add seconds or float and return a new seconds instance."""
+        return seconds(float(self) + float(other))
+
+    def __repr__(self) -> str:
         """Return a string representation of the seconds object."""
         return self.__str__()
 
     @property
-    def seconds(self):
+    def seconds(self) -> float:
         """Return the float value of the seconds instance."""
         return float(self)
 
@@ -75,9 +83,9 @@ class vector_4D:
         self.z = None
         self.e = None
 
-        if type(args) is tuple and len(args) == 1:
+        if isinstance(args[0], (tuple, list, np.ndarray)) and len(args) == 1 and len(args[0]) == 4:
             args = tuple(args[0])
-        if type(args) is tuple and len(args) == 4:
+        if len(args) == 4:
             self.x = args[0]
             self.y = args[1]
             self.z = args[2]
@@ -113,6 +121,7 @@ class vector_4D:
         else:
             raise ValueError(
                 "Addition with __add__ is only possible with other 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'"
+                f" got {type(other)} instead."
             )
 
     def __sub__(self, other):
@@ -150,7 +159,7 @@ class vector_4D:
         Returns:
             mul: (self) scalar multiplication, scaling
         """
-        if type(other) is float or type(other) is np.float64 or type(other) is int:
+        if isinstance(other, (float, int, np.floating, np.integer)):
             x = self.x * other
             y = self.y * other
             z = self.z * other
@@ -168,7 +177,7 @@ class vector_4D:
         Returns:
             div: (self) scalar division, scaling
         """
-        if type(other) is float or type(other) is np.float64:
+        if isinstance(other, (float, int, np.floating, np.integer)):
             x = self.x / other
             y = self.y / other
             z = self.z / other
@@ -177,7 +186,7 @@ class vector_4D:
             raise TypeError("Division of 4D Vectors only supports float and int.")
         return self.__class__(x, y, z, e)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """Check for equality and return True if equal (with tolerance).
 
         Args:
@@ -196,7 +205,7 @@ class vector_4D:
         self_vec = [self.x, self.y, self.z, self.e]
         return np.allclose(self_vec, other_vec)
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         """Check for greater than and return True if greater.
 
         Args:
@@ -211,8 +220,10 @@ class vector_4D:
             return self.get_norm() > np.linalg.norm(other)
         elif isinstance(other, (float, int)):
             return self.get_norm() > other
+        else:
+            return False
 
-    def get_vec(self, withExtrusion=False) -> List[float]:
+    def get_vec(self, withExtrusion: bool = False) -> List[float]:
         """Return the 4D vector, optionally with extrusion.
 
         Args:
@@ -226,7 +237,7 @@ class vector_4D:
         else:
             return [self.x, self.y, self.z]
 
-    def get_norm(self, withExtrusion=False) -> float:
+    def get_norm(self, withExtrusion: bool = False) -> float:
         """Return the 4D vector norm. Optional with extrusion.
 
         Args:
@@ -276,7 +287,7 @@ class position(vector_4D):
         else:
             return False
 
-    def get_t_distance(self, other=None, withExtrusion=False) -> float:
+    def get_t_distance(self, other=None, withExtrusion: bool = False) -> float:
         """Calculate the travel distance between self and other position. If none is provided, zero will be used.
 
         Args:
@@ -312,41 +323,40 @@ class velocity(vector_4D):
         """Print out velocity."""
         return "velocity: " + super().__str__()
 
-    def get_norm_dir(self, withExtrusion=False):
-        """Get normalized vector (regarding travel distance), if only extrusion occurs, normalize to extrusion length.
+    def get_norm_dir(self, withExtrusion: bool = False) -> Optional[np.ndarray]:
+        """Get normalized direction vector as numpy array.
 
-        Args:
-            withExtrusion: (bool, default = False) choose if norm dir contains extrusion
+        If only extrusion occurs and withExtrusion=True, normalize to the extrusion length.
 
-        Returns:
-            dir: (list[3 or 4]) normalized direction vector as list
+        Returns None if both travel and extrusion are zero.
         """
-        abs_val = self.get_norm()
-        if abs_val > 0:
-            return self.get_vec(withExtrusion=withExtrusion) / abs_val
-        elif withExtrusion and self.get_norm(withExtrusion=withExtrusion) > 0:
-            return self.get_vec(withExtrusion=withExtrusion) / self.get_norm(withExtrusion=withExtrusion)
-        else:
-            return None
+        # travel_vec = np.asarray(self.get_vec(withExtrusion=False), dtype=float)
+        # travel_norm = np.linalg.norm(travel_vec)
+        travel_norm = self.get_norm()
+        if travel_norm > 0:
+            vec = np.asarray(self.get_vec(withExtrusion=withExtrusion), dtype=float)
+            return vec / travel_norm
+        elif withExtrusion:
+            vec_e = np.asarray(self.get_vec(withExtrusion=True), dtype=float)
+            full_norm = np.linalg.norm(vec_e)
+            if full_norm > 0:
+                return vec_e / full_norm
+        return None
 
-    def avoid_overspeed(self, p_settings):
-        """Return velocity without any axis overspeed.
+    # def avoid_overspeed(self, p_settings: "state.p_settings") -> "velocity":
+    #     """Return velocity scaled to avoid any axis overspeed.
 
-        Args:
-            p_settings: (p_settings) printing settings
+    #     Scales the velocity uniformly so that no axis exceeds its configured maximum.
+    #     """
+    #     scale = 1.0
+    #     scale = p_settings.Vx / self.Vx if self.Vx > 0 and (p_settings.Vx / self.Vx) < scale else scale
+    #     scale = p_settings.Vy / self.Vy if self.Vy > 0 and (p_settings.Vy / self.Vy) < scale else scale
+    #     scale = p_settings.Vz / self.Vz if self.Vz > 0 and (p_settings.Vz / self.Vz) < scale else scale
+    #     scale = p_settings.Ve / self.Ve if self.Ve > 0 and (p_settings.Ve / self.Ve) < scale else scale
 
-        Returns:
-            vel: (velocity) constrained by max velocity
-        """
-        scale = 1.0
-        scale = p_settings.Vx / self.Vx if self.Vx > 0 and p_settings.Vx / self.Vx < scale else scale
-        scale = p_settings.Vy / self.Vy if self.Vy > 0 and p_settings.Vy / self.Vy < scale else scale
-        scale = p_settings.Vz / self.Vz if self.Vz > 0 and p_settings.Vz / self.Vz < scale else scale
-        scale = p_settings.Ve / self.Ve if self.Vz > 0 and p_settings.Ve / self.Ve < scale else scale
+    #     return self * scale
 
-        return self * scale
-
-    def not_zero(self):
+    def not_zero(self) -> bool:
         """Return True if velocity is not zero.
 
         Returns:
@@ -354,8 +364,8 @@ class velocity(vector_4D):
         """
         return True if np.linalg.norm(self.get_vec(withExtrusion=True)) > 0 else False
 
-    def is_extruding(self):
-        """Return True if extrusion velocity is not zero.
+    def is_extruding(self) -> bool:
+        """Return True if extrusion velocity is greater than zero.
 
         Returns:
             is_extruding: (bool) true if positive extrusion velocity
@@ -372,7 +382,7 @@ class velocity(vector_4D):
                 self.z * other.seconds,
                 self.e * other.seconds,
             )
-        elif isinstance(other, (float, int, np.float64)):
+        elif isinstance(other, (float, int, np.floating, np.integer)):
             return self.__class__(
                 self.x * other,
                 self.y * other,
@@ -413,7 +423,7 @@ class acceleration(vector_4D):
                 self.z * other.seconds,
                 self.e * other.seconds,
             )
-        elif isinstance(other, (float, int, np.float64)):
+        elif isinstance(other, (float, int, np.floating, np.integer)):
             return self.__class__(
                 self.x * other,
                 self.y * other,
@@ -484,7 +494,7 @@ class segment:
         """Segment representation."""
         return self.__str__()
 
-    def move_segment_time(self, delta_t: float):
+    def move_segment_time(self, delta_t: Union[float, seconds]) -> None:
         """Move segment in time.
 
         Args:
@@ -493,7 +503,7 @@ class segment:
         self.t_begin = self.t_begin + delta_t
         self.t_end = self.t_end + delta_t
 
-    def get_velocity(self, t: float) -> velocity:
+    def get_velocity(self, t: Union[float, seconds]) -> velocity:
         """Get current velocity of segment at a certain time.
 
         Args:
@@ -502,27 +512,36 @@ class segment:
         Returns:
             current_vel: (velocity) velocity at time t
         """
+        if not isinstance(t, seconds):
+            t = seconds(t)
+
         if t < self.t_begin or t > self.t_end:
             raise ValueError("Segment not defined for this point in time.")
         else:
+            delt_t = self.t_end - self.t_begin
+            if delt_t == 0:
+                return self.vel_begin
             # linear interpolation of velocity in Segment
             delt_vel = self.vel_end - self.vel_begin
-            delt_t = self.t_end - self.t_begin
-            slope = delt_vel / delt_t if delt_t > 0 else velocity(0, 0, 0, 0)
-            current_vel = self.vel_begin + slope * (t - self.t_begin)
+            slope = delt_vel / delt_t
+            current_vel = self.vel_begin + (slope * (t - self.t_begin))
             return current_vel
 
-    def get_velocity_by_dist(self, dist):
-        """Return the velocity at a certain local segment distance."""
-        # t_begin, t_end, vel_begin, vel_end
-        a = (self.vel_end.get_norm() - self.vel_begin.get_norm()) / (self.t_end - self.t_begin)
+    def get_velocity_by_dist(self, dist: float) -> float:
+        """Return the velocity magnitude at a certain local segment distance.
+
+        Args:
+            dist: (float) distance from segment start
+        """
+        dt = self.t_end - self.t_begin
+        a = 0.0 if dt == 0 else (self.vel_end.get_norm() - self.vel_begin.get_norm()) / dt
 
         v_sq = 2 * a * dist + self.vel_begin.get_norm() ** 2
         v = np.sqrt(v_sq) if v_sq > 0 else 0
 
-        return v
+        return float(v)
 
-    def get_position(self, t: float) -> position:
+    def get_position(self, t: Union[float, seconds]) -> position:
         """Get current position of segment at a certain time.
 
         Args:
@@ -531,47 +550,48 @@ class segment:
         Returns:
             pos: (position) position at time t
         """
+        if not isinstance(t, seconds):
+            t = seconds(t)
         if t < self.t_begin or t > self.t_end:
             raise ValueError(f"Segment not defined for this point in time. {t} -->({self.t_begin}, {self.t_end})")
         else:
             current_vel = self.get_velocity(t=t)
-            position = self.pos_begin + ((self.vel_begin + current_vel) * (t - self.t_begin) / 2.0).get_vec(
-                withExtrusion=True
-            )
-            return position
+            # displacement = average velocity * dt
+            displacement_vec = ((self.vel_begin + current_vel) * (t - self.t_begin) / 2.0).get_vec(withExtrusion=True)
+            position_val = self.pos_begin + displacement_vec
+            return position_val
 
-    def get_segm_len(self):
+    def get_segm_len(self) -> float:
         """Return the length of the segment."""
         return (self.pos_end - self.pos_begin).get_norm()
 
-    def get_segm_duration(self):
+    def get_segm_duration(self) -> seconds:
         """Return the duration of the segment."""
         return self.t_end - self.t_begin
 
-    def self_check(self, p_settings: "state.p_settings" = None):
+    def self_check(self, p_settings: "state.p_settings" = None) -> bool:
         """Check the segment for self consistency.
 
         Raises:
             ValueError: if self check fails
         Args:
             p_settings: (p_settings, default = None) printing settings to verify
+        Returns:
+            True if all checks pass
         """
         # position self check:
-        tolerance = float("1e-6")
-        position = self.pos_begin + ((self.vel_begin + self.vel_end) * (self.t_end - self.t_begin) / 2.0).get_vec(
-            withExtrusion=True
-        )
-        error_distance = np.linalg.norm(np.asarray(self.pos_end.get_vec()) - np.asarray(position.get_vec()))
-
-        if error_distance > tolerance:
+        tolerance = 1e-6
+        position_calc = self.pos_begin + ((self.vel_begin + self.vel_end) * (self.t_end - self.t_begin) / 2.0)
+        error_distance = self.pos_end - position_calc
+        if error_distance.get_norm(withExtrusion=True) > tolerance:
             raise ValueError("Error distance: " + str(error_distance))
 
         # time consistency
         if self.t_begin > self.t_end:
             raise ValueError(f"Inconsistent segment time (t_begin/t_end): ({self.t_begin}/{self.t_end}) \n ")
 
-        # max velocity
         if p_settings is not None:
+            # max velocity
             if self.vel_begin.get_norm() > p_settings.speed and not np.isclose(
                 self.vel_begin.get_norm(), p_settings.speed
             ):
@@ -579,12 +599,29 @@ class segment:
             if self.vel_end.get_norm() > p_settings.speed and not np.isclose(self.vel_end.get_norm(), p_settings.speed):
                 raise ValueError(f"Target Velocity of {p_settings.speed} exceeded with {self.vel_end.get_norm()}.")
 
-        # max acceleration
-        if p_settings is not None:
+            # max acceleration
             if self.t_end - self.t_begin > 0:
                 acc = (self.vel_end - self.vel_begin) / (self.t_end - self.t_begin)
-                if acc.get_norm() > p_settings.p_acc and not np.isclose(acc.get_norm(), p_settings.p_acc):
-                    raise ValueError(f"Maximum acceleration of {p_settings.p_acc} exceeded with {acc.get_norm()}.")
+
+                # Scale tolerance based on time delta to handle numerical precision issues
+                dt = self.t_end - self.t_begin
+                base_rtol = 1e-5  # Standard relative tolerance
+                base_atol = 0.1  # Absolute tolerance in mm/s²
+
+                # Scale tolerance inversely with time delta (smaller dt = larger tolerance)
+                dt_scale = min(1e-6 / max(dt, 1e-12), 1000.0)
+                scaled_rtol = base_rtol * dt_scale
+                scaled_atol = base_atol * dt_scale
+                acc_norm = acc.get_norm()
+
+                if acc_norm > p_settings.p_acc and not np.isclose(
+                    acc_norm, p_settings.p_acc, rtol=scaled_rtol, atol=scaled_atol
+                ):
+                    raise ValueError(
+                        f"Maximum acceleration of {p_settings.p_acc} exceeded with {acc_norm}. "
+                        f"Delta t: {dt:.2e}, tolerance used: rtol={scaled_rtol:.2e}, atol={scaled_atol:.2e}"
+                    )
+        return True
 
     def is_extruding(self) -> bool:
         """Return true if the segment is pos. extruding.
@@ -594,7 +631,7 @@ class segment:
         """
         return self.pos_begin.e < self.pos_end.e
 
-    def _interpolate_time_to_space(self, scalar_begin, scalar_end, x):
+    def _interpolate_time_to_space(self, scalar_begin, scalar_end, x) -> float:
         """
         Interpolate from linear time dependant to nonlinear space dependant.
 
@@ -624,7 +661,7 @@ class segment:
 
         return scalar
 
-    def get_result(self, key):
+    def get_result(self, key: str):
         """Return the requested result.
 
         Args:
@@ -639,7 +676,7 @@ class segment:
             raise ValueError(f"Key: {key} not found.")
 
     @classmethod
-    def create_initial(cls, initial_position: position = None):
+    def create_initial(cls, initial_position: Optional[position] = None) -> "segment":
         """Create initial static segment with (optionally) initial position else start from Zero.
 
         Args:
@@ -649,5 +686,5 @@ class segment:
             segment: (segment) initial beginning segment
         """
         velocity_0 = velocity(0, 0, 0, 0)
-        pos_0 = position(x=0, y=0, z=0, e=0) if initial_position is None else initial_position
+        pos_0 = position(0, 0, 0, 0) if initial_position is None else initial_position
         return cls(t_begin=0, t_end=0, pos_begin=pos_0, vel_begin=velocity_0, pos_end=pos_0, vel_end=velocity_0)
