@@ -48,7 +48,7 @@ DEVELOPER = [
 ]
 DOCS = [
     "mkdocs",
-    "pydoc-markdown @ git+https://github.com/jeknirsch/pydoc-markdown.git@sort_modules",
+    "pydoc-markdown @ git+https://github.com/jeknirsch/pydoc-markdown.git@sort_modules",  # using custom fork to sort modules
 ]
 
 [project.urls]
