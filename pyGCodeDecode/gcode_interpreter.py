@@ -1,8 +1,8 @@
 """GCode Interpreter Module."""
 
 import importlib.resources
-import pathlib
 import time
+from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
@@ -138,7 +138,7 @@ class simulation:
 
     def __init__(
         self,
-        gcode_path: pathlib.Path,
+        gcode_path: Path,
         machine_name: str = None,
         initial_machine_setup: "setup" = None,
         output_unit_system: str = "SI (mm)",
@@ -164,7 +164,7 @@ class simulation:
         """
         simulation_start_time = time.time()
         self.last_index = None  # used to optimize search in segment list
-        self.filename = gcode_path
+        self.filename = Path(gcode_path)
         self.firmware = None
         set_verbosity_level(verbosity_level)
 
@@ -203,7 +203,7 @@ class simulation:
         self.firmware = self.initial_machine_setup_dict["firmware"]
 
         self.states: List[state] = generate_states(
-            filepath=gcode_path, initial_machine_setup=self.initial_machine_setup_dict
+            filepath=self.filename, initial_machine_setup=self.initial_machine_setup_dict
         )
 
         custom_print(
@@ -410,11 +410,11 @@ class simulation:
 
         return scaling * max_vel
 
-    def save_summary(self, filepath: Union[pathlib.Path, str]):
+    def save_summary(self, filepath: Union[Path, str]):
         """Save summary to .yaml file.
 
         Args:
-            filepath (pathlib.Path | str): path to summary file
+            filepath (Path | str): path to summary file
 
         Saved data keys:
         - filename (string, filename)
@@ -438,7 +438,7 @@ class simulation:
         }
 
         # create directory if necessary
-        pathlib.Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+        Path(filepath).parent.mkdir(parents=True, exist_ok=True)
 
         with open(file=filepath, mode="w") as file:
             yaml.dump(data=summary, stream=file)
