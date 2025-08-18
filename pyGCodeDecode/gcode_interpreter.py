@@ -570,7 +570,7 @@ class setup:
 
         Args:
             initial_position: (tuple or dict) set initial position as tuple of len(4)
-                or dictionary with keys: {X, Y, Z, E}.
+                or dictionary with keys: {X, Y, Z, E} or "first" to use first occuring absolute position in GCode.
             input_unit_system (str, optional): Wanted input unit system.
                 Uses the one specified for the setup if None is specified.
 
@@ -578,6 +578,7 @@ class setup:
         ```python
         setup.set_initial_position((1, 2, 3, 4))
         setup.set_initial_position({"X": 1, "Y": 2, "Z": 3, "E": 4})
+        setup.set_initial_position("first") # use first GCode position
         ```
 
         """
@@ -593,6 +594,9 @@ class setup:
                 "Z": scaling * initial_position[2],
                 "E": scaling * initial_position[3],
             }
+        elif initial_position == "first":  # use first GCode position
+            self.initial_position = {"X": None, "Y": None, "Z": None, "E": None}
+            custom_print("Initial position set to first GCode position.", lvl=3)
         else:
             raise ValueError("Set initial position through dict with keys: {X, Y, Z, E} or as tuple with length 4.")
 

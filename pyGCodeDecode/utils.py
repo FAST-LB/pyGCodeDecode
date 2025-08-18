@@ -97,6 +97,10 @@ class vector_4D:
         """Return string representation."""
         return f"[{self.x}, {self.y}, {self.z}, {self.e}]"
 
+    def __repr__(self):
+        """Return a string representation of the 4D vector."""
+        return self.__str__()
+
     def __add__(self, other):
         """Add functionality for 4D vectors.
 
