@@ -355,8 +355,10 @@ def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict)
         if "G92" in line_dict:
             for key in line_dict["G92"]:
                 if key in known_commands["G92"]:
-                    virtual_machine["_" + key] = (
-                        virtual_machine[key] + line_dict["G92"][key] + virtual_machine["_" + key]
+                    if virtual_machine[key] is None:
+                        virtual_machine[key] = 0  # initialize to 0 if no position is set beforehand
+                    virtual_machine[f"_{key}"] = (
+                        virtual_machine[key] + line_dict["G92"][key] + virtual_machine[f"_{key}"]
                     )
                     virtual_machine[key] = line_dict["G92"][key]
 
