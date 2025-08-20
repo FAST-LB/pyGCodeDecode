@@ -5,8 +5,6 @@ loaders:
 
 processors:
   - type: filter
-    expression: not name.startswith('_')  # Skip private members
-  - type: filter
     expression: not '.examples.' in name  # Skip example modules
   - type: filter
     documented_only: true  # Skip empty modules
