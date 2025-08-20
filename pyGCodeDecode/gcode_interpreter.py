@@ -163,7 +163,7 @@ class simulation:
         ```
         """
         simulation_start_time = time.time()
-        self.last_index = None  # used to optimize search in segment list
+        self._last_index = None  # used to optimize search in segment list
         self.filename = Path(gcode_path)
         self.firmware = None
         set_verbosity_level(verbosity_level)
@@ -297,7 +297,7 @@ class simulation:
             list: [pos_x, pos_y, pos_z, pos_e] position
         """
         segments = unpack_blocklist(blocklist=self.blocklist)
-        segm, self.last_index = find_current_segment(path=segments, t=t, last_index=self.last_index)
+        segm, self._last_index = find_current_segment(path=segments, t=t, last_index=self._last_index)
         tmp_vel = segm.get_velocity(t=t).get_vec(withExtrusion=True)
         tmp_pos = segm.get_position(t=t).get_vec(withExtrusion=True)
 
