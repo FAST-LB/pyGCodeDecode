@@ -28,6 +28,11 @@ prusa_mini:
   vY: 180
   vZ: 12
   vE: 80
+  absolute_position: True
+  absolute_extrusion: True
+  volumetric_extrusion: False
+  initial_position: "first"
+  units: "SI (mm)"
   firmware: prusa
 
 debugging:

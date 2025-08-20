@@ -177,7 +177,7 @@ class simulation:
 
         # create a printer setup with default values if none was specified
         if initial_machine_setup is not None:
-            if machine_name is not None and initial_machine_setup.get_dict()["printer_name"] != machine_name:
+            if machine_name is not None and initial_machine_setup.get_dict()["printer"] != machine_name:
                 raise ValueError("Both a printer name and a printer setup were specified, but they do not match!")
             else:
                 pass
@@ -207,7 +207,7 @@ class simulation:
         )
 
         custom_print(
-            f"Simulating {self.filename} with {self.initial_machine_setup_dict['printer_name']} using "
+            f"Simulating {self.filename} with {self.initial_machine_setup_dict['printer']} using "
             f"the {self.firmware} firmware."
         )
         self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states, firmware=self.firmware)
@@ -469,40 +469,44 @@ class setup:
         self,
         presets_file: str,
         printer: str = None,
-        layer_cue: str = None,
         verbosity_level: Optional[int] = None,
+        **kwargs,
     ):
-        """Create simulation setup.
+        """Initialize the setup for the printing simulation.
 
         Args:
-            presets_file: (string) choose setup yaml file with printer presets
-            printer: (string) select printer from preset file
-            layer_cue: (string) set slicer specific layer change cue from comment
-            verbosity_level: (int, default = None) set verbosity level (0: no output, 1: warnings, 2: info, 3: debug)
+            presets_file (str): Path to the YAML file containing printer presets.
+            printer (str, optional): Name of the printer to select from the preset file. Defaults to None.
+            verbosity_level (int, optional): Verbosity level for logging (0: no output, 1: warnings, 2: info, 3: debug). Defaults to None.
+            **kwargs: Additional properties to set or override in the setup.
+
+        Raises:
+            ValueError: If multiple printers are found in the preset file but none is selected.
         """
-        # the input unit system is only implemented for 'set_initial_position'.
-        # Regardless, the class has this attribute so it's more similar to the simulation class.
+        set_verbosity_level(verbosity_level)
         self.available_unit_systems = {"SI": 1e3, "SI (mm)": 1.0, "inch": 25.4}
         self.input_unit_system = "SI (mm)"
-        set_verbosity_level(verbosity_level)
 
-        self.initial_position = {
-            "X": 0,
-            "Y": 0,
-            "Z": 0,
-            "E": 0,
-        }  # default initial pos is zero
-        self.setup_dict = self.load_setup(presets_file)
+        # load the setup
+        self.load_setup(presets_file, printer=printer)
 
-        self.filename = presets_file
-        self.printer_select = printer
-        self.layer_cue = layer_cue
+        # set additional properties provided as keyword arguments
+        self.set_property(kwargs)
 
-        if self.printer_select is not None:
-            self.select_printer(printer_name=self.printer_select)
-            self.firmware = self.get_dict()["firmware"]
+    def __getattr__(self, name):
+        """Access to setup_dict content."""
+        if name in self.setup_dict:
+            return self.setup_dict[name]
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
 
-    def load_setup(self, filepath):
+    def __setattr__(self, name, value):
+        """Set setup_dict keys."""
+        if name in ["setup_dict", "filename", "available_unit_systems", "input_unit_system"]:
+            super().__setattr__(name, value)
+        else:
+            self.setup_dict[name] = value
+
+    def load_setup(self, filepath, printer=None):
         """Load setup from file.
 
         Args:
@@ -514,7 +518,32 @@ class setup:
         file = open(file=filepath)
 
         setup_dict = yaml.load(file, Loader=Loader)
-        return setup_dict
+        if printer:
+            self.setup_dict = setup_dict[printer]
+            self.printer = printer
+        else:
+            printers_available = [printer for printer in setup_dict]
+
+            if len(printers_available) == 1:
+                printer = printers_available[0]
+                self.setup_dict = setup_dict[printer]
+                self.printer = printer
+                custom_print(f"Automatically selected the '{printer}' printer in the setup file {filepath}.", lvl=2)
+            else:
+                raise ValueError("Multiple printers found but none has been selected.")
+
+        # parse initial position if set via config
+        if "initial_position" in self.setup_dict:
+            self.set_initial_position(self.setup_dict["initial_position"])
+        else:
+            self.set_initial_position(
+                {
+                    "X": 0,
+                    "Y": 0,
+                    "Z": 0,
+                    "E": 0,
+                }
+            )  # default initial pos is zero
 
     def check_initial_setup(self):
         """Check the printer Dict for typos or missing parameters and raise errors if invalid."""
@@ -530,13 +559,22 @@ class setup:
             "Y",
             "Z",
             "E",
-            "printer_name",
+            "printer",
             "firmware",
         ]
-        optional_keys = ["layer_cue", "nozzle_diam", "filament_diam", "volumetric_extrusion"]
+        optional_keys = [
+            "layer_cue",
+            "nozzle_diam",
+            "filament_diam",
+            "volumetric_extrusion",
+            "absolute_position",
+            "absolute_extrusion",
+            "initial_position",
+            "units",
+        ]
 
         valid_keys = req_keys + optional_keys
-        initial_machine_setup = self.get_dict()
+        initial_machine_setup = self.setup_dict
 
         # check if all provided keys are valid
         for key in initial_machine_setup:
@@ -553,17 +591,6 @@ class setup:
                     f" check for typos. Required keys are: {req_keys}"
                 )
         return initial_machine_setup
-
-    def select_printer(self, printer_name):
-        """Select printer by name.
-
-        Args:
-            printer_name: (string) select printer by name
-        """
-        if printer_name not in self.setup_dict:
-            raise ValueError(f"Selected Printer {self.printer_select} not found in setup file: {self.filename}.")
-        else:
-            self.printer_select = printer_name
 
     def set_initial_position(self, initial_position: Union[tuple, dict], input_unit_system: str = None):
         """Set initial Position.
@@ -586,16 +613,18 @@ class setup:
 
         if isinstance(initial_position, dict) and all(key in initial_position for key in ["X", "Y", "Z", "E"]):
             for key in initial_position:
-                self.initial_position[key] = scaling * initial_position[key]
+                self.setup_dict[key] = scaling * initial_position[key]
         elif isinstance(initial_position, tuple) and len(initial_position) == 4:
-            self.initial_position = {
-                "X": scaling * initial_position[0],
-                "Y": scaling * initial_position[1],
-                "Z": scaling * initial_position[2],
-                "E": scaling * initial_position[3],
-            }
+            self.setup_dict.update(
+                {
+                    "X": scaling * initial_position[0],
+                    "Y": scaling * initial_position[1],
+                    "Z": scaling * initial_position[2],
+                    "E": scaling * initial_position[3],
+                }
+            )
         elif initial_position == "first":  # use first GCode position
-            self.initial_position = {"X": None, "Y": None, "Z": None, "E": None}
+            self.setup_dict.update({"X": None, "Y": None, "Z": None, "E": None})
             custom_print("Initial position set to first GCode position.", lvl=3)
         else:
             raise ValueError("Set initial position through dict with keys: {X, Y, Z, E} or as tuple with length 4.")
@@ -614,10 +643,7 @@ class setup:
         ```
 
         """
-        if self.printer_select is not None:
-            self.setup_dict[self.printer_select].update(property_dict)
-        else:
-            raise ValueError("No printer is selected. Select printer through select_printer() beforehand.")
+        self.setup_dict.update(property_dict)
 
     def get_dict(self) -> dict:
         """Return the setup for the selected printer.
@@ -625,12 +651,7 @@ class setup:
         Returns:
             return_dict: (dict) setup dictionary
         """
-        return_dict = self.setup_dict[self.printer_select]  # create dict
-        return_dict.update(self.initial_position)  # add initial position
-        if self.layer_cue is not None:
-            return_dict.update({"layer_cue": self.layer_cue})  # add layer cue
-        return_dict.update({"printer_name": self.printer_select})  # add printer name
-
+        return_dict = self.setup_dict
         return return_dict
 
     def get_scaling_factor(self, input_unit_system: str = None) -> float:
