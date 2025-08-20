@@ -90,7 +90,6 @@ default_virtual_machine = {
     "filament_diam": 1.75,
     # default settings
     "p_vel": 35,
-    "t_vel": 35,
     "p_acc": 200,
     "jerk": 10,
     # axis max speeds
@@ -289,14 +288,6 @@ def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict)
     if not any([virtual_machine[poskey] is None for poskey in pos_keys]):
         # initial state creation
         state_position = position(apply_pos_offset(virtual_machine))
-        # position(
-        #     virtual_machine["X"] + virtual_machine["_X"],
-        #     virtual_machine["Y"] + virtual_machine["_Y"],
-        #     virtual_machine["Z"] + virtual_machine["_Z"],
-        #     virtual_machine["E"] + virtual_machine["_E"],
-        # )
-
-        # state_pos2 = position(apply_pos_offset(virtual_machine))
 
         p_settings = state.p_settings(
             speed=virtual_machine["p_vel"],
