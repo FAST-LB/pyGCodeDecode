@@ -632,8 +632,6 @@ class setup:
     def set_property(self, property_dict: dict):
         """Overwrite or add a property to the printer dictionary.
 
-        Printer has to be selected through select_printer() beforehand.
-
         Args:
             property_dict: (dict) set or add property to the setup
 

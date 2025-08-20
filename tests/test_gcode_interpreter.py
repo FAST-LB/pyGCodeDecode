@@ -42,11 +42,6 @@ def test_setup():
     assert sim_dict["Z"] == 3
     assert sim_dict["E"] == 4
 
-    # # change printer afterwards
-    # simulation_setup.select_printer("prusa_mini")
-    # sim_dict = simulation_setup.get_dict()
-    # assert sim_dict["p_acc"] == 1250
-
 
 def test_setup_extended():
     """Test for the simulation setup class."""
