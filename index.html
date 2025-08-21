@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Generate time dependent boundary conditions from a .gcode file" /><meta name="author" content="FAST-LB at KIT" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>pyGCodeDecode Documentation</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Home";
+        var mkdocs_page_input_path = "index.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="." class="icon icon-home"> pyGCodeDecode Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Home</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#what-is-this-repository-for">What is this repository for?</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#install-pygcodedecode">Install pyGCodeDecode</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#running-the-cli">Running the CLI</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#creating-a-script-using-pygcd">Creating a script using pyGCD</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#define-your-printer-defaults-in-a-yaml-file">Define your printer defaults in a .yaml file</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#use-pygcd-to-run-a-gcode-simulation">Use pyGCD to run a GCode Simulation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#access-the-results">Access the Results</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#supported-gcode-commands">Supported GCode commands</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="api/">pyGCodeDecode API Reference</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href=".">pyGCodeDecode Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Home</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/FAST-LB/pyGCodeDecode/edit/main/docs/index.md">Edit on FAST-LB/pyGCodeDecode</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="pygcodedecode">pyGCodeDecode<a class="headerlink" href="#pygcodedecode" title="Permanent link">&para;</a></h1>
+<p><img alt="LOGO" src="https://media.githubusercontent.com/media/FAST-LB/pyGCodeDecode/main/logo.jpg" /></p>
+<p><a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a>
+<a href="https://github.com/FAST-LB/pyGCodeDecode/actions/workflows/tests.yaml"><img alt="tests" src="https://github.com/FAST-LB/pyGCodeDecode/workflows/Tests/badge.svg" /></a>
+<a href="https://github.com/FAST-LB/pyGCodeDecode/releases"><img alt="GitHub Release" src="https://img.shields.io/github/release/FAST-LB/pyGCodeDecode.svg?style=flat" /></a>
+<a href="https://doi.org/10.5281/zenodo.12663658"><img alt="Repo DOI" src="https://zenodo.org/badge/DOI/10.5281/zenodo.12663658.svg" /></a>
+<a href="https://doi.org/10.21105/joss.06465"><img alt="Paper_DOI" src="https://joss.theoj.org/papers/10.21105/joss.06465/status.svg" /></a></p>
+<p><img alt="Python" src="https://img.shields.io/pypi/pyversions/pygcodedecode.svg" />
+<a href="https://black.readthedocs.io/en/stable/"><img alt="Black" src="https://img.shields.io/badge/code%20style-black-000000.svg" /></a>
+<a href="https://pycqa.github.io/isort/"><img alt="isort" src="https://img.shields.io/badge/isort-blue" /></a>
+<a href="https://github.com/pre-commit/pre-commit"><img alt="pre-commit" src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&amp;logoColor=white" /></a></p>
+<h2 id="what-is-this-repository-for">What is this repository for?<a class="headerlink" href="#what-is-this-repository-for" title="Permanent link">&para;</a></h2>
+<p>For the analysis of GCode, slicers or dedicated analyzer tools, such as <a href="https://github.com/prusa3d/PrusaSlicer" title="Prusa Slicer">Prusa Slicer</a> or <a href="https://gcode.ws/" title="gCodeViewer">gCodeViewer</a>, merely display target process parameters. The actual process velocity however is determined by the firmware of the printer. Velocities are expected to deviate significantly from the target velocity at times of acceleration and deceleration. <code>pyGCodeDecode</code> aims to model the machine's actual behavior and visualize its influence. A visual comparison between the simulated acceleration approach and the raw GCode target velocity is shown below.</p>
+<p><img alt="comparison" src="https://media.githubusercontent.com/media/FAST-LB/pyGCodeDecode/main/paper/comparison.png" /></p>
+<p>This package reads the target trajectory firmware settings changes from a GCode file. Subsequently, it simulates a motion planner with acceleration and jerk or junction control respectively. The more accurate modeling is achieved by replicating <a href="https://github.com/grbl/grbl" title="grbl">grbl</a>'s and its derivatives' firmware-specific movement planner solutions, such as "Classic Jerk" and "Junction Deviation", as an interpretation for Jerk. The simulation result is a description of the nozzle and extrusion axis position and velocity over time and is easily accessible for further analysis. For example it can be used to generate time dependent boundary conditions, needed in additive manufacturing simulations for the Fused Filament Fabrication (FFF) process. The package includes 3D plotting functions, so it can be used to visualize local velocities before printing to improve your process understanding.</p>
+<h2 id="install-pygcodedecode">Install pyGCodeDecode<a class="headerlink" href="#install-pygcodedecode" title="Permanent link">&para;</a></h2>
+<p>It is recommended that you first create a virtual Python-environment, e.g. using the <code>venv</code>-module built into Python. You can  clone the repository and run</p>
+<pre class="codehilite"><code class="language-shell">pip install .
+</code></pre>
+
+<p>from inside the root directory. Alternatively you can simply install from PyPI:</p>
+<pre class="codehilite"><code class="language-shell">pip install pyGCodeDecode
+</code></pre>
+
+<p>If you plan to contribute to the development, install in development mode and with the additional dependencies:</p>
+<pre class="codehilite"><code class="language-shell">pip install -e .[DEVELOPER]
+</code></pre>
+
+<p>You may want to verify the installation and version. Inside your environment, just run:</p>
+<pre class="codehilite"><code class="language-shell">python -c &quot;import pyGCodeDecode
+print(pyGCodeDecode.__version__)&quot;
+</code></pre>
+
+<p>This should return the correct version.</p>
+<h2 id="running-the-cli">Running the CLI<a class="headerlink" href="#running-the-cli" title="Permanent link">&para;</a></h2>
+<p>pyGCD comes with a simplistic CLI to quickly run the provided examples or plot some G-Code without writing a script first. If you want to see something quickly, activate the <code>venv</code> where pyGCD is installed and run:</p>
+<pre class="codehilite"><code class="language-shell">pygcd run_example brace
+</code></pre>
+
+<p>You can also run and plot your own G-Code with:</p>
+<pre class="codehilite"><code class="language-shell">pygcd plot --gcode &lt;PATH&gt;
+</code></pre>
+
+<h2 id="creating-a-script-using-pygcd">Creating a script using pyGCD<a class="headerlink" href="#creating-a-script-using-pygcd" title="Permanent link">&para;</a></h2>
+<p>Example simulations are provided in <a href="https://github.com/FAST-LB/pyGCodeDecode/blob/main/pyGCodeDecode/examples/">./examples/</a> and can be modified to suit your needs. If you want to start from scratch, the following instructions will help you setup and run a simulation.</p>
+<h3 id="define-your-printer-defaults-in-a-yaml-file">Define your printer defaults in a <code>.yaml</code> file<a class="headerlink" href="#define-your-printer-defaults-in-a-yaml-file" title="Permanent link">&para;</a></h3>
+<p>For example, the definition may look like this: <a href="https://github.com/FAST-LB/pyGCodeDecode/blob/main/pyGCodeDecode/data/default_printer_presets.yaml">./pyGCodeDecode/data/default_printer_presets.yaml</a>:</p>
+<pre class="codehilite"><code class="language-yaml">prusa_mini:
+        # general properties
+        nozzle_diam: 0.4
+        filament_diam: 1.75
+        # default settings
+        p_vel: 35
+        p_acc: 1250
+        jerk: 8
+        # axis max speeds
+        vX: 180
+        vY: 180
+        vZ: 12
+        vE: 80
+        firmware: prusa
+</code></pre>
+
+<p>The default settings usually are machine specific and often can be read from the printer using a serial connection by sending a GCode command. You can use <code>M503</code> for Marlin, Prusa and some other firmwares.</p>
+<h3 id="use-pygcd-to-run-a-gcode-simulation">Use pyGCD to run a GCode Simulation<a class="headerlink" href="#use-pygcd-to-run-a-gcode-simulation" title="Permanent link">&para;</a></h3>
+<p>An easy way to use pyGCD is by creating a .py file to set up and run the simulation.</p>
+<ol>
+<li>Import the package and modules you want to use:</li>
+</ol>
+<pre class="codehilite"><code class="language-python">from pyGCodeDecode import gcode_interpreter
+</code></pre>
+
+<ol>
+<li>Load your setup <code>.yaml</code> file through:</li>
+</ol>
+<pre class="codehilite"><code class="language-python">setup = gcode_interpreter.setup(filename=r&quot;./pyGCodeDecode/data/default_printer_presets.yaml&quot;, printer=&quot;prusa_mini&quot;)
+</code></pre>
+
+<ol>
+<li>You can optionally set or modify custom properties after loading the setup:</li>
+</ol>
+<pre class="codehilite"><code class="language-python">setup.set_property({&quot;layer_cue&quot;: &quot;LAYER_CHANGE&quot;})
+</code></pre>
+
+<ol>
+<li>Finally, run the simulation by providing a <code>GCode</code> and passing the setup defined before:</li>
+</ol>
+<pre class="codehilite"><code class="language-python">simulation = gcode_interpreter.simulation(filename=r&quot;example\example.gcode&quot;, initial_machine_setup=setup)
+</code></pre>
+
+<h3 id="access-the-results">Access the Results<a class="headerlink" href="#access-the-results" title="Permanent link">&para;</a></h3>
+<p>The <code>simulation</code> object contains the simulation results, you can access them through various methods:</p>
+<p>Get the individual axis values (position and velocity) at a certain time (e.g. after 2.6 s) to use it in further simulation by:</p>
+<pre class="codehilite"><code class="language-python">simulation.get_values(t=2.6)
+</code></pre>
+
+<p>You can visualize the GCode by plotting it in 3D:</p>
+<pre class="codehilite"><code class="language-python">from pyGCodeDecode.plotter import plot_3d
+plot_3d(simulation)
+</code></pre>
+
+<p>pyGCD can also be used to create files defining an event series for ABAQUS simulations.</p>
+<pre class="codehilite"><code class="language-python">from pyGCodeDecode.abaqus_file_generator import generate_abaqus_event_series
+
+generate_abaqus_event_series(
+        simulation=simulation,
+        filepath=&quot;path/to/event_series.csv&quot;
+)
+</code></pre>
+
+<p>For more in depth information have a look into the <a href="https://github.com/FAST-LB/pyGCodeDecode/blob/main/doc.md">documentation</a>.</p>
+<h2 id="supported-gcode-commands">Supported GCode commands<a class="headerlink" href="#supported-gcode-commands" title="Permanent link">&para;</a></h2>
+<p>Fully supported commands:</p>
+<pre class="codehilite"><code class="language-python">&quot;G0&quot;: {&quot;E&quot;: None, &quot;X&quot;: None, &quot;Y&quot;: None, &quot;Z&quot;: None, &quot;F&quot;: None},  # non extrusion move
+&quot;G1&quot;: {&quot;E&quot;: None, &quot;X&quot;: None, &quot;Y&quot;: None, &quot;Z&quot;: None, &quot;F&quot;: None},  # extrusion move
+&quot;G4&quot;: {&quot;P&quot;: None, &quot;S&quot;: None},  # Dwell
+&quot;M82&quot;: None,  # E absolute
+&quot;M83&quot;: None,  # E relative
+&quot;G20&quot;: None,  # inches
+&quot;G21&quot;: None,  # millimeters
+&quot;G90&quot;: None,  # absolute positioning
+&quot;G91&quot;: None,  # relative positioning
+&quot;G92&quot;: {&quot;E&quot;: None, &quot;X&quot;: None, &quot;Y&quot;: None, &quot;Z&quot;: None},  # set position
+&quot;;&quot;: None,  # comment
+</code></pre>
+
+<p>Only partially supported commands:</p>
+<pre class="codehilite"><code class="language-python">&quot;M203&quot;: {&quot;E&quot;: None, &quot;X&quot;: None, &quot;Y&quot;: None, &quot;Z&quot;: None},  # max feedrate *read only
+&quot;M204&quot;: {&quot;P&quot;: None, &quot;R&quot;: None, &quot;S&quot;: None, &quot;T&quot;: None},  # starting acceleration *P only
+&quot;M205&quot;: {&quot;E&quot;: None, &quot;J&quot;: None, &quot;S&quot;: None, &quot;X&quot;: None, &quot;Y&quot;: None, &quot;Z&quot;: None},  # advanced settings *X only
+&quot;G10&quot;: {&quot;S&quot;: None}, # read only
+&quot;G11&quot;: None, # read only
+</code></pre>
+
+<p>Known unsupported commands that may cause issues:</p>
+<pre class="codehilite"><code class="language-python">&quot;G2&quot; : {-}, # clockwise arc/circle move, please disable this command in your slicer's settings
+&quot;G3&quot; : {-}, # counter-clockwise arc/circle move, please disable this command in your slicer's settings
+</code></pre>
+
+<!-- REFERENCES   -->
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="api/" class="btn btn-neutral float-right" title="pyGCodeDecode API Reference">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/FAST-LB/pyGCodeDecode" class="fa fa-code-fork" style="color: #fcfcfc"> FAST-LB/pyGCodeDecode</a>
+        </span>
+    
+    
+    
+      <span><a href="api/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.6.1
+Build Date UTC : 2025-08-21 13:18:07.418149+00:00
+-->

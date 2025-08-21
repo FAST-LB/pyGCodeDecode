@@ -1,0 +1,2315 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="FAST-LB at KIT" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>pyGCodeDecode API Reference - pyGCodeDecode Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "pyGCodeDecode API Reference";
+        var mkdocs_page_input_path = "api.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> pyGCodeDecode Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">pyGCodeDecode API Reference</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#pygcodedecodeabaqus_file_generator">pyGCodeDecode.abaqus_file_generator</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#generate_abaqus_event_series">generate_abaqus_event_series</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pygcodedecodecli">pyGCodeDecode.cli</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pygcodedecodegcode_interpreter">pyGCodeDecode.gcode_interpreter</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#find_current_segment">find_current_segment</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#generate_planner_blocks">generate_planner_blocks</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#setup-objects">setup Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#setup__getattr__">setup.__getattr__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setup__init__">setup.__init__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setup__setattr__">setup.__setattr__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setupcheck_initial_setup">setup.check_initial_setup</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setupget_dict">setup.get_dict</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setupget_scaling_factor">setup.get_scaling_factor</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setupload_setup">setup.load_setup</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setupset_initial_position">setup.set_initial_position</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setupset_property">setup.set_property</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#simulation-objects">simulation Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#simulation__getattr__">simulation.__getattr__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#simulation__init__">simulation.__init__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#simulationcalc_results">simulation.calc_results</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#simulationcalculate_averages">simulation.calculate_averages</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#simulationextrusion_extent">simulation.extrusion_extent</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#simulationextrusion_max_vel">simulation.extrusion_max_vel</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#simulationget_scaling_factor">simulation.get_scaling_factor</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#simulationget_values">simulation.get_values</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#simulationget_width">simulation.get_width</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#simulationprint_summary">simulation.print_summary</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#simulationrefresh">simulation.refresh</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#simulationsave_summary">simulation.save_summary</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#simulationtrajectory_self_correct">simulation.trajectory_self_correct</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#unpack_blocklist">unpack_blocklist</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pygcodedecodehelpers">pyGCodeDecode.helpers</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#custom_print">custom_print</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#get_verbosity_level">get_verbosity_level</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#progressbar-objects">ProgressBar Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#progressbar__init__">ProgressBar.__init__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#progressbarupdate">ProgressBar.update</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#set_verbosity_level">set_verbosity_level</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#pygcodedecodehelpersverbosity_level">pyGCodeDecode.helpers.VERBOSITY_LEVEL</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pygcodedecodejunction_handling">pyGCodeDecode.junction_handling</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#get_handler">get_handler</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#junction_deviation-objects">junction_deviation Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#junction_deviation__init__">junction_deviation.__init__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#junction_deviationcalc_jd">junction_deviation.calc_JD</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#junction_deviationget_junction_vel">junction_deviation.get_junction_vel</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#junction_handling-objects">junction_handling Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#junction_handling__init__">junction_handling.__init__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#junction_handlingconnect_state">junction_handling.connect_state</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#junction_handlingget_junction_vel">junction_handling.get_junction_vel</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#junction_handlingget_target_vel">junction_handling.get_target_vel</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#marlin-objects">marlin Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#marlin__init__">marlin.__init__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#marlincalc_j_vel">marlin.calc_j_vel</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#marlinget_junction_vel">marlin.get_junction_vel</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#mka-objects">mka Objects</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#prusa-objects">prusa Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#prusa__init__">prusa.__init__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#prusacalc_j_vel">prusa.calc_j_vel</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#prusaget_junction_vel">prusa.get_junction_vel</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#ultimaker-objects">ultimaker Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#ultimaker__init__">ultimaker.__init__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#ultimakercalc_j_vel">ultimaker.calc_j_vel</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#ultimakerget_junction_vel">ultimaker.get_junction_vel</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pygcodedecodeplanner_block">pyGCodeDecode.planner_block</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#planner_block-objects">planner_block Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#planner_block__init__">planner_block.__init__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#planner_block__repr__">planner_block.__repr__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#planner_block__str__">planner_block.__str__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#planner_blockcalc_results">planner_block.calc_results</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#planner_blockextrusion_block_max_vel">planner_block.extrusion_block_max_vel</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#planner_blockget_block_travel">planner_block.get_block_travel</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#planner_blockget_segments">planner_block.get_segments</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#planner_blockinverse_time_at_pos">planner_block.inverse_time_at_pos</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#planner_blockmove_maker">planner_block.move_maker</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#planner_blocknext_block">planner_block.next_block</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#planner_blockprev_block">planner_block.prev_block</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#planner_blockself_correction">planner_block.self_correction</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#planner_blocktimeshift">planner_block.timeshift</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pygcodedecodeplotter">pyGCodeDecode.plotter</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#plot_2d">plot_2d</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#plot_3d">plot_3d</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#plot_vel">plot_vel</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pygcodedecoderesult">pyGCodeDecode.result</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#abstract_result-objects">abstract_result Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#abstract_resultcalc_pblock">abstract_result.calc_pblock</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#abstract_resultcalc_segm">abstract_result.calc_segm</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#abstract_resultname">abstract_result.name</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#acceleration_result-objects">acceleration_result Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#acceleration_resultcalc_pblock">acceleration_result.calc_pblock</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#acceleration_resultcalc_segm">acceleration_result.calc_segm</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#get_all_result_calculators">get_all_result_calculators</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#get_result_info">get_result_info</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#has_private_results">has_private_results</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#velocity_result-objects">velocity_result Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#velocity_resultcalc_pblock">velocity_result.calc_pblock</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#velocity_resultcalc_segm">velocity_result.calc_segm</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pygcodedecodestate">pyGCodeDecode.state</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#state-objects">state Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#state__init__">state.__init__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#state__repr__">state.__repr__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#state__str__">state.__str__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#stateline_number">state.line_number</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#stateline_number_1">state.line_number</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#statenext_state">state.next_state</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#statenext_state_1">state.next_state</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#p_settings-objects">p_settings Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#p_settings__init__">p_settings.__init__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#p_settings__repr__">p_settings.__repr__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#p_settings__str__">p_settings.__str__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#stateprev_state">state.prev_state</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#stateprev_state_1">state.prev_state</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#statestate_p_settings">state.state_p_settings</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#statestate_position">state.state_position</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pygcodedecodestate_generator">pyGCodeDecode.state_generator</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#generate_states">generate_states</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pygcodedecodetools">pyGCodeDecode.tools</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#save_layer_metrics">save_layer_metrics</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#write_submodel_times">write_submodel_times</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pygcodedecodeutils">pyGCodeDecode.utils</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#acceleration-objects">acceleration Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#acceleration__mul__">acceleration.__mul__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#acceleration__str__">acceleration.__str__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#acceleration__truediv__">acceleration.__truediv__</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#position-objects">position Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#position__str__">position.__str__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#position__truediv__">position.__truediv__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#positionget_t_distance">position.get_t_distance</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#positionis_extruding">position.is_extruding</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#positionis_travel">position.is_travel</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#seconds-objects">seconds Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#seconds__add__">seconds.__add__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#seconds__new__">seconds.__new__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#seconds__repr__">seconds.__repr__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#seconds__str__">seconds.__str__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#seconds__sub__">seconds.__sub__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#secondsseconds">seconds.seconds</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#segment-objects">segment Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#segment__init__">segment.__init__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#segment__repr__">segment.__repr__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#segment__str__">segment.__str__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#segmentcreate_initial">segment.create_initial</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#segmentget_position">segment.get_position</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#segmentget_result">segment.get_result</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#segmentget_segm_duration">segment.get_segm_duration</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#segmentget_segm_len">segment.get_segm_len</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#segmentget_velocity">segment.get_velocity</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#segmentget_velocity_by_dist">segment.get_velocity_by_dist</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#segmentis_extruding">segment.is_extruding</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#segmentmove_segment_time">segment.move_segment_time</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#segmentself_check">segment.self_check</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#vector_4d-objects">vector_4D Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#vector_4d__add__">vector_4D.__add__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#vector_4d__eq__">vector_4D.__eq__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#vector_4d__gt__">vector_4D.__gt__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#vector_4d__init__">vector_4D.__init__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#vector_4d__mul__">vector_4D.__mul__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#vector_4d__repr__">vector_4D.__repr__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#vector_4d__str__">vector_4D.__str__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#vector_4d__sub__">vector_4D.__sub__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#vector_4d__truediv__">vector_4D.__truediv__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#vector_4dget_norm">vector_4D.get_norm</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#vector_4dget_vec">vector_4D.get_vec</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#velocity-objects">velocity Objects</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#velocity__mul__">velocity.__mul__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#velocity__str__">velocity.__str__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#velocity__truediv__">velocity.__truediv__</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#velocityget_norm_dir">velocity.get_norm_dir</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#velocityis_extruding">velocity.is_extruding</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#velocitynot_zero">velocity.not_zero</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">pyGCodeDecode Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">pyGCodeDecode API Reference</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/FAST-LB/pyGCodeDecode/edit/main/docs/api.md">Edit on FAST-LB/pyGCodeDecode</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="pygcodedecode-api-reference">pyGCodeDecode API Reference<a class="headerlink" href="#pygcodedecode-api-reference" title="Permanent link">&para;</a></h1>
+<p><a id="pyGCodeDecode.abaqus_file_generator"></a></p>
+<h2 id="pygcodedecodeabaqus_file_generator">pyGCodeDecode.abaqus_file_generator<a class="headerlink" href="#pygcodedecodeabaqus_file_generator" title="Permanent link">&para;</a></h2>
+<p>Module for generating Abaqus .inp files for AMSIM.</p>
+<p><a id="pyGCodeDecode.abaqus_file_generator.generate_abaqus_event_series"></a></p>
+<h4 id="generate_abaqus_event_series">generate_abaqus_event_series<a class="headerlink" href="#generate_abaqus_event_series" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def generate_abaqus_event_series(
+        simulation: gcode_interpreter.simulation,
+        filepath: str = &quot;pyGcodeDecode_abaqus_events.inp&quot;,
+        tolerance: float = 1e-12,
+        output_unit_system: str = None,
+        return_tuple: bool = False) -&gt; tuple
+</code></pre>
+
+<p>Generate abaqus event series.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>simulation</code> <em>gcode_interpreter.simulation</em> - simulation instance</li>
+<li><code>filepath</code> <em>string, default = "pyGcodeDecode_abaqus_events.inp"</em> - output file path</li>
+<li><code>tolerance</code> <em>float, default = 1e-12</em> - tolerance to determine whether extrusion is happening</li>
+<li><code>output_unit_system</code> <em>str, optional</em> - Unit system for the output.
+  The one from the simulation is used, in None is specified.</li>
+<li><code>return_tuple</code> <em>bool, default = False</em> - return the event series as tuple.</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p>(optional) tuple: the event series as a tuple for use in ABAQUS-Python</p>
+<p><a id="pyGCodeDecode.cli"></a></p>
+<h2 id="pygcodedecodecli">pyGCodeDecode.cli<a class="headerlink" href="#pygcodedecodecli" title="Permanent link">&para;</a></h2>
+<p>The pyGCodeDecode CLI Module.</p>
+<p>Interact with pyGCodeDecode via the command line to run examples and plot GCode files.</p>
+<p>Features:</p>
+<ul>
+<li>Run built-in examples: <code>brace</code>, <code>benchy</code></li>
+<li>Plot GCode files with printer presets and output options</li>
+<li>Save simulation summaries, metrics, screenshots, and VTK files</li>
+</ul>
+<p>Usage Examples:</p>
+<ul>
+<li><code>pygcd --help</code></li>
+<li><code>pygcd run_example brace</code></li>
+<li><code>pygcd plot -g myfile.gcode</code></li>
+<li><code>pygcd plot -g myfile.gcode -p presets.yaml -pn my_printer</code></li>
+<li><code>pygcd plot -g myfile.gcode -o ./outputs -lc ";LAYER"</code></li>
+</ul>
+<p><a id="pyGCodeDecode.gcode_interpreter"></a></p>
+<h2 id="pygcodedecodegcode_interpreter">pyGCodeDecode.gcode_interpreter<a class="headerlink" href="#pygcodedecodegcode_interpreter" title="Permanent link">&para;</a></h2>
+<p>GCode Interpreter Module.</p>
+<p><a id="pyGCodeDecode.gcode_interpreter.find_current_segment"></a></p>
+<h4 id="find_current_segment">find_current_segment<a class="headerlink" href="#find_current_segment" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def find_current_segment(path: List[segment],
+                         t: float,
+                         last_index: int = None,
+                         keep_position: bool = False)
+</code></pre>
+
+<p>Find the current segment.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>path</code> - (list[segment]) all segments to be searched</li>
+<li><code>t</code> - (float) time of search</li>
+<li><code>last_index</code> - (int) last found index for optimizing search</li>
+<li><code>keep_position</code> - (bool) keeps position of last segment, use this when working with
+  gaps of no movement between segments</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>segment</code> - (segment) the segment which defines movement at that point in time</li>
+<li><code>last_index</code> - (int) last index where something was found, search speed optimization possible</li>
+</ul>
+<p><a id="pyGCodeDecode.gcode_interpreter.generate_planner_blocks"></a></p>
+<h4 id="generate_planner_blocks">generate_planner_blocks<a class="headerlink" href="#generate_planner_blocks" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def generate_planner_blocks(states: List[state], firmware=None)
+</code></pre>
+
+<p>Convert list of states to trajectory repr. by planner blocks.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>states</code> - (list[state]) list of states</li>
+<li><code>firmware</code> - (string, default = None) select firmware by name</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p>block_list (list[planner_block]) list of all planner blocks to complete travel between all states</p>
+<p><a id="pyGCodeDecode.gcode_interpreter.setup"></a></p>
+<h3 id="setup-objects">setup Objects<a class="headerlink" href="#setup-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class setup()
+</code></pre>
+
+<p>Setup for printing simulation.</p>
+<p><a id="pyGCodeDecode.gcode_interpreter.setup.__getattr__"></a></p>
+<h4 id="setup__getattr__">setup.__getattr__<a class="headerlink" href="#setup__getattr__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __getattr__(name)
+</code></pre>
+
+<p>Access to setup_dict content.</p>
+<p><a id="pyGCodeDecode.gcode_interpreter.setup.__init__"></a></p>
+<h4 id="setup__init__">setup.__init__<a class="headerlink" href="#setup__init__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __init__(presets_file: str,
+             printer: str = None,
+             verbosity_level: Optional[int] = None,
+             **kwargs)
+</code></pre>
+
+<p>Initialize the setup for the printing simulation.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>presets_file</code> <em>str</em> - Path to the YAML file containing printer presets.</li>
+<li><code>printer</code> <em>str, optional</em> - Name of the printer to select from the preset file. Defaults to None.</li>
+<li><code>verbosity_level</code> <em>int, optional</em> - Verbosity level for logging (0: no output, 1: warnings, 2: info, 3: debug). Defaults to None.</li>
+<li><code>**kwargs</code> - Additional properties to set or override in the setup.</li>
+</ul>
+<p><strong>Raises</strong>:</p>
+<ul>
+<li><code>ValueError</code> - If multiple printers are found in the preset file but none is selected.</li>
+</ul>
+<p><a id="pyGCodeDecode.gcode_interpreter.setup.__setattr__"></a></p>
+<h4 id="setup__setattr__">setup.__setattr__<a class="headerlink" href="#setup__setattr__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __setattr__(name, value)
+</code></pre>
+
+<p>Set setup_dict keys.</p>
+<p><a id="pyGCodeDecode.gcode_interpreter.setup.check_initial_setup"></a></p>
+<h4 id="setupcheck_initial_setup">setup.check_initial_setup<a class="headerlink" href="#setupcheck_initial_setup" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def check_initial_setup()
+</code></pre>
+
+<p>Check the printer Dict for typos or missing parameters and raise errors if invalid.</p>
+<p><a id="pyGCodeDecode.gcode_interpreter.setup.get_dict"></a></p>
+<h4 id="setupget_dict">setup.get_dict<a class="headerlink" href="#setupget_dict" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_dict() -&gt; dict
+</code></pre>
+
+<p>Return the setup for the selected printer.</p>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>return_dict</code> - (dict) setup dictionary</li>
+</ul>
+<p><a id="pyGCodeDecode.gcode_interpreter.setup.get_scaling_factor"></a></p>
+<h4 id="setupget_scaling_factor">setup.get_scaling_factor<a class="headerlink" href="#setupget_scaling_factor" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_scaling_factor(input_unit_system: str = None) -&gt; float
+</code></pre>
+
+<p>Get a scaling factor to convert lengths from mm to another supported unit system.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>input_unit_system</code> <em>str, optional</em> - Wanted input unit system.
+  Uses the one specified for the setup if None is specified.</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>float</code> - scaling factor</li>
+</ul>
+<p><a id="pyGCodeDecode.gcode_interpreter.setup.load_setup"></a></p>
+<h4 id="setupload_setup">setup.load_setup<a class="headerlink" href="#setupload_setup" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def load_setup(filepath, printer=None)
+</code></pre>
+
+<p>Load setup from file.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>filepath</code> - (string) specify path to setup file</li>
+</ul>
+<p><a id="pyGCodeDecode.gcode_interpreter.setup.set_initial_position"></a></p>
+<h4 id="setupset_initial_position">setup.set_initial_position<a class="headerlink" href="#setupset_initial_position" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def set_initial_position(initial_position: Union[tuple, dict],
+                         input_unit_system: str = None)
+</code></pre>
+
+<p>Set initial Position.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>initial_position</code> - (tuple or dict) set initial position as tuple of len(4)
+  or dictionary with keys: {X, Y, Z, E} or "first" to use first occuring absolute position in GCode.</li>
+<li><code>input_unit_system</code> <em>str, optional</em> - Wanted input unit system.
+  Uses the one specified for the setup if None is specified.</li>
+</ul>
+<p><strong>Example</strong>:</p>
+<pre class="codehilite"><code class="language-python">setup.set_initial_position((1, 2, 3, 4))
+setup.set_initial_position({&quot;X&quot;: 1, &quot;Y&quot;: 2, &quot;Z&quot;: 3, &quot;E&quot;: 4})
+setup.set_initial_position(&quot;first&quot;) # use first GCode position
+</code></pre>
+
+<p><a id="pyGCodeDecode.gcode_interpreter.setup.set_property"></a></p>
+<h4 id="setupset_property">setup.set_property<a class="headerlink" href="#setupset_property" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def set_property(property_dict: dict)
+</code></pre>
+
+<p>Overwrite or add a property to the printer dictionary.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>property_dict</code> - (dict) set or add property to the setup</li>
+</ul>
+<p><strong>Example</strong>:</p>
+<pre class="codehilite"><code class="language-python">setup.set_property({&quot;layer_cue&quot;: &quot;LAYER_CHANGE&quot;})
+</code></pre>
+
+<p><a id="pyGCodeDecode.gcode_interpreter.simulation"></a></p>
+<h3 id="simulation-objects">simulation Objects<a class="headerlink" href="#simulation-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class simulation()
+</code></pre>
+
+<p>Simulation of .gcode with given machine parameters.</p>
+<p><a id="pyGCodeDecode.gcode_interpreter.simulation.__getattr__"></a></p>
+<h4 id="simulation__getattr__">simulation.__getattr__<a class="headerlink" href="#simulation__getattr__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __getattr__(name)
+</code></pre>
+
+<p>Get result by name.</p>
+<p><a id="pyGCodeDecode.gcode_interpreter.simulation.__init__"></a></p>
+<h4 id="simulation__init__">simulation.__init__<a class="headerlink" href="#simulation__init__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __init__(gcode_path: Path,
+             machine_name: str = None,
+             initial_machine_setup: &quot;setup&quot; = None,
+             output_unit_system: str = &quot;SI (mm)&quot;,
+             verbosity_level: Optional[int] = None)
+</code></pre>
+
+<p>Initialize the Simulation of a given G-code with initial machine setup or default machine.</p>
+<ul>
+<li>Generate all states from GCode.</li>
+<li>Connect states with planner blocks, consisting of segments</li>
+<li>Self correct inconsistencies.</li>
+</ul>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>gcode_path</code> - (Path) path to GCode</li>
+<li><code>machine_name</code> - (string, default = None) name of the default machine to use</li>
+<li><code>initial_machine_setup</code> - (setup, default = None) setup instance</li>
+<li><code>output_unit_system</code> - (string, default = "SI (mm)") available unit systems: SI, SI (mm) &amp; inch</li>
+<li><code>verbosity_level</code> - (int, default = None) set verbosity level (0: no output, 1: warnings, 2: info, 3: debug)</li>
+</ul>
+<p><strong>Example</strong>:</p>
+<pre class="codehilite"><code class="language-python">gcode_interpreter.simulation(gcode_path=r&quot;path/to/part.gcode&quot;, initial_machine_setup=printer_setup)
+</code></pre>
+
+<p><a id="pyGCodeDecode.gcode_interpreter.simulation.calc_results"></a></p>
+<h4 id="simulationcalc_results">simulation.calc_results<a class="headerlink" href="#simulationcalc_results" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def calc_results()
+</code></pre>
+
+<p>Calculate the results.</p>
+<p><a id="pyGCodeDecode.gcode_interpreter.simulation.calculate_averages"></a></p>
+<h4 id="simulationcalculate_averages">simulation.calculate_averages<a class="headerlink" href="#simulationcalculate_averages" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def calculate_averages()
+</code></pre>
+
+<p>Calculate averages for averageable results.</p>
+<p><a id="pyGCodeDecode.gcode_interpreter.simulation.extrusion_extent"></a></p>
+<h4 id="simulationextrusion_extent">simulation.extrusion_extent<a class="headerlink" href="#simulationextrusion_extent" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def extrusion_extent(output_unit_system: str = None) -&gt; np.ndarray
+</code></pre>
+
+<p>Return scaled xyz min &amp; max while extruding.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>output_unit_system</code> <em>str, optional</em> - Unit system for the output.
+  The one from the simulation is used, in None is specified.</li>
+</ul>
+<p><strong>Raises</strong>:</p>
+<ul>
+<li><code>ValueError</code> - if nothing is extruded</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>np.ndarray</code> - extent of extruding positions</li>
+</ul>
+<p><a id="pyGCodeDecode.gcode_interpreter.simulation.extrusion_max_vel"></a></p>
+<h4 id="simulationextrusion_max_vel">simulation.extrusion_max_vel<a class="headerlink" href="#simulationextrusion_max_vel" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def extrusion_max_vel(output_unit_system: str = None) -&gt; np.float64
+</code></pre>
+
+<p>Return scaled maximum velocity while extruding.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>output_unit_system</code> <em>str, optional</em> - Unit system for the output.
+  The one from the simulation is used, in None is specified.</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>max_vel</code> - (np.float64) maximum travel velocity while extruding</li>
+</ul>
+<p><a id="pyGCodeDecode.gcode_interpreter.simulation.get_scaling_factor"></a></p>
+<h4 id="simulationget_scaling_factor">simulation.get_scaling_factor<a class="headerlink" href="#simulationget_scaling_factor" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_scaling_factor(output_unit_system: str = None) -&gt; float
+</code></pre>
+
+<p>Get a scaling factor to convert lengths from mm to another supported unit system.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>output_unit_system</code> <em>str, optional</em> - Wanted output unit system.
+  Uses the one specified for the simulation on None is specified.</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>float</code> - scaling factor</li>
+</ul>
+<p><a id="pyGCodeDecode.gcode_interpreter.simulation.get_values"></a></p>
+<h4 id="simulationget_values">simulation.get_values<a class="headerlink" href="#simulationget_values" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_values(t: float, output_unit_system: str = None) -&gt; Tuple[List[float]]
+</code></pre>
+
+<p>Return unit system scaled values for vel and pos.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>t</code> - (float) time</li>
+<li><code>output_unit_system</code> <em>str, optional</em> - Unit system for the output.
+  The one from the simulation is used, in None is specified.</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>list</code> - [vel_x, vel_y, vel_z, vel_e] velocity</li>
+<li><code>list</code> - [pos_x, pos_y, pos_z, pos_e] position</li>
+</ul>
+<p><a id="pyGCodeDecode.gcode_interpreter.simulation.get_width"></a></p>
+<h4 id="simulationget_width">simulation.get_width<a class="headerlink" href="#simulationget_width" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_width(t: float,
+              extrusion_h: float,
+              filament_dia: Optional[float] = None) -&gt; float
+</code></pre>
+
+<p>Return the extrusion width for a certain extrusion height at time.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>t</code> <em>float</em> - time</li>
+<li><code>extrusion_h</code> <em>float</em> - extrusion height / layer height</li>
+<li><code>filament_dia</code> <em>float</em> - filament_diameter</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>float</code> - width</li>
+</ul>
+<p><a id="pyGCodeDecode.gcode_interpreter.simulation.print_summary"></a></p>
+<h4 id="simulationprint_summary">simulation.print_summary<a class="headerlink" href="#simulationprint_summary" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def print_summary(start_time: float)
+</code></pre>
+
+<p>Print simulation summary to console.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>start_time</code> <em>float</em> - time when the simulation run was started</li>
+</ul>
+<p><a id="pyGCodeDecode.gcode_interpreter.simulation.refresh"></a></p>
+<h4 id="simulationrefresh">simulation.refresh<a class="headerlink" href="#simulationrefresh" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def refresh(new_state_list: List[state] = None)
+</code></pre>
+
+<p>Refresh simulation. Either through new state list or by rerunning the self.states as input.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>new_state_list</code> - (list[state], default = None) new list of states,
+  if None is provided, existing states get resimulated</li>
+</ul>
+<p><a id="pyGCodeDecode.gcode_interpreter.simulation.save_summary"></a></p>
+<h4 id="simulationsave_summary">simulation.save_summary<a class="headerlink" href="#simulationsave_summary" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def save_summary(filepath: Union[Path, str])
+</code></pre>
+
+<p>Save summary to .yaml file.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>filepath</code> <em>Path | str</em> - path to summary file</li>
+</ul>
+<p>Saved data keys:
+  - filename (string, filename)
+  - t_end (float, end time)
+  - x/y/z _min/_max (float, extent where positive extrusion)
+  - max_extrusion_travel_velocity (float, maximum travel velocity where positive extrusion)</p>
+<p><a id="pyGCodeDecode.gcode_interpreter.simulation.trajectory_self_correct"></a></p>
+<h4 id="simulationtrajectory_self_correct">simulation.trajectory_self_correct<a class="headerlink" href="#simulationtrajectory_self_correct" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def trajectory_self_correct()
+</code></pre>
+
+<p>Self correct all blocks in the blocklist with self_correction() method.</p>
+<p><a id="pyGCodeDecode.gcode_interpreter.unpack_blocklist"></a></p>
+<h4 id="unpack_blocklist">unpack_blocklist<a class="headerlink" href="#unpack_blocklist" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def unpack_blocklist(blocklist: List[planner_block]) -&gt; List[segment]
+</code></pre>
+
+<p>Return list of segments by unpacking list of planner blocks.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>blocklist</code> - (list[planner_block]) list of planner blocks</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>path</code> - (list[segment]) list of all segments</li>
+</ul>
+<p><a id="pyGCodeDecode.helpers"></a></p>
+<h2 id="pygcodedecodehelpers">pyGCodeDecode.helpers<a class="headerlink" href="#pygcodedecodehelpers" title="Permanent link">&para;</a></h2>
+<p>Helper functions.</p>
+<p><a id="pyGCodeDecode.helpers.custom_print"></a></p>
+<h4 id="custom_print">custom_print<a class="headerlink" href="#custom_print" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def custom_print(*args, lvl=2, **kwargs) -&gt; None
+</code></pre>
+
+<p>Sanitize outputs for ABAQUS and print them if the log level is high enough. Takes all arguments for print.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>*args</code> - arguments to be printed</li>
+<li><code>lvl</code> - verbosity level of the print (1 = WARNING, 2 = INFO, 3 = DEBUG)</li>
+<li><code>**kwargs</code> - keyword arguments to be passed to print</li>
+</ul>
+<p><a id="pyGCodeDecode.helpers.get_verbosity_level"></a></p>
+<h4 id="get_verbosity_level">get_verbosity_level<a class="headerlink" href="#get_verbosity_level" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_verbosity_level() -&gt; int
+</code></pre>
+
+<p>Get the current global verbosity level.</p>
+<p><a id="pyGCodeDecode.helpers.ProgressBar"></a></p>
+<h3 id="progressbar-objects">ProgressBar Objects<a class="headerlink" href="#progressbar-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class ProgressBar()
+</code></pre>
+
+<p>A simple progress bar for the console.</p>
+<p><a id="pyGCodeDecode.helpers.ProgressBar.__init__"></a></p>
+<h4 id="progressbar__init__">ProgressBar.__init__<a class="headerlink" href="#progressbar__init__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __init__(name: str = &quot;Percent&quot;,
+             barLength: int = 4,
+             verbosity_level: int = 2)
+</code></pre>
+
+<p>Initialize a progress bar.</p>
+<p><a id="pyGCodeDecode.helpers.ProgressBar.update"></a></p>
+<h4 id="progressbarupdate">ProgressBar.update<a class="headerlink" href="#progressbarupdate" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def update(progress: float) -&gt; None
+</code></pre>
+
+<p>Display or update a console progress bar.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>progress</code> - float between 0 and 1 for percentage, &lt; 0 represents a 'halt', &gt; 1 represents 100%</li>
+</ul>
+<p><a id="pyGCodeDecode.helpers.set_verbosity_level"></a></p>
+<h4 id="set_verbosity_level">set_verbosity_level<a class="headerlink" href="#set_verbosity_level" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def set_verbosity_level(level: Optional[int]) -&gt; None
+</code></pre>
+
+<p>Set the global verbosity level.</p>
+<p><a id="pyGCodeDecode.helpers.VERBOSITY_LEVEL"></a></p>
+<h4 id="pygcodedecodehelpersverbosity_level">pyGCodeDecode.helpers.VERBOSITY_LEVEL<a class="headerlink" href="#pygcodedecodehelpersverbosity_level" title="Permanent link">&para;</a></h4>
+<p>default to INFO</p>
+<p><a id="pyGCodeDecode.junction_handling"></a></p>
+<h2 id="pygcodedecodejunction_handling">pyGCodeDecode.junction_handling<a class="headerlink" href="#pygcodedecodejunction_handling" title="Permanent link">&para;</a></h2>
+<p>Junction handling module for calculating the velocity at junctions.</p>
+<p><a id="pyGCodeDecode.junction_handling.get_handler"></a></p>
+<h4 id="get_handler">get_handler<a class="headerlink" href="#get_handler" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_handler(firmware_name: str) -&gt; type[junction_handling]
+</code></pre>
+
+<p>Get the junction handling class for the given firmware name.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>firmware_name</code> - (str) name of the firmware</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>junction_handling</code> - (type[junction_handling]) junction handling class</li>
+</ul>
+<p><a id="pyGCodeDecode.junction_handling.junction_deviation"></a></p>
+<h3 id="junction_deviation-objects">junction_deviation Objects<a class="headerlink" href="#junction_deviation-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class junction_deviation(junction_handling)
+</code></pre>
+
+<p>Marlin specific junction handling with Junction Deviation.</p>
+<p><strong>Reference:</strong>
+1: <a href="https://onehossshay.wordpress.com/2011/09/24/improving_grbl_cornering_algorithm/">Developer Blog</a>
+2: <a href="http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html">Kynetic CNC Blog</a></p>
+<p><a id="pyGCodeDecode.junction_handling.junction_deviation.__init__"></a></p>
+<h4 id="junction_deviation__init__">junction_deviation.__init__<a class="headerlink" href="#junction_deviation__init__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __init__(state_A: state, state_B: state)
+</code></pre>
+
+<p>Marlin specific junction velocity calculation with Junction Deviation.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>state_A</code> - (state) start state</li>
+<li><code>state_B</code> - (state)   end state</li>
+</ul>
+<p><a id="pyGCodeDecode.junction_handling.junction_deviation.calc_JD"></a></p>
+<h4 id="junction_deviationcalc_jd">junction_deviation.calc_JD<a class="headerlink" href="#junction_deviationcalc_jd" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def calc_JD(vel_0: velocity, vel_1: velocity, p_settings: state.p_settings)
+</code></pre>
+
+<p>Calculate junction deviation velocity from 2 velocities.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>vel_0</code> - (velocity) entry</li>
+<li><code>vel_1</code> - (velocity) exit</li>
+<li><code>p_settings</code> - (state.p_settings) print settings</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>velocity</code> - (float) velocity abs value</li>
+</ul>
+<p><a id="pyGCodeDecode.junction_handling.junction_deviation.get_junction_vel"></a></p>
+<h4 id="junction_deviationget_junction_vel">junction_deviation.get_junction_vel<a class="headerlink" href="#junction_deviationget_junction_vel" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_junction_vel()
+</code></pre>
+
+<p>Return junction velocity.</p>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>junction_vel</code> - (float) junction velocity</li>
+</ul>
+<p><a id="pyGCodeDecode.junction_handling.junction_handling"></a></p>
+<h3 id="junction_handling-objects">junction_handling Objects<a class="headerlink" href="#junction_handling-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class junction_handling()
+</code></pre>
+
+<p>Junction handling super class.</p>
+<p><a id="pyGCodeDecode.junction_handling.junction_handling.__init__"></a></p>
+<h4 id="junction_handling__init__">junction_handling.__init__<a class="headerlink" href="#junction_handling__init__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __init__(state_A: state, state_B: state)
+</code></pre>
+
+<p>Initialize the junction handling.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>state_A</code> - (state) start state</li>
+<li><code>state_B</code> - (state)   end state</li>
+</ul>
+<p><a id="pyGCodeDecode.junction_handling.junction_handling.connect_state"></a></p>
+<h4 id="junction_handlingconnect_state">junction_handling.connect_state<a class="headerlink" href="#junction_handlingconnect_state" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def connect_state(state_A: state, state_B: state)
+</code></pre>
+
+<p>Connect two states and generates the velocity for the move from state_A to state_B.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>state_A</code> - (state) start state</li>
+<li><code>state_B</code> - (state)   end state</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>velocity</code> - (float) the target velocity for that travel move</li>
+</ul>
+<p><a id="pyGCodeDecode.junction_handling.junction_handling.get_junction_vel"></a></p>
+<h4 id="junction_handlingget_junction_vel">junction_handling.get_junction_vel<a class="headerlink" href="#junction_handlingget_junction_vel" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_junction_vel()
+</code></pre>
+
+<p>Return default junction velocity of zero.</p>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>0</code> - zero for default full stop junction handling</li>
+</ul>
+<p><a id="pyGCodeDecode.junction_handling.junction_handling.get_target_vel"></a></p>
+<h4 id="junction_handlingget_target_vel">junction_handling.get_target_vel<a class="headerlink" href="#junction_handlingget_target_vel" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_target_vel()
+</code></pre>
+
+<p>Return target velocity.</p>
+<p><a id="pyGCodeDecode.junction_handling.marlin"></a></p>
+<h3 id="marlin-objects">marlin Objects<a class="headerlink" href="#marlin-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class marlin(junction_handling)
+</code></pre>
+
+<p>Marlin classic jerk specific junction handling.</p>
+<p><strong>Code reference:</strong>
+<a href="https://github.com/MarlinFirmware/Marlin/blob/8ec9c379405bb9962aff170d305ddd0725bd64e2/Marlin/src/module/planner.cpp#L2762">Marlin/src/module/planner.cpp</a></p>
+<pre class="codehilite"><code class="language-cpp">// ...
+float v_factor = 1.0f;
+LOOP_LOGICAL_AXES(i) {
+  // Jerk is the per-axis velocity difference.
+  const float jerk = ABS(speed_diff[i]), maxj = max_j[i];
+  if (jerk * v_factor &gt; maxj) v_factor = maxj / jerk;
+}
+vmax_junction_sqr = sq(vmax_junction * v_factor);
+// ...
+</code></pre>
+
+<p><a id="pyGCodeDecode.junction_handling.marlin.__init__"></a></p>
+<h4 id="marlin__init__">marlin.__init__<a class="headerlink" href="#marlin__init__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __init__(state_A: state, state_B: state)
+</code></pre>
+
+<p>Marlin classic jerk specific junction velocity calculation.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>state_A</code> - (state) start state</li>
+<li><code>state_B</code> - (state)   end state</li>
+</ul>
+<p><a id="pyGCodeDecode.junction_handling.marlin.calc_j_vel"></a></p>
+<h4 id="marlincalc_j_vel">marlin.calc_j_vel<a class="headerlink" href="#marlincalc_j_vel" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def calc_j_vel()
+</code></pre>
+
+<p>Calculate the junction velocity.</p>
+<p><a id="pyGCodeDecode.junction_handling.marlin.get_junction_vel"></a></p>
+<h4 id="marlinget_junction_vel">marlin.get_junction_vel<a class="headerlink" href="#marlinget_junction_vel" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_junction_vel()
+</code></pre>
+
+<p>Return the calculated junction velocity.</p>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>junction_vel</code> - (float) junction velocity</li>
+</ul>
+<p><a id="pyGCodeDecode.junction_handling.mka"></a></p>
+<h3 id="mka-objects">mka Objects<a class="headerlink" href="#mka-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class mka(prusa)
+</code></pre>
+
+<p>Anisoprint Composer models using MKA Firmware junction handling.</p>
+<p>The MKA firmware uses a similar approach to Prusa's classic jerk handling.</p>
+<p><strong>Code reference:</strong>
+<a href="https://github.com/anisoprint/MKA-firmware/blob/6e02973b1b8f325040cc3dbf66ac545ffc5c06b3/src/core/planner/planner.cpp#L1830">anisoprint/MKA-firmware/src/core/planner/planner.cpp</a></p>
+<pre class="codehilite"><code class="language-cpp">// ...
+float v_exit = previous_speed[axis] * smaller_speed_factor,
+        v_entry = current_speed[axis];
+  if (limited) {
+    v_exit *= v_factor;
+    v_entry *= v_factor;
+  }
+
+  // Calculate jerk depending on whether the axis is coasting in the same direction or reversing.
+  const float jerk = (v_exit &gt; v_entry)
+      ? //                                  coasting             axis reversal
+        ( (v_entry &gt; 0 || v_exit &lt; 0) ? (v_exit - v_entry) : max(v_exit, -v_entry) )
+      : // v_exit &lt;= v_entry                coasting             axis reversal
+        ( (v_entry &lt; 0 || v_exit &gt; 0) ? (v_entry - v_exit) : max(-v_exit, v_entry) );
+
+  const float maxj = mechanics.max_jerk[axis];
+  if (jerk &gt; maxj) {
+    v_factor *= maxj / jerk;
+    ++limited;
+  }
+}
+if (limited) vmax_junction *= v_factor;
+// ...
+</code></pre>
+
+<p><a id="pyGCodeDecode.junction_handling.prusa"></a></p>
+<h3 id="prusa-objects">prusa Objects<a class="headerlink" href="#prusa-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class prusa(junction_handling)
+</code></pre>
+
+<p>Prusa specific classic jerk junction handling (validated on Prusa Mini).</p>
+<p><strong>Code reference:</strong>
+<a href="https://github.com/prusa3d/Prusa-Firmware-Buddy/blob/818d812f954802903ea0ff39bf44376fb0b35dd2/lib/Marlin/Marlin/src/module/planner.cpp#L1951">Prusa-Firmware-Buddy/lib/Marlin/Marlin/src/module/planner.cpp</a></p>
+<pre class="codehilite"><code class="language-cpp">// ...
+// Factor to multiply the previous / current nominal velocities to get componentwise limited velocities.
+  float v_factor = 1;
+  limited = 0;
+
+  // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
+  // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
+  vmax_junction = _MIN(block-&gt;nominal_speed, previous_nominal_speed);
+
+  // Now limit the jerk in all axes.
+  const float smaller_speed_factor = vmax_junction / previous_nominal_speed;
+  `if` HAS_LINEAR_E_JERK
+    LOOP_XYZ(axis)
+  `else`
+    LOOP_XYZE(axis)
+  `endif`
+  {
+    // Limit an axis. We have to differentiate: coasting, reversal of an axis, full stop.
+    float v_exit = previous_speed[axis] * smaller_speed_factor,
+          v_entry = current_speed[axis];
+    if (limited) {
+      v_exit *= v_factor;
+      v_entry *= v_factor;
+    }
+
+    // Calculate jerk depending on whether the axis is coasting in the same direction or reversing.
+    const float jerk = (v_exit &gt; v_entry)
+        ? //                                  coasting             axis reversal
+          ( (v_entry &gt; 0 || v_exit &lt; 0) ? (v_exit - v_entry) : _MAX(v_exit, -v_entry) )
+        : // v_exit &lt;= v_entry                coasting             axis reversal
+          ( (v_entry &lt; 0 || v_exit &gt; 0) ? (v_entry - v_exit) : _MAX(-v_exit, v_entry) );
+
+    if (jerk &gt; settings.max_jerk[axis]) {
+      v_factor *= settings.max_jerk[axis] / jerk;
+      ++limited;
+    }
+  }
+  if (limited) vmax_junction *= v_factor;
+  // Now the transition velocity is known, which maximizes the shared exit / entry velocity while
+  // respecting the jerk factors, it may be possible, that applying separate safe exit / entry velocities will achieve faster prints.
+  const float vmax_junction_threshold = vmax_junction * 0.99f;
+  if (previous_safe_speed &gt; vmax_junction_threshold &amp;&amp; safe_speed &gt; vmax_junction_threshold)
+    vmax_junction = safe_speed;
+}
+// ...
+</code></pre>
+
+<p><a id="pyGCodeDecode.junction_handling.prusa.__init__"></a></p>
+<h4 id="prusa__init__">prusa.__init__<a class="headerlink" href="#prusa__init__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __init__(state_A: state, state_B: state)
+</code></pre>
+
+<p>Marlin classic jerk specific junction velocity calculation.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>state_A</code> - (state) start state</li>
+<li><code>state_B</code> - (state)   end state</li>
+</ul>
+<p><a id="pyGCodeDecode.junction_handling.prusa.calc_j_vel"></a></p>
+<h4 id="prusacalc_j_vel">prusa.calc_j_vel<a class="headerlink" href="#prusacalc_j_vel" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def calc_j_vel()
+</code></pre>
+
+<p>Calculate the junction velocity.</p>
+<p><a id="pyGCodeDecode.junction_handling.prusa.get_junction_vel"></a></p>
+<h4 id="prusaget_junction_vel">prusa.get_junction_vel<a class="headerlink" href="#prusaget_junction_vel" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_junction_vel()
+</code></pre>
+
+<p>Return the calculated junction velocity.</p>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>junction_vel</code> - (float) junction velocity</li>
+</ul>
+<p><a id="pyGCodeDecode.junction_handling.ultimaker"></a></p>
+<h3 id="ultimaker-objects">ultimaker Objects<a class="headerlink" href="#ultimaker-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class ultimaker(junction_handling)
+</code></pre>
+
+<p>Ultimaker specific junction handling.</p>
+<p><strong>Code reference:</strong>
+<a href="https://github.com/Ultimaker/UM2.1-Firmware/blob/f6e69344c00d7f300dace730990652ba614a2105/Marlin/planner.cpp#L840">UM2.1-Firmware/Marlin/planner.cpp</a></p>
+<pre class="codehilite"><code class="language-cpp">// ...
+float vmax_junction = max_xy_jerk/2;
+float vmax_junction_factor = 1.0;
+if(fabs(current_speed[Z_AXIS]) &gt; max_z_jerk/2)
+    vmax_junction = min(vmax_junction, max_z_jerk/2);
+if(fabs(current_speed[E_AXIS]) &gt; max_e_jerk/2)
+    vmax_junction = min(vmax_junction, max_e_jerk/2);
+vmax_junction = min(vmax_junction, block-&gt;nominal_speed);
+float safe_speed = vmax_junction;
+
+if ((moves_queued &gt; 1) &amp;&amp; (previous_nominal_speed &gt; 0.0001)) {
+    float xy_jerk = sqrt(square(current_speed[X_AXIS]-previous_speed[X_AXIS])+square(current_speed[Y_AXIS]-previous_speed[Y_AXIS]));
+    //    if((fabs(previous_speed[X_AXIS]) &gt; 0.0001) || (fabs(previous_speed[Y_AXIS]) &gt; 0.0001)) {
+    vmax_junction = block-&gt;nominal_speed;
+    //    }
+    if (xy_jerk &gt; max_xy_jerk) {
+    vmax_junction_factor = (max_xy_jerk / xy_jerk);
+    }
+    if(fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]) &gt; max_z_jerk) {
+    vmax_junction_factor= min(vmax_junction_factor, (max_z_jerk/fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS])));
+    }
+    if(fabs(current_speed[E_AXIS] - previous_speed[E_AXIS]) &gt; max_e_jerk) {
+    vmax_junction_factor = min(vmax_junction_factor, (max_e_jerk/fabs(current_speed[E_AXIS] - previous_speed[E_AXIS])));
+    }
+    vmax_junction = min(previous_nominal_speed, vmax_junction * vmax_junction_factor); // Limit speed to max previous speed
+}
+// Max entry speed of this block equals the max exit speed of the previous block.
+block-&gt;max_entry_speed = vmax_junction;
+// ...
+</code></pre>
+
+<p><a id="pyGCodeDecode.junction_handling.ultimaker.__init__"></a></p>
+<h4 id="ultimaker__init__">ultimaker.__init__<a class="headerlink" href="#ultimaker__init__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __init__(state_A: state, state_B: state)
+</code></pre>
+
+<p>Ultimaker specific junction velocity calculation.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>state_A</code> - (state) start state</li>
+<li><code>state_B</code> - (state)   end state</li>
+</ul>
+<p><a id="pyGCodeDecode.junction_handling.ultimaker.calc_j_vel"></a></p>
+<h4 id="ultimakercalc_j_vel">ultimaker.calc_j_vel<a class="headerlink" href="#ultimakercalc_j_vel" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def calc_j_vel()
+</code></pre>
+
+<p>Calculate the junction velocity.</p>
+<p><a id="pyGCodeDecode.junction_handling.ultimaker.get_junction_vel"></a></p>
+<h4 id="ultimakerget_junction_vel">ultimaker.get_junction_vel<a class="headerlink" href="#ultimakerget_junction_vel" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_junction_vel()
+</code></pre>
+
+<p>Return the calculated junction velocity.</p>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>junction_vel</code> - (float) junction velocity</li>
+</ul>
+<p><a id="pyGCodeDecode.planner_block"></a></p>
+<h2 id="pygcodedecodeplanner_block">pyGCodeDecode.planner_block<a class="headerlink" href="#pygcodedecodeplanner_block" title="Permanent link">&para;</a></h2>
+<p>Planner block Module.</p>
+<p><a id="pyGCodeDecode.planner_block.planner_block"></a></p>
+<h3 id="planner_block-objects">planner_block Objects<a class="headerlink" href="#planner_block-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class planner_block()
+</code></pre>
+
+<p>Planner Block Class.</p>
+<p><a id="pyGCodeDecode.planner_block.planner_block.__init__"></a></p>
+<h4 id="planner_block__init__">planner_block.__init__<a class="headerlink" href="#planner_block__init__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __init__(state: state, prev_block: &quot;planner_block&quot;, firmware=None)
+</code></pre>
+
+<p>Calculate and store planner block consisting of one or multiple segments.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>state</code> - (state) the current state</li>
+<li><code>prev_block</code> - (planner_block) previous planner block</li>
+<li><code>firmware</code> - (string, default = None) firmware selection for junction</li>
+</ul>
+<p><a id="pyGCodeDecode.planner_block.planner_block.__repr__"></a></p>
+<h4 id="planner_block__repr__">planner_block.__repr__<a class="headerlink" href="#planner_block__repr__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __repr__() -&gt; str
+</code></pre>
+
+<p>Represent planner block.</p>
+<p><a id="pyGCodeDecode.planner_block.planner_block.__str__"></a></p>
+<h4 id="planner_block__str__">planner_block.__str__<a class="headerlink" href="#planner_block__str__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __str__() -&gt; str
+</code></pre>
+
+<p>Create a visually aligned ASCII art string for planner block.</p>
+<p><a id="pyGCodeDecode.planner_block.planner_block.calc_results"></a></p>
+<h4 id="planner_blockcalc_results">planner_block.calc_results<a class="headerlink" href="#planner_blockcalc_results" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def calc_results(*additional_calculators: abstract_result)
+</code></pre>
+
+<p>Calculate the result of the planner block.</p>
+<p><a id="pyGCodeDecode.planner_block.planner_block.extrusion_block_max_vel"></a></p>
+<h4 id="planner_blockextrusion_block_max_vel">planner_block.extrusion_block_max_vel<a class="headerlink" href="#planner_blockextrusion_block_max_vel" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def extrusion_block_max_vel() -&gt; Union[np.ndarray, None]
+</code></pre>
+
+<p>Return max vel from planner block while extruding.</p>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>block_max_vel</code> - (np.ndarray 1x4) maximum axis velocity while extruding in block or None
+  if no extrusion is happening</li>
+</ul>
+<p><a id="pyGCodeDecode.planner_block.planner_block.get_block_travel"></a></p>
+<h4 id="planner_blockget_block_travel">planner_block.get_block_travel<a class="headerlink" href="#planner_blockget_block_travel" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_block_travel()
+</code></pre>
+
+<p>Return the travel length of the planner block.</p>
+<p><a id="pyGCodeDecode.planner_block.planner_block.get_segments"></a></p>
+<h4 id="planner_blockget_segments">planner_block.get_segments<a class="headerlink" href="#planner_blockget_segments" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_segments()
+</code></pre>
+
+<p>Return segments, contained by the planner block.</p>
+<p><a id="pyGCodeDecode.planner_block.planner_block.inverse_time_at_pos"></a></p>
+<h4 id="planner_blockinverse_time_at_pos">planner_block.inverse_time_at_pos<a class="headerlink" href="#planner_blockinverse_time_at_pos" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def inverse_time_at_pos(dist_local)
+</code></pre>
+
+<p>Get the global time, at which the local length is reached.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>dist_local</code> - (float) local (relative to planner block start) distance</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>time_global</code> - (float) global time when the point will be reached.</li>
+</ul>
+<p><a id="pyGCodeDecode.planner_block.planner_block.move_maker"></a></p>
+<h4 id="planner_blockmove_maker">planner_block.move_maker<a class="headerlink" href="#planner_blockmove_maker" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def move_maker(v_end)
+</code></pre>
+
+<p>Calculate the correct move type (trapezoidal,triangular or singular) and generate the corresponding segments.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>v_end</code> - (velocity) target velocity for end of move</li>
+</ul>
+<p><a id="pyGCodeDecode.planner_block.planner_block.next_block"></a></p>
+<h4 id="planner_blocknext_block">planner_block.next_block<a class="headerlink" href="#planner_blocknext_block" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">@property
+def next_block()
+</code></pre>
+
+<p>Define next_block as property.</p>
+<p><a id="pyGCodeDecode.planner_block.planner_block.prev_block"></a></p>
+<h4 id="planner_blockprev_block">planner_block.prev_block<a class="headerlink" href="#planner_blockprev_block" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">@property
+def prev_block()
+</code></pre>
+
+<p>Define prev_block as property.</p>
+<p><a id="pyGCodeDecode.planner_block.planner_block.self_correction"></a></p>
+<h4 id="planner_blockself_correction">planner_block.self_correction<a class="headerlink" href="#planner_blockself_correction" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def self_correction(tolerance=float(&quot;1e-12&quot;))
+</code></pre>
+
+<p>Check for interfacing vel and self correct.</p>
+<p><a id="pyGCodeDecode.planner_block.planner_block.timeshift"></a></p>
+<h4 id="planner_blocktimeshift">planner_block.timeshift<a class="headerlink" href="#planner_blocktimeshift" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def timeshift(delta_t: float)
+</code></pre>
+
+<p>Shift planner block in time.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>delta_t</code> - (float) time to be shifted</li>
+</ul>
+<p><a id="pyGCodeDecode.plotter"></a></p>
+<h2 id="pygcodedecodeplotter">pyGCodeDecode.plotter<a class="headerlink" href="#pygcodedecodeplotter" title="Permanent link">&para;</a></h2>
+<p>This module provides functionality for 3D plotting of G-code simulation data using PyVista.</p>
+<p><a id="pyGCodeDecode.plotter.plot_2d"></a></p>
+<h4 id="plot_2d">plot_2d<a class="headerlink" href="#plot_2d" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def plot_2d(sim: simulation,
+            filepath: pathlib.Path = pathlib.Path(&quot;trajectory_2D.png&quot;),
+            colvar=&quot;Velocity&quot;,
+            show_points=False,
+            colvar_spatial_resolution=1,
+            dpi=400,
+            scaled=True,
+            show=False)
+</code></pre>
+
+<p>Plot 2D position (XY plane) with matplotlib (unmaintained).</p>
+<p><a id="pyGCodeDecode.plotter.plot_3d"></a></p>
+<h4 id="plot_3d">plot_3d<a class="headerlink" href="#plot_3d" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def plot_3d(sim: simulation,
+            extrusion_only: bool = True,
+            scalar_value: str = &quot;velocity&quot;,
+            screenshot_path: pathlib.Path = None,
+            camera_settings: dict = None,
+            vtk_path: pathlib.Path = None,
+            mesh: pv.MultiBlock = None,
+            layer_select: int = None,
+            z_scaler: float = None,
+            window_size: tuple = (2048, 1536),
+            mpl_subplot: bool = False,
+            mpl_rcParams: Union[dict, None] = None,
+            solid_color: str = &quot;black&quot;,
+            transparent_background: bool = True,
+            parallel_projection: bool = False,
+            lighting: bool = True,
+            block_colorbar: bool = False,
+            extra_plotting: callable = None,
+            overwrite_labels: Union[dict, None] = None,
+            scalar_value_bounds: Union[Tuple[float, float], None] = None,
+            return_type: str = &quot;mesh&quot;) -&gt; pv.MultiBlock
+</code></pre>
+
+<p>Plot a 3D visualization of G-code simulation data using PyVista.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>sim</code> <em>simulation</em> - The simulation object containing blocklist and segment data.</li>
+<li><code>extrusion_only</code> <em>bool, optional</em> - If True, plot only segments where extrusion occurs. Defaults to True.</li>
+<li><code>scalar_value</code> <em>str, optional</em> - Scalar value to color the plot. Options: "velocity", "rel_vel_err", "acceleration", or None. Defaults to "velocity".</li>
+<li><code>screenshot_path</code> <em>pathlib.Path, optional</em> - If provided, saves a screenshot to this path and disables interactive plotting. Defaults to None.</li>
+<li><code>camera_settings</code> <em>dict, optional</em> - Camera settings for the plotter. Keys: "camera_position", "elevation", "azimuth", "roll". Defaults to None.</li>
+<li><code>vtk_path</code> <em>pathlib.Path, optional</em> - If provided, saves the mesh as a VTK file to this path. Defaults to None.</li>
+<li><code>mesh</code> <em>pv.MultiBlock, optional</em> - Precomputed PyVista mesh to use instead of generating a new one. Defaults to None.</li>
+<li><code>layer_select</code> <em>int, optional</em> - If provided, only plot the specified layer. Defaults to None (all layers).</li>
+<li><code>z_scaler</code> <em>float, optional</em> - Scaling factor for the z-axis layer squishing (z_scaler = width/height of extrusion). Defaults to None (automatic scaling).</li>
+<li><code>window_size</code> <em>tuple, optional</em> - Size of the plot window in pixels. Defaults to (2048, 1536).</li>
+<li><code>mpl_subplot</code> <em>bool, optional</em> - If True, use matplotlib for screenshot and colorbar. Defaults to False.</li>
+<li><code>mpl_rcParams</code> <em>dict or None, optional</em> - Custom matplotlib rcParams for styling. Defaults to None.</li>
+<li><code>solid_color</code> <em>str, optional</em> - Background color for the plot. Defaults to "black".</li>
+<li><code>transparent_background</code> <em>bool, optional</em> - If True, screenshot background is transparent. Defaults to True.</li>
+<li><code>parallel_projection</code> <em>bool, optional</em> - If True, enables parallel projection in PyVista. Defaults to False.</li>
+<li><code>lighting</code> <em>bool, optional</em> - If True, enables lighting in the plot. Defaults to True.</li>
+<li><code>block_colorbar</code> <em>bool, optional</em> - If True, removes the scalar colorbar from the plot. Defaults to False.</li>
+<li><code>extra_plotting</code> <em>callable, optional</em> - Function to add extra plotting to the PyVista plotter. Signature: (plotter, mesh). Defaults to None.</li>
+<li><code>overwrite_labels</code> <em>dict or None, optional</em> - Dictionary to overwrite colorbar labels. Defaults to None.</li>
+<li><code>scalar_value_bounds</code> <em>tuple or None, optional</em> - Tuple (min, max) to set scalar colorbar range. Defaults to None.</li>
+<li><code>return_type</code> <em>str, optional</em> - Return type, "mesh" or "image". Defaults to "mesh".</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>pv.MultiBlock</code> - The PyVista mesh used for plotting.
+  or</li>
+<li><code>np.ndarray</code> - The screenshot image if <code>screenshot_path</code> is provided and <code>return_type</code> is "image".</li>
+</ul>
+<p><a id="pyGCodeDecode.plotter.plot_vel"></a></p>
+<h4 id="plot_vel">plot_vel<a class="headerlink" href="#plot_vel" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def plot_vel(sim: simulation,
+             axis: Tuple[str] = (&quot;x&quot;, &quot;y&quot;, &quot;z&quot;, &quot;e&quot;),
+             show: bool = True,
+             show_planner_blocks: bool = True,
+             show_segments: bool = False,
+             show_jv: bool = False,
+             time_steps: Union[int, str] = &quot;constrained&quot;,
+             filepath: pathlib.Path = None,
+             dpi: int = 400) -&gt; Figure
+</code></pre>
+
+<p>Plot axis velocity with matplotlib.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>axis</code> - (tuple(string), default = ("x", "y", "z", "e")) select plot axis</li>
+<li><code>show</code> - (bool, default = True) show plot and return plot figure</li>
+<li><code>show_planner_blocks</code> - (bool, default = True) show planner_blocks as vertical lines</li>
+<li><code>show_segments</code> - (bool, default = False) show segments as vertical lines</li>
+<li><code>show_jv</code> - (bool, default = False) show junction velocity as x</li>
+<li><code>time_steps</code> - (int or string, default = "constrained") number of time steps or constrain plot
+  vertices to segment vertices</li>
+<li><code>filepath</code> - (Path, default = None) save fig as image if filepath is provided</li>
+<li><code>dpi</code> - (int, default = 400) select dpi</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p>(optionally)
+- <code>fig</code> - (figure)</p>
+<p><a id="pyGCodeDecode.result"></a></p>
+<h2 id="pygcodedecoderesult">pyGCodeDecode.result<a class="headerlink" href="#pygcodedecoderesult" title="Permanent link">&para;</a></h2>
+<p>Result calculation for segments and planner blocks.</p>
+<p><a id="pyGCodeDecode.result.abstract_result"></a></p>
+<h3 id="abstract_result-objects">abstract_result Objects<a class="headerlink" href="#abstract_result-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class abstract_result(ABC)
+</code></pre>
+
+<p>Abstract class for result calculation.</p>
+<p><a id="pyGCodeDecode.result.abstract_result.calc_pblock"></a></p>
+<h4 id="abstract_resultcalc_pblock">abstract_result.calc_pblock<a class="headerlink" href="#abstract_resultcalc_pblock" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">@abstractmethod
+def calc_pblock(pblock: &quot;planner_block&quot;, **kwargs)
+</code></pre>
+
+<p>Calculate the result for a planner block.</p>
+<p><a id="pyGCodeDecode.result.abstract_result.calc_segm"></a></p>
+<h4 id="abstract_resultcalc_segm">abstract_result.calc_segm<a class="headerlink" href="#abstract_resultcalc_segm" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">@abstractmethod
+def calc_segm(segm: &quot;segment&quot;, **kwargs)
+</code></pre>
+
+<p>Calculate the result for a segment.</p>
+<p><a id="pyGCodeDecode.result.abstract_result.name"></a></p>
+<h4 id="abstract_resultname">abstract_result.name<a class="headerlink" href="#abstract_resultname" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">@property
+@abstractmethod
+def name()
+</code></pre>
+
+<p>Name of the result. Has to be set in the derived class.</p>
+<p><a id="pyGCodeDecode.result.acceleration_result"></a></p>
+<h3 id="acceleration_result-objects">acceleration_result Objects<a class="headerlink" href="#acceleration_result-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class acceleration_result(abstract_result)
+</code></pre>
+
+<p>The acceleration.</p>
+<p><a id="pyGCodeDecode.result.acceleration_result.calc_pblock"></a></p>
+<h4 id="acceleration_resultcalc_pblock">acceleration_result.calc_pblock<a class="headerlink" href="#acceleration_resultcalc_pblock" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def calc_pblock(pblock, **kwargs)
+</code></pre>
+
+<p>Calculate the acceleration for a planner block.</p>
+<p><a id="pyGCodeDecode.result.acceleration_result.calc_segm"></a></p>
+<h4 id="acceleration_resultcalc_segm">acceleration_result.calc_segm<a class="headerlink" href="#acceleration_resultcalc_segm" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def calc_segm(segm: &quot;segment&quot;, **kwargs)
+</code></pre>
+
+<p>Calculate the acceleration for a segment.</p>
+<p><a id="pyGCodeDecode.result.get_all_result_calculators"></a></p>
+<h4 id="get_all_result_calculators">get_all_result_calculators<a class="headerlink" href="#get_all_result_calculators" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_all_result_calculators()
+</code></pre>
+
+<p>Get all results.</p>
+<p><a id="pyGCodeDecode.result.get_result_info"></a></p>
+<h4 id="get_result_info">get_result_info<a class="headerlink" href="#get_result_info" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_result_info()
+</code></pre>
+
+<p>Get information about available result calculators.</p>
+<p><a id="pyGCodeDecode.result.has_private_results"></a></p>
+<h4 id="has_private_results">has_private_results<a class="headerlink" href="#has_private_results" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def has_private_results()
+</code></pre>
+
+<p>Check if private results are available.</p>
+<p><a id="pyGCodeDecode.result.velocity_result"></a></p>
+<h3 id="velocity_result-objects">velocity_result Objects<a class="headerlink" href="#velocity_result-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class velocity_result(abstract_result)
+</code></pre>
+
+<p>The velocity.</p>
+<p><a id="pyGCodeDecode.result.velocity_result.calc_pblock"></a></p>
+<h4 id="velocity_resultcalc_pblock">velocity_result.calc_pblock<a class="headerlink" href="#velocity_resultcalc_pblock" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def calc_pblock(pblock: &quot;planner_block&quot;, **kwargs)
+</code></pre>
+
+<p>Calculate the velocity for a planner block.</p>
+<p><a id="pyGCodeDecode.result.velocity_result.calc_segm"></a></p>
+<h4 id="velocity_resultcalc_segm">velocity_result.calc_segm<a class="headerlink" href="#velocity_resultcalc_segm" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def calc_segm(segm: &quot;segment&quot;, **kwargs)
+</code></pre>
+
+<p>Calculate the velocity for a segment.</p>
+<p><a id="pyGCodeDecode.state"></a></p>
+<h2 id="pygcodedecodestate">pyGCodeDecode.state<a class="headerlink" href="#pygcodedecodestate" title="Permanent link">&para;</a></h2>
+<p>State module with state.</p>
+<p><a id="pyGCodeDecode.state.state"></a></p>
+<h3 id="state-objects">state Objects<a class="headerlink" href="#state-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class state()
+</code></pre>
+
+<p>State contains a Position and Printing Settings (p_settings) to apply for the corresponding move to this State.</p>
+<p><a id="pyGCodeDecode.state.state.__init__"></a></p>
+<h4 id="state__init__">state.__init__<a class="headerlink" href="#state__init__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __init__(state_position: position = None,
+             state_p_settings: p_settings = None)
+</code></pre>
+
+<p>Initialize a state.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>state_position</code> - (position) state position</li>
+<li><code>state_p_settings</code> - (p_settings) state printing settings</li>
+</ul>
+<p><a id="pyGCodeDecode.state.state.__repr__"></a></p>
+<h4 id="state__repr__">state.__repr__<a class="headerlink" href="#state__repr__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __repr__() -&gt; str
+</code></pre>
+
+<p>Call <strong>str</strong>() for representation.</p>
+<p><a id="pyGCodeDecode.state.state.__str__"></a></p>
+<h4 id="state__str__">state.__str__<a class="headerlink" href="#state__str__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __str__() -&gt; str
+</code></pre>
+
+<p>Generate string for representation.</p>
+<p><a id="pyGCodeDecode.state.state.line_number"></a></p>
+<h4 id="stateline_number">state.line_number<a class="headerlink" href="#stateline_number" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">@property
+def line_number()
+</code></pre>
+
+<p>Define property line_number.</p>
+<p><a id="pyGCodeDecode.state.state.line_number"></a></p>
+<h4 id="stateline_number_1">state.line_number<a class="headerlink" href="#stateline_number_1" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">@line_number.setter
+def line_number(nmbr)
+</code></pre>
+
+<p>Set line number.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>nmbr</code> - (int) line number</li>
+</ul>
+<p><a id="pyGCodeDecode.state.state.next_state"></a></p>
+<h4 id="statenext_state">state.next_state<a class="headerlink" href="#statenext_state" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">@property
+def next_state()
+</code></pre>
+
+<p>Define property next_state.</p>
+<p><a id="pyGCodeDecode.state.state.next_state"></a></p>
+<h4 id="statenext_state_1">state.next_state<a class="headerlink" href="#statenext_state_1" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">@next_state.setter
+def next_state(state: &quot;state&quot;)
+</code></pre>
+
+<p>Set next state.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>state</code> - (state) next state</li>
+</ul>
+<p><a id="pyGCodeDecode.state.state.p_settings"></a></p>
+<h3 id="p_settings-objects">p_settings Objects<a class="headerlink" href="#p_settings-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class p_settings()
+</code></pre>
+
+<p>Store Printing Settings.</p>
+<p><a id="pyGCodeDecode.state.state.p_settings.__init__"></a></p>
+<h4 id="p_settings__init__">p_settings.__init__<a class="headerlink" href="#p_settings__init__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __init__(p_acc, jerk, vX, vY, vZ, vE, speed, units=&quot;SI (mm)&quot;)
+</code></pre>
+
+<p>Initialize printing settings.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>p_acc</code> - (float) printing acceleration</li>
+<li><code>jerk</code> - (float) jerk or similar</li>
+<li><code>vX</code> - (float) max x velocity</li>
+<li><code>vY</code> - (float) max y velocity</li>
+<li><code>vZ</code> - (float) max z velocity</li>
+<li><code>vE</code> - (float) max e velocity</li>
+<li><code>speed</code> - (float) default target velocity</li>
+<li><code>units</code> - (string, default = "SI (mm)") unit settings</li>
+</ul>
+<p><a id="pyGCodeDecode.state.state.p_settings.__repr__"></a></p>
+<h4 id="p_settings__repr__">p_settings.__repr__<a class="headerlink" href="#p_settings__repr__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __repr__() -&gt; str
+</code></pre>
+
+<p>Define representation.</p>
+<p><a id="pyGCodeDecode.state.state.p_settings.__str__"></a></p>
+<h4 id="p_settings__str__">p_settings.__str__<a class="headerlink" href="#p_settings__str__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __str__() -&gt; str
+</code></pre>
+
+<p>Create summary string for p_settings.</p>
+<p><a id="pyGCodeDecode.state.state.prev_state"></a></p>
+<h4 id="stateprev_state">state.prev_state<a class="headerlink" href="#stateprev_state" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">@property
+def prev_state()
+</code></pre>
+
+<p>Define property prev_state.</p>
+<p><a id="pyGCodeDecode.state.state.prev_state"></a></p>
+<h4 id="stateprev_state_1">state.prev_state<a class="headerlink" href="#stateprev_state_1" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">@prev_state.setter
+def prev_state(state: &quot;state&quot;)
+</code></pre>
+
+<p>Set previous state.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>state</code> - (state) previous state</li>
+</ul>
+<p><a id="pyGCodeDecode.state.state.state_p_settings"></a></p>
+<h4 id="statestate_p_settings">state.state_p_settings<a class="headerlink" href="#statestate_p_settings" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">@property
+def state_p_settings()
+</code></pre>
+
+<p>Define property state_p_settings.</p>
+<p><a id="pyGCodeDecode.state.state.state_position"></a></p>
+<h4 id="statestate_position">state.state_position<a class="headerlink" href="#statestate_position" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">@property
+def state_position()
+</code></pre>
+
+<p>Define property state_position.</p>
+<p><a id="pyGCodeDecode.state_generator"></a></p>
+<h2 id="pygcodedecodestate_generator">pyGCodeDecode.state_generator<a class="headerlink" href="#pygcodedecodestate_generator" title="Permanent link">&para;</a></h2>
+<p>State generator module.</p>
+<p><a id="pyGCodeDecode.state_generator.generate_states"></a></p>
+<h4 id="generate_states">generate_states<a class="headerlink" href="#generate_states" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def generate_states(filepath: pathlib.Path,
+                    initial_machine_setup: dict) -&gt; List[state]
+</code></pre>
+
+<p>Generate state list from GCode file.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>filepath</code> - (Path) filepath to GCode</li>
+<li><code>initial_machine_setup</code> - (dict) dictionary with machine setup</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>states</code> - (list[states]) all states in a list</li>
+</ul>
+<p><a id="pyGCodeDecode.tools"></a></p>
+<h2 id="pygcodedecodetools">pyGCodeDecode.tools<a class="headerlink" href="#pygcodedecodetools" title="Permanent link">&para;</a></h2>
+<p>Tools for pyGCD.</p>
+<p><a id="pyGCodeDecode.tools.save_layer_metrics"></a></p>
+<h4 id="save_layer_metrics">save_layer_metrics<a class="headerlink" href="#save_layer_metrics" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def save_layer_metrics(
+        simulation: simulation,
+        filepath: Optional[pathlib.Path] = pathlib.Path(&quot;./layer_metrics.csv&quot;),
+        locale: str = None,
+        delimiter: str = &quot;;&quot;) -&gt; Optional[tuple[list, list, list, list]]
+</code></pre>
+
+<p>Print out print times, distance traveled and the average travel speed to a csv-file.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>simulation</code> - (simulation) simulation instance</li>
+<li><code>filepath</code> - (Path , default = "./layer_metrics.csv") file name</li>
+<li><code>locale</code> - (string, default = None) select locale settings, e.g. "en_US.utf8", None = use system locale</li>
+<li><code>delimiter</code> - (string, default = ";") select delimiter</li>
+</ul>
+<p>Layers are detected using the given layer cue.</p>
+<p><a id="pyGCodeDecode.tools.write_submodel_times"></a></p>
+<h4 id="write_submodel_times">write_submodel_times<a class="headerlink" href="#write_submodel_times" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def write_submodel_times(simulation: simulation,
+                         sub_orig: list,
+                         sub_side_x_len: float,
+                         sub_side_y_len: float,
+                         sub_side_z_len: float,
+                         filename: Optional[pathlib.Path] = pathlib.Path(
+                             &quot;submodel_times.yaml&quot;),
+                         **kwargs) -&gt; dict
+</code></pre>
+
+<p>Write the submodel entry and exit times to a yaml file.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>simulation</code> - (simulation) the simulation instance to analyze</li>
+<li><code>sub_orig</code> - (list with [xcoord, ycoord, zcoord]) the origin of the submodel control volume</li>
+<li><code>sub_side_len</code> - (float) the side length of the submodel control volume</li>
+<li><code>filename</code> - (string) yaml filename</li>
+<li><code>**kwargs</code> - (any) provide additional info to write into the yaml file</li>
+</ul>
+<p><a id="pyGCodeDecode.utils"></a></p>
+<h2 id="pygcodedecodeutils">pyGCodeDecode.utils<a class="headerlink" href="#pygcodedecodeutils" title="Permanent link">&para;</a></h2>
+<p>Utilities.</p>
+<p>Utils for the GCode Reader contains:
+- vector 4D
+    - velocity
+    - position</p>
+<p><a id="pyGCodeDecode.utils.acceleration"></a></p>
+<h3 id="acceleration-objects">acceleration Objects<a class="headerlink" href="#acceleration-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class acceleration(vector_4D)
+</code></pre>
+
+<p>4D - Acceleration object for (Cartesian) 3D printer.</p>
+<p><a id="pyGCodeDecode.utils.acceleration.__mul__"></a></p>
+<h4 id="acceleration__mul__">acceleration.__mul__<a class="headerlink" href="#acceleration__mul__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __mul__(other)
+</code></pre>
+
+<p>Multiply acceleration by a time to get velocity, or by scalar.</p>
+<p><a id="pyGCodeDecode.utils.acceleration.__str__"></a></p>
+<h4 id="acceleration__str__">acceleration.__str__<a class="headerlink" href="#acceleration__str__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __str__() -&gt; str
+</code></pre>
+
+<p>Print out acceleration.</p>
+<p><a id="pyGCodeDecode.utils.acceleration.__truediv__"></a></p>
+<h4 id="acceleration__truediv__">acceleration.__truediv__<a class="headerlink" href="#acceleration__truediv__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __truediv__(other)
+</code></pre>
+
+<p>Divide acceleration by scalar.</p>
+<p><a id="pyGCodeDecode.utils.position"></a></p>
+<h3 id="position-objects">position Objects<a class="headerlink" href="#position-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class position(vector_4D)
+</code></pre>
+
+<p>4D - Position object for (Cartesian) 3D printer.</p>
+<p><a id="pyGCodeDecode.utils.position.__str__"></a></p>
+<h4 id="position__str__">position.__str__<a class="headerlink" href="#position__str__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __str__() -&gt; str
+</code></pre>
+
+<p>Print out position.</p>
+<p><a id="pyGCodeDecode.utils.position.__truediv__"></a></p>
+<h4 id="position__truediv__">position.__truediv__<a class="headerlink" href="#position__truediv__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __truediv__(other)
+</code></pre>
+
+<p>Divide position by seconds to get velocity.</p>
+<p><a id="pyGCodeDecode.utils.position.get_t_distance"></a></p>
+<h4 id="positionget_t_distance">position.get_t_distance<a class="headerlink" href="#positionget_t_distance" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_t_distance(other=None, withExtrusion: bool = False) -&gt; float
+</code></pre>
+
+<p>Calculate the travel distance between self and other position. If none is provided, zero will be used.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>other</code> - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray', default = None)</li>
+<li><code>withExtrusion</code> - (bool, default = False) use or ignore extrusion</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>travel</code> - (float) travel or extrusion and travel distance</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.position.is_extruding"></a></p>
+<h4 id="positionis_extruding">position.is_extruding<a class="headerlink" href="#positionis_extruding" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def is_extruding(other: &quot;position&quot;, ignore_retract: bool = True) -&gt; bool
+</code></pre>
+
+<p>Return True if there is extrusion between self and other position.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>other</code> - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')</li>
+<li><code>ignore_retract</code> - (bool, default = True) if true ignore retract movements else retract is also extrusion</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>is_extruding</code> - (bool) true if between self and other is extrusion</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.position.is_travel"></a></p>
+<h4 id="positionis_travel">position.is_travel<a class="headerlink" href="#positionis_travel" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def is_travel(other) -&gt; bool
+</code></pre>
+
+<p>Return True if there is travel between self and other position.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>other</code> - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>is_travel</code> - (bool) true if between self and other is distance</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.seconds"></a></p>
+<h3 id="seconds-objects">seconds Objects<a class="headerlink" href="#seconds-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class seconds(float)
+</code></pre>
+
+<p>A float subclass representing a time duration in seconds.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>value</code> <em>float or int</em> - The time duration in seconds.</li>
+</ul>
+<p><strong>Examples</strong>:</p>
+<pre class="codehilite"><code class="language-python">&gt;&gt;&gt; from pyGCodeDecode.utils import seconds
+&gt;&gt;&gt; t = seconds(5)
+&gt;&gt;&gt; str(t)
+'5.0 s'
+&gt;&gt;&gt; t.seconds
+5.0
+</code></pre>
+
+<p><a id="pyGCodeDecode.utils.seconds.__add__"></a></p>
+<h4 id="seconds__add__">seconds.__add__<a class="headerlink" href="#seconds__add__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __add__(other) -&gt; &quot;seconds&quot;
+</code></pre>
+
+<p>Add seconds or float and return a new seconds instance.</p>
+<p><a id="pyGCodeDecode.utils.seconds.__new__"></a></p>
+<h4 id="seconds__new__">seconds.__new__<a class="headerlink" href="#seconds__new__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __new__(cls, value)
+</code></pre>
+
+<p>Create a new instance of seconds.</p>
+<p><a id="pyGCodeDecode.utils.seconds.__repr__"></a></p>
+<h4 id="seconds__repr__">seconds.__repr__<a class="headerlink" href="#seconds__repr__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __repr__() -&gt; str
+</code></pre>
+
+<p>Return a string representation of the seconds object.</p>
+<p><a id="pyGCodeDecode.utils.seconds.__str__"></a></p>
+<h4 id="seconds__str__">seconds.__str__<a class="headerlink" href="#seconds__str__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __str__() -&gt; str
+</code></pre>
+
+<p>Return string representation of the time in seconds.</p>
+<p><a id="pyGCodeDecode.utils.seconds.__sub__"></a></p>
+<h4 id="seconds__sub__">seconds.__sub__<a class="headerlink" href="#seconds__sub__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __sub__(other) -&gt; &quot;seconds&quot;
+</code></pre>
+
+<p>Subtract seconds or float and return a new seconds instance.</p>
+<p><a id="pyGCodeDecode.utils.seconds.seconds"></a></p>
+<h4 id="secondsseconds">seconds.seconds<a class="headerlink" href="#secondsseconds" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">@property
+def seconds() -&gt; float
+</code></pre>
+
+<p>Return the float value of the seconds instance.</p>
+<p><a id="pyGCodeDecode.utils.segment"></a></p>
+<h3 id="segment-objects">segment Objects<a class="headerlink" href="#segment-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class segment()
+</code></pre>
+
+<p>Store Segment data for linear 4D Velocity function segment.</p>
+<p>contains: time, position, velocity
+<strong>Supports</strong>
+- str</p>
+<p><strong>Additional methods</strong>
+- move_segment_time: moves Segment in time by a specified interval
+- get_velocity: returns the calculated Velocity for all axis at a given point in time
+- get_position: returns the calculated Position for all axis at a given point in time
+- get_segm_len: returns the length of the segment.</p>
+<p><strong>Class method</strong>
+- create_initial: returns the artificial initial segment where everything is at standstill, intervall length = 0
+- self_check: returns True if all self checks have been successfull</p>
+<p><a id="pyGCodeDecode.utils.segment.__init__"></a></p>
+<h4 id="segment__init__">segment.__init__<a class="headerlink" href="#segment__init__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __init__(t_begin: Union[float, seconds],
+             t_end: Union[float, seconds],
+             pos_begin: position,
+             vel_begin: velocity,
+             pos_end: position = None,
+             vel_end: velocity = None)
+</code></pre>
+
+<p>Initialize a segment.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>t_begin</code> - (float) begin of segment</li>
+<li><code>t_end</code> - (float) end of segment</li>
+<li><code>pos_begin</code> - (position) beginning position of segment</li>
+<li><code>vel_begin</code> - (velocity) beginning velocity of segment</li>
+<li><code>pos_end</code> - (position, default = None) ending position of segment</li>
+<li><code>vel_end</code> - (velocity, default = None) ending velocity of segment</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.segment.__repr__"></a></p>
+<h4 id="segment__repr__">segment.__repr__<a class="headerlink" href="#segment__repr__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __repr__()
+</code></pre>
+
+<p>Segment representation.</p>
+<p><a id="pyGCodeDecode.utils.segment.__str__"></a></p>
+<h4 id="segment__str__">segment.__str__<a class="headerlink" href="#segment__str__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __str__() -&gt; str
+</code></pre>
+
+<p>Create string from segment.</p>
+<p><a id="pyGCodeDecode.utils.segment.create_initial"></a></p>
+<h4 id="segmentcreate_initial">segment.create_initial<a class="headerlink" href="#segmentcreate_initial" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">@classmethod
+def create_initial(cls,
+                   initial_position: Optional[position] = None) -&gt; &quot;segment&quot;
+</code></pre>
+
+<p>Create initial static segment with (optionally) initial position else start from Zero.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>initial_position</code> - (postion, default = None) position to begin segment series</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>segment</code> - (segment) initial beginning segment</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.segment.get_position"></a></p>
+<h4 id="segmentget_position">segment.get_position<a class="headerlink" href="#segmentget_position" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_position(t: Union[float, seconds]) -&gt; position
+</code></pre>
+
+<p>Get current position of segment at a certain time.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>t</code> - (float) time</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>pos</code> - (position) position at time t</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.segment.get_result"></a></p>
+<h4 id="segmentget_result">segment.get_result<a class="headerlink" href="#segmentget_result" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_result(key: str)
+</code></pre>
+
+<p>Return the requested result.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>key</code> - (str) choose result</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>result</code> - (list)</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.segment.get_segm_duration"></a></p>
+<h4 id="segmentget_segm_duration">segment.get_segm_duration<a class="headerlink" href="#segmentget_segm_duration" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_segm_duration() -&gt; seconds
+</code></pre>
+
+<p>Return the duration of the segment.</p>
+<p><a id="pyGCodeDecode.utils.segment.get_segm_len"></a></p>
+<h4 id="segmentget_segm_len">segment.get_segm_len<a class="headerlink" href="#segmentget_segm_len" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_segm_len() -&gt; float
+</code></pre>
+
+<p>Return the length of the segment.</p>
+<p><a id="pyGCodeDecode.utils.segment.get_velocity"></a></p>
+<h4 id="segmentget_velocity">segment.get_velocity<a class="headerlink" href="#segmentget_velocity" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_velocity(t: Union[float, seconds]) -&gt; velocity
+</code></pre>
+
+<p>Get current velocity of segment at a certain time.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>t</code> - (float) time</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>current_vel</code> - (velocity) velocity at time t</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.segment.get_velocity_by_dist"></a></p>
+<h4 id="segmentget_velocity_by_dist">segment.get_velocity_by_dist<a class="headerlink" href="#segmentget_velocity_by_dist" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_velocity_by_dist(dist: float) -&gt; float
+</code></pre>
+
+<p>Return the velocity magnitude at a certain local segment distance.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>dist</code> - (float) distance from segment start</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.segment.is_extruding"></a></p>
+<h4 id="segmentis_extruding">segment.is_extruding<a class="headerlink" href="#segmentis_extruding" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def is_extruding() -&gt; bool
+</code></pre>
+
+<p>Return true if the segment is pos. extruding.</p>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>is_extruding</code> - (bool) true if positive extrusion</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.segment.move_segment_time"></a></p>
+<h4 id="segmentmove_segment_time">segment.move_segment_time<a class="headerlink" href="#segmentmove_segment_time" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def move_segment_time(delta_t: Union[float, seconds]) -&gt; None
+</code></pre>
+
+<p>Move segment in time.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>delta_t</code> - (float) time to be shifted</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.segment.self_check"></a></p>
+<h4 id="segmentself_check">segment.self_check<a class="headerlink" href="#segmentself_check" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def self_check(p_settings: &quot;state.p_settings&quot; = None) -&gt; bool
+</code></pre>
+
+<p>Check the segment for self consistency.</p>
+<p><strong>Raises</strong>:</p>
+<ul>
+<li><code>ValueError</code> - if self check fails</li>
+</ul>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>p_settings</code> - (p_settings, default = None) printing settings to verify</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p>True if all checks pass</p>
+<p><a id="pyGCodeDecode.utils.vector_4D"></a></p>
+<h3 id="vector_4d-objects">vector_4D Objects<a class="headerlink" href="#vector_4d-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class vector_4D()
+</code></pre>
+
+<p>The vector_4D class stores 4D vector in x,y,z,e.</p>
+<p><strong>Supports:</strong>
+- str
+- add
+- sub
+- mul (scalar)
+- truediv (scalar)
+- eq</p>
+<p><a id="pyGCodeDecode.utils.vector_4D.__add__"></a></p>
+<h4 id="vector_4d__add__">vector_4D.__add__<a class="headerlink" href="#vector_4d__add__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __add__(other)
+</code></pre>
+
+<p>Add functionality for 4D vectors.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>other</code> - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>add</code> - (self) component wise addition</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.vector_4D.__eq__"></a></p>
+<h4 id="vector_4d__eq__">vector_4D.__eq__<a class="headerlink" href="#vector_4d__eq__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __eq__(other) -&gt; bool
+</code></pre>
+
+<p>Check for equality and return True if equal.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>other</code> - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>eq</code> - (bool) true if equal</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.vector_4D.__gt__"></a></p>
+<h4 id="vector_4d__gt__">vector_4D.__gt__<a class="headerlink" href="#vector_4d__gt__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __gt__(other) -&gt; bool
+</code></pre>
+
+<p>Check for greater than and return True if greater.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>other</code> - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>gt</code> - (bool) true if greater</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.vector_4D.__init__"></a></p>
+<h4 id="vector_4d__init__">vector_4D.__init__<a class="headerlink" href="#vector_4d__init__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __init__(*args)
+</code></pre>
+
+<p>Store 3D position + extrusion axis.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>args</code> - coordinates as arguments x,y,z,e or (tuple or list) [x,y,z,e]</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.vector_4D.__mul__"></a></p>
+<h4 id="vector_4d__mul__">vector_4D.__mul__<a class="headerlink" href="#vector_4d__mul__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __mul__(other)
+</code></pre>
+
+<p>Scalar multiplication functionality for 4D vectors.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>other</code> - (float or int)</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>mul</code> - (self) scalar multiplication, scaling</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.vector_4D.__repr__"></a></p>
+<h4 id="vector_4d__repr__">vector_4D.__repr__<a class="headerlink" href="#vector_4d__repr__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __repr__()
+</code></pre>
+
+<p>Return a string representation of the 4D vector.</p>
+<p><a id="pyGCodeDecode.utils.vector_4D.__str__"></a></p>
+<h4 id="vector_4d__str__">vector_4D.__str__<a class="headerlink" href="#vector_4d__str__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __str__() -&gt; str
+</code></pre>
+
+<p>Return string representation.</p>
+<p><a id="pyGCodeDecode.utils.vector_4D.__sub__"></a></p>
+<h4 id="vector_4d__sub__">vector_4D.__sub__<a class="headerlink" href="#vector_4d__sub__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __sub__(other)
+</code></pre>
+
+<p>Sub functionality for 4D vectors.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>other</code> - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>sub</code> - (self) component wise subtraction</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.vector_4D.__truediv__"></a></p>
+<h4 id="vector_4d__truediv__">vector_4D.__truediv__<a class="headerlink" href="#vector_4d__truediv__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __truediv__(other)
+</code></pre>
+
+<p>Scalar division functionality for 4D Vectors.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>other</code> - (float or int)</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>div</code> - (self) scalar division, scaling</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.vector_4D.get_norm"></a></p>
+<h4 id="vector_4dget_norm">vector_4D.get_norm<a class="headerlink" href="#vector_4dget_norm" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_norm(withExtrusion: bool = False) -&gt; float
+</code></pre>
+
+<p>Return the 4D vector norm. Optional with extrusion.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>withExtrusion</code> - (bool, default = False) choose if norm contains extrusion</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>norm</code> - (float) length/norm of 3D or 4D vector</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.vector_4D.get_vec"></a></p>
+<h4 id="vector_4dget_vec">vector_4D.get_vec<a class="headerlink" href="#vector_4dget_vec" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_vec(withExtrusion: bool = False) -&gt; List[float]
+</code></pre>
+
+<p>Return the 4D vector, optionally with extrusion.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>withExtrusion</code> - (bool, default = False) choose if vec repr contains extrusion</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>vec</code> - (list[3 or 4]) with (x,y,z,(optionally e))</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.velocity"></a></p>
+<h3 id="velocity-objects">velocity Objects<a class="headerlink" href="#velocity-objects" title="Permanent link">&para;</a></h3>
+<pre class="codehilite"><code class="language-python">class velocity(vector_4D)
+</code></pre>
+
+<p>4D - Velocity object for (Cartesian) 3D printer.</p>
+<p><a id="pyGCodeDecode.utils.velocity.__mul__"></a></p>
+<h4 id="velocity__mul__">velocity.__mul__<a class="headerlink" href="#velocity__mul__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __mul__(other)
+</code></pre>
+
+<p>Multiply velocity by a time to get position, or by scalar.</p>
+<p><a id="pyGCodeDecode.utils.velocity.__str__"></a></p>
+<h4 id="velocity__str__">velocity.__str__<a class="headerlink" href="#velocity__str__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __str__() -&gt; str
+</code></pre>
+
+<p>Print out velocity.</p>
+<p><a id="pyGCodeDecode.utils.velocity.__truediv__"></a></p>
+<h4 id="velocity__truediv__">velocity.__truediv__<a class="headerlink" href="#velocity__truediv__" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def __truediv__(other)
+</code></pre>
+
+<p>Divide velocity by scalar.</p>
+<p><a id="pyGCodeDecode.utils.velocity.get_norm_dir"></a></p>
+<h4 id="velocityget_norm_dir">velocity.get_norm_dir<a class="headerlink" href="#velocityget_norm_dir" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def get_norm_dir(withExtrusion: bool = False) -&gt; Optional[np.ndarray]
+</code></pre>
+
+<p>Get normalized direction vector as numpy array.</p>
+<p>If only extrusion occurs and withExtrusion=True, normalize to the extrusion length.</p>
+<p>Returns None if both travel and extrusion are zero.</p>
+<p><a id="pyGCodeDecode.utils.velocity.is_extruding"></a></p>
+<h4 id="velocityis_extruding">velocity.is_extruding<a class="headerlink" href="#velocityis_extruding" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def is_extruding() -&gt; bool
+</code></pre>
+
+<p>Return True if extrusion velocity is greater than zero.</p>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>is_extruding</code> - (bool) true if positive extrusion velocity</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.velocity.not_zero"></a></p>
+<h4 id="velocitynot_zero">velocity.not_zero<a class="headerlink" href="#velocitynot_zero" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def not_zero() -&gt; bool
+</code></pre>
+
+<p>Return True if velocity is not zero.</p>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>not_zero</code> - (bool) true if velocity is not zero</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/FAST-LB/pyGCodeDecode" class="fa fa-code-fork" style="color: #fcfcfc"> FAST-LB/pyGCodeDecode</a>
+        </span>
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
