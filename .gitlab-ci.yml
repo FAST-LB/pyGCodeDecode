@@ -42,7 +42,7 @@ doc-build:
     needs: []
     only:
         refs:
-            - main
+            - ^main$
     before_script:
         - apt-get update && apt-get install git-lfs
         - git lfs install
