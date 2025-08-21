@@ -41,6 +41,8 @@ doc-build:
     image: "python:3.13"
     needs: []
     before_script:
+        - sudo apt-get install git-lfs
+        - git lfs install
         - pip install --upgrade pip
     script:
         - git config --global user.name "${GITLAB_USER_NAME}"
