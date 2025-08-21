@@ -50,6 +50,7 @@ doc-build:
         - git config --global user.name "${GITLAB_USER_NAME}"
         - git config --global user.email "${GITLAB_USER_EMAIL}"
         - git remote set-url origin https://gitlab-ci-token:${pyGCD_access_token}@gitlab.kit.edu/kit/fast/lb/collaboration/additive-manufacturing/pygcodedecode.git
+        - pip install git+https://github.com/jeknirsch/pydoc-markdown.git@sort_modules
         - pip install -e .[DOCS]
         - pydoc-markdown
         - cd docs
