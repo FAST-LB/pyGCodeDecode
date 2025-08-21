@@ -46,6 +46,7 @@ doc-build:
         - pip install -e .[DOCS]
         - pydoc-markdown
         - cd docs && mkdocs build
+        - mkdocs gh-deploy
     artifacts:
         untracked: false
         paths:
