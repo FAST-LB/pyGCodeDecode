@@ -3,18 +3,21 @@
 import copy
 import math
 import os
+import pathlib
 import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from pyGCodeDecode.gcode_interpreter import generate_planner_blocks
 from pyGCodeDecode.junction_handling import (
     _get_handler_names,
     get_handler,
     junction_handling,
 )
 from pyGCodeDecode.state import state
+from pyGCodeDecode.state_generator import generate_states
 from pyGCodeDecode.utils import position
 
 
@@ -214,6 +217,29 @@ def test_junction_handlings_rotating_COS():
     os.makedirs(output_dir, exist_ok=True)
     fig.savefig(os.path.join(output_dir, "junction_handlings_rotating_COS.png"), dpi=300, bbox_inches="tight")
     # plt.show()
+
+
+def test_junction_handling_state_connect():
+    """Test for the state connect method in the junction handling."""
+    from pyGCodeDecode.gcode_interpreter import setup
+
+    test_setup = setup(
+        presets_file=pathlib.Path("./tests/data/test_printer_setups.yaml"),
+        printer="prusa_mini",
+        layer_cue="LAYER cue",
+    )
+    test_setup.set_property({"p_acc": 10})
+
+    print(test_setup.firmware)
+    states = generate_states(
+        filepath=pathlib.Path("./tests/data/test_state_generator.gcode"),
+        initial_machine_setup=test_setup.get_dict(),
+    )
+
+    blocks = generate_planner_blocks(states, firmware=test_setup.firmware)
+
+    print(blocks)
+    # TODO assert states are connected correctly
 
 
 if __name__ == "__main__":
