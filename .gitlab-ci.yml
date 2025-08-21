@@ -41,7 +41,7 @@ doc-build:
     image: "python:3.13"
     needs: []
     before_script:
-        - apt-get install git-lfs
+        - apt-get update && apt-get install git-lfs
         - git lfs install
         - pip install --upgrade pip
     script:
