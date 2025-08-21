@@ -147,7 +147,7 @@ generate_abaqus_event_series(
 )
 ```
 
-For more in depth information have a look into the [documentation](https://github.com/FAST-LB/pyGCodeDecode/blob/main/doc.md).
+For more in depth information have a look into the [documentation](https://fast-lb.github.io/pyGCodeDecode/).
 
 ## Supported GCode commands
 
