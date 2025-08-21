@@ -58,7 +58,8 @@ class junction_handling:
         while True:
             if (
                 next_next_state.next_state is None
-                or self.state_B.state_position.get_t_distance(next_next_state.state_position, withExtrusion=True) > 0
+                or self.state_B.state_position != next_next_state.state_position
+                # or self.state_B.state_position.get_t_distance(next_next_state.state_position, withExtrusion=True) > 0  # inefficient check
             ):
                 vel_next = self.connect_state(
                     state_A=self.state_B, state_B=next_next_state

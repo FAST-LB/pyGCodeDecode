@@ -191,13 +191,13 @@ class vector_4D:
         return self.__class__(x, y, z, e)
 
     def __eq__(self, other) -> bool:
-        """Check for equality and return True if equal (with tolerance).
+        """Check for equality and return True if equal.
 
         Args:
             other: (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
 
         Returns:
-            eq: (bool) true if equal (with tolerance)
+            eq: (bool) true if equal
         """
         if isinstance(other, type(self)):
             other_vec = [other.x, other.y, other.z, other.e]
@@ -207,7 +207,8 @@ class vector_4D:
             return False
 
         self_vec = [self.x, self.y, self.z, self.e]
-        return np.allclose(self_vec, other_vec)
+        return other_vec == self_vec
+        # return np.allclose(self_vec, other_vec)
 
     def __gt__(self, other) -> bool:
         """Check for greater than and return True if greater.
