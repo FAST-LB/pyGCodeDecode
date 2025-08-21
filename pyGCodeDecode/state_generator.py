@@ -5,7 +5,7 @@ import pathlib
 import re
 from typing import List, Match
 
-from pyGCodeDecode.helpers import custom_print
+from pyGCodeDecode.helpers import ProgressBar, custom_print
 
 from .state import state
 from .utils import position
@@ -90,7 +90,6 @@ default_virtual_machine = {
     "filament_diam": 1.75,
     # default settings
     "p_vel": 35,
-    "t_vel": 35,
     "p_acc": 200,
     "jerk": 10,
     # axis max speeds
@@ -106,7 +105,7 @@ default_virtual_machine = {
 }
 
 
-def arg_extract(string: str, key_dict: dict) -> dict:
+def _arg_extract(string: str, key_dict: dict) -> dict:
     """
     Extract arguments from known command dictionaries.
 
@@ -120,6 +119,7 @@ def arg_extract(string: str, key_dict: dict) -> dict:
     """
     arg_dict = dict()  # dict to store found arguments for each key
     matches: List[Match] = list()  # list to store matching keywords
+    string = str(string)  # typecasting to prevent TypeError
 
     for key in key_dict.keys():  # look for each key in the dictionary
         match = re.search(key, string)  # regex search for key in string
@@ -164,7 +164,7 @@ def arg_extract(string: str, key_dict: dict) -> dict:
             arg = string[match_end:]  # special case for comments where everything coming after match is arg
 
         if key_dict[key] is not None:  # check for nested commands
-            arg = arg_extract(arg, key_dict[key])  # call arg_extract through recursion
+            arg = _arg_extract(arg, key_dict[key])  # call _arg_extract through recursion
 
         # save matches found outside of comments, not applying for comments
         if match.end() <= comment_begin or key == ";":
@@ -173,35 +173,46 @@ def arg_extract(string: str, key_dict: dict) -> dict:
     return arg_dict
 
 
-def read_gcode_to_dict_list(filepath: pathlib.Path) -> List[dict]:
+def _read_gcode_to_dict_list(filepath: pathlib.Path) -> List[dict]:
     """
     Read gcode from .gcode file.
 
     Args:
-        filename: (Path) filepath of the .gcode file
+        filepath: (Path) filepath of the .gcode file
 
     Returns:
         dict_list: (list[dict]) list with every line as dict
     """
-    custom_print("Parsing the gcode...")
     dict_list = []
 
+    # First pass to count total lines
+    with open(file=filepath) as file_gcode:
+        total_lines = sum(1 for _ in file_gcode)
+
+    # Initialize progress bar with the total number of lines
+    progress_bar = ProgressBar(name=f"Parsing {total_lines} lines of {filepath.name}")
+
+    # Second pass to process the lines
     with open(file=filepath) as file_gcode:
         for i, line in enumerate(file_gcode):
-            line_dict = arg_extract(string=line, key_dict=known_commands)
+            line_dict = _arg_extract(string=line, key_dict=known_commands)
             line_dict["line_number"] = i + 1
             dict_list.append(line_dict)
 
-    custom_print(f"Parsing done. {len(dict_list)} lines parsed.")
+            # Update progress bar
+            progress = (i + 1) / total_lines
+            progress_bar.update(progress)
+
+    # custom_print(f"Parsing done. {len(dict_list)} lines parsed.")
 
     return dict_list
 
 
-def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) -> List[state]:
+def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) -> List[state]:
     """
     Convert the line dictionary to a state.
 
-    Parameters:
+    Args:
         line_dict_list: (dict) dict list with commands
         initial_machine_setup: (dict) dict with initial machine setup [absolute_position, absolute_extrusion, units, initial_position...]
 
@@ -209,6 +220,20 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
         state_list: (list[state]) all states in a list
 
     """
+    position_fully_defined = False
+
+    def is_position_fully_defined(virtual_machine: dict) -> bool:
+        nonlocal position_fully_defined
+
+        if position_fully_defined or all(virtual_machine[key] is not None for key in ax_keys):
+            position_fully_defined = True
+        return position_fully_defined
+
+    def apply_pos_offset(virtual_machine: dict) -> list[float]:
+        pos = []
+        for key in ax_keys:
+            pos.append(virtual_machine[key] + virtual_machine[f"_{key}"] if virtual_machine[key] is not None else None)
+        return pos
 
     def apply_extrusion(line_dict: dict, virtual_machine: dict, command: str) -> dict:
         e_value = line_dict[command]["E"]
@@ -228,6 +253,9 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
         return virtual_machine
 
     state_list: List[state] = list()
+
+    pos_keys = ["X", "Y", "Z"]
+    ax_keys = pos_keys + ["E"]  # add E for extrusion
 
     virtual_machine = {
         "X": 0,  # machine coordinates
@@ -256,30 +284,27 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
             )
             virtual_machine[key] = default_virtual_machine[key]
 
-    # initial state creation
-    state_position = position(
-        virtual_machine["X"] + virtual_machine["_X"],
-        virtual_machine["Y"] + virtual_machine["_Y"],
-        virtual_machine["Z"] + virtual_machine["_Z"],
-        virtual_machine["E"] + virtual_machine["_E"],
-    )
+    # create initial state only with initial position
+    if not any([virtual_machine[poskey] is None for poskey in pos_keys]):
+        # initial state creation
+        state_position = position(apply_pos_offset(virtual_machine))
 
-    p_settings = state.p_settings(
-        speed=virtual_machine["p_vel"],
-        p_acc=virtual_machine["p_acc"],
-        jerk=virtual_machine["jerk"],
-        vX=virtual_machine["vX"],
-        vY=virtual_machine["vY"],
-        vZ=virtual_machine["vZ"],
-        vE=virtual_machine["vE"],
-    )
-    new_state = state(state_position=state_position, state_p_settings=p_settings)  # create new state
+        p_settings = state.p_settings(
+            speed=virtual_machine["p_vel"],
+            p_acc=virtual_machine["p_acc"],
+            jerk=virtual_machine["jerk"],
+            vX=virtual_machine["vX"],
+            vY=virtual_machine["vY"],
+            vZ=virtual_machine["vZ"],
+            vE=virtual_machine["vE"],
+        )
+        new_state = state(state_position=state_position, state_p_settings=p_settings)  # create new state
 
-    # add initial state comment
-    new_state.comment = "Initial state created by pyGCD."
-    new_state.line_number = None
+        # add initial state comment
+        new_state.comment = "Initial state created by pyGCD."
+        new_state.line_number = None
 
-    state_list.append(new_state)
+        state_list.append(new_state)
 
     # GCode functionality:
     for line_dict in line_dict_list:
@@ -302,18 +327,22 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
             virtual_machine["units"] = "SI (mm)"
 
         # position & velocity
-        pos_keys = ["X", "Y", "Z"]
         movement_commands = ["G0", "G1"]
         for command in movement_commands:  # treat G0 and G1 the same
             if command in line_dict:
                 # look for xyz movement commands and apply abs/rel
                 for key in pos_keys:
                     if key in line_dict[command]:
+                        # absolute movement
                         if virtual_machine["absolute_position"] is True:
                             virtual_machine[key] = line_dict[command][key]
-                        elif virtual_machine["absolute_position"] is False:  # redundant
-                            virtual_machine[key] = virtual_machine[key] + line_dict[command][key]
 
+                        # relative movement
+                        else:
+                            if is_position_fully_defined(virtual_machine):
+                                virtual_machine[key] = virtual_machine[key] + line_dict[command][key]
+                            else:
+                                raise ValueError("Position is not fully defined, cannot apply relative movement.")
                 # look for extrusion commands and apply abs/rel
                 if "E" in line_dict[command]:
                     virtual_machine = apply_extrusion(line_dict, virtual_machine, command)
@@ -326,8 +355,10 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
         if "G92" in line_dict:
             for key in line_dict["G92"]:
                 if key in known_commands["G92"]:
-                    virtual_machine["_" + key] = (
-                        virtual_machine[key] + line_dict["G92"][key] + virtual_machine["_" + key]
+                    if virtual_machine[key] is None:
+                        virtual_machine[key] = 0  # initialize to 0 if no position is set beforehand
+                    virtual_machine[f"_{key}"] = (
+                        virtual_machine[key] + line_dict["G92"][key] + virtual_machine[f"_{key}"]
                     )
                     virtual_machine[key] = line_dict["G92"][key]
 
@@ -353,12 +384,22 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
             if "S" in line_dict["G4"]:
                 pause_duration = line_dict["G4"]["S"]
 
-        state_position = position(
-            virtual_machine["X"] + virtual_machine["_X"],
-            virtual_machine["Y"] + virtual_machine["_Y"],
-            virtual_machine["Z"] + virtual_machine["_Z"],
-            virtual_machine["E"] + virtual_machine["_E"],
-        )
+        # Ensure all axes are defined if any position is set
+        if any(virtual_machine[key] is not None for key in ax_keys) and not is_position_fully_defined(virtual_machine):
+            virtual_machine.update({key: virtual_machine.get(key, 0) or 0 for key in ax_keys})
+            custom_print(
+                "Implicit zero position assumed for axes: '"
+                + ", ".join(key for key in ax_keys if virtual_machine[key] == 0)
+                + "' to fully define position."
+            )
+
+        state_position = position(apply_pos_offset(virtual_machine))
+        # position(
+        #     virtual_machine["X"] + virtual_machine["_X"],
+        #     virtual_machine["Y"] + virtual_machine["_Y"],
+        #     virtual_machine["Z"] + virtual_machine["_Z"],
+        #     virtual_machine["E"] + virtual_machine["_E"],
+        # )
 
         p_settings = state.p_settings(
             speed=virtual_machine["p_vel"],
@@ -395,7 +436,7 @@ def dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) 
     return state_list
 
 
-def check_for_unsupported_commands(line_dict_list: dict) -> dict:
+def _check_for_unsupported_commands(line_dict_list: dict) -> dict:
     """Search for unsupported commands used in the G-code, warn the user and return the occurrences.
 
     Args:
@@ -417,9 +458,10 @@ def check_for_unsupported_commands(line_dict_list: dict) -> dict:
     }
 
     if unsupported_commands_found != []:
-        custom_print(f"⚠️ {len(unsupported_command_counts.keys())} known but unsupported command(s) found:", lvl=1)
-        for key, value in unsupported_command_counts.items():
-            custom_print(f" - Command '{key}' found {value} time(s).", lvl=1)
+        commands_str = ", ".join([f"'{key}' ({value} time(s))" for key, value in unsupported_command_counts.items()])
+        custom_print(
+            f"⚠️  {len(unsupported_command_counts.keys())} known but unsupported command(s) found: {commands_str}", lvl=1
+        )
     else:
         custom_print("Great, the G-code does not contain any unsupported commands known to pyGCD 🎈.")
 
@@ -436,8 +478,8 @@ def generate_states(filepath: pathlib.Path, initial_machine_setup: dict) -> List
     Returns:
         states: (list[states]) all states in a list
     """
-    line_dict_list = read_gcode_to_dict_list(filepath=filepath)
-    check_for_unsupported_commands(line_dict_list=line_dict_list)
-    states = dict_list_traveler(line_dict_list=line_dict_list, initial_machine_setup=initial_machine_setup)
+    line_dict_list = _read_gcode_to_dict_list(filepath=filepath)
+    _check_for_unsupported_commands(line_dict_list=line_dict_list)
+    states = _dict_list_traveler(line_dict_list=line_dict_list, initial_machine_setup=initial_machine_setup)
 
     return states

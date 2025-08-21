@@ -1,0 +1,72 @@
+loaders:
+  - type: python
+    search_path: [.]
+    packages: ["pyGCodeDecode"]
+
+processors:
+  - type: filter
+    expression: not '.examples.' in name  # Skip example modules
+  - type: filter
+    documented_only: true  # Skip empty modules
+  - type: smart
+  - type: crossref
+
+renderer:
+  # type: markdown
+  type: mkdocs
+  output_directory: docs
+  markdown:
+    insert_header_anchors: true
+    render_page_title: true
+    toc_maxdepth: 4
+    render_toc: false
+    use_fixed_header_levels: true
+    add_module_prefix: true
+    add_method_class_prefix: true
+    add_member_class_prefix: true
+    header_level_by_type:
+      Module: 2
+      Class: 3
+      Function: 4
+
+  pages:
+    - title: Home
+      name: index
+      source: README.md
+    - title: pyGCodeDecode API Reference
+      name: api
+      contents:
+        - pyGCodeDecode.*
+        # - pyGCodeDecode.cli
+        # - pyGCodeDecode.gcode_interpreter
+        # - pyGCodeDecode.abaqus_file_generator
+        # - pyGCodeDecode.plotter
+        # - pyGCodeDecode.tools
+        # - pyGCodeDecode.result
+        # - pyGCodeDecode.helpers
+        # - pyGCodeDecode.junction_handling
+        # - pyGCodeDecode.planner_block
+        # - pyGCodeDecode.state
+        # - pyGCodeDecode.state_generator
+        # - pyGCodeDecode.utils
+  mkdocs_config:
+    site_name: pyGCodeDecode Documentation
+    site_description: Generate time dependent boundary conditions from a .gcode file
+    site_author: FAST-LB at KIT
+    repo_url: https://github.com/FAST-LB/pyGCodeDecode
+    repo_name: FAST-LB/pyGCodeDecode
+    edit_uri: edit/main/docs/
+    theme:
+      name: readthedocs
+      highlightjs: true
+    nav:
+      - Home: index.md
+      - API Reference: api.md
+    markdown_extensions:
+      - toc:
+          permalink: true
+      - codehilite
+      - admonition
+      - tables
+    plugins:
+      - search

@@ -71,3 +71,41 @@ def test_state_generator():
     assert states[20].state_p_settings.jerk == 5  # jerk settings (M205 X*)
     assert states[21].pause == 0.5  # dwell (G4)
     assert states[22].pause == 5
+
+
+def test_set_initial_position():
+    """Test for initial position settings."""
+    from pyGCodeDecode.gcode_interpreter import setup
+
+    # setting coords
+    test_setup = setup(
+        presets_file=pathlib.Path("./tests/data/test_printer_setups.yaml"),
+        printer="test",
+        layer_cue="LAYER cue",
+    )
+    initial_pos = (5, 4, 3, 2)  # initial position definition
+    test_setup.set_initial_position(initial_pos)
+
+    states = generate_states(
+        filepath=pathlib.Path("./tests/data/test_state_generator.gcode"),
+        initial_machine_setup=test_setup.get_dict(),
+    )
+
+    assert states[0].state_position.get_vec(withExtrusion=True) == list(initial_pos)  # test for inital position
+
+    # using first GCode pos
+    test_setup = setup(
+        presets_file=pathlib.Path("./tests/data/test_printer_setups.yaml"),
+        printer="test",
+        layer_cue="LAYER cue",
+    )
+    initial_pos = (10, 20, 30, 0)  # initial position as specified in "./data/test_state_generator.gcode" line 3
+    test_setup.set_initial_position("first")
+
+    states = generate_states(
+        filepath=pathlib.Path("./tests/data/test_state_generator.gcode"),
+        initial_machine_setup=test_setup.get_dict(),
+    )
+
+    # test for inital position at state 2 (line 3)
+    assert states[2].state_position.get_vec(withExtrusion=True) == list(initial_pos)

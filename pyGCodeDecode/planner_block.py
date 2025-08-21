@@ -5,14 +5,9 @@ from typing import List, Union
 import numpy as np
 
 from pyGCodeDecode.helpers import custom_print
+from pyGCodeDecode.result import abstract_result, acceleration_result, velocity_result
 
-from .junction_handling import (
-    junction_handling,
-    junction_handling_klipper,
-    junction_handling_marlin_jd,
-    junction_handling_marlin_jerk,
-    junction_handling_MKA,
-)
+from .junction_handling import get_handler
 from .state import state
 from .utils import segment, velocity
 
@@ -20,12 +15,17 @@ from .utils import segment, velocity
 class planner_block:
     """Planner Block Class."""
 
-    def move_maker2(self, v_end):
+    result_calculators: List[abstract_result] = [
+        acceleration_result(),
+        velocity_result(),
+    ]
+
+    def move_maker(self, v_end):
         """
         Calculate the correct move type (trapezoidal,triangular or singular) and generate the corresponding segments.
 
         Args:
-            vel_end: (velocity) target velocity for end of move
+            v_end: (velocity) target velocity for end of move
         """
 
         def trapezoid(extrusion_only=False):
@@ -218,7 +218,7 @@ class planner_block:
         # Correct error by recalculating velocitys with new vel_end
         if self.next_block is not None and flag_correct:
             vel_end = self.next_block.get_segments()[0].vel_begin.get_norm()
-            self.move_maker2(v_end=vel_end)
+            self.move_maker(v_end=vel_end)
             if self.blocktype == "single":
                 self.prev_block.self_correction()  # forward correction?
 
@@ -241,7 +241,9 @@ class planner_block:
             for segm in self.segments:
                 segm.self_check(p_settings=self.state_B.state_p_settings)
         except ValueError as ve:
-            custom_print(f"Segment for {self.state_B} does not adhere to machine limits: {ve}", lvl=1)
+            custom_print(
+                f"⚠️  Segment modeling travel to \n\t{self.state_B}\ndoes not adhere to machine limits: {ve}", lvl=1
+            )
 
         return flag_correct
 
@@ -278,6 +280,16 @@ class planner_block:
         else:
             return None
 
+    def calc_results(self, *additional_calculators: abstract_result):
+        """Calculate the result of the planner block."""
+        for calculator in self.result_calculators:
+            calculator.calc_pblock(self)
+
+        if additional_calculators:
+            for calculator in additional_calculators:
+                if calculator not in self.result_calculators:
+                    calculator.calc_pblock(self)
+
     def __init__(self, state: state, prev_block: "planner_block", firmware=None):
         """Calculate and store planner block consisting of one or multiple segments.
 
@@ -295,31 +307,24 @@ class planner_block:
 
         self.segments: List[segment] = []  # store segments here
         self.blocktype = None
+        self.e_type = None  # use for extrusion type e.g. perimeter, infill ...
 
-        if firmware == "marlin_jd":
-            junction = junction_handling_marlin_jd(state_A=self.state_A, state_B=self.state_B)
-        elif firmware == "klipper":
-            junction = junction_handling_klipper(state_A=self.state_A, state_B=self.state_B)
-        elif firmware == "marlin_jerk":
-            junction = junction_handling_marlin_jerk(state_A=self.state_A, state_B=self.state_B)
-        elif firmware == "MKA":
-            junction = junction_handling_MKA(state_A=self.state_A, state_B=self.state_B)
-        else:
-            junction = junction_handling(state_A=self.state_A, state_B=self.state_B)
+        handler = get_handler(firmware_name=firmware)  # get junction handler
+        junction = handler(state_A=self.state_A, state_B=self.state_B)
 
         # planner block calculation
-        target_vel = junction.get_target_vel()  # target velocity for this planner block
+        self.target_vel = junction.get_target_vel()  # target velocity for this planner block
 
         v_JD = junction.get_junction_vel()
 
-        self.direction = target_vel.get_norm_dir(withExtrusion=True)  # direction vector of pb
+        self.direction = self.target_vel.get_norm_dir(withExtrusion=True)  # direction vector of pb
 
-        self.valid = target_vel.not_zero()  # valid planner block
+        self.valid = self.target_vel.not_zero()  # valid planner block
 
         # standard move maker
         if self.valid:
             self.JD = v_JD * self.direction  # jd writeout for debugging plot
-            self.move_maker2(v_end=v_JD)
+            self.move_maker(v_end=v_JD)
             self.is_extruding = self.state_A.state_position.is_extruding(
                 self.state_B.state_position
             )  # store extrusion flag
@@ -357,15 +362,56 @@ class planner_block:
         self._next_block = block
 
     def __str__(self) -> str:
-        """Create string from planner block."""
+        """Create a visually aligned ASCII art string for planner block."""
+        # Get positions as strings
+        pos_A = str(self.state_A.state_position)
+        pos_B = str(self.state_B.state_position)
+
+        # Get velocities
+        v_begin = self.segments[0].vel_begin.get_norm() if self.segments else 0
+        v_end = self.segments[-1].vel_end.get_norm() if self.segments else 0
+        v_max = max(segm.vel_begin.get_norm() for segm in self.segments) if self.segments else 0
+
+        # Pad positions for alignment
+        padsize = 40
+        pos_A_pad = f"{pos_A:<{padsize}}"
+        pos_B_pad = f"{pos_B:>{padsize}}"
+
+        # Velocity profile
+        profile_width = 24
         if len(self.segments) == 3:
-            return "{:-^40}".format("Trapezoid Planner Block")
+            # Trapezoid: ramp up, constant, ramp down
+            profile = f"/{'‾'*(profile_width-2)}\\"
+            block_type = "Trapezoid"
         elif len(self.segments) == 2:
-            return "{:-^40}".format("Triangular Planner Block")
+            # Triangle: ramp up, ramp down
+            profile = "/\\".center(profile_width)
+            block_type = "Triangle"
         elif len(self.segments) == 1:
-            return "{:-^40}".format("Singular Planner Block")
+            # Single: ramp up or down only
+            # Center the single segment profile
+            if v_begin < v_end:
+                profile = "/".center(profile_width)
+            else:
+                profile = "\\".center(profile_width)
+            block_type = "Single"
         else:
-            return "{:#^40}".format("Invalid Planner Block")
+            profile = "{invalid block}"
+            block_type = "Invalid"
+        v_begin = f"{v_begin:.2f} mm/s"
+        v_beg_str = f"{v_begin:>8}"
+        v_end = f"{v_end:.2f} mm/s"
+        v_end_str = f"{v_end:<8}"
+        tot_len = len(pos_A_pad) + len(profile) + len(pos_B_pad)
+
+        lines = [
+            f"{block_type} Planner Block".center(tot_len, "-"),
+            "",
+            f"{v_max:.2f} mm/s".center(tot_len),
+            f"{' '*(len(pos_A_pad)-len(v_beg_str))}{v_beg_str}{profile}{v_end_str}",
+            f"{pos_A_pad}{' '*(profile_width)}{pos_B_pad}",
+        ]
+        return "\n".join(lines) + "\n"
 
     def __repr__(self) -> str:
         """Represent planner block."""

@@ -28,9 +28,9 @@ def save_layer_metrics(
     Layers are detected using the given layer cue.
     """
     # check if a layer cue was specified
-    if "layer_cue" not in simulation.initial_machine_setup:
+    if "layer_cue" not in simulation.initial_machine_setup_dict:
         custom_print(
-            "⚠️ No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!", lvl=1
+            "⚠️  No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!", lvl=1
         )
         return None
 
@@ -94,7 +94,7 @@ def save_layer_metrics(
             header=header,
             comments="",
         )
-        custom_print(f"💾 Layer metrics written to:\n👉 {filepath.__str__()}")
+        custom_print(f"💾 Layer metrics written to 👉 {filepath.__str__()}")
 
     return layers, durations, travel_distances, avg_speeds
 
@@ -168,7 +168,7 @@ def write_submodel_times(
 
             return [X_pos, X_neg, Y_pos, Y_neg, Z_pos, Z_neg]
 
-    def point_eval(point, pl_lim):
+    def _point_eval(point, pl_lim):
         p_eval = []
         for lim_n, p_n in zip(pl_lim, point):
             inters_pl = [
@@ -178,10 +178,10 @@ def write_submodel_times(
             p_eval.append(inters_pl)
         return p_eval
 
-    def point_inside(p_eval):
+    def _point_inside(p_eval):
         return all([all(p_ev_ax) for p_ev_ax in p_eval])
 
-    def intersect_possible(p_eval0, p_eval1):
+    def _intersect_possible(p_eval0, p_eval1):
         possible = False
         for ax_eval0, ax_eval1 in zip(p_eval0, p_eval1):
             if ax_eval0 != ax_eval1:
@@ -196,7 +196,7 @@ def write_submodel_times(
 
         return possible
 
-    def isect_line_plane(p0, p1, p_co, p_no, epsilon=1e-6):
+    def _isect_line_plane(p0, p1, p_co, p_no, epsilon=1e-6):
         """Return a Vector or None (when the intersection can't be found).
 
         p0, p1: Define the line.
@@ -239,19 +239,19 @@ def write_submodel_times(
     timetable = []
 
     for block in simulation.blocklist:
-        p_eval_A = point_eval(block.state_A.state_position.get_vec(), control_volume.get_plane_lim())
-        p_eval_B = point_eval(block.state_B.state_position.get_vec(), control_volume.get_plane_lim())
+        p_eval_A = _point_eval(block.state_A.state_position.get_vec(), control_volume.get_plane_lim())
+        p_eval_B = _point_eval(block.state_B.state_position.get_vec(), control_volume.get_plane_lim())
 
-        if intersect_possible(p_eval0=p_eval_A, p_eval1=p_eval_B):
+        if _intersect_possible(p_eval0=p_eval_A, p_eval1=p_eval_B):
             for plane_orig, plane_normal in zip(control_volume.get_plane_orig(), control_volume.get_plane_normals()):
-                isec, s_len, sgn = isect_line_plane(
+                isec, s_len, sgn = _isect_line_plane(
                     p0=block.state_A.state_position.get_vec(),
                     p1=block.state_B.state_position.get_vec(),
                     p_co=plane_orig,
                     p_no=plane_normal,
                 )
 
-                if isec is not None and point_inside(p_eval=point_eval(isec, control_volume.get_plane_lim())):
+                if isec is not None and _point_inside(p_eval=_point_eval(isec, control_volume.get_plane_lim())):
                     timetable.append([float(block.inverse_time_at_pos(s_len)), sgn])
 
     timetable = np.asarray(timetable)  # convert list to array for sorting

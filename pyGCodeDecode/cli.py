@@ -1,4 +1,21 @@
-"""The CLI for the pyGCodeDecode package."""
+"""The pyGCodeDecode CLI Module.
+
+Interact with pyGCodeDecode via the command line to run examples and plot GCode files.
+
+Features:
+
+- Run built-in examples: `brace`, `benchy`
+- Plot GCode files with printer presets and output options
+- Save simulation summaries, metrics, screenshots, and VTK files
+
+Usage Examples:
+
+- `pygcd --help`
+- `pygcd run_example brace`
+- `pygcd plot -g myfile.gcode`
+- `pygcd plot -g myfile.gcode -p presets.yaml -pn my_printer`
+- `pygcd plot -g myfile.gcode -o ./outputs -lc ";LAYER"`
+"""
 
 import argparse
 import importlib.resources
@@ -9,6 +26,7 @@ from pyGCodeDecode.examples.benchy import benchy_example
 from pyGCodeDecode.examples.brace import brace_example
 from pyGCodeDecode.gcode_interpreter import setup, simulation
 from pyGCodeDecode.helpers import custom_print
+from pyGCodeDecode.plotter import plot_3d
 from pyGCodeDecode.tools import save_layer_metrics
 
 
@@ -34,7 +52,7 @@ def _plot(args: argparse.Namespace):
             )
             exit()
         else:
-            custom_print("⚠️ No G-code file specified. Looking for a G-code file in the current directory... 👀", lvl=1)
+            custom_print("⚠️  No G-code file specified. Looking for a G-code file in the current directory... 👀", lvl=1)
             files_list = list(pathlib.Path.cwd().glob("*.gcode"))
             if files_list.__len__() == 0:
                 custom_print("❌ No G-code file found in the current directory.\n" "🛑 Exiting the program.", lvl=1)
@@ -54,7 +72,7 @@ def _plot(args: argparse.Namespace):
     def _get_presets_file(presets_file: pathlib.Path | None) -> pathlib.Path:
         """Get the machine setup from the presets file."""
         if presets_file is None:
-            custom_print("⚠️ No presets file specified. Using the default presets shipped with pyGCD.")
+            custom_print("⚠️  No presets file specified. Using the default presets shipped with pyGCD.")
             presets_file = importlib.resources.files("pyGCodeDecode").joinpath("data/default_printer_presets.yaml")
         elif not presets_file.is_file():
             custom_print(
@@ -73,18 +91,18 @@ def _plot(args: argparse.Namespace):
             answer = ""
             while answer.lower() not in ("y", "yes", "n", "no"):
                 answer = input(
-                    "⚠️ No output directory specified! Do you want to create one in the current working directory?"
+                    "⚠️  No output directory specified! Do you want to create one in the current working directory?"
                     "\nOtherwise no outputs will be saved!"
                     "\nYou must answer with yes (y) or no (n)!\n"
                 )
 
             if answer.lower() in ["n", "no"]:
-                custom_print("⚠️ Not creating any output files.")
+                custom_print("⚠️  Not creating any output files.")
                 return None
             elif answer.lower() in ["y", "yes"]:
                 out_dir = pathlib.Path.cwd() / f"output_{g_code_file.stem}"
 
-        custom_print(f"✅ Using the output directory:\n{out_dir.resolve()}")
+        custom_print(f"✅ Using the output directory: {out_dir.resolve()}")
         return out_dir
 
     g_code_file = _find_gcode_file(args.gcode)
@@ -95,7 +113,7 @@ def _plot(args: argparse.Namespace):
         printer_name = args.printer_name
         custom_print(f"✅ Using the printer: {printer_name}")
     else:
-        custom_print("⚠️ No printer specified. Using the default printer Anisoprint A4.")
+        custom_print("⚠️  No printer specified. Using the default printer Anisoprint A4.")
         printer_name = "anisoprint_a4"
 
     # setting up the printer
@@ -123,7 +141,8 @@ def _plot(args: argparse.Namespace):
             delimiter=",",
         )
         # create a 3D-plot and save a VTK as well as a screenshot
-        mesh = sim.plot_3d(
+        mesh = plot_3d(
+            sim,
             extrusion_only=True,
             screenshot_path=out_dir / f"{g_code_file.stem}.png",
             vtk_path=out_dir / f"{g_code_file.stem}.vtk",
@@ -132,10 +151,10 @@ def _plot(args: argparse.Namespace):
         mesh = None
 
     # create an interactive 3D-plot
-    sim.plot_3d(mesh=mesh)
+    plot_3d(sim, mesh=mesh)
 
 
-def _main(*args):
+def _main(args=None):
     """Entry point function for the command-line interface (CLI)."""
     global_parser = argparse.ArgumentParser(
         prog="pygcd",
@@ -148,7 +167,7 @@ def _main(*args):
         version=__version__,
     )
 
-    # subparsers vor various functions
+    # subparsers for various functions
     subparsers = global_parser.add_subparsers(
         title="subcommands",
         description="Functions accessible via this CLI.",
@@ -215,10 +234,10 @@ def _main(*args):
     )
 
     # parse the arguments
-    args = global_parser.parse_args()
+    parsed_args = global_parser.parse_args(args)
 
     # call the respective function specified by the subparser
-    if hasattr(args, "func"):
-        args.func(args)
+    if hasattr(parsed_args, "func"):
+        parsed_args.func(parsed_args)
     else:
         global_parser.print_help()

@@ -4,7 +4,7 @@ import pathlib
 
 from pyGCodeDecode.helpers import custom_print
 
-from . import gcode_interpreter as gi
+from . import gcode_interpreter
 
 """
 This script is to convert gcode into an event series as abaqus input
@@ -21,24 +21,26 @@ time points generated are always at segment beginnings / endings, so interpolati
 
 
 def generate_abaqus_event_series(
-    simulation: gi.simulation,
+    simulation: gcode_interpreter.simulation,
     filepath: str = "pyGcodeDecode_abaqus_events.inp",
     tolerance: float = 1e-12,
     output_unit_system: str = None,
+    return_tuple: bool = False,
 ) -> tuple:
     """Generate abaqus event series.
 
     Args:
-        simulation (gi.simulation): simulation instance
+        simulation (gcode_interpreter.simulation): simulation instance
         filepath (string, default = "pyGcodeDecode_abaqus_events.inp"): output file path
         tolerance (float, default = 1e-12): tolerance to determine whether extrusion is happening
         output_unit_system (str, optional): Unit system for the output.
                 The one from the simulation is used, in None is specified.
+        return_tuple (bool, default = False): return the event series as tuple.
 
     Returns:
-        tuple: the event series as a tuple for use in ABAQUS-Python
+        (optional) tuple: the event series as a tuple for use in ABAQUS-Python
     """
-    unpacked = gi.unpack_blocklist(simulation.blocklist)
+    unpacked = gcode_interpreter.unpack_blocklist(simulation.blocklist)
     pos = [unpacked[0].pos_begin.get_vec(withExtrusion=True)]
     time = [0]
     for segment in unpacked:
@@ -65,10 +67,11 @@ def generate_abaqus_event_series(
     with open(filepath, "w") as outfile:
         for time, pos in zip(time, pos):
             outfile.write(
-                f"{time},{round(scaling*pos[0], round_to)},{round(scaling*pos[1], round_to)},{round(scaling*pos[2], round_to)},{pos[3]}\n"
+                f"{float(time)},{round(scaling*pos[0], round_to)},{round(scaling*pos[1], round_to)},{round(scaling*pos[2], round_to)},{pos[3]}\n"
             )
-            event_series_list.append((time, scaling * pos[0], scaling * pos[1], scaling * pos[2], pos[3]))
+            event_series_list.append((float(time), scaling * pos[0], scaling * pos[1], scaling * pos[2], pos[3]))
 
-        custom_print(f"ABAQUS event series written to: \n{outfile.name}")
+        custom_print(f"💾 ABAQUS event series written to 👉 {outfile.name}")
 
-    return tuple(event_series_list)
+    if return_tuple:
+        return tuple(event_series_list)

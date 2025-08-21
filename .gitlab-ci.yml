@@ -36,9 +36,38 @@ test-package:
                 path: ./tests/coverage.xml
         when: always
 
+doc-build:
+    stage: doc
+    image: "python:3.13"
+    needs: []
+    only:
+        refs:
+            - ^main$
+    before_script:
+        - apt-get update && apt-get install git-lfs
+        - git lfs install
+        - pip install --upgrade pip
+    script:
+        - git config --global user.name "${GITLAB_USER_NAME}"
+        - git config --global user.email "${GITLAB_USER_EMAIL}"
+        - git remote set-url origin https://gitlab-ci-token:${pyGCD_access_token}@gitlab.kit.edu/kit/fast/lb/collaboration/additive-manufacturing/pygcodedecode.git
+        - pip install -e .[DOCS]
+        - pydoc-markdown
+        - cd docs
+        - mkdocs gh-deploy --force
+    artifacts:
+        untracked: false
+        paths:
+            - ./docs/site/
+            - ./docs/content/*.md
+        when: always
+        expire_in: "30 days"
+
 doc-compile_paper:
     stage: doc
     needs: []
+    rules:
+        - when: manual
     tags:
         - shell
     script:
