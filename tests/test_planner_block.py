@@ -32,8 +32,13 @@ def test_planner_block():
     # trapezoid block test
     assert block_1.blocktype == "trapezoid"
     assert block_1.valid is True
-    assert block_1.get_segments()[0].get_position(t=0) == pos_0
-    assert block_1.get_segments()[-1].get_position(t=block_1.get_segments()[-1].t_end) == pos_1
+    assert np.allclose(
+        block_1.get_segments()[0].get_position(t=0).get_vec(withExtrusion=True), pos_0.get_vec(withExtrusion=True)
+    )
+    assert np.allclose(
+        block_1.get_segments()[-1].get_position(t=block_1.get_segments()[-1].t_end).get_vec(withExtrusion=True),
+        pos_1.get_vec(withExtrusion=True),
+    )
 
     t_end = block_1.get_segments()[-1].t_end
     assert t_end == (settings.speed * settings.speed + dist * settings.p_acc) / (
@@ -54,8 +59,13 @@ def test_planner_block():
     # triangle block test
     assert block_2.blocktype == "triangle"
     assert block_2.valid is True
-    assert block_2.get_segments()[0].get_position(t=0) == pos_0
-    assert block_2.get_segments()[-1].get_position(t=block_2.get_segments()[-1].t_end) == pos_1
+    assert np.allclose(
+        block_2.get_segments()[0].get_position(t=0).get_vec(withExtrusion=True), pos_0.get_vec(withExtrusion=True)
+    )
+    assert np.allclose(
+        block_2.get_segments()[-1].get_position(t=block_2.get_segments()[-1].t_end).get_vec(withExtrusion=True),
+        pos_1.get_vec(withExtrusion=True),
+    )
     assert np.isclose(block_2.get_segments()[0].t_end, np.sqrt(4 * dist * settings.p_acc) / (2 * settings.p_acc))
     assert np.isclose(
         block_2.get_segments()[0].vel_end.get_norm(), (settings.p_acc * block_2.get_segments()[0].t_end)
@@ -78,8 +88,13 @@ def test_planner_block():
     # single block test
     assert block_3.blocktype == "single"
     assert block_3.valid is True
-    assert block_3.get_segments()[0].get_position(t=0) == pos_0
-    assert block_3.get_segments()[-1].get_position(t=block_3.get_segments()[-1].t_end) == pos_1
+    assert np.allclose(
+        block_3.get_segments()[0].get_position(t=0).get_vec(withExtrusion=True), pos_0.get_vec(withExtrusion=True)
+    )
+    assert np.allclose(
+        block_3.get_segments()[-1].get_position(t=block_3.get_segments()[-1].t_end).get_vec(withExtrusion=True),
+        pos_1.get_vec(withExtrusion=True),
+    )
     assert np.isclose(block_3.get_segments()[0].t_end, np.sqrt(2 * dist * settings.p_acc) / (settings.p_acc))
     assert np.isclose(
         block_3.get_segments()[0].vel_end.get_norm(), (settings.p_acc * block_3.get_segments()[0].t_end)

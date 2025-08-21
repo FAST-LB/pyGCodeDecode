@@ -362,15 +362,56 @@ class planner_block:
         self._next_block = block
 
     def __str__(self) -> str:
-        """Create string from planner block."""
+        """Create a visually aligned ASCII art string for planner block."""
+        # Get positions as strings
+        pos_A = str(self.state_A.state_position)
+        pos_B = str(self.state_B.state_position)
+
+        # Get velocities
+        v_begin = self.segments[0].vel_begin.get_norm() if self.segments else 0
+        v_end = self.segments[-1].vel_end.get_norm() if self.segments else 0
+        v_max = max(segm.vel_begin.get_norm() for segm in self.segments) if self.segments else 0
+
+        # Pad positions for alignment
+        padsize = 40
+        pos_A_pad = f"{pos_A:<{padsize}}"
+        pos_B_pad = f"{pos_B:>{padsize}}"
+
+        # Velocity profile
+        profile_width = 24
         if len(self.segments) == 3:
-            return "{:-^40}".format("Trapezoid Planner Block")
+            # Trapezoid: ramp up, constant, ramp down
+            profile = f"/{'‾'*(profile_width-2)}\\"
+            block_type = "Trapezoid"
         elif len(self.segments) == 2:
-            return "{:-^40}".format("Triangular Planner Block")
+            # Triangle: ramp up, ramp down
+            profile = "/\\".center(profile_width)
+            block_type = "Triangle"
         elif len(self.segments) == 1:
-            return "{:-^40}".format("Singular Planner Block")
+            # Single: ramp up or down only
+            # Center the single segment profile
+            if v_begin < v_end:
+                profile = "/".center(profile_width)
+            else:
+                profile = "\\".center(profile_width)
+            block_type = "Single"
         else:
-            return "{:#^40}".format("Invalid Planner Block")
+            profile = "{invalid block}"
+            block_type = "Invalid"
+        v_begin = f"{v_begin:.2f} mm/s"
+        v_beg_str = f"{v_begin:>8}"
+        v_end = f"{v_end:.2f} mm/s"
+        v_end_str = f"{v_end:<8}"
+        tot_len = len(pos_A_pad) + len(profile) + len(pos_B_pad)
+
+        lines = [
+            f"{block_type} Planner Block".center(tot_len, "-"),
+            "",
+            f"{v_max:.2f} mm/s".center(tot_len),
+            f"{' '*(len(pos_A_pad)-len(v_beg_str))}{v_beg_str}{profile}{v_end_str}",
+            f"{pos_A_pad}{' '*(profile_width)}{pos_B_pad}",
+        ]
+        return "\n".join(lines) + "\n"
 
     def __repr__(self) -> str:
         """Represent planner block."""
