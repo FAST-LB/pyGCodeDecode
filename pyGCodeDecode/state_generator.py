@@ -90,7 +90,6 @@ default_virtual_machine = {
     "filament_diam": 1.75,
     # default settings
     "p_vel": 35,
-    "t_vel": 35,
     "p_acc": 200,
     "jerk": 10,
     # axis max speeds
@@ -221,6 +220,20 @@ def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict)
         state_list: (list[state]) all states in a list
 
     """
+    position_fully_defined = False
+
+    def is_position_fully_defined(virtual_machine: dict) -> bool:
+        nonlocal position_fully_defined
+
+        if position_fully_defined or all(virtual_machine[key] is not None for key in ax_keys):
+            position_fully_defined = True
+        return position_fully_defined
+
+    def apply_pos_offset(virtual_machine: dict) -> list[float]:
+        pos = []
+        for key in ax_keys:
+            pos.append(virtual_machine[key] + virtual_machine[f"_{key}"] if virtual_machine[key] is not None else None)
+        return pos
 
     def apply_extrusion(line_dict: dict, virtual_machine: dict, command: str) -> dict:
         e_value = line_dict[command]["E"]
@@ -240,6 +253,9 @@ def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict)
         return virtual_machine
 
     state_list: List[state] = list()
+
+    pos_keys = ["X", "Y", "Z"]
+    ax_keys = pos_keys + ["E"]  # add E for extrusion
 
     virtual_machine = {
         "X": 0,  # machine coordinates
@@ -268,30 +284,27 @@ def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict)
             )
             virtual_machine[key] = default_virtual_machine[key]
 
-    # initial state creation
-    state_position = position(
-        virtual_machine["X"] + virtual_machine["_X"],
-        virtual_machine["Y"] + virtual_machine["_Y"],
-        virtual_machine["Z"] + virtual_machine["_Z"],
-        virtual_machine["E"] + virtual_machine["_E"],
-    )
+    # create initial state only with initial position
+    if not any([virtual_machine[poskey] is None for poskey in pos_keys]):
+        # initial state creation
+        state_position = position(apply_pos_offset(virtual_machine))
 
-    p_settings = state.p_settings(
-        speed=virtual_machine["p_vel"],
-        p_acc=virtual_machine["p_acc"],
-        jerk=virtual_machine["jerk"],
-        vX=virtual_machine["vX"],
-        vY=virtual_machine["vY"],
-        vZ=virtual_machine["vZ"],
-        vE=virtual_machine["vE"],
-    )
-    new_state = state(state_position=state_position, state_p_settings=p_settings)  # create new state
+        p_settings = state.p_settings(
+            speed=virtual_machine["p_vel"],
+            p_acc=virtual_machine["p_acc"],
+            jerk=virtual_machine["jerk"],
+            vX=virtual_machine["vX"],
+            vY=virtual_machine["vY"],
+            vZ=virtual_machine["vZ"],
+            vE=virtual_machine["vE"],
+        )
+        new_state = state(state_position=state_position, state_p_settings=p_settings)  # create new state
 
-    # add initial state comment
-    new_state.comment = "Initial state created by pyGCD."
-    new_state.line_number = None
+        # add initial state comment
+        new_state.comment = "Initial state created by pyGCD."
+        new_state.line_number = None
 
-    state_list.append(new_state)
+        state_list.append(new_state)
 
     # GCode functionality:
     for line_dict in line_dict_list:
@@ -314,18 +327,22 @@ def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict)
             virtual_machine["units"] = "SI (mm)"
 
         # position & velocity
-        pos_keys = ["X", "Y", "Z"]
         movement_commands = ["G0", "G1"]
         for command in movement_commands:  # treat G0 and G1 the same
             if command in line_dict:
                 # look for xyz movement commands and apply abs/rel
                 for key in pos_keys:
                     if key in line_dict[command]:
+                        # absolute movement
                         if virtual_machine["absolute_position"] is True:
                             virtual_machine[key] = line_dict[command][key]
-                        elif virtual_machine["absolute_position"] is False:  # redundant
-                            virtual_machine[key] = virtual_machine[key] + line_dict[command][key]
 
+                        # relative movement
+                        else:
+                            if is_position_fully_defined(virtual_machine):
+                                virtual_machine[key] = virtual_machine[key] + line_dict[command][key]
+                            else:
+                                raise ValueError("Position is not fully defined, cannot apply relative movement.")
                 # look for extrusion commands and apply abs/rel
                 if "E" in line_dict[command]:
                     virtual_machine = apply_extrusion(line_dict, virtual_machine, command)
@@ -338,8 +355,10 @@ def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict)
         if "G92" in line_dict:
             for key in line_dict["G92"]:
                 if key in known_commands["G92"]:
-                    virtual_machine["_" + key] = (
-                        virtual_machine[key] + line_dict["G92"][key] + virtual_machine["_" + key]
+                    if virtual_machine[key] is None:
+                        virtual_machine[key] = 0  # initialize to 0 if no position is set beforehand
+                    virtual_machine[f"_{key}"] = (
+                        virtual_machine[key] + line_dict["G92"][key] + virtual_machine[f"_{key}"]
                     )
                     virtual_machine[key] = line_dict["G92"][key]
 
@@ -365,12 +384,22 @@ def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict)
             if "S" in line_dict["G4"]:
                 pause_duration = line_dict["G4"]["S"]
 
-        state_position = position(
-            virtual_machine["X"] + virtual_machine["_X"],
-            virtual_machine["Y"] + virtual_machine["_Y"],
-            virtual_machine["Z"] + virtual_machine["_Z"],
-            virtual_machine["E"] + virtual_machine["_E"],
-        )
+        # Ensure all axes are defined if any position is set
+        if any(virtual_machine[key] is not None for key in ax_keys) and not is_position_fully_defined(virtual_machine):
+            virtual_machine.update({key: virtual_machine.get(key, 0) or 0 for key in ax_keys})
+            custom_print(
+                "Implicit zero position assumed for axes: '"
+                + ", ".join(key for key in ax_keys if virtual_machine[key] == 0)
+                + "' to fully define position."
+            )
+
+        state_position = position(apply_pos_offset(virtual_machine))
+        # position(
+        #     virtual_machine["X"] + virtual_machine["_X"],
+        #     virtual_machine["Y"] + virtual_machine["_Y"],
+        #     virtual_machine["Z"] + virtual_machine["_Z"],
+        #     virtual_machine["E"] + virtual_machine["_E"],
+        # )
 
         p_settings = state.p_settings(
             speed=virtual_machine["p_vel"],

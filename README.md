@@ -104,13 +104,7 @@ from pyGCodeDecode import gcode_interpreter
 1. Load your setup `.yaml` file through:
 
 ```python
-setup = gcode_interpreter.setup(filename=r"./pyGCodeDecode/data/default_printer_presets.yaml")
-```
-
-1. Select your printer from the setup by name:
-
-```python
-setup.select_printer("prusa_mini")
+setup = gcode_interpreter.setup(filename=r"./pyGCodeDecode/data/default_printer_presets.yaml", printer="prusa_mini")
 ```
 
 1. You can optionally set or modify custom properties after loading the setup:

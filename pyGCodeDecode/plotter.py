@@ -108,7 +108,6 @@ def plot_3d(
         x, y, z, e, scalar = [], [], [], [], []
 
         bar = ProgressBar(name="3D Plot")
-        custom_print("result: ", lvl=3)
         for n, segm in enumerate(segments):
             bar.update((n + 1) / len(segments))
 
