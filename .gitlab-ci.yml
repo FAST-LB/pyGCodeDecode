@@ -40,9 +40,8 @@ doc-build:
     stage: doc
     image: "python:3.13"
     needs: []
-    only:
-        refs:
-            - ^main$
+    rules:
+        - if: $CI_COMMIT_BRANCH == "main"
     before_script:
         - apt-get update && apt-get install git-lfs
         - git lfs install
