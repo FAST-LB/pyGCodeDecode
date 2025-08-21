@@ -47,9 +47,8 @@ doc-build:
         - pydoc-markdown
         - cd docs && mkdocs build
         - git config user.email "lt-github@fast.kit.edu"
-        - git config user.name "ci-bot"
-        - git remote rm gitlab_origin
-        - git remote add gitlab_origin https://oauth2:$pyGCD_access_token@gitlab.kit.edu/kit/fast/lb/collaboration/additive-manufacturing/pygcodedecode.git
+        - git config user.name "root"
+        - git remote add deploy-origin https://gitlab-ci-token:$pyGCD_access_token@gitlab.kit.edu/kit/fast/lb/collaboration/additive-manufacturing/pygcodedecode.git
         - mkdocs gh-deploy
     artifacts:
         untracked: false
