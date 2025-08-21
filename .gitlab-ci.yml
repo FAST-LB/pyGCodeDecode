@@ -63,6 +63,8 @@ doc-build:
 doc-compile_paper:
     stage: doc
     needs: []
+    rules:
+        - when: manual
     tags:
         - shell
     script:
@@ -72,5 +74,5 @@ doc-compile_paper:
         untracked: false
         paths:
             - ./paper/*.pdf
-        when: manual
+        when: always
         expire_in: "30 days"
