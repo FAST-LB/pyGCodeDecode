@@ -38,7 +38,7 @@ test-package:
 
 doc-build:
     stage: doc
-    image: "python:3.11"
+    image: "python:3.13"
     needs: []
     before_script:
         - pip install --upgrade pip
@@ -46,6 +46,9 @@ doc-build:
         - pip install -e .[DOCS]
         - pydoc-markdown
         - cd docs && mkdocs build
+        - git config user.email "lt-github@fast.kit.edu"
+        - git config user.name "ci-bot"
+        - git remote add gitlab_origin https://oauth2:${pyGCD_access_token}@gitlab.kit.edu/kit/fast/lb/collaboration/additive-manufacturing/pygcodedecode.git
         - mkdocs gh-deploy
     artifacts:
         untracked: false
