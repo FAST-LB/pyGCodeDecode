@@ -43,9 +43,6 @@ doc-build:
     only:
         refs:
             - main
-    rules:
-        # Only run on merge requests to the main branch
-        - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
     before_script:
         - apt-get update && apt-get install git-lfs
         - git lfs install
