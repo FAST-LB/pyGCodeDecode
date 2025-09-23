@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI - Version](https://img.shields.io/pypi/v/pyGCodeDecode)](https://pypi.org/project/pyGCodeDecode/)
-[![Docu Badge](https://img.shields.io/badge/documentation-API--Reference-blue)](https://fast-lb.github.io/pyGCodeDecode/)
+[![Docu Badge](https://img.shields.io/badge/documentation-API--Reference-blue)](https://fast-lb.github.io/pyGCodeDecode/api)
 
 [![tests](https://github.com/FAST-LB/pyGCodeDecode/workflows/Tests/badge.svg)](https://github.com/FAST-LB/pyGCodeDecode/actions/workflows/tests.yaml)
 <!-- [![GitHub Release](https://img.shields.io/github/release/FAST-LB/pyGCodeDecode.svg?style=flat)](https://github.com/FAST-LB/pyGCodeDecode/releases) -->
