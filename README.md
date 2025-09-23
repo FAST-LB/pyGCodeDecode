@@ -3,8 +3,9 @@
 ![LOGO](https://media.githubusercontent.com/media/FAST-LB/pyGCodeDecode/main/logo.jpg)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![PyPI - Version](https://img.shields.io/pypi/v/pyGCodeDecode)
 [![tests](https://github.com/FAST-LB/pyGCodeDecode/workflows/Tests/badge.svg)](https://github.com/FAST-LB/pyGCodeDecode/actions/workflows/tests.yaml)
-[![GitHub Release](https://img.shields.io/github/release/FAST-LB/pyGCodeDecode.svg?style=flat)](https://github.com/FAST-LB/pyGCodeDecode/releases)
+<!-- [![GitHub Release](https://img.shields.io/github/release/FAST-LB/pyGCodeDecode.svg?style=flat)](https://github.com/FAST-LB/pyGCodeDecode/releases) -->
 [![Repo DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12663658.svg)]( https://doi.org/10.5281/zenodo.12663658)
 [![Paper_DOI](https://joss.theoj.org/papers/10.21105/joss.06465/status.svg)](https://doi.org/10.21105/joss.06465)
 
