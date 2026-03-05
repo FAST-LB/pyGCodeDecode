@@ -8,7 +8,6 @@ import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 
 from pyGCodeDecode.gcode_interpreter import generate_planner_blocks
 from pyGCodeDecode.junction_handling import (
@@ -19,6 +18,8 @@ from pyGCodeDecode.junction_handling import (
 from pyGCodeDecode.state import state
 from pyGCodeDecode.state_generator import generate_states
 from pyGCodeDecode.utils import position
+
+# import pandas as pd
 
 
 def _rotate_pos(pos: position, alpha):  # 2D Rotation
@@ -84,15 +85,9 @@ def test_junction_handlings():
         results[firmware] = firmware_results
 
     # Convert to DataFrame
-    df = pd.DataFrame(results)
-
     fig, ax = plt.subplots(figsize=(6, 4))
-    # Plotting with Pandas built-in functions
-    df.plot(
-        ax=ax,
-        x="turning angle",
-        y=test_firmwares,
-    )
+    for firmware in test_firmwares:
+        ax.plot(angles, results[firmware], label=firmware, linewidth=2)
 
     ax.set_ylabel(r"cornering velocity in $\frac{\mathrm{mm}}{\mathrm{s}}$")
     ax.set_xlabel(r"turning angle in $\deg$")
@@ -177,15 +172,13 @@ def test_junction_handlings_rotating_COS():
         rotated_results[firmware] = rotated_firmware_results
 
     # Convert to DataFrame
-    df = pd.DataFrame(results)
-
     fig, ax = plt.subplots(figsize=(6, 4))
     color_map = {}
     # Plot solid lines for unrotated
     for idx, fw in enumerate(test_firmwares):
         line = ax.plot(
             angles,
-            df[fw],
+            results[fw],
             label=fw,
             linewidth=2,
         )[0]
