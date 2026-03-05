@@ -425,6 +425,11 @@ class simulation:
         t_end = self.blocklist[-1].get_segments()[-1].t_end  # print end time
         extent = self.extrusion_extent()  # extent in [minX, minY, minZ], [maxX, maxY, maxZ]
         max_vel = self.extrusion_max_vel()
+        e_end = self.blocklist[-1].get_segments()[-1].pos_end.get_vec(withExtrusion=True)[3]
+
+        filament_diam = self.initial_machine_setup_dict.get("filament_diam", None)
+        e_amount = (e_end - self.initial_machine_setup_dict["E"]) * filament_diam if filament_diam is not None else None
+
         summary = {
             "filename": str(self.filename),
             "t_end": float(t_end),
@@ -435,7 +440,13 @@ class simulation:
             "y_max": float(extent[1, 1]),
             "z_max": float(extent[1, 2]),
             "max_extrusion_travel_velocity": float(max_vel),
+            "e_end": float(e_end),
+            "e_end_vol": float(e_amount) if e_amount is not None else None,
         }
+
+        for key in summary:
+            if isinstance(summary[key], float):
+                summary[key] = round(summary[key], 3)
 
         # create directory if necessary
         Path(filepath).parent.mkdir(parents=True, exist_ok=True)
