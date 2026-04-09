@@ -10,7 +10,7 @@ jobs:
             name: pypi
         steps:
             - name: checkout
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
 
             - name: install git lfs
               run: |
@@ -22,9 +22,9 @@ jobs:
                   git lfs pull
 
             - name: setup python
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v6
               with:
-                python-version: "3.13"
+                python-version: "3.14"
 
             - name: install build tools
               run: |
@@ -35,7 +35,7 @@ jobs:
                 python -m build
 
             - name: upload the package
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v7
               with:
                 name: pyGCodeDecode-distributions
                 path: ./dist/
@@ -54,7 +54,7 @@ jobs:
 
       steps:
         - name: Download build artifacts
-          uses: actions/download-artifact@v4
+          uses: actions/download-artifact@v8
           with:
             name: pyGCodeDecode-distributions
             path: dist/
