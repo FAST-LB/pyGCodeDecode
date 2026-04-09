@@ -52,7 +52,9 @@ def _plot(args: argparse.Namespace):
             )
             exit()
         else:
-            custom_print("⚠️  No G-code file specified. Looking for a G-code file in the current directory... 👀", lvl=1)
+            custom_print(
+                "⚠️  No G-code file specified. Looking for a G-code file in the current directory... 👀", lvl=1
+            )
             files_list = list(pathlib.Path.cwd().glob("*.gcode"))
             if files_list.__len__() == 0:
                 custom_print("❌ No G-code file found in the current directory.\n" "🛑 Exiting the program.", lvl=1)
