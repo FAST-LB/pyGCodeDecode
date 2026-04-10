@@ -428,7 +428,11 @@ class simulation:
         e_end = self.blocklist[-1].get_segments()[-1].pos_end.get_vec(withExtrusion=True)[3]
 
         filament_diam = self.initial_machine_setup_dict.get("filament_diam", None)
-        e_amount = (e_end - self.initial_machine_setup_dict["E"]) * filament_diam if filament_diam is not None else None
+        e_amount = (
+            (e_end - self.initial_machine_setup_dict["E"]) * (np.pi * filament_diam**2 / 4)
+            if filament_diam is not None
+            else None
+        )
 
         summary = {
             "filename": str(self.filename),
@@ -523,12 +527,9 @@ class setup:
         Args:
             filepath: (string) specify path to setup file
         """
-        import yaml
-        from yaml import Loader
-
         file = open(file=filepath)
 
-        setup_dict = yaml.load(file, Loader=Loader)
+        setup_dict = yaml.load(file, Loader=yaml.Loader)
         if printer:
             self.setup_dict = setup_dict[printer]
             self.printer = printer
@@ -594,7 +595,7 @@ class setup:
                     f"Invalid Key: '{key}' in Setup Dictionary, check for typos. Valid keys are: {valid_keys}"
                 )
 
-        # check if every required key is proivded
+        # check if every required key is provided
         for key in req_keys:
             if key not in initial_machine_setup:
                 raise ValueError(
@@ -608,7 +609,7 @@ class setup:
 
         Args:
             initial_position: (tuple or dict) set initial position as tuple of len(4)
-                or dictionary with keys: {X, Y, Z, E} or "first" to use first occuring absolute position in GCode.
+                or dictionary with keys: {X, Y, Z, E} or "first" to use first occurring absolute position in GCode.
             input_unit_system (str, optional): Wanted input unit system.
                 Uses the one specified for the setup if None is specified.
 
