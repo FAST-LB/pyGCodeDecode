@@ -618,11 +618,11 @@ class setup:
                 )
         return initial_machine_setup
 
-    def set_initial_position(self, initial_position: Union[tuple, dict], input_unit_system: Optional[str] = None):
+    def set_initial_position(self, initial_position: Union[tuple, dict, str], input_unit_system: Optional[str] = None):
         """Set initial Position.
 
         Args:
-            initial_position: (tuple or dict) set initial position as tuple of len(4)
+            initial_position: (tuple, dict or str) set initial position as tuple of len(4) or "first"
                 or dictionary with keys: {X, Y, Z, E} or "first" to use first occurring absolute position in GCode.
             input_unit_system (str, optional): Wanted input unit system.
                 Uses the one specified for the setup if None is specified.
