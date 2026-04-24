@@ -52,7 +52,12 @@ def generate_planner_blocks(states: List[state], firmware=None):
     return block_list
 
 
-def find_current_segment(path: List[segment], t: float, last_index: int = None, keep_position: bool = False):
+def find_current_segment(
+    path: List[segment],
+    t: float,
+    last_index: Optional[int] = None,
+    keep_position: bool = False,
+):
     """Find the current segment.
 
     Args:
@@ -139,8 +144,8 @@ class simulation:
     def __init__(
         self,
         gcode_path: Path,
-        machine_name: str = None,
-        initial_machine_setup: "setup" = None,
+        machine_name: Optional[str] = None,
+        initial_machine_setup: Optional["setup"] = None,
         output_unit_system: str = "SI (mm)",
         verbosity_level: Optional[int] = None,
     ):
@@ -190,20 +195,18 @@ class simulation:
                     "Trying to create a setup from pyGCD's default values...",
                     lvl=1,
                 )
-                default_presets_file = importlib.resources.files("pyGCodeDecode").joinpath(
-                    "data/default_printer_presets.yaml"
-                )
-                initial_machine_setup = setup(
-                    presets_file=default_presets_file,
-                    printer=machine_name,
-                )
+                with importlib.resources.as_file(
+                    importlib.resources.files("pyGCodeDecode") / "data" / "default_printer_presets.yaml"
+                ) as default_presets_file:
+                    initial_machine_setup = setup(presets_file=default_presets_file, printer=machine_name)
 
         # SET INITIAL SETTINGS
         self.initial_machine_setup_dict = initial_machine_setup.check_initial_setup()
         self.firmware = self.initial_machine_setup_dict["firmware"]
 
         self.states: List[state] = generate_states(
-            filepath=self.filename, initial_machine_setup=self.initial_machine_setup_dict
+            filepath=self.filename,
+            initial_machine_setup=self.initial_machine_setup_dict,
         )
 
         custom_print(
@@ -284,7 +287,7 @@ class simulation:
                     else:
                         raise ValueError(f"Unknown average type: {avg} for {calculator.name}")
 
-    def get_values(self, t: float, output_unit_system: str = None) -> Tuple[List[float]]:
+    def get_values(self, t: float, output_unit_system: Optional[str] = None) -> Tuple[List[float], List[float]]:
         """Return unit system scaled values for vel and pos.
 
         Args:
@@ -320,7 +323,8 @@ class simulation:
         Returns:
             float: width
         """
-        filament_dia = self.initial_machine_setup_dict["filament_diam"] if filament_dia is None else filament_dia
+        if filament_dia is None:
+            filament_dia: float = self.initial_machine_setup_dict["filament_diam"]
 
         curr_val = self.get_values(t=t)
 
@@ -329,7 +333,7 @@ class simulation:
 
         filament_cross_sec = np.pi * (filament_dia / 2) ** 2  # calculate cross area of filament
         width = (
-            (flow_rate * filament_cross_sec) / (extrusion_h * feed_rate) if feed_rate > 0 else 0
+            float((flow_rate * filament_cross_sec) / (extrusion_h * feed_rate)) if feed_rate > 0.0 else 0.0
         )  # calculate width, zero if no movement.
 
         return width
@@ -345,10 +349,10 @@ class simulation:
             f" and generated {len(self.blocklist)} planner blocks.\n"
             f"Estimated time to travel all states with provided "
             f"printer settings is {self.blocklist[-1].get_segments()[-1].t_end:.2f} seconds.\n"
-            f"The Simulation took {(time.time()-start_time):.2f} s of computation time."
+            f"The Simulation took {(time.time() - start_time):.2f} s of computation time."
         )
 
-    def refresh(self, new_state_list: List[state] = None):
+    def refresh(self, new_state_list: Optional[List[state]] = None):
         """Refresh simulation. Either through new state list or by rerunning the self.states as input.
 
         Args:
@@ -363,7 +367,7 @@ class simulation:
         )
         self.trajectory_self_correct()
 
-    def extrusion_extent(self, output_unit_system: str = None) -> np.ndarray:
+    def extrusion_extent(self, output_unit_system: Optional[str] = None) -> np.ndarray:
         """Return scaled xyz min & max while extruding.
 
         Args:
@@ -391,7 +395,7 @@ class simulation:
         else:
             raise ValueError("No extrusion happening.")
 
-    def extrusion_max_vel(self, output_unit_system: str = None) -> np.float64:
+    def extrusion_max_vel(self, output_unit_system: Optional[str] = None) -> np.float64:
         """Return scaled maximum velocity while extruding.
 
         Args:
@@ -460,7 +464,7 @@ class simulation:
 
         custom_print(f"💾 Summary written to 👉 {str(filepath)}")
 
-    def get_scaling_factor(self, output_unit_system: str = None) -> float:
+    def get_scaling_factor(self, output_unit_system: Optional[str] = None) -> float:
         """Get a scaling factor to convert lengths from mm to another supported unit system.
 
         Args:
@@ -482,15 +486,15 @@ class setup:
 
     def __init__(
         self,
-        presets_file: str,
-        printer: str = None,
+        presets_file: Union[Path, str],
+        printer: Optional[str] = None,
         verbosity_level: Optional[int] = None,
         **kwargs,
     ):
         """Initialize the setup for the printing simulation.
 
         Args:
-            presets_file (str): Path to the YAML file containing printer presets.
+            presets_file (Path or str): Path to the YAML file containing printer presets.
             printer (str, optional): Name of the printer to select from the preset file. Defaults to None.
             verbosity_level (int, optional): Verbosity level for logging (0: no output, 1: warnings, 2: info, 3: debug). Defaults to None.
             **kwargs: Additional properties to set or override in the setup.
@@ -516,33 +520,43 @@ class setup:
 
     def __setattr__(self, name, value):
         """Set setup_dict keys."""
-        if name in ["setup_dict", "filename", "available_unit_systems", "input_unit_system"]:
+        if name in [
+            "setup_dict",
+            "filename",
+            "available_unit_systems",
+            "input_unit_system",
+        ]:
             super().__setattr__(name, value)
         else:
             self.setup_dict[name] = value
 
-    def load_setup(self, filepath, printer=None):
+    def load_setup(self, filepath: Union[Path, str], printer=None):
         """Load setup from file.
 
         Args:
-            filepath: (string) specify path to setup file
+            filepath: (string or Path) specify path to setup file
         """
-        file = open(file=filepath)
+        if isinstance(filepath, str):
+            filepath = Path(filepath)
 
-        setup_dict = yaml.load(file, Loader=yaml.Loader)
-        if printer:
-            self.setup_dict = setup_dict[printer]
-            self.printer = printer
-        else:
-            printers_available = [printer for printer in setup_dict]
-
-            if len(printers_available) == 1:
-                printer = printers_available[0]
+        with filepath.open(mode="r") as file:
+            setup_dict = yaml.load(file, Loader=yaml.Loader)
+            if printer:
                 self.setup_dict = setup_dict[printer]
                 self.printer = printer
-                custom_print(f"Automatically selected the '{printer}' printer in the setup file {filepath}.", lvl=2)
             else:
-                raise ValueError("Multiple printers found but none has been selected.")
+                printers_available = [printer for printer in setup_dict]
+
+                if len(printers_available) == 1:
+                    printer = printers_available[0]
+                    self.setup_dict = setup_dict[printer]
+                    self.printer = printer
+                    custom_print(
+                        f"Automatically selected the '{printer}' printer in the setup file {filepath}.",
+                        lvl=2,
+                    )
+                else:
+                    raise ValueError("Multiple printers found but none has been selected.")
 
         # parse initial position if set via config
         if "initial_position" in self.setup_dict:
@@ -604,7 +618,7 @@ class setup:
                 )
         return initial_machine_setup
 
-    def set_initial_position(self, initial_position: Union[tuple, dict], input_unit_system: str = None):
+    def set_initial_position(self, initial_position: Union[tuple, dict], input_unit_system: Optional[str] = None):
         """Set initial Position.
 
         Args:
@@ -664,7 +678,7 @@ class setup:
         return_dict = self.setup_dict
         return return_dict
 
-    def get_scaling_factor(self, input_unit_system: str = None) -> float:
+    def get_scaling_factor(self, input_unit_system: Optional[str] = None) -> float:
         """Get a scaling factor to convert lengths from mm to another supported unit system.
 
         Args:
