@@ -86,6 +86,7 @@ def plot_3d(
         "velocity": [r"$v$ in $\frac{mm}{s}$", "v in mm/s", "viridis"],
         "rel_vel_err": [r"$\epsilon_{\mathrm{loc}}$", "vel. Error", "Reds"],
         "acceleration": [r"$a$ in $\frac{mm}{s^2}$", "a in mm/s^2", "viridis"],
+        "deposition_time": [r"deposition time in s", "deposition time in s", "plasma"],
     }
     if overwrite_labels:
         colorbar_label.update(overwrite_labels)
@@ -185,7 +186,7 @@ def plot_3d(
         actor = p.add_mesh(
             mesh,
             scalars=scalar_value,
-            smooth_shading=display_available,
+            smooth_shading=False,
             scalar_bar_args={
                 "title": colorbar_label[scalar_value][1],
                 "title_font_size": 40,
@@ -204,7 +205,7 @@ def plot_3d(
             p.update_scalar_bar_range(scalar_value_bounds)
     else:
         p.set_background(solid_color)
-        p.add_mesh(mesh, color=solid_color, smooth_shading=display_available, lighting=lighting)
+        p.add_mesh(mesh, color=solid_color, smooth_shading=False, lighting=lighting)
 
     if layer_select is not None:
         p.view_xy()

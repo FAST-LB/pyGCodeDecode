@@ -54,8 +54,8 @@ def _plot(args: argparse.Namespace) -> None:
             exit()
         else:
             custom_print(
-                "⚠️  No G-code file specified. Looking for a G-code file"
-                " in the current directory... 👀",
+                "⚠️  No G-code file specified. Looking for a G-code file in the current directory"
+                "... 👀",
                 lvl=1,
             )
             files_list = list(pathlib.Path.cwd().glob("*.gcode"))
@@ -145,6 +145,8 @@ def _plot(args: argparse.Namespace) -> None:
         gcode_path=g_code_file,
         initial_machine_setup=printer_setup,
     )
+    svalue = args.scalar_value if args.scalar_value is not None else "velocity"
+    ploteonly = args.extrusion_only == "True" if args.extrusion_only is not None else True
 
     if out_dir is not None:
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -160,15 +162,16 @@ def _plot(args: argparse.Namespace) -> None:
         # create a 3D-plot and save a VTK as well as a screenshot
         mesh = plot_3d(
             sim,
-            extrusion_only=True,
+            extrusion_only=ploteonly,
             screenshot_path=out_dir / f"{g_code_file.stem}.png",
             vtk_path=out_dir / f"{g_code_file.stem}.vtk",
+            scalar_value=svalue,
         )
     else:
         mesh = None
 
     # create an interactive 3D-plot
-    plot_3d(sim, mesh=mesh)  # type: ignore
+    plot_3d(sim, mesh=mesh, scalar_value=svalue)
 
 
 def _main(args: list | None = None) -> None:
@@ -215,6 +218,27 @@ def _main(args: list | None = None) -> None:
         type=pathlib.Path,
         metavar="<PATH>",
     )
+    plot_parser.add_argument(
+        "-s",
+        "--scalar_value",
+        action="store",
+        help="The scalar value to visualize in the plot (e.g., 'rel_vel_err', 'acceleration', "
+        "'velocity'...).",
+        default=None,
+        type=str,
+        metavar="<NAME>",
+    )
+
+    plot_parser.add_argument(
+        "-e",
+        "--extrusion_only",
+        type=str,
+        choices=["True", "False"],
+        default="True",
+        help="Only visualize the extrusion paths.",
+        metavar="<BOOL>",
+    )
+
     plot_parser.add_argument(
         "-p",
         "--presets",
