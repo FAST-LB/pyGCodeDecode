@@ -451,7 +451,7 @@ def plot_vel(
     # gathering values
     pos = [[], [], [], []]
     vel = [[], [], [], []]
-    abs = []  # initialize value arrays
+    absolutes = []  # initialize value arrays
     index_saved = 0
     bar = ProgressBar(name="Velocity Plot")
 
@@ -464,7 +464,7 @@ def plot_vel(
             pos[axis_dict[ax]].append(tmp_pos[axis_dict[ax]])
             vel[axis_dict[ax]].append(tmp_vel[axis_dict[ax]])
 
-        abs.append(np.linalg.norm(tmp_vel[:3]))
+        absolutes.append(np.linalg.norm(tmp_vel[:3]))
         bar.update((i + 1) / len(times))
 
     fig, ax1 = plt.subplots()
@@ -499,7 +499,7 @@ def plot_vel(
         ax1.plot(times, vel[axis_dict[ax]], label=ax)  # velocity
         ax2.plot(times, pos[axis_dict[ax]], linestyle="--")  # position w/ extrusion
         # if not ax == "e": ax2.plot(times,pos[axis_dict[ax]],linestyle="--") #position ignoring extrusion
-    ax1.plot(times, abs, color="black", label="abs")  # absolute velocity
+    ax1.plot(times, absolutes, color="black", label="abs")  # absolute velocity
 
     ax1.set_xlabel("time in s")
     ax1.set_ylabel("velocity in mm/s")

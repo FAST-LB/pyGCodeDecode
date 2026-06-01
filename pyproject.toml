@@ -68,6 +68,7 @@ select = [
     "ANN", # function annotations
     "S",   # bandit security linter
     "NPY", # NumPy
+    "A",   # builtins
     # suggested but unused rulesets:
     # "N",   # PEP8-naming
 ]

@@ -90,9 +90,9 @@ def find_current_segment(
                     return interpolated_segment, last_index
         else:
             # optimized search
-            for id, segm in enumerate(path[last_index:]):
+            for number, segm in enumerate(path[last_index:]):
                 if t >= segm.t_begin and t <= segm.t_end:
-                    return segm, last_index + id
+                    return segm, last_index + number
                 elif t >= segm.t_end and t < path[last_index + 1].t_begin:
                     # if no segment exists, create one that interpolates the previous segment as static
                     interpolated_segment = segment(
@@ -116,9 +116,9 @@ def find_current_segment(
                 if t >= segm.t_begin and t < segm.t_end:
                     return segm, last_index
         else:
-            for id, segm in enumerate(path[last_index:]):
+            for number, segm in enumerate(path[last_index:]):
                 if t >= segm.t_begin and t <= segm.t_end:
-                    return segm, last_index + id
+                    return segm, last_index + number
             raise ValueError("nothing found")
 
 
@@ -249,11 +249,11 @@ class simulation:
             total_dist = 0
             glob_result = 0
             for segm in unpack_blocklist(self.blocklist):
-                len = segm.get_segm_len()
+                length = segm.get_segm_len()
                 segm_result = segm.get_result(calculator.name + "_savg")
                 if segm.is_extruding():
-                    total_dist += len
-                    glob_result += segm_result * len
+                    total_dist += length
+                    glob_result += segm_result * length
             if total_dist > 0:
                 return glob_result / total_dist
 

@@ -48,11 +48,11 @@ def generate_abaqus_event_series(
         time.append(segment.t_end)
 
     # figure out if extrusion happens from this to the next step, if yes -> 1, if no -> 0
-    for id in range(len(pos) - 1):
-        if pos[id + 1][3] - pos[id][3] > tolerance:
-            pos[id][3] = 1
+    for number in range(len(pos) - 1):
+        if pos[number + 1][3] - pos[number][3] > tolerance:
+            pos[number][3] = 1
         else:
-            pos[id][3] = 0
+            pos[number][3] = 0
     pos[-1][3] = 0
 
     event_series_list = []
