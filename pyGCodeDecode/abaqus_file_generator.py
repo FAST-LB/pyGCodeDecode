@@ -45,19 +45,19 @@ def generate_abaqus_event_series(
         filepath = Path(filepath)
 
     unpacked = gcode_interpreter.unpack_blocklist(simulation.blocklist)
-    pos = [unpacked[0].pos_begin.get_vec(withExtrusion=True)]
-    time = [0]
+    positions = [unpacked[0].pos_begin.get_vec(withExtrusion=True)]
+    times = [0]
     for segment in unpacked:
-        pos.append(segment.pos_end.get_vec(withExtrusion=True))
-        time.append(segment.t_end)
+        positions.append(segment.pos_end.get_vec(withExtrusion=True))
+        times.append(segment.t_end)
 
     # figure out if extrusion happens from this to the next step, if yes -> 1, if no -> 0
-    for number in range(len(pos) - 1):
-        if pos[number + 1][3] - pos[number][3] > tolerance:
-            pos[number][3] = 1
+    for number in range(len(positions) - 1):
+        if positions[number + 1][3] - positions[number][3] > tolerance:
+            positions[number][3] = 1
         else:
-            pos[number][3] = 0
-    pos[-1][3] = 0
+            positions[number][3] = 0
+    positions[-1][3] = 0
 
     event_series_list = []
 
@@ -69,11 +69,12 @@ def generate_abaqus_event_series(
     # write to file
     round_to = 8
     with filepath.open("w") as outfile:
-        for time, pos in zip(time, pos):
+        for time, position in zip(times, positions, strict=True):
             outfile.write(
-                f"{float(time)},{round(scaling * pos[0], round_to)},{round(scaling * pos[1], round_to)},{round(scaling * pos[2], round_to)},{pos[3]}\n"
+                f"{float(time)},{round(scaling * position[0], round_to)},{round(scaling * position[1], round_to)},"
+                f"{round(scaling * position[2], round_to)},{position[3]}\n"
             )
-            event_series_list.append((float(time), scaling * pos[0], scaling * pos[1], scaling * pos[2], pos[3]))
+            event_series_list.append((float(time), scaling * position[0], scaling * position[1], scaling * position[2], position[3]))
 
         custom_print(f"💾 ABAQUS event series written to 👉 {outfile.name}")
 

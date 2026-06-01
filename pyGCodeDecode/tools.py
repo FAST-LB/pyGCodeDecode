@@ -174,7 +174,7 @@ def write_submodel_times(
 
     def _point_eval(point: list, pl_lim: list) -> list:
         p_eval = []
-        for lim_n, p_n in zip(pl_lim, point):
+        for lim_n, p_n in zip(pl_lim, point, strict=True):
             inters_pl = [
                 p_n <= lim_n[0],
                 p_n >= lim_n[1],
@@ -187,7 +187,7 @@ def write_submodel_times(
 
     def _intersect_possible(p_eval0: list, p_eval1: list) -> bool:
         possible = False
-        for ax_eval0, ax_eval1 in zip(p_eval0, p_eval1):
+        for ax_eval0, ax_eval1 in zip(p_eval0, p_eval1, strict=True):
             if ax_eval0 != ax_eval1:
                 # crossing
                 possible = True  # if one axis crosses any plane, intersection is possible
@@ -247,7 +247,7 @@ def write_submodel_times(
         p_eval_B = _point_eval(block.state_B.state_position.get_vec(), control_volume.get_plane_lim())
 
         if _intersect_possible(p_eval0=p_eval_A, p_eval1=p_eval_B):
-            for plane_orig, plane_normal in zip(control_volume.get_plane_orig(), control_volume.get_plane_normals()):
+            for plane_orig, plane_normal in zip(control_volume.get_plane_orig(), control_volume.get_plane_normals(), strict=True):
                 isec, s_len, sgn = _isect_line_plane(
                     p0=block.state_A.state_position.get_vec(),
                     p1=block.state_B.state_position.get_vec(),

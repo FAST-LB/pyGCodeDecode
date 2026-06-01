@@ -174,7 +174,7 @@ def test_junction_handlings_rotating_COS() -> None:
     fig, ax = plt.subplots(figsize=(6, 4))
     color_map = {}
     # Plot solid lines for unrotated
-    for idx, fw in enumerate(test_firmwares):
+    for fw in test_firmwares:
         line = ax.plot(
             angles,
             results[fw],
@@ -187,7 +187,7 @@ def test_junction_handlings_rotating_COS() -> None:
     for fw in test_firmwares:
         # rotated_results[fw] is a list of (angle, [results for each rotation])
         # transpose the data: for each rotation, collect the results for all angles
-        all_rotations = list(zip(*[rot[1] for rot in rotated_results[fw]]))  # shape: (num_rotations, num_angles)
+        all_rotations = list(zip(*[rot[1] for rot in rotated_results[fw]], strict=True))  # shape: (num_rotations, num_angles)
         for rot_curve in all_rotations:
             ax.plot(
                 angles,

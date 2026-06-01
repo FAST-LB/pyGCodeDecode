@@ -72,6 +72,9 @@ select = [
     "C4",  # list comprehensions
     "ICN", # import conventions
     "PTH", # pathlib
+    "PD",  # pandas-vet
+    "PLE", # Pylint errors
+    "B",   # bugbear
     # suggested but unused rulesets:
     # "N",   # PEP8-naming
 ]

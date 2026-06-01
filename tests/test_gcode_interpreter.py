@@ -57,7 +57,7 @@ def test_setup_extended() -> None:
         simulation_setup = setup(
             presets_file=pathlib.Path("./tests/data/test_printer_setups.yaml"),
         )
-        assert False, "Expected ValueError was not raised."
+        raise AssertionError("Expected ValueError was not raised.")
     except ValueError as e:
         assert str(e) == "Multiple printers found but none has been selected."
 

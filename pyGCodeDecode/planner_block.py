@@ -177,7 +177,7 @@ class planner_block:
 
         except ValueError as ve:
             custom_print(f"Segments to state: {self.state_B!s} could not be modeled.\n {ve}", lvl=1)
-            raise RuntimeError()
+            raise RuntimeError() from ve
 
     def self_correction(self, tolerance: float = float("1e-12")) -> None:
         """Check for interfacing vel and self correct."""
