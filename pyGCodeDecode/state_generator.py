@@ -117,8 +117,8 @@ def _arg_extract(string: str, key_dict: dict) -> dict:
         dict: (dict) dictionary with all found keys and their arguments
 
     """
-    arg_dict = dict()  # dict to store found arguments for each key
-    matches: list[Match] = list()  # list to store matching keywords
+    arg_dict = {}  # dict to store found arguments for each key
+    matches: list[Match] = []  # list to store matching keywords
     string = str(string)  # typecasting to prevent TypeError
 
     for key in key_dict.keys():  # look for each key in the dictionary
@@ -141,7 +141,7 @@ def _arg_extract(string: str, key_dict: dict) -> dict:
         filter(lambda x: x >= num, lst), default=len(string)
     )  # function to find next largest occurrence in list, default to eol
     comment_begin = min(
-        [start.start() for start in list(filter(lambda x: x.group() == ";", [match for match in matches]))],
+        [start.start() for start in list(filter(lambda x: x.group() == ";", list(matches)))],
         default=len(string),
     )  # find first comment, default to eol
 
@@ -252,7 +252,7 @@ def _dict_list_traveler(line_dict_list: list[dict], initial_machine_setup: dict)
 
         return virtual_machine
 
-    state_list: list[state] = list()
+    state_list: list[state] = []
 
     pos_keys = ["X", "Y", "Z"]
     ax_keys = [*pos_keys, "E"]  # add E for extrusion
@@ -285,7 +285,7 @@ def _dict_list_traveler(line_dict_list: list[dict], initial_machine_setup: dict)
             virtual_machine[key] = default_virtual_machine[key]
 
     # create initial state only with initial position
-    if not any([virtual_machine[poskey] is None for poskey in pos_keys]):
+    if not any(virtual_machine[poskey] is None for poskey in pos_keys):
         # initial state creation
         state_position = position(apply_pos_offset(virtual_machine))
 

@@ -176,7 +176,7 @@ def write_submodel_times(
         return p_eval
 
     def _point_inside(p_eval: list) -> bool:
-        return all([all(p_ev_ax) for p_ev_ax in p_eval])
+        return all(all(p_ev_ax) for p_ev_ax in p_eval)
 
     def _intersect_possible(p_eval0: list, p_eval1: list) -> bool:
         possible = False

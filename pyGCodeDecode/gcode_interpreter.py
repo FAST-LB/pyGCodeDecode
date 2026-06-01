@@ -528,7 +528,7 @@ class setup:
                 self.setup_dict = setup_dict[printer]
                 self.printer = printer
             else:
-                printers_available = [printer for printer in setup_dict]
+                printers_available = list(setup_dict)
 
                 if len(printers_available) == 1:
                     printer = printers_available[0]

@@ -69,6 +69,7 @@ select = [
     "S",   # bandit security linter
     "NPY", # NumPy
     "A",   # builtins
+    "C4",  # list comprehensions
     # suggested but unused rulesets:
     # "N",   # PEP8-naming
 ]
