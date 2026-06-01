@@ -2,7 +2,6 @@
 
 import locale as loc
 import pathlib
-from typing import Optional
 
 import numpy as np
 import yaml
@@ -13,10 +12,10 @@ from pyGCodeDecode.helpers import custom_print
 
 def save_layer_metrics(
     simulation: simulation,
-    filepath: Optional[pathlib.Path] = pathlib.Path("./layer_metrics.csv"),
+    filepath: pathlib.Path | None = pathlib.Path("./layer_metrics.csv"),
     locale: str = None,
     delimiter: str = ";",
-) -> Optional[tuple[list, list, list, list]]:
+) -> tuple[list, list, list, list] | None:
     """Print out print times, distance traveled and the average travel speed to a csv-file.
 
     Args:
@@ -29,9 +28,7 @@ def save_layer_metrics(
     """
     # check if a layer cue was specified
     if "layer_cue" not in simulation.initial_machine_setup_dict:
-        custom_print(
-            "⚠️  No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!", lvl=1
-        )
+        custom_print("⚠️  No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!", lvl=1)
         return None
 
     if locale is None:
@@ -105,7 +102,7 @@ def write_submodel_times(
     sub_side_x_len: float,
     sub_side_y_len: float,
     sub_side_z_len: float,
-    filename: Optional[pathlib.Path] = pathlib.Path("submodel_times.yaml"),
+    filename: pathlib.Path | None = pathlib.Path("submodel_times.yaml"),
     **kwargs,
 ) -> dict:
     """Write the submodel entry and exit times to a yaml file.

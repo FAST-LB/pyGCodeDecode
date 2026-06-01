@@ -2,7 +2,6 @@
 
 import os
 import pathlib
-from typing import Tuple, Union
 
 import numpy as np
 import pyvista as pv
@@ -28,15 +27,15 @@ def plot_3d(
     z_scaler: float = None,
     window_size: tuple = (2048, 1536),
     mpl_subplot: bool = False,
-    mpl_rcParams: Union[dict, None] = None,
+    mpl_rcParams: dict | None = None,
     solid_color: str = "black",
     transparent_background: bool = True,
     parallel_projection: bool = False,
     lighting: bool = True,
     block_colorbar: bool = False,
     extra_plotting: callable = None,  # function to add plotting, args: plotter, mesh
-    overwrite_labels: Union[dict, None] = None,
-    scalar_value_bounds: Union[Tuple[float, float], None] = None,
+    overwrite_labels: dict | None = None,
+    scalar_value_bounds: tuple[float, float] | None = None,
     return_type: str = "mesh",  # "mesh" or "image", only available with screenshot_path
 ) -> pv.MultiBlock:
     """Plot a 3D visualization of G-code simulation data using PyVista.
@@ -139,9 +138,7 @@ def plot_3d(
                     else:
                         scalar.append(sc)
 
-            if (extrusion_only and (len(x) > 0 and not segm.is_extruding())) or (
-                len(x) > 0 and n == (len(segments) - 1)
-            ):
+            if (extrusion_only and (len(x) > 0 and not segm.is_extruding())) or (len(x) > 0 and n == (len(segments) - 1)):
                 points_3d = np.column_stack((x, y, z))
                 line = pv.lines_from_points(points_3d)
                 if scalar_value is not None:
@@ -248,9 +245,7 @@ def plot_3d(
                 else:
                     min_val, max_val = scalar_value_bounds
 
-                dummy_img = ax.imshow(
-                    np.array([[min_val, max_val]]), cmap=colorbar_label[scalar_value][-1], vmin=min_val, vmax=max_val
-                )
+                dummy_img = ax.imshow(np.array([[min_val, max_val]]), cmap=colorbar_label[scalar_value][-1], vmin=min_val, vmax=max_val)
 
                 p.remove_scalar_bar()
 
@@ -406,12 +401,12 @@ def plot_2d(
 
 def plot_vel(
     sim: simulation,
-    axis: Tuple[str] = ("x", "y", "z", "e"),
+    axis: tuple[str] = ("x", "y", "z", "e"),
     show: bool = True,
     show_planner_blocks: bool = True,
     show_segments: bool = False,
     show_jv: bool = False,
-    time_steps: Union[int, str] = "constrained",
+    time_steps: int | str = "constrained",
     filepath: pathlib.Path = None,
     dpi: int = 400,
 ) -> Figure:

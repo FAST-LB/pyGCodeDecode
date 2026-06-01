@@ -103,9 +103,7 @@ def test_result_calc_simulation():
         if hasattr(calculator, "avgs") and isinstance(calculator.avgs, (list, tuple)):
             for avg in calculator.avgs:
                 print(f"Testing existence of average {avg} for {calculator.name}")
-                assert (
-                    calculator.name + avg in sim.results
-                ), f"Result {calculator.name + avg} not found in simulation results"
+                assert calculator.name + avg in sim.results, f"Result {calculator.name + avg} not found in simulation results"
 
     if has_private_results():
         print("Private results are available.")

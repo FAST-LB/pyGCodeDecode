@@ -7,7 +7,7 @@ Utils for the GCode Reader contains:
     - position
 """
 
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -124,8 +124,7 @@ class vector_4D:
             return self.__class__(x, y, z, e)
         else:
             raise ValueError(
-                "Addition with __add__ is only possible with other 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'"
-                f" got {type(other)} instead."
+                f"Addition with __add__ is only possible with other 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray' got {type(other)} instead."
             )
 
     def __sub__(self, other):
@@ -150,9 +149,7 @@ class vector_4D:
             e = self.e - other[3]
             return self.__class__(x, y, z, e)
         else:
-            raise ValueError(
-                "Addition with __sub__ is only possible with other 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'"
-            )
+            raise ValueError("Addition with __sub__ is only possible with other 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'")
 
     def __mul__(self, other):
         """Scalar multiplication functionality for 4D vectors.
@@ -228,7 +225,7 @@ class vector_4D:
         else:
             return False
 
-    def get_vec(self, withExtrusion: bool = False) -> List[float]:
+    def get_vec(self, withExtrusion: bool = False) -> list[float]:
         """Return the 4D vector, optionally with extrusion.
 
         Args:
@@ -304,9 +301,7 @@ class position(vector_4D):
         """
         if other is None:
             other = position(0, 0, 0, 0)
-        return np.linalg.norm(
-            np.subtract(self.get_vec(withExtrusion=withExtrusion), other.get_vec(withExtrusion=withExtrusion))
-        )
+        return np.linalg.norm(np.subtract(self.get_vec(withExtrusion=withExtrusion), other.get_vec(withExtrusion=withExtrusion)))
 
     def __truediv__(self, other):
         """Divide position by seconds to get velocity."""
@@ -328,7 +323,7 @@ class velocity(vector_4D):
         """Print out velocity."""
         return "velocity: " + super().__str__()
 
-    def get_norm_dir(self, withExtrusion: bool = False) -> Optional[np.ndarray]:
+    def get_norm_dir(self, withExtrusion: bool = False) -> np.ndarray | None:
         """Get normalized direction vector as numpy array.
 
         If only extrusion occurs and withExtrusion=True, normalize to the extrusion length.
@@ -463,8 +458,8 @@ class segment:
 
     def __init__(
         self,
-        t_begin: Union[float, seconds],
-        t_end: Union[float, seconds],
+        t_begin: float | seconds,
+        t_end: float | seconds,
         pos_begin: position,
         vel_begin: velocity,
         pos_end: position = None,
@@ -499,7 +494,7 @@ class segment:
         """Segment representation."""
         return self.__str__()
 
-    def move_segment_time(self, delta_t: Union[float, seconds]) -> None:
+    def move_segment_time(self, delta_t: float | seconds) -> None:
         """Move segment in time.
 
         Args:
@@ -508,7 +503,7 @@ class segment:
         self.t_begin = self.t_begin + delta_t
         self.t_end = self.t_end + delta_t
 
-    def get_velocity(self, t: Union[float, seconds]) -> velocity:
+    def get_velocity(self, t: float | seconds) -> velocity:
         """Get current velocity of segment at a certain time.
 
         Args:
@@ -546,7 +541,7 @@ class segment:
 
         return float(v)
 
-    def get_position(self, t: Union[float, seconds]) -> position:
+    def get_position(self, t: float | seconds) -> position:
         """Get current position of segment at a certain time.
 
         Args:
@@ -597,9 +592,7 @@ class segment:
 
         if p_settings is not None:
             # max velocity
-            if self.vel_begin.get_norm() > p_settings.speed and not np.isclose(
-                self.vel_begin.get_norm(), p_settings.speed
-            ):
+            if self.vel_begin.get_norm() > p_settings.speed and not np.isclose(self.vel_begin.get_norm(), p_settings.speed):
                 raise ValueError(f"Target Velocity of {p_settings.speed} exceeded with {self.vel_begin.get_norm()}.")
             if self.vel_end.get_norm() > p_settings.speed and not np.isclose(self.vel_end.get_norm(), p_settings.speed):
                 raise ValueError(f"Target Velocity of {p_settings.speed} exceeded with {self.vel_end.get_norm()}.")
@@ -619,9 +612,7 @@ class segment:
                 scaled_atol = base_atol * dt_scale
                 acc_norm = acc.get_norm()
 
-                if acc_norm > p_settings.p_acc and not np.isclose(
-                    acc_norm, p_settings.p_acc, rtol=scaled_rtol, atol=scaled_atol
-                ):
+                if acc_norm > p_settings.p_acc and not np.isclose(acc_norm, p_settings.p_acc, rtol=scaled_rtol, atol=scaled_atol):
                     raise ValueError(
                         f"Maximum acceleration of {p_settings.p_acc} exceeded with {acc_norm}. "
                         f"Delta t: {dt:.2e}, tolerance used: rtol={scaled_rtol:.2e}, atol={scaled_atol:.2e}"
@@ -681,7 +672,7 @@ class segment:
             raise ValueError(f"Key: {key} not found.")
 
     @classmethod
-    def create_initial(cls, initial_position: Optional[position] = None) -> "segment":
+    def create_initial(cls, initial_position: position | None = None) -> "segment":
         """Create initial static segment with (optionally) initial position else start from Zero.
 
         Args:

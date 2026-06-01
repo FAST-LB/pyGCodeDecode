@@ -1,7 +1,5 @@
 """Planner block Module."""
 
-from typing import List, Union
-
 import numpy as np
 
 from pyGCodeDecode.helpers import custom_print
@@ -15,7 +13,7 @@ from .utils import segment, velocity
 class planner_block:
     """Planner Block Class."""
 
-    result_calculators: List[abstract_result] = [
+    result_calculators: list[abstract_result] = [
         acceleration_result(),
         velocity_result(),
     ]
@@ -36,9 +34,7 @@ class planner_block:
             pos_end = pos_begin + self.direction * travel_ramp_up
             vel_begin = velocity(self.direction * v_begin)
             vel_end = vel_const
-            segment_A = segment(
-                t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
-            )
+            segment_A = segment(t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end)
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_A)
             # B --
@@ -49,9 +45,7 @@ class planner_block:
             pos_end = pos_begin + self.direction * travel_const
             vel_begin = vel_const
             vel_end = vel_const
-            segment_B = segment(
-                t_begin=t1, t_end=t2, pos_begin=pos_begin, vel_begin=vel_begin, pos_end=pos_end, vel_end=vel_end
-            )
+            segment_B = segment(t_begin=t1, t_end=t2, pos_begin=pos_begin, vel_begin=vel_begin, pos_end=pos_end, vel_end=vel_end)
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_B)
             # C \
@@ -61,9 +55,7 @@ class planner_block:
             pos_end = pos_begin + self.direction * travel_ramp_down
             vel_begin = segment_B.vel_end
             vel_end = velocity(self.direction * v_end)
-            segment_C = segment(
-                t_begin=t2, t_end=t3, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
-            )
+            segment_C = segment(t_begin=t2, t_end=t3, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end)
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_C)
 
@@ -78,9 +70,7 @@ class planner_block:
             pos_end = pos_begin + self.direction * travel_ramp_up
             vel_begin = velocity(self.direction * v_begin)
             vel_end = velocity(self.direction * v_peak_tri)
-            segment_A = segment(
-                t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
-            )
+            segment_A = segment(t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end)
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_A)
             # C \
@@ -91,9 +81,7 @@ class planner_block:
             pos_end = pos_begin + self.direction * travel_ramp_down
             vel_begin = segment_A.vel_end
             vel_end = velocity(self.direction * v_end)
-            segment_C = segment(
-                t_begin=t2, t_end=t3, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
-            )
+            segment_C = segment(t_begin=t2, t_end=t3, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end)
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_C)
 
@@ -108,9 +96,7 @@ class planner_block:
             pos_end = pos_begin + self.direction * travel_ramp_up
             vel_begin = velocity(self.direction * v_begin)
             vel_end = velocity(self.direction * v_end_sing)
-            segment_A = segment(
-                t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
-            )
+            segment_A = segment(t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end)
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_A)
 
@@ -125,9 +111,7 @@ class planner_block:
             pos_end = pos_begin + self.direction * travel_ramp_up
             vel_begin = velocity(self.direction * v_begin_sing)
             vel_end = velocity(self.direction * v_end)
-            segment_C = segment(
-                t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end
-            )
+            segment_C = segment(t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end)
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_C)
 
@@ -138,16 +122,12 @@ class planner_block:
         if self.state_A is not None:
             distance = self.state_B.state_position.get_t_distance(other=self.state_A.state_position)
             if distance == 0:  # no travel, extrusion possible
-                distance = self.state_B.state_position.get_t_distance(
-                    other=self.state_A.state_position, withExtrusion=True
-                )
+                distance = self.state_B.state_position.get_t_distance(other=self.state_A.state_position, withExtrusion=True)
                 extrusion_only = True
         else:
             distance = 0
         previous_segment = (
-            self.prev_block.get_segments()[-1]
-            if self.prev_block is not None
-            else segment.create_initial(initial_position=self.state_A.state_position)
+            self.prev_block.get_segments()[-1] if self.prev_block is not None else segment.create_initial(initial_position=self.state_A.state_position)
         )
         settings = self.state_B.state_p_settings
 
@@ -178,11 +158,7 @@ class planner_block:
                 and (travel_ramp_down > 0 or np.isclose(travel_ramp_down, 0.0))
             ):
                 trapezoid(extrusion_only=extrusion_only)
-            elif (
-                v_peak_tri > v_end
-                and v_peak_tri > v_begin
-                and (v_peak_tri < v_target or np.isclose(v_peak_tri, v_target))
-            ):
+            elif v_peak_tri > v_end and v_peak_tri > v_begin and (v_peak_tri < v_target or np.isclose(v_peak_tri, v_target)):
                 triang(extrusion_only=extrusion_only)
             elif v_end_sing > v_begin and (v_end_sing < v_target or np.isclose(v_end_sing, v_target)):
                 singl_up()
@@ -205,13 +181,9 @@ class planner_block:
         """Check for interfacing vel and self correct."""
         flag_correct = False
         if self.next_block is not None:
-            same_vel = (
-                self.get_segments()[-1].vel_end.get_norm() == self.next_block.get_segments()[0].vel_begin.get_norm()
-            )
+            same_vel = self.get_segments()[-1].vel_end.get_norm() == self.next_block.get_segments()[0].vel_begin.get_norm()
             if not same_vel:
-                error_vel = abs(
-                    self.get_segments()[-1].vel_end.get_norm() - self.next_block.get_segments()[0].vel_begin.get_norm()
-                )
+                error_vel = abs(self.get_segments()[-1].vel_end.get_norm() - self.next_block.get_segments()[0].vel_begin.get_norm())
                 if error_vel > tolerance:
                     flag_correct = True
 
@@ -241,9 +213,7 @@ class planner_block:
             for segm in self.segments:
                 segm.self_check(p_settings=self.state_B.state_p_settings)
         except ValueError as ve:
-            custom_print(
-                f"⚠️  Segment modeling travel to \n\t{self.state_B}\ndoes not adhere to machine limits: {ve}", lvl=1
-            )
+            custom_print(f"⚠️  Segment modeling travel to \n\t{self.state_B}\ndoes not adhere to machine limits: {ve}", lvl=1)
 
         return flag_correct
 
@@ -257,7 +227,7 @@ class planner_block:
             for segm in self.segments:
                 segm.move_segment_time(delta_t)
 
-    def extrusion_block_max_vel(self) -> Union[np.ndarray, None]:
+    def extrusion_block_max_vel(self) -> np.ndarray | None:
         """Return max vel from planner block while extruding.
 
         Returns:
@@ -305,7 +275,7 @@ class planner_block:
         self.next_block = None  # nb list next
         self.is_extruding = False  # default Value
 
-        self.segments: List[segment] = []  # store segments here
+        self.segments: list[segment] = []  # store segments here
         self.blocktype = None
         self.e_type = None  # use for extrusion type e.g. perimeter, infill ...
 
@@ -325,9 +295,7 @@ class planner_block:
         if self.valid:
             self.JD = v_JD * self.direction  # jd writeout for debugging plot
             self.move_maker(v_end=v_JD)
-            self.is_extruding = self.state_A.state_position.is_extruding(
-                self.state_B.state_position
-            )  # store extrusion flag
+            self.is_extruding = self.state_A.state_position.is_extruding(self.state_B.state_position)  # store extrusion flag
 
         # dwell functionality
         if self.state_B.pause is not None:
@@ -381,7 +349,7 @@ class planner_block:
         profile_width = 24
         if len(self.segments) == 3:
             # Trapezoid: ramp up, constant, ramp down
-            profile = f"/{'‾'*(profile_width-2)}\\"
+            profile = f"/{'‾' * (profile_width - 2)}\\"
             block_type = "Trapezoid"
         elif len(self.segments) == 2:
             # Triangle: ramp up, ramp down
@@ -408,8 +376,8 @@ class planner_block:
             f"{block_type} Planner Block".center(tot_len, "-"),
             "",
             f"{v_max:.2f} mm/s".center(tot_len),
-            f"{' '*(len(pos_A_pad)-len(v_beg_str))}{v_beg_str}{profile}{v_end_str}",
-            f"{pos_A_pad}{' '*(profile_width)}{pos_B_pad}",
+            f"{' ' * (len(pos_A_pad) - len(v_beg_str))}{v_beg_str}{profile}{v_end_str}",
+            f"{pos_A_pad}{' ' * (profile_width)}{pos_B_pad}",
         ]
         return "\n".join(lines) + "\n"
 

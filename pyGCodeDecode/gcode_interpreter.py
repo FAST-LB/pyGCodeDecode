@@ -3,7 +3,7 @@
 import importlib.resources
 import time
 from pathlib import Path
-from typing import List, Optional, Tuple, Union
+from typing import Optional
 
 import numpy as np
 import yaml
@@ -17,7 +17,7 @@ from .state_generator import generate_states
 from .utils import segment, velocity
 
 
-def generate_planner_blocks(states: List[state], firmware=None):
+def generate_planner_blocks(states: list[state], firmware=None):
     """Convert list of states to trajectory repr. by planner blocks.
 
     Args:
@@ -53,9 +53,9 @@ def generate_planner_blocks(states: List[state], firmware=None):
 
 
 def find_current_segment(
-    path: List[segment],
+    path: list[segment],
     t: float,
-    last_index: Optional[int] = None,
+    last_index: int | None = None,
     keep_position: bool = False,
 ):
     """Find the current segment.
@@ -123,7 +123,7 @@ def find_current_segment(
             raise ValueError("nothing found")
 
 
-def unpack_blocklist(blocklist: List[planner_block]) -> List[segment]:
+def unpack_blocklist(blocklist: list[planner_block]) -> list[segment]:
     """Return list of segments by unpacking list of planner blocks.
 
     Args:
@@ -144,10 +144,10 @@ class simulation:
     def __init__(
         self,
         gcode_path: Path,
-        machine_name: Optional[str] = None,
+        machine_name: str | None = None,
         initial_machine_setup: Optional["setup"] = None,
         output_unit_system: str = "SI (mm)",
-        verbosity_level: Optional[int] = None,
+        verbosity_level: int | None = None,
     ):
         """Initialize the Simulation of a given G-code with initial machine setup or default machine.
 
@@ -191,29 +191,23 @@ class simulation:
                 raise ValueError("Neither a printer name nor a printer setup was specified. At least one is required!")
             else:
                 custom_print(
-                    "Only a machine name was specified but no full setup. "
-                    "Trying to create a setup from pyGCD's default values...",
+                    "Only a machine name was specified but no full setup. Trying to create a setup from pyGCD's default values...",
                     lvl=1,
                 )
-                with importlib.resources.as_file(
-                    importlib.resources.files("pyGCodeDecode") / "data" / "default_printer_presets.yaml"
-                ) as default_presets_file:
+                with importlib.resources.as_file(importlib.resources.files("pyGCodeDecode") / "data" / "default_printer_presets.yaml") as default_presets_file:
                     initial_machine_setup = setup(presets_file=default_presets_file, printer=machine_name)
 
         # SET INITIAL SETTINGS
         self.initial_machine_setup_dict = initial_machine_setup.check_initial_setup()
         self.firmware = self.initial_machine_setup_dict["firmware"]
 
-        self.states: List[state] = generate_states(
+        self.states: list[state] = generate_states(
             filepath=self.filename,
             initial_machine_setup=self.initial_machine_setup_dict,
         )
 
-        custom_print(
-            f"Simulating {self.filename} with {self.initial_machine_setup_dict['printer']} using "
-            f"the {self.firmware} firmware."
-        )
-        self.blocklist: List[planner_block] = generate_planner_blocks(states=self.states, firmware=self.firmware)
+        custom_print(f"Simulating {self.filename} with {self.initial_machine_setup_dict['printer']} using the {self.firmware} firmware.")
+        self.blocklist: list[planner_block] = generate_planner_blocks(states=self.states, firmware=self.firmware)
         self.trajectory_self_correct()
 
         # calculate results
@@ -287,7 +281,7 @@ class simulation:
                     else:
                         raise ValueError(f"Unknown average type: {avg} for {calculator.name}")
 
-    def get_values(self, t: float, output_unit_system: Optional[str] = None) -> Tuple[List[float], List[float]]:
+    def get_values(self, t: float, output_unit_system: str | None = None) -> tuple[list[float], list[float]]:
         """Return unit system scaled values for vel and pos.
 
         Args:
@@ -312,7 +306,7 @@ class simulation:
 
         return tmp_vel, tmp_pos
 
-    def get_width(self, t: float, extrusion_h: float, filament_dia: Optional[float] = None) -> float:
+    def get_width(self, t: float, extrusion_h: float, filament_dia: float | None = None) -> float:
         """Return the extrusion width for a certain extrusion height at time.
 
         Args:
@@ -332,9 +326,7 @@ class simulation:
         flow_rate = curr_val[0][3]  # get extrusion rate at current time
 
         filament_cross_sec = np.pi * (filament_dia / 2) ** 2  # calculate cross area of filament
-        width = (
-            float((flow_rate * filament_cross_sec) / (extrusion_h * feed_rate)) if feed_rate > 0.0 else 0.0
-        )  # calculate width, zero if no movement.
+        width = float((flow_rate * filament_cross_sec) / (extrusion_h * feed_rate)) if feed_rate > 0.0 else 0.0  # calculate width, zero if no movement.
 
         return width
 
@@ -352,7 +344,7 @@ class simulation:
             f"The Simulation took {(time.time() - start_time):.2f} s of computation time."
         )
 
-    def refresh(self, new_state_list: Optional[List[state]] = None):
+    def refresh(self, new_state_list: list[state] | None = None):
         """Refresh simulation. Either through new state list or by rerunning the self.states as input.
 
         Args:
@@ -362,12 +354,10 @@ class simulation:
         if new_state_list is not None:
             self.states = new_state_list
 
-        self.blocklist: List[planner_block] = generate_planner_blocks(
-            states=self.states, firmware=self.initial_machine_setup_dict["firmware"]
-        )
+        self.blocklist: list[planner_block] = generate_planner_blocks(states=self.states, firmware=self.initial_machine_setup_dict["firmware"])
         self.trajectory_self_correct()
 
-    def extrusion_extent(self, output_unit_system: Optional[str] = None) -> np.ndarray:
+    def extrusion_extent(self, output_unit_system: str | None = None) -> np.ndarray:
         """Return scaled xyz min & max while extruding.
 
         Args:
@@ -395,7 +385,7 @@ class simulation:
         else:
             raise ValueError("No extrusion happening.")
 
-    def extrusion_max_vel(self, output_unit_system: Optional[str] = None) -> np.float64:
+    def extrusion_max_vel(self, output_unit_system: str | None = None) -> np.float64:
         """Return scaled maximum velocity while extruding.
 
         Args:
@@ -405,16 +395,14 @@ class simulation:
         Returns:
             max_vel: (np.float64) maximum travel velocity while extruding
         """
-        all_blocks_max_vel = np.asarray(
-            [np.linalg.norm(block.extrusion_block_max_vel()[:3]) for block in self.blocklist if block.is_extruding]
-        )
+        all_blocks_max_vel = np.asarray([np.linalg.norm(block.extrusion_block_max_vel()[:3]) for block in self.blocklist if block.is_extruding])
         max_vel = np.amax(all_blocks_max_vel, axis=0)
 
         scaling = self.get_scaling_factor(output_unit_system=output_unit_system)
 
         return scaling * max_vel
 
-    def save_summary(self, filepath: Union[Path, str]):
+    def save_summary(self, filepath: Path | str):
         """Save summary to .yaml file.
 
         Args:
@@ -432,11 +420,7 @@ class simulation:
         e_end = self.blocklist[-1].get_segments()[-1].pos_end.get_vec(withExtrusion=True)[3]
 
         filament_diam = self.initial_machine_setup_dict.get("filament_diam", None)
-        e_amount = (
-            (e_end - self.initial_machine_setup_dict["E"]) * (np.pi * filament_diam**2 / 4)
-            if filament_diam is not None
-            else None
-        )
+        e_amount = (e_end - self.initial_machine_setup_dict["E"]) * (np.pi * filament_diam**2 / 4) if filament_diam is not None else None
 
         summary = {
             "filename": str(self.filename),
@@ -464,7 +448,7 @@ class simulation:
 
         custom_print(f"💾 Summary written to 👉 {str(filepath)}")
 
-    def get_scaling_factor(self, output_unit_system: Optional[str] = None) -> float:
+    def get_scaling_factor(self, output_unit_system: str | None = None) -> float:
         """Get a scaling factor to convert lengths from mm to another supported unit system.
 
         Args:
@@ -486,9 +470,9 @@ class setup:
 
     def __init__(
         self,
-        presets_file: Union[Path, str],
-        printer: Optional[str] = None,
-        verbosity_level: Optional[int] = None,
+        presets_file: Path | str,
+        printer: str | None = None,
+        verbosity_level: int | None = None,
         **kwargs,
     ):
         """Initialize the setup for the printing simulation.
@@ -530,7 +514,7 @@ class setup:
         else:
             self.setup_dict[name] = value
 
-    def load_setup(self, filepath: Union[Path, str], printer=None):
+    def load_setup(self, filepath: Path | str, printer=None):
         """Load setup from file.
 
         Args:
@@ -605,20 +589,15 @@ class setup:
         # check if all provided keys are valid
         for key in initial_machine_setup:
             if key not in valid_keys:
-                raise ValueError(
-                    f"Invalid Key: '{key}' in Setup Dictionary, check for typos. Valid keys are: {valid_keys}"
-                )
+                raise ValueError(f"Invalid Key: '{key}' in Setup Dictionary, check for typos. Valid keys are: {valid_keys}")
 
         # check if every required key is provided
         for key in req_keys:
             if key not in initial_machine_setup:
-                raise ValueError(
-                    f"Missing Key: '{key}' is not provided in Setup Dictionary,"
-                    f" check for typos. Required keys are: {req_keys}"
-                )
+                raise ValueError(f"Missing Key: '{key}' is not provided in Setup Dictionary, check for typos. Required keys are: {req_keys}")
         return initial_machine_setup
 
-    def set_initial_position(self, initial_position: Union[tuple, dict, str], input_unit_system: Optional[str] = None):
+    def set_initial_position(self, initial_position: tuple | dict | str, input_unit_system: str | None = None):
         """Set initial Position.
 
         Args:
@@ -678,7 +657,7 @@ class setup:
         return_dict = self.setup_dict
         return return_dict
 
-    def get_scaling_factor(self, input_unit_system: Optional[str] = None) -> float:
+    def get_scaling_factor(self, input_unit_system: str | None = None) -> float:
         """Get a scaling factor to convert lengths from mm to another supported unit system.
 
         Args:

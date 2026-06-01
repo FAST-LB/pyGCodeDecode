@@ -31,9 +31,7 @@ def test_end_to_end_volumetr():
 
     end_extrusion = sim.blocklist[-1].segments[-1].pos_end.e
     expected_extrusion = 14.0
-    assert np.isclose(
-        end_extrusion, expected_extrusion, rtol=1e-4
-    ), f"Expected {expected_extrusion}, but got {end_extrusion}"
+    assert np.isclose(end_extrusion, expected_extrusion, rtol=1e-4), f"Expected {expected_extrusion}, but got {end_extrusion}"
     preset = setup(pathlib.Path("./tests/data/test_printer_setups.yaml"), "test")
     preset.set_property({"volumetric_extrusion": True})
 
@@ -45,9 +43,7 @@ def test_end_to_end_volumetr():
     end_extrusion = sim.blocklist[-1].segments[-1].pos_end.e
     expected_extrusion = 14.0 / ((1.75 / 2) ** 2 * np.pi)
 
-    assert np.isclose(
-        end_extrusion, expected_extrusion, rtol=1e-4
-    ), f"Expected {expected_extrusion}, but got {end_extrusion}"
+    assert np.isclose(end_extrusion, expected_extrusion, rtol=1e-4), f"Expected {expected_extrusion}, but got {end_extrusion}"
 
 
 def test_end_to_end_extensive():

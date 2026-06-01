@@ -57,13 +57,10 @@ class junction_handling:
         next_next_state = self.state_B.next_state if self.state_B.next_state is not None else self.state_B
         while True:
             if (
-                next_next_state.next_state is None
-                or self.state_B.state_position != next_next_state.state_position
+                next_next_state.next_state is None or self.state_B.state_position != next_next_state.state_position
                 # or self.state_B.state_position.get_t_distance(next_next_state.state_position, withExtrusion=True) > 0  # inefficient check
             ):
-                vel_next = self.connect_state(
-                    state_A=self.state_B, state_B=next_next_state
-                )  # target velocity for next planner block
+                vel_next = self.connect_state(state_A=self.state_B, state_B=next_next_state)  # target velocity for next planner block
                 break
             else:
                 next_next_state = next_next_state.next_state
@@ -436,9 +433,7 @@ class junction_deviation(junction_handling):
         else:
             JD_sin_theta_half = 0
         if JD_sin_theta_half < np.sin(JD_maxAngle * np.pi / (2 * 180)):  # smaller than max angle
-            if JD_sin_theta_half > np.sin(
-                JD_minAngle * np.pi / (2 * 180)
-            ):  # and larger than min angle --> apply Junction Deviation Calculation
+            if JD_sin_theta_half > np.sin(JD_minAngle * np.pi / (2 * 180)):  # and larger than min angle --> apply Junction Deviation Calculation
                 # calculate scalar junction velocity
                 JD_Radius = JD_delta * JD_sin_theta_half / (1 - JD_sin_theta_half)
                 JD_velocity_scalar = np.sqrt(JD_acc * JD_Radius)
@@ -458,9 +453,7 @@ class junction_deviation(junction_handling):
             state_B: (state)   end state
         """
         super().__init__(state_A, state_B)
-        self.junction_vel = self.calc_JD(
-            vel_0=self.target_vel, vel_1=self.vel_next, p_settings=self.state_B.state_p_settings
-        )
+        self.junction_vel = self.calc_JD(vel_0=self.target_vel, vel_1=self.vel_next, p_settings=self.state_B.state_p_settings)
 
     def get_junction_vel(self):
         """Return junction velocity.
@@ -585,8 +578,4 @@ def _get_handler_names() -> list[str]:
     """
     # Get all classes defined in this module that are subclasses of junction_handling (excluding the base itself)
     current_module = sys.modules[__name__]
-    return [
-        name
-        for name, obj in inspect.getmembers(current_module, inspect.isclass)
-        if issubclass(obj, junction_handling) and obj is not junction_handling
-    ]
+    return [name for name, obj in inspect.getmembers(current_module, inspect.isclass) if issubclass(obj, junction_handling) and obj is not junction_handling]
