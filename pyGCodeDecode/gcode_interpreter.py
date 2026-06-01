@@ -3,7 +3,6 @@
 import importlib.resources
 import time
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import yaml
@@ -145,7 +144,7 @@ class simulation:
         self,
         gcode_path: Path,
         machine_name: str | None = None,
-        initial_machine_setup: Optional["setup"] = None,
+        initial_machine_setup: "setup | None" = None,
         output_unit_system: str = "SI (mm)",
         verbosity_level: int | None = None,
     ):
@@ -446,7 +445,7 @@ class simulation:
         with open(file=filepath, mode="w") as file:
             yaml.dump(data=summary, stream=file)
 
-        custom_print(f"💾 Summary written to 👉 {str(filepath)}")
+        custom_print(f"💾 Summary written to 👉 {filepath!s}")
 
     def get_scaling_factor(self, output_unit_system: str | None = None) -> float:
         """Get a scaling factor to convert lengths from mm to another supported unit system.

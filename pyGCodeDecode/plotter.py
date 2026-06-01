@@ -19,12 +19,12 @@ def plot_3d(
     sim: simulation,
     extrusion_only: bool = True,
     scalar_value: str = "velocity",
-    screenshot_path: pathlib.Path = None,
-    camera_settings: dict = None,
-    vtk_path: pathlib.Path = None,
+    screenshot_path: pathlib.Path | None = None,
+    camera_settings: dict | None = None,
+    vtk_path: pathlib.Path | None = None,
     mesh: pv.MultiBlock = None,
-    layer_select: int = None,
-    z_scaler: float = None,
+    layer_select: int | None = None,
+    z_scaler: float | None = None,
     window_size: tuple = (2048, 1536),
     mpl_subplot: bool = False,
     mpl_rcParams: dict | None = None,
@@ -33,7 +33,7 @@ def plot_3d(
     parallel_projection: bool = False,
     lighting: bool = True,
     block_colorbar: bool = False,
-    extra_plotting: callable = None,  # function to add plotting, args: plotter, mesh
+    extra_plotting: callable | None = None,  # function to add plotting, args: plotter, mesh
     overwrite_labels: dict | None = None,
     scalar_value_bounds: tuple[float, float] | None = None,
     return_type: str = "mesh",  # "mesh" or "image", only available with screenshot_path
@@ -407,7 +407,7 @@ def plot_vel(
     show_segments: bool = False,
     show_jv: bool = False,
     time_steps: int | str = "constrained",
-    filepath: pathlib.Path = None,
+    filepath: pathlib.Path | None = None,
     dpi: int = 400,
 ) -> Figure:
     """Plot axis velocity with matplotlib.

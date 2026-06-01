@@ -255,7 +255,7 @@ def _dict_list_traveler(line_dict_list: list[dict], initial_machine_setup: dict)
     state_list: list[state] = list()
 
     pos_keys = ["X", "Y", "Z"]
-    ax_keys = pos_keys + ["E"]  # add E for extrusion
+    ax_keys = [*pos_keys, "E"]  # add E for extrusion
 
     virtual_machine = {
         "X": 0,  # machine coordinates

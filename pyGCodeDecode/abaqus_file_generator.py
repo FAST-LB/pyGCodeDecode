@@ -24,7 +24,7 @@ def generate_abaqus_event_series(
     simulation: gcode_interpreter.simulation,
     filepath: str = "pyGcodeDecode_abaqus_events.inp",
     tolerance: float = 1e-12,
-    output_unit_system: str = None,
+    output_unit_system: str | None = None,
     return_tuple: bool = False,
 ) -> tuple:
     """Generate abaqus event series.

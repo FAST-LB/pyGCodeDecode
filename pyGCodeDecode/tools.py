@@ -13,7 +13,7 @@ from pyGCodeDecode.helpers import custom_print
 def save_layer_metrics(
     simulation: simulation,
     filepath: pathlib.Path | None = pathlib.Path("./layer_metrics.csv"),
-    locale: str = None,
+    locale: str | None = None,
     delimiter: str = ";",
 ) -> tuple[list, list, list, list] | None:
     """Print out print times, distance traveled and the average travel speed to a csv-file.

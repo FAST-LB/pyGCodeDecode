@@ -38,11 +38,7 @@ dependencies = ["numpy", "matplotlib", "PyYAML", "pyvista"]
 
 [project.optional-dependencies]
 TEST = ["pytest-cov", "pandas"]
-DEVELOPER = [
-    "ruff",
-    "pre-commit",
-    "pytest-cov",
-]
+DEVELOPER = ["ruff", "pre-commit", "pytest-cov"]
 DOCS = [
     "mkdocs",
     "pydoc-markdown",
@@ -61,7 +57,15 @@ line-length = 160
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "D", "I", "UP"]
+select = [
+    "I",   # isort
+    "F",   # pyflakes
+    "E",   # pydocstyle errors
+    "W",   # pydocstyle warnings
+    "D",   # pydocstyle
+    "UP",  # pyupgrade
+    "RUF", # ruff
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"

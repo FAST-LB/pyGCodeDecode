@@ -1,5 +1,7 @@
 """Planner block Module."""
 
+from typing import ClassVar
+
 import numpy as np
 
 from pyGCodeDecode.helpers import custom_print
@@ -13,7 +15,7 @@ from .utils import segment, velocity
 class planner_block:
     """Planner Block Class."""
 
-    result_calculators: list[abstract_result] = [
+    result_calculators: ClassVar[list[abstract_result]] = [
         acceleration_result(),
         velocity_result(),
     ]
@@ -174,7 +176,7 @@ class planner_block:
                 )
 
         except ValueError as ve:
-            custom_print(f"Segments to state: {str(self.state_B)} could not be modeled.\n {ve}", lvl=1)
+            custom_print(f"Segments to state: {self.state_B!s} could not be modeled.\n {ve}", lvl=1)
             raise RuntimeError()
 
     def self_correction(self, tolerance=float("1e-12")):
