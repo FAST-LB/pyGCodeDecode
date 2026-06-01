@@ -569,7 +569,7 @@
 <p>Access to setup_dict content.</p>
 <p><a id="pyGCodeDecode.gcode_interpreter.setup.__init__"></a></p>
 <h4 id="setup__init__">setup.__init__<a class="headerlink" href="#setup__init__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __init__(presets_file: Path | str,
+<pre class="codehilite"><code class="language-python">def __init__(presets_file: Union[Path, str],
              printer: Optional[str] = None,
              verbosity_level: Optional[int] = None,
              **kwargs)
@@ -626,7 +626,7 @@
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.setup.load_setup"></a></p>
 <h4 id="setupload_setup">setup.load_setup<a class="headerlink" href="#setupload_setup" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def load_setup(filepath: str | Path, printer=None)
+<pre class="codehilite"><code class="language-python">def load_setup(filepath: Union[Path, str], printer=None)
 </code></pre>
 
 <p>Load setup from file.</p>
