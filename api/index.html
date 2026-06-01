@@ -524,7 +524,7 @@
 <h4 id="find_current_segment">find_current_segment<a class="headerlink" href="#find_current_segment" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">def find_current_segment(path: List[segment],
                          t: float,
-                         last_index: int = None,
+                         last_index: Optional[int] = None,
                          keep_position: bool = False)
 </code></pre>
 
@@ -569,8 +569,8 @@
 <p>Access to setup_dict content.</p>
 <p><a id="pyGCodeDecode.gcode_interpreter.setup.__init__"></a></p>
 <h4 id="setup__init__">setup.__init__<a class="headerlink" href="#setup__init__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __init__(presets_file: str,
-             printer: str = None,
+<pre class="codehilite"><code class="language-python">def __init__(presets_file: Path | str,
+             printer: Optional[str] = None,
              verbosity_level: Optional[int] = None,
              **kwargs)
 </code></pre>
@@ -578,7 +578,7 @@
 <p>Initialize the setup for the printing simulation.</p>
 <p><strong>Arguments</strong>:</p>
 <ul>
-<li><code>presets_file</code> <em>str</em> - Path to the YAML file containing printer presets.</li>
+<li><code>presets_file</code> <em>Path or str</em> - Path to the YAML file containing printer presets.</li>
 <li><code>printer</code> <em>str, optional</em> - Name of the printer to select from the preset file. Defaults to None.</li>
 <li><code>verbosity_level</code> <em>int, optional</em> - Verbosity level for logging (0: no output, 1: warnings, 2: info, 3: debug). Defaults to None.</li>
 <li><code>**kwargs</code> - Additional properties to set or override in the setup.</li>
@@ -611,7 +611,7 @@
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.setup.get_scaling_factor"></a></p>
 <h4 id="setupget_scaling_factor">setup.get_scaling_factor<a class="headerlink" href="#setupget_scaling_factor" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_scaling_factor(input_unit_system: str = None) -&gt; float
+<pre class="codehilite"><code class="language-python">def get_scaling_factor(input_unit_system: Optional[str] = None) -&gt; float
 </code></pre>
 
 <p>Get a scaling factor to convert lengths from mm to another supported unit system.</p>
@@ -626,25 +626,25 @@
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.setup.load_setup"></a></p>
 <h4 id="setupload_setup">setup.load_setup<a class="headerlink" href="#setupload_setup" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def load_setup(filepath, printer=None)
+<pre class="codehilite"><code class="language-python">def load_setup(filepath: str | Path, printer=None)
 </code></pre>
 
 <p>Load setup from file.</p>
 <p><strong>Arguments</strong>:</p>
 <ul>
-<li><code>filepath</code> - (string) specify path to setup file</li>
+<li><code>filepath</code> - (string or Path) specify path to setup file</li>
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.setup.set_initial_position"></a></p>
 <h4 id="setupset_initial_position">setup.set_initial_position<a class="headerlink" href="#setupset_initial_position" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">def set_initial_position(initial_position: Union[tuple, dict],
-                         input_unit_system: str = None)
+                         input_unit_system: Optional[str] = None)
 </code></pre>
 
 <p>Set initial Position.</p>
 <p><strong>Arguments</strong>:</p>
 <ul>
 <li><code>initial_position</code> - (tuple or dict) set initial position as tuple of len(4)
-  or dictionary with keys: {X, Y, Z, E} or "first" to use first occuring absolute position in GCode.</li>
+  or dictionary with keys: {X, Y, Z, E} or "first" to use first occurring absolute position in GCode.</li>
 <li><code>input_unit_system</code> <em>str, optional</em> - Wanted input unit system.
   Uses the one specified for the setup if None is specified.</li>
 </ul>
@@ -683,8 +683,8 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.__init__"></a></p>
 <h4 id="simulation__init__">simulation.__init__<a class="headerlink" href="#simulation__init__" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">def __init__(gcode_path: Path,
-             machine_name: str = None,
-             initial_machine_setup: &quot;setup&quot; = None,
+             machine_name: Optional[str] = None,
+             initial_machine_setup: Optional[&quot;setup&quot;] = None,
              output_unit_system: str = &quot;SI (mm)&quot;,
              verbosity_level: Optional[int] = None)
 </code></pre>
@@ -721,7 +721,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 <p>Calculate averages for averageable results.</p>
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.extrusion_extent"></a></p>
 <h4 id="simulationextrusion_extent">simulation.extrusion_extent<a class="headerlink" href="#simulationextrusion_extent" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def extrusion_extent(output_unit_system: str = None) -&gt; np.ndarray
+<pre class="codehilite"><code class="language-python">def extrusion_extent(output_unit_system: Optional[str] = None) -&gt; np.ndarray
 </code></pre>
 
 <p>Return scaled xyz min &amp; max while extruding.</p>
@@ -740,7 +740,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.extrusion_max_vel"></a></p>
 <h4 id="simulationextrusion_max_vel">simulation.extrusion_max_vel<a class="headerlink" href="#simulationextrusion_max_vel" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def extrusion_max_vel(output_unit_system: str = None) -&gt; np.float64
+<pre class="codehilite"><code class="language-python">def extrusion_max_vel(output_unit_system: Optional[str] = None) -&gt; np.float64
 </code></pre>
 
 <p>Return scaled maximum velocity while extruding.</p>
@@ -755,7 +755,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.get_scaling_factor"></a></p>
 <h4 id="simulationget_scaling_factor">simulation.get_scaling_factor<a class="headerlink" href="#simulationget_scaling_factor" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_scaling_factor(output_unit_system: str = None) -&gt; float
+<pre class="codehilite"><code class="language-python">def get_scaling_factor(output_unit_system: Optional[str] = None) -&gt; float
 </code></pre>
 
 <p>Get a scaling factor to convert lengths from mm to another supported unit system.</p>
@@ -770,7 +770,10 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.get_values"></a></p>
 <h4 id="simulationget_values">simulation.get_values<a class="headerlink" href="#simulationget_values" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_values(t: float, output_unit_system: str = None) -&gt; Tuple[List[float]]
+<pre class="codehilite"><code class="language-python">def get_values(
+    t: float,
+    output_unit_system: Optional[str] = None
+) -&gt; Tuple[List[float], List[float]]
 </code></pre>
 
 <p>Return unit system scaled values for vel and pos.</p>
@@ -815,7 +818,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.refresh"></a></p>
 <h4 id="simulationrefresh">simulation.refresh<a class="headerlink" href="#simulationrefresh" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def refresh(new_state_list: List[state] = None)
+<pre class="codehilite"><code class="language-python">def refresh(new_state_list: Optional[List[state]] = None)
 </code></pre>
 
 <p>Refresh simulation. Either through new state list or by rerunning the self.states as input.</p>
