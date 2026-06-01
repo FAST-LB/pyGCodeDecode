@@ -16,7 +16,7 @@ def run_command(cmd: str | list, description: str) -> bool | None:
     """Run a shell command and handle errors."""
     print(f"🔄 {description}...")
     try:
-        result = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+        result = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)  # noqa: S602
         print(f"✅ {description} completed successfully")
         if result.stdout.strip():
             print(f"   Output: {result.stdout.strip()}")
@@ -54,7 +54,7 @@ def serve_docs() -> bool:
     print("Press Ctrl+C to stop the server")
 
     try:
-        subprocess.run("mkdocs serve", shell=True, check=True)
+        subprocess.run("mkdocs serve", shell=True, check=True)  # noqa: S602, S607
     except KeyboardInterrupt:
         print("\n👋 Documentation server stopped")
     except subprocess.CalledProcessError as e:

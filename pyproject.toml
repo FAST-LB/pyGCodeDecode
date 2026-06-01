@@ -66,9 +66,13 @@ select = [
     "UP",  # pyupgrade
     "RUF", # ruff
     "ANN", # function annotations
+    "S", # bandit security linter
     # suggested but unused rulesets:
     # "N",   # PEP8-naming
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"] # Allow use of assert in tests
 
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"

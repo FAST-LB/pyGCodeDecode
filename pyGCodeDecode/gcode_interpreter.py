@@ -523,7 +523,7 @@ class setup:
             filepath = Path(filepath)
 
         with filepath.open(mode="r") as file:
-            setup_dict = yaml.load(file, Loader=yaml.Loader)
+            setup_dict = yaml.safe_load(file)
             if printer:
                 self.setup_dict = setup_dict[printer]
                 self.printer = printer
