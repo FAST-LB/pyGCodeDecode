@@ -636,14 +636,14 @@
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.setup.set_initial_position"></a></p>
 <h4 id="setupset_initial_position">setup.set_initial_position<a class="headerlink" href="#setupset_initial_position" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def set_initial_position(initial_position: Union[tuple, dict],
+<pre class="codehilite"><code class="language-python">def set_initial_position(initial_position: Union[tuple, dict, str],
                          input_unit_system: Optional[str] = None)
 </code></pre>
 
 <p>Set initial Position.</p>
 <p><strong>Arguments</strong>:</p>
 <ul>
-<li><code>initial_position</code> - (tuple or dict) set initial position as tuple of len(4)
+<li><code>initial_position</code> - (tuple, dict or str) set initial position as tuple of len(4) or "first"
   or dictionary with keys: {X, Y, Z, E} or "first" to use first occurring absolute position in GCode.</li>
 <li><code>input_unit_system</code> <em>str, optional</em> - Wanted input unit system.
   Uses the one specified for the setup if None is specified.</li>
