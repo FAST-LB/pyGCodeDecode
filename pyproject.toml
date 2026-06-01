@@ -26,7 +26,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -34,7 +33,7 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = ["numpy", "matplotlib", "PyYAML", "pyvista"]
 
 [project.optional-dependencies]
@@ -59,7 +58,7 @@ pygcd = "pyGCodeDecode.cli:_main"
 
 [tool.ruff]
 line-length = 160
-target-version = "py39"
+target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "D", "I", "UP"]
