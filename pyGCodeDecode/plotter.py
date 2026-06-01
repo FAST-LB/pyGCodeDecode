@@ -152,7 +152,8 @@ def plot_3d(
 
         mesh = mesh.combine()
 
-    # check wether a display is available or Windows is used
+    # Check wether a display is available or Windows is used.
+    # Some options cause issues on headless Linux installs.
     if os.name == "nt" or "DISPLAY" in os.environ:
         display_available = True
     else:
@@ -185,7 +186,7 @@ def plot_3d(
         actor = p.add_mesh(
             mesh,
             scalars=scalar_value,
-            smooth_shading=True,
+            smooth_shading=display_available,
             scalar_bar_args={
                 "title": colorbar_label[scalar_value][1],
                 "title_font_size": 40,
@@ -204,7 +205,7 @@ def plot_3d(
             p.update_scalar_bar_range(scalar_value_bounds)
     else:
         p.set_background(solid_color)
-        p.add_mesh(mesh, color=solid_color, smooth_shading=True, lighting=lighting)
+        p.add_mesh(mesh, color=solid_color, smooth_shading=display_available, lighting=lighting)
 
     if layer_select is not None:
         p.view_xy()
