@@ -11,31 +11,15 @@ repos:
           - id: check-added-large-files
             args:
                 - --maxkb=5000
-    # Black code style formatter
-    - repo: https://github.com/psf/black
-      rev: 26.3.1
+    # Ruff for linting and formatting (replaces black, isort, flake8)
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      rev: v0.15.15
       hooks:
-          - id: black
-          - id: black-jupyter
-    # isort import sorting
-    - repo: https://github.com/timothycrosley/isort
-      rev: "9.0.0a3"
-      hooks:
-          - id: isort
-            args: ["--profile", "black"]
-    # Flake8 for linting
-    - repo: https://github.com/pycqa/flake8
-      rev: "7.3.0"
-      hooks:
-          - id: flake8
-            additional_dependencies: [flake8-docstrings]
+          - id: ruff
+            args: [--fix]
+          - id: ruff-format
     # strip output of notebooks
     - repo: https://github.com/kynan/nbstripout
       rev: 0.9.1
       hooks:
           - id: nbstripout
-    # pyupgrade
-    - repo: https://github.com/asottile/pyupgrade
-      rev: v3.21.2
-      hooks:
-          - id: pyupgrade

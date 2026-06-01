@@ -40,10 +40,7 @@ dependencies = ["numpy", "matplotlib", "PyYAML", "pyvista"]
 [project.optional-dependencies]
 TEST = ["pytest-cov", "pandas"]
 DEVELOPER = [
-    "flake8",
-    "isort",
-    "black[jupyter]",
-    "flake8-docstrings",
+    "ruff",
     "pre-commit",
     "pytest-cov",
 ]
@@ -60,14 +57,15 @@ Issues = "https://github.com/FAST-LB/pyGCodeDecode/issues"
 [project.scripts]
 pygcd = "pyGCodeDecode.cli:_main"
 
-[tool.black]
-line-length = 120
-extend-exclude = '''
-^.*\.ipynb$
-'''
+[tool.ruff]
+line-length = 160
+target-version = "py39"
 
-[tool.isort]
-profile = "black"
+[tool.ruff.lint]
+select = ["E", "W", "F", "D", "I", "UP"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
 
 [tool.coverage.paths]
 source = ["./pyGCodeDecode/"]
