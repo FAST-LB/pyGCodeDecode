@@ -9,7 +9,7 @@ class state:
     class p_settings:
         """Store Printing Settings."""
 
-        def __init__(self, p_acc, jerk, vX, vY, vZ, vE, speed, units="SI (mm)"):
+        def __init__(self, p_acc: float, jerk: float, vX: float, vY: float, vZ: float, vE: float, speed: float, units: str = "SI (mm)") -> None:
             """Initialize printing settings.
 
             Args:
@@ -47,7 +47,7 @@ class state:
             """Define representation."""
             return self.__str__()
 
-    def __init__(self, state_position: position = None, state_p_settings: p_settings = None):
+    def __init__(self, state_position: position = None, state_p_settings: p_settings = None) -> None:
         """Initialize a state.
 
         Args:
@@ -64,30 +64,30 @@ class state:
         self.pause = None
 
     @property
-    def state_position(self):
+    def state_position(self) -> "position | None":
         """Define property state_position."""
         return self._state_position
 
     @state_position.setter
-    def state_position(self, set_position: position):
+    def state_position(self, set_position: position) -> None:
         self._state_position = set_position
 
     @property
-    def state_p_settings(self):
+    def state_p_settings(self) -> "p_settings | None":
         """Define property state_p_settings."""
         return self._state_p_settings
 
     @state_p_settings.setter
-    def state_p_settings(self, set_p_settings: p_settings):
+    def state_p_settings(self, set_p_settings: p_settings) -> None:
         self._state_p_settings = set_p_settings
 
     @property
-    def line_number(self):
+    def line_number(self) -> int | None:
         """Define property line_number."""
         return self._line_nmbr
 
     @line_number.setter
-    def line_number(self, nmbr):
+    def line_number(self, nmbr: int | None) -> None:
         """Set line number.
 
         Args:
@@ -97,12 +97,12 @@ class state:
 
     # Neighbor list
     @property
-    def next_state(self):
+    def next_state(self) -> "state | None":
         """Define property next_state."""
         return self._next_state
 
     @next_state.setter
-    def next_state(self, state: "state"):
+    def next_state(self, state: "state") -> None:
         """Set next state.
 
         Args:
@@ -111,12 +111,12 @@ class state:
         self._next_state = state
 
     @property
-    def prev_state(self):
+    def prev_state(self) -> "state | None":
         """Define property prev_state."""
         return self._prev_state
 
     @prev_state.setter
-    def prev_state(self, state: "state"):
+    def prev_state(self, state: "state") -> None:
         """Set previous state.
 
         Args:

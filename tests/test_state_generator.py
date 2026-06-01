@@ -5,7 +5,7 @@ import pathlib
 from pyGCodeDecode.state_generator import generate_states
 
 
-def test_state_generator():
+def test_state_generator() -> None:
     """
     Test the generate_states function.
 
@@ -73,7 +73,7 @@ def test_state_generator():
     assert states[22].pause == 5
 
 
-def test_set_initial_position():
+def test_set_initial_position() -> None:
     """Test for initial position settings."""
     from pyGCodeDecode.gcode_interpreter import setup
 

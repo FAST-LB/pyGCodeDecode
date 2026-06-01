@@ -10,7 +10,7 @@ from pyGCodeDecode.state import state
 from pyGCodeDecode.utils import position
 
 
-def test_result_calc_within_pb():
+def test_result_calc_within_pb() -> None:
     """Test the result calculation within a planner block."""
     statA = state(
         state_position=position(0, 0, 0, 0),
@@ -81,7 +81,7 @@ def test_result_calc_within_pb():
         assert np.isclose(segm.result["rel_vel_err_savg"], 0.333333)
 
 
-def test_result_calc_simulation():
+def test_result_calc_simulation() -> None:
     """Testing the result calculation in a simulation."""
     from pyGCodeDecode.gcode_interpreter import setup, simulation
     from pyGCodeDecode.result import get_all_result_calculators

@@ -14,7 +14,7 @@ from .utils import velocity
 class junction_handling:
     """Junction handling super class."""
 
-    def __init__(self, state_A: state, state_B: state):
+    def __init__(self, state_A: state, state_B: state) -> None:
         """Initialize the junction handling.
 
         Args:
@@ -26,7 +26,7 @@ class junction_handling:
         self.target_vel = self.connect_state(state_A=state_A, state_B=state_B)
         self.vel_next = self._calc_vel_next()
 
-    def connect_state(self, state_A: state, state_B: state):
+    def connect_state(self, state_A: state, state_B: state) -> velocity:
         """
         Connect two states and generates the velocity for the move from state_A to state_B.
 
@@ -52,7 +52,7 @@ class junction_handling:
         target_vel = velocity(state_B.state_p_settings.speed * travel_direction)
         return target_vel
 
-    def _calc_vel_next(self):
+    def _calc_vel_next(self) -> velocity:
         """Return the target velocity for the following move."""
         next_next_state = self.state_B.next_state if self.state_B.next_state is not None else self.state_B
         while True:
@@ -66,11 +66,11 @@ class junction_handling:
                 next_next_state = next_next_state.next_state
         return vel_next
 
-    def get_target_vel(self):
+    def get_target_vel(self) -> velocity:
         """Return target velocity."""
         return self.target_vel
 
-    def get_junction_vel(self):
+    def get_junction_vel(self) -> int:
         """Return default junction velocity of zero.
 
         Returns:
@@ -134,7 +134,7 @@ class prusa(junction_handling):
     ```
     """
 
-    def __init__(self, state_A: state, state_B: state):
+    def __init__(self, state_A: state, state_B: state) -> None:
         """Marlin classic jerk specific junction velocity calculation.
 
         Args:
@@ -145,7 +145,7 @@ class prusa(junction_handling):
 
         self.calc_j_vel()
 
-    def calc_j_vel(self):
+    def calc_j_vel(self) -> None:
         """Calculate the junction velocity."""
         vel_0 = self.target_vel
         vel_1 = self.vel_next
@@ -182,7 +182,7 @@ class prusa(junction_handling):
 
         self.junction_vel = v_max_junction
 
-    def get_junction_vel(self):
+    def get_junction_vel(self) -> float:
         """Return the calculated junction velocity.
 
         Returns:
@@ -215,7 +215,7 @@ class marlin(junction_handling):
     [https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768](https://github.com/MarlinFirmware/Marlin/issues/367#issuecomment-12505768)
     """
 
-    def __init__(self, state_A: state, state_B: state):
+    def __init__(self, state_A: state, state_B: state) -> None:
         """Marlin classic jerk specific junction velocity calculation.
 
         Args:
@@ -226,7 +226,7 @@ class marlin(junction_handling):
 
         self.calc_j_vel()
 
-    def calc_j_vel(self):
+    def calc_j_vel(self) -> None:
         """Calculate the junction velocity."""
         vel_0 = self.target_vel
         vel_1 = self.vel_next
@@ -245,7 +245,7 @@ class marlin(junction_handling):
         else:
             self.junction_vel = vel_0.get_norm()
 
-    def get_junction_vel(self):
+    def get_junction_vel(self) -> float:
         """Return the calculated junction velocity.
 
         Returns:
@@ -292,7 +292,7 @@ class ultimaker(junction_handling):
     ```
     """
 
-    def __init__(self, state_A: state, state_B: state):
+    def __init__(self, state_A: state, state_B: state) -> None:
         """Ultimaker specific junction velocity calculation.
 
         Args:
@@ -302,7 +302,7 @@ class ultimaker(junction_handling):
         super().__init__(state_A, state_B)
         self.calc_j_vel()
 
-    def calc_j_vel(self):
+    def calc_j_vel(self) -> None:
         """Calculate the junction velocity."""
         vel_0 = self.target_vel
         vel_1 = self.vel_next
@@ -347,7 +347,7 @@ class ultimaker(junction_handling):
 
         self.junction_vel = vmax_junction
 
-    def get_junction_vel(self):
+    def get_junction_vel(self) -> float:
         """Return the calculated junction velocity.
 
         Returns:
@@ -402,7 +402,7 @@ class junction_deviation(junction_handling):
     2: [Kynetic CNC Blog](http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html)
     """
 
-    def calc_JD(self, vel_0: velocity, vel_1: velocity, p_settings: state.p_settings):
+    def calc_JD(self, vel_0: velocity, vel_1: velocity, p_settings: state.p_settings) -> float:
         """Calculate junction deviation velocity from 2 velocities.
 
         Args:
@@ -445,7 +445,7 @@ class junction_deviation(junction_handling):
         else:
             return p_settings.speed  # angle larger than max angle, full speed pass
 
-    def __init__(self, state_A: state, state_B: state):
+    def __init__(self, state_A: state, state_B: state) -> None:
         """Marlin specific junction velocity calculation with Junction Deviation.
 
         Args:
@@ -455,7 +455,7 @@ class junction_deviation(junction_handling):
         super().__init__(state_A, state_B)
         self.junction_vel = self.calc_JD(vel_0=self.target_vel, vel_1=self.vel_next, p_settings=self.state_B.state_p_settings)
 
-    def get_junction_vel(self):
+    def get_junction_vel(self) -> float:
         """Return junction velocity.
 
         Returns:

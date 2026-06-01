@@ -16,7 +16,7 @@ from .state_generator import generate_states
 from .utils import segment, velocity
 
 
-def generate_planner_blocks(states: list[state], firmware=None):
+def generate_planner_blocks(states: list[state], firmware: str | None = None) -> list[planner_block]:
     """Convert list of states to trajectory repr. by planner blocks.
 
     Args:
@@ -56,7 +56,7 @@ def find_current_segment(
     t: float,
     last_index: int | None = None,
     keep_position: bool = False,
-):
+) -> tuple[segment | None, int | None]:
     """Find the current segment.
 
     Args:
@@ -147,7 +147,7 @@ class simulation:
         initial_machine_setup: "setup | None" = None,
         output_unit_system: str = "SI (mm)",
         verbosity_level: int | None = None,
-    ):
+    ) -> None:
         """Initialize the Simulation of a given G-code with initial machine setup or default machine.
 
         - Generate all states from GCode.
@@ -216,12 +216,12 @@ class simulation:
 
         self.print_summary(start_time=simulation_start_time)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> object:
         """Get result by name."""
         if name in self.results:
             return self.results[name]
 
-    def trajectory_self_correct(self):
+    def trajectory_self_correct(self) -> None:
         """Self correct all blocks in the blocklist with self_correction() method."""
         n_max = len(self.blocklist)
         bar = ProgressBar(name="Block Correction")
@@ -235,17 +235,17 @@ class simulation:
             block.self_correction()
         bar.update(1.0)
 
-    def calc_results(self):
+    def calc_results(self) -> None:
         """Calculate the results."""
         calculators = get_all_result_calculators()
 
         for pb in self.blocklist:
             pb.calc_results(*calculators)
 
-    def calculate_averages(self):
+    def calculate_averages(self) -> None:
         """Calculate averages for averageable results."""
 
-        def spatial_average(calculator):
+        def spatial_average(calculator: object) -> float | None:
             total_dist = 0
             glob_result = 0
             for segm in unpack_blocklist(self.blocklist):
@@ -257,7 +257,7 @@ class simulation:
             if total_dist > 0:
                 return glob_result / total_dist
 
-        def time_average(calculator):
+        def time_average(calculator: object) -> float | None:
             total_time = 0
             glob_result = 0
             for segm in unpack_blocklist(self.blocklist):
@@ -329,7 +329,7 @@ class simulation:
 
         return width
 
-    def print_summary(self, start_time: float):
+    def print_summary(self, start_time: float) -> None:
         """Print simulation summary to console.
 
         Args:
@@ -343,7 +343,7 @@ class simulation:
             f"The Simulation took {(time.time() - start_time):.2f} s of computation time."
         )
 
-    def refresh(self, new_state_list: list[state] | None = None):
+    def refresh(self, new_state_list: list[state] | None = None) -> None:
         """Refresh simulation. Either through new state list or by rerunning the self.states as input.
 
         Args:
@@ -401,7 +401,7 @@ class simulation:
 
         return scaling * max_vel
 
-    def save_summary(self, filepath: Path | str):
+    def save_summary(self, filepath: Path | str) -> None:
         """Save summary to .yaml file.
 
         Args:
@@ -472,8 +472,8 @@ class setup:
         presets_file: Path | str,
         printer: str | None = None,
         verbosity_level: int | None = None,
-        **kwargs,
-    ):
+        **kwargs: object,
+    ) -> None:
         """Initialize the setup for the printing simulation.
 
         Args:
@@ -495,13 +495,13 @@ class setup:
         # set additional properties provided as keyword arguments
         self.set_property(kwargs)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> object:
         """Access to setup_dict content."""
         if name in self.setup_dict:
             return self.setup_dict[name]
         raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: object) -> None:
         """Set setup_dict keys."""
         if name in [
             "setup_dict",
@@ -513,7 +513,7 @@ class setup:
         else:
             self.setup_dict[name] = value
 
-    def load_setup(self, filepath: Path | str, printer=None):
+    def load_setup(self, filepath: Path | str, printer: str | None = None) -> None:
         """Load setup from file.
 
         Args:
@@ -554,7 +554,7 @@ class setup:
                 }
             )  # default initial pos is zero
 
-    def check_initial_setup(self):
+    def check_initial_setup(self) -> None:
         """Check the printer Dict for typos or missing parameters and raise errors if invalid."""
         req_keys = [
             "p_vel",
@@ -596,7 +596,7 @@ class setup:
                 raise ValueError(f"Missing Key: '{key}' is not provided in Setup Dictionary, check for typos. Required keys are: {req_keys}")
         return initial_machine_setup
 
-    def set_initial_position(self, initial_position: tuple | dict | str, input_unit_system: str | None = None):
+    def set_initial_position(self, initial_position: tuple | dict | str, input_unit_system: str | None = None) -> None:
         """Set initial Position.
 
         Args:
@@ -633,7 +633,7 @@ class setup:
         else:
             raise ValueError("Set initial position through dict with keys: {X, Y, Z, E} or as tuple with length 4.")
 
-    def set_property(self, property_dict: dict):
+    def set_property(self, property_dict: dict) -> None:
         """Overwrite or add a property to the printer dictionary.
 
         Args:

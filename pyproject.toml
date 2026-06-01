@@ -65,6 +65,9 @@ select = [
     "D",   # pydocstyle
     "UP",  # pyupgrade
     "RUF", # ruff
+    "ANN", # function annotations
+    # suggested but unused rulesets:
+    # "N",   # PEP8-naming
 ]
 
 [tool.ruff.lint.pydocstyle]

@@ -42,7 +42,7 @@ def get_verbosity_level() -> int:
     return VERBOSITY_LEVEL
 
 
-def custom_print(*args, lvl=2, **kwargs) -> None:
+def custom_print(*args: object, lvl: int = 2, **kwargs: object) -> None:
     """Sanitize outputs for ABAQUS and print them if the log level is high enough. Takes all arguments for print.
 
     Args:
@@ -98,7 +98,7 @@ def custom_print(*args, lvl=2, **kwargs) -> None:
 class ProgressBar:
     """A simple progress bar for the console."""
 
-    def __init__(self, name: str = "Percent", barLength: int = 4, verbosity_level: int = 2):
+    def __init__(self, name: str = "Percent", barLength: int = 4, verbosity_level: int = 2) -> None:
         """Initialize a progress bar."""
         self.name = name
         self.barLength = barLength

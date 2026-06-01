@@ -20,7 +20,7 @@ class planner_block:
         velocity_result(),
     ]
 
-    def move_maker(self, v_end):
+    def move_maker(self, v_end: float) -> None:
         """
         Calculate the correct move type (trapezoidal,triangular or singular) and generate the corresponding segments.
 
@@ -28,7 +28,7 @@ class planner_block:
             v_end: (velocity) target velocity for end of move
         """
 
-        def trapezoid(extrusion_only=False):
+        def trapezoid(extrusion_only: bool = False) -> None:
             # A /
             t0 = previous_segment.t_end
             t1 = t0 + (v_target - v_begin) / acc
@@ -63,7 +63,7 @@ class planner_block:
 
             self.blocktype = "trapezoid"
 
-        def triang(extrusion_only=False):
+        def triang(extrusion_only: bool = False) -> None:
             # A /
             t0 = previous_segment.t_end
             t1 = t0 + (v_peak_tri - v_begin) / acc
@@ -89,7 +89,7 @@ class planner_block:
 
             self.blocktype = "triangle"
 
-        def singl_up():
+        def singl_up() -> None:
             # A /
             t0 = previous_segment.t_end
             t1 = t0 + (v_end_sing - v_begin) / acc
@@ -104,7 +104,7 @@ class planner_block:
 
             self.blocktype = "single"
 
-        def singl_dwn():
+        def singl_dwn() -> None:
             # C \ with forced end point met
             t0 = previous_segment.t_end
             t1 = t0 + (v_begin_sing - v_end) / acc
@@ -179,7 +179,7 @@ class planner_block:
             custom_print(f"Segments to state: {self.state_B!s} could not be modeled.\n {ve}", lvl=1)
             raise RuntimeError()
 
-    def self_correction(self, tolerance=float("1e-12")):
+    def self_correction(self, tolerance: float = float("1e-12")) -> None:
         """Check for interfacing vel and self correct."""
         flag_correct = False
         if self.next_block is not None:
@@ -219,7 +219,7 @@ class planner_block:
 
         return flag_correct
 
-    def timeshift(self, delta_t: float):
+    def timeshift(self, delta_t: float) -> None:
         """Shift planner block in time.
 
         Args:
@@ -252,7 +252,7 @@ class planner_block:
         else:
             return None
 
-    def calc_results(self, *additional_calculators: abstract_result):
+    def calc_results(self, *additional_calculators: abstract_result) -> None:
         """Calculate the result of the planner block."""
         for calculator in self.result_calculators:
             calculator.calc_pblock(self)
@@ -262,7 +262,7 @@ class planner_block:
                 if calculator not in self.result_calculators:
                     calculator.calc_pblock(self)
 
-    def __init__(self, state: state, prev_block: "planner_block", firmware=None):
+    def __init__(self, state: state, prev_block: "planner_block", firmware: str | None = None) -> None:
         """Calculate and store planner block consisting of one or multiple segments.
 
         Args:
@@ -314,21 +314,21 @@ class planner_block:
             ]
 
     @property
-    def prev_block(self):
+    def prev_block(self) -> "planner_block | None":
         """Define prev_block as property."""
         return self._prev_block
 
     @prev_block.setter
-    def prev_block(self, block: "planner_block"):
+    def prev_block(self, block: "planner_block") -> None:
         self._prev_block = block
 
     @property
-    def next_block(self):
+    def next_block(self) -> "planner_block | None":
         """Define next_block as property."""
         return self._next_block
 
     @next_block.setter
-    def next_block(self, block: "planner_block"):
+    def next_block(self, block: "planner_block") -> None:
         self._next_block = block
 
     def __str__(self) -> str:
@@ -387,15 +387,15 @@ class planner_block:
         """Represent planner block."""
         return self.__str__()
 
-    def get_segments(self):
+    def get_segments(self) -> list[segment]:
         """Return segments, contained by the planner block."""
         return self.segments
 
-    def get_block_travel(self):
+    def get_block_travel(self) -> float:
         """Return the travel length of the planner block."""
         return self.state_A.state_position.get_t_distance(self.state_B.state_position)
 
-    def inverse_time_at_pos(self, dist_local):
+    def inverse_time_at_pos(self, dist_local: float) -> float:
         """Get the global time, at which the local length is reached.
 
         Args:

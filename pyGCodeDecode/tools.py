@@ -103,7 +103,7 @@ def write_submodel_times(
     sub_side_y_len: float,
     sub_side_z_len: float,
     filename: pathlib.Path | None = pathlib.Path("submodel_times.yaml"),
-    **kwargs,
+    **kwargs: object,
 ) -> dict:
     """Write the submodel entry and exit times to a yaml file.
 
@@ -116,14 +116,14 @@ def write_submodel_times(
     """
 
     class cube:
-        def __init__(self, origin, side_x_len, side_y_len, side_z_len) -> None:
+        def __init__(self, origin: list, side_x_len: float, side_y_len: float, side_z_len: float) -> None:
             """Define a cube with origin and side length. Cube is axis aligned."""
             self.origin = origin
             self.side_x_len = side_x_len
             self.side_y_len = side_y_len
             self.side_z_len = side_z_len
 
-        def get_plane_lim(self):
+        def get_plane_lim(self) -> list:
             return [
                 [
                     self.origin[0] + self.side_x_len / 2,
@@ -139,7 +139,7 @@ def write_submodel_times(
                 ],
             ]
 
-        def get_plane_normals(self):
+        def get_plane_normals(self) -> list:
             """Create Plane normals."""
             X_pos = [1, 0, 0]
             X_neg = [-1, 0, 0]
@@ -152,7 +152,7 @@ def write_submodel_times(
 
             return [X_pos, X_neg, Y_pos, Y_neg, Z_pos, Z_neg]
 
-        def get_plane_orig(self):
+        def get_plane_orig(self) -> list:
             """Create Plane origins."""
             X_pos = [self.origin[0] + self.side_x_len / 2, 0, 0]
             X_neg = [self.origin[0] - self.side_x_len / 2, 0, 0]
@@ -165,7 +165,7 @@ def write_submodel_times(
 
             return [X_pos, X_neg, Y_pos, Y_neg, Z_pos, Z_neg]
 
-    def _point_eval(point, pl_lim):
+    def _point_eval(point: list, pl_lim: list) -> list:
         p_eval = []
         for lim_n, p_n in zip(pl_lim, point):
             inters_pl = [
@@ -175,10 +175,10 @@ def write_submodel_times(
             p_eval.append(inters_pl)
         return p_eval
 
-    def _point_inside(p_eval):
+    def _point_inside(p_eval: list) -> bool:
         return all([all(p_ev_ax) for p_ev_ax in p_eval])
 
-    def _intersect_possible(p_eval0, p_eval1):
+    def _intersect_possible(p_eval0: list, p_eval1: list) -> bool:
         possible = False
         for ax_eval0, ax_eval1 in zip(p_eval0, p_eval1):
             if ax_eval0 != ax_eval1:
@@ -193,7 +193,7 @@ def write_submodel_times(
 
         return possible
 
-    def _isect_line_plane(p0, p1, p_co, p_no, epsilon=1e-6):
+    def _isect_line_plane(p0: list, p1: list, p_co: list, p_no: list, epsilon: float = 1e-6) -> np.ndarray | None:
         """Return a Vector or None (when the intersection can't be found).
 
         p0, p1: Define the line.

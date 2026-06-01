@@ -7,7 +7,7 @@ from pyGCodeDecode.helpers import custom_print
 from pyGCodeDecode.plotter import plot_3d
 
 
-def brace_example():
+def brace_example() -> None:
     """Minimal example for the usage of pyGCodeDecode simulating the G-code of a brace."""
     custom_print(
         "Running pyGCD's brace example! 📎"

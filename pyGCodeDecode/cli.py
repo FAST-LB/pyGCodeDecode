@@ -30,7 +30,7 @@ from pyGCodeDecode.plotter import plot_3d
 from pyGCodeDecode.tools import save_layer_metrics
 
 
-def _run_example(args: argparse.Namespace):
+def _run_example(args: argparse.Namespace) -> None:
     """Generate a plot from a GCode file."""
     if args.example == "brace":
         brace_example()
@@ -38,7 +38,7 @@ def _run_example(args: argparse.Namespace):
         benchy_example()
 
 
-def _plot(args: argparse.Namespace):
+def _plot(args: argparse.Namespace) -> None:
     """Generate a plot from a GCode file."""
 
     def _find_gcode_file(specified_path: pathlib.Path | None) -> pathlib.Path:
@@ -154,7 +154,7 @@ def _plot(args: argparse.Namespace):
     plot_3d(sim, mesh=mesh)
 
 
-def _main(args=None):
+def _main(args: list | None = None) -> None:
     """Entry point function for the command-line interface (CLI)."""
     global_parser = argparse.ArgumentParser(
         prog="pygcd",

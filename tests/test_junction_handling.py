@@ -22,7 +22,7 @@ from pyGCodeDecode.utils import position
 # import pandas as pd
 
 
-def _rotate_pos(pos: position, alpha):  # 2D Rotation
+def _rotate_pos(pos: position, alpha: float) -> np.ndarray:  # 2D Rotation
     alpha_r = math.radians(alpha)
     pos_v = np.array(pos.get_vec()[:2])
     rot_M = np.array([[math.cos(alpha_r), -math.sin(alpha_r)], [math.sin(alpha_r), math.cos(alpha_r)]])
@@ -30,7 +30,7 @@ def _rotate_pos(pos: position, alpha):  # 2D Rotation
     return new_pos
 
 
-def _rotate_state(state, alpha=45):
+def _rotate_state(state: "state", alpha: float = 45) -> "state":
     pos = state.state_position
     new_pos = _rotate_pos(pos, alpha)
     state.state_position = position(new_pos[0], new_pos[1], pos.z, pos.e)
@@ -38,7 +38,7 @@ def _rotate_state(state, alpha=45):
     return state
 
 
-def _initialize_dummy_states(p_acc, jerk, speed):
+def _initialize_dummy_states(p_acc: float, jerk: float, speed: float) -> tuple["state", "state", "state"]:
     settings = state.p_settings(p_acc=p_acc, jerk=jerk, vX=100, vY=100, vZ=100, vE=100, speed=speed)
     stateA = state(state_p_settings=settings)
     stateB = state(state_p_settings=settings)
@@ -51,7 +51,7 @@ def _initialize_dummy_states(p_acc, jerk, speed):
     return stateA, stateB, stateC
 
 
-def test_junction_handlings():
+def test_junction_handlings() -> None:
     """Test for junction handling."""
     # Test cases for junction handling
     test_firmwares = _get_handler_names()
@@ -99,7 +99,7 @@ def test_junction_handlings():
     # plt.show()
 
 
-def test_junction_handlings_rotating_COS():
+def test_junction_handlings_rotating_COS() -> None:
     """Test for junction handling with coordinate system rotation."""
     test_firmwares = _get_handler_names()
     test_firmwares.append("unknown")  # Add "unknown" for default handler
@@ -212,7 +212,7 @@ def test_junction_handlings_rotating_COS():
     # plt.show()
 
 
-def test_junction_handling_state_connect():
+def test_junction_handling_state_connect() -> None:
     """Test for the state connect method in the junction handling."""
     from pyGCodeDecode.gcode_interpreter import setup
 

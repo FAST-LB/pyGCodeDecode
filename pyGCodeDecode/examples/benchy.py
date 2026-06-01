@@ -10,7 +10,7 @@ from pyGCodeDecode.plotter import plot_3d
 from pyGCodeDecode.tools import save_layer_metrics
 
 
-def benchy_example():
+def benchy_example() -> None:
     """Extensive example for the usage of pyGCodeDecode simulating G-code for the famous 3DBenchy."""
     # setting the paths to the input and output directories
     data_dir = importlib.resources.files("pyGCodeDecode").joinpath("examples/data/")

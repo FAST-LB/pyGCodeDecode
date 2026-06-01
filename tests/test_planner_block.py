@@ -7,7 +7,7 @@ from pyGCodeDecode.state import state
 from pyGCodeDecode.utils import position, velocity
 
 
-def test_planner_block():
+def test_planner_block() -> None:
     """
     Test method for the Planner Block module.
 

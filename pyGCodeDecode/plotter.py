@@ -69,7 +69,7 @@ def plot_3d(
         np.ndarray: The screenshot image if `screenshot_path` is provided and `return_type` is "image".
     """
 
-    def _safe_screenshot(plotter: pv.Plotter, screenshot_path=None):
+    def _safe_screenshot(plotter: pv.Plotter, screenshot_path: pathlib.Path | str | None = None) -> np.ndarray | None:
         if display_available:
             img = plotter.screenshot(
                 transparent_background=transparent_background,
@@ -285,13 +285,13 @@ def plot_3d(
 def plot_2d(
     sim: simulation,
     filepath: pathlib.Path = pathlib.Path("trajectory_2D.png"),
-    colvar="Velocity",
-    show_points=False,
-    colvar_spatial_resolution=1,
-    dpi=400,
-    scaled=True,
-    show=False,
-):
+    colvar: str = "Velocity",
+    show_points: bool = False,
+    colvar_spatial_resolution: int = 1,
+    dpi: int = 400,
+    scaled: bool = True,
+    show: bool = False,
+) -> None:
     """Plot 2D position (XY plane) with matplotlib (unmaintained)."""
     import matplotlib.pyplot as plt
     from matplotlib import cm
@@ -302,7 +302,7 @@ def plot_2d(
         "Acceleration": "Acceleration in mm/s^2",
     }
 
-    def _interp_2D(x, y, cvar, spatial_resolution=1):
+    def _interp_2D(x: list, y: list, cvar: list, spatial_resolution: int = 1) -> np.ndarray:
         segm_length = np.linalg.norm([np.ediff1d(x), np.ediff1d(y)], axis=0)
         segm_cvar_delt = np.greater(np.abs(np.ediff1d(cvar)), 0)
         segm_interpol = np.r_[

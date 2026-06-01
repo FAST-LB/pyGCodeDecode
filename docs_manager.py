@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 
-def run_command(cmd, description):
+def run_command(cmd: str | list, description: str) -> bool | None:
     """Run a shell command and handle errors."""
     print(f"🔄 {description}...")
     try:
@@ -27,7 +27,7 @@ def run_command(cmd, description):
         return False
 
 
-def generate_docs():
+def generate_docs() -> bool:
     """Generate API documentation using pydoc-markdown."""
     print("📚 Generating API documentation...")
 
@@ -43,7 +43,7 @@ def generate_docs():
     return True
 
 
-def serve_docs():
+def serve_docs() -> bool:
     """Serve documentation using mkdocs."""
     print("🌐 Starting documentation server...")
 
@@ -64,7 +64,7 @@ def serve_docs():
     return True
 
 
-def build_docs():
+def build_docs() -> bool | None:
     """Build static documentation files."""
     print("🏗️ Building static documentation...")
 
@@ -74,7 +74,7 @@ def build_docs():
     return run_command("mkdocs build", "Building static documentation")
 
 
-def main():
+def main() -> None:
     """Handle command line arguments and execute requested actions."""
     if len(sys.argv) < 2:
         print("📖 pyGCodeDecode Documentation Manager")

@@ -7,7 +7,7 @@ import numpy as np
 from pyGCodeDecode.plotter import plot_vel
 
 
-def test_end_to_end_compact():
+def test_end_to_end_compact() -> None:
     """Testing the simulation functionality with automatic setup, similarly to the brace example."""
     from pyGCodeDecode.gcode_interpreter import simulation
 
@@ -17,7 +17,7 @@ def test_end_to_end_compact():
     )
 
 
-def test_end_to_end_volumetr():
+def test_end_to_end_volumetr() -> None:
     """Testing the simulation functionality with automatic setup, using volumetric or distance based extrusion."""
     from pyGCodeDecode.gcode_interpreter import setup, simulation
 
@@ -46,7 +46,7 @@ def test_end_to_end_volumetr():
     assert np.isclose(end_extrusion, expected_extrusion, rtol=1e-4), f"Expected {expected_extrusion}, but got {end_extrusion}"
 
 
-def test_end_to_end_extensive():
+def test_end_to_end_extensive() -> None:
     """Testing the simulation functionality as well as the various outputs, similarly to the benchy example."""
     from pyGCodeDecode.abaqus_file_generator import generate_abaqus_event_series
     from pyGCodeDecode.gcode_interpreter import setup, simulation

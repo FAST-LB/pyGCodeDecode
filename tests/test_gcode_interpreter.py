@@ -3,7 +3,7 @@
 import pathlib
 
 
-def test_setup():
+def test_setup() -> None:
     """Test for the simulation setup class."""
     from pyGCodeDecode.gcode_interpreter import setup
 
@@ -43,7 +43,7 @@ def test_setup():
     assert sim_dict["E"] == 4
 
 
-def test_setup_extended():
+def test_setup_extended() -> None:
     """Test for the simulation setup class."""
     from pyGCodeDecode.gcode_interpreter import setup
 
@@ -113,7 +113,7 @@ def test_setup_extended():
     assert sim_dict["E"] == 4
 
 
-def test_simulation_class():
+def test_simulation_class() -> None:
     """Test for simulation class."""
     from pyGCodeDecode.gcode_interpreter import setup, simulation
 
