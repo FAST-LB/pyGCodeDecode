@@ -70,6 +70,7 @@ select = [
     "NPY", # NumPy
     "A",   # builtins
     "C4",  # list comprehensions
+    "ICN", # import conventions
     # suggested but unused rulesets:
     # "N",   # PEP8-naming
 ]
