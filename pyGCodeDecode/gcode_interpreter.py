@@ -413,6 +413,10 @@ class simulation:
         - x/y/z _min/_max (float, extent where positive extrusion)
         - max_extrusion_travel_velocity (float, maximum travel velocity where positive extrusion)
         """
+        # convert filepath to Path if it is a string
+        if isinstance(filepath, str):
+            filepath = Path(filepath)
+
         t_end = self.blocklist[-1].get_segments()[-1].t_end  # print end time
         extent = self.extrusion_extent()  # extent in [minX, minY, minZ], [maxX, maxY, maxZ]
         max_vel = self.extrusion_max_vel()
@@ -440,9 +444,9 @@ class simulation:
                 summary[key] = round(summary[key], 3)
 
         # create directory if necessary
-        Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+        filepath.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(file=filepath, mode="w") as file:
+        with filepath.open("w") as file:
             yaml.dump(data=summary, stream=file)
 
         custom_print(f"💾 Summary written to 👉 {filepath!s}")

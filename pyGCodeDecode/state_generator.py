@@ -1,8 +1,8 @@
 """State generator module."""
 
 import math
-import pathlib
 import re
+from pathlib import Path
 from re import Match
 
 from pyGCodeDecode.helpers import ProgressBar, custom_print
@@ -173,7 +173,7 @@ def _arg_extract(string: str, key_dict: dict) -> dict:
     return arg_dict
 
 
-def _read_gcode_to_dict_list(filepath: pathlib.Path) -> list[dict]:
+def _read_gcode_to_dict_list(filepath: Path) -> list[dict]:
     """
     Read gcode from .gcode file.
 
@@ -186,14 +186,14 @@ def _read_gcode_to_dict_list(filepath: pathlib.Path) -> list[dict]:
     dict_list = []
 
     # First pass to count total lines
-    with open(file=filepath) as file_gcode:
+    with filepath.open() as file_gcode:
         total_lines = sum(1 for _ in file_gcode)
 
     # Initialize progress bar with the total number of lines
     progress_bar = ProgressBar(name=f"Parsing {total_lines} lines of {filepath.name}")
 
     # Second pass to process the lines
-    with open(file=filepath) as file_gcode:
+    with filepath.open() as file_gcode:
         for i, line in enumerate(file_gcode):
             line_dict = _arg_extract(string=line, key_dict=known_commands)
             line_dict["line_number"] = i + 1
@@ -463,7 +463,7 @@ def _check_for_unsupported_commands(line_dict_list: dict) -> dict:
     return unsupported_command_counts
 
 
-def generate_states(filepath: pathlib.Path, initial_machine_setup: dict) -> list[state]:
+def generate_states(filepath: Path, initial_machine_setup: dict) -> list[state]:
     """Generate state list from GCode file.
 
     Args:

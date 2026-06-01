@@ -1,6 +1,6 @@
 """Module for generating Abaqus .inp files for AMSIM."""
 
-import pathlib
+from pathlib import Path
 
 from pyGCodeDecode.helpers import custom_print
 
@@ -22,7 +22,7 @@ time points generated are always at segment beginnings / endings, so interpolati
 
 def generate_abaqus_event_series(
     simulation: gcode_interpreter.simulation,
-    filepath: str = "pyGcodeDecode_abaqus_events.inp",
+    filepath: str | Path = "pyGcodeDecode_abaqus_events.inp",
     tolerance: float = 1e-12,
     output_unit_system: str | None = None,
     return_tuple: bool = False,
@@ -40,6 +40,10 @@ def generate_abaqus_event_series(
     Returns:
         (optional) tuple: the event series as a tuple for use in ABAQUS-Python
     """
+    # convert filepath if necessary
+    if isinstance(filepath, str):
+        filepath = Path(filepath)
+
     unpacked = gcode_interpreter.unpack_blocklist(simulation.blocklist)
     pos = [unpacked[0].pos_begin.get_vec(withExtrusion=True)]
     time = [0]
@@ -58,13 +62,13 @@ def generate_abaqus_event_series(
     event_series_list = []
 
     # create directory if necessary
-    pathlib.Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+    filepath.parent.mkdir(parents=True, exist_ok=True)
 
     scaling = simulation.get_scaling_factor(output_unit_system=output_unit_system)
 
     # write to file
     round_to = 8
-    with open(filepath, "w") as outfile:
+    with filepath.open("w") as outfile:
         for time, pos in zip(time, pos):
             outfile.write(
                 f"{float(time)},{round(scaling * pos[0], round_to)},{round(scaling * pos[1], round_to)},{round(scaling * pos[2], round_to)},{pos[3]}\n"

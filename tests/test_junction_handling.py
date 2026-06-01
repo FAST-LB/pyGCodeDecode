@@ -2,9 +2,8 @@
 
 import copy
 import math
-import os
-import pathlib
 import sys
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -206,9 +205,9 @@ def test_junction_handlings_rotating_COS() -> None:
     ax.legend()
 
     # Ensure output directory exists
-    output_dir = "tests/output"
-    os.makedirs(output_dir, exist_ok=True)
-    fig.savefig(os.path.join(output_dir, "junction_handlings_rotating_COS.png"), dpi=300, bbox_inches="tight")
+    output_dir = Path("tests/output")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_dir / "junction_handlings_rotating_COS.png", dpi=300, bbox_inches="tight")
     # plt.show()
 
 
@@ -217,7 +216,7 @@ def test_junction_handling_state_connect() -> None:
     from pyGCodeDecode.gcode_interpreter import setup
 
     test_setup = setup(
-        presets_file=pathlib.Path("./tests/data/test_printer_setups.yaml"),
+        presets_file=Path("./tests/data/test_printer_setups.yaml"),
         printer="prusa_mini",
         layer_cue="LAYER cue",
     )
@@ -225,7 +224,7 @@ def test_junction_handling_state_connect() -> None:
 
     print(test_setup.firmware)
     states = generate_states(
-        filepath=pathlib.Path("./tests/data/test_state_generator.gcode"),
+        filepath=Path("./tests/data/test_state_generator.gcode"),
         initial_machine_setup=test_setup.get_dict(),
     )
 

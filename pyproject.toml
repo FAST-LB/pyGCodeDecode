@@ -71,6 +71,7 @@ select = [
     "A",   # builtins
     "C4",  # list comprehensions
     "ICN", # import conventions
+    "PTH", # pathlib
     # suggested but unused rulesets:
     # "N",   # PEP8-naming
 ]

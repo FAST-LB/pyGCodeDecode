@@ -1,7 +1,7 @@
 """Tools for pyGCD."""
 
 import locale as loc
-import pathlib
+from pathlib import Path
 
 import numpy as np
 import yaml
@@ -12,7 +12,7 @@ from pyGCodeDecode.helpers import custom_print
 
 def save_layer_metrics(
     simulation: simulation,
-    filepath: pathlib.Path | None = pathlib.Path("./layer_metrics.csv"),
+    filepath: Path | None = Path("./layer_metrics.csv"),
     locale: str | None = None,
     delimiter: str = ";",
 ) -> tuple[list, list, list, list] | None:
@@ -26,6 +26,10 @@ def save_layer_metrics(
 
     Layers are detected using the given layer cue.
     """
+    # convert filepath to Path if it is a string
+    if isinstance(filepath, str):
+        filepath = Path(filepath)
+
     # check if a layer cue was specified
     if "layer_cue" not in simulation.initial_machine_setup_dict:
         custom_print("⚠️  No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!", lvl=1)
@@ -79,7 +83,7 @@ def save_layer_metrics(
     # write the layer info to a csv if a filepath is given
     if filepath is not None:
         # create directory if necessary
-        pathlib.Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+        Path(filepath).parent.mkdir(parents=True, exist_ok=True)
 
         header = f"layer{delimiter} layer time in s{delimiter} travel distance in mm{delimiter} avg speed in mm/s"
         data = np.array([layers, durations, travel_distances, avg_speeds], dtype=object).T
@@ -102,7 +106,7 @@ def write_submodel_times(
     sub_side_x_len: float,
     sub_side_y_len: float,
     sub_side_z_len: float,
-    filename: pathlib.Path | None = pathlib.Path("submodel_times.yaml"),
+    filename: Path | None = Path("submodel_times.yaml"),
     **kwargs: object,
 ) -> dict:
     """Write the submodel entry and exit times to a yaml file.
@@ -111,9 +115,12 @@ def write_submodel_times(
         simulation: (simulation) the simulation instance to analyze
         sub_orig: (list with [xcoord, ycoord, zcoord]) the origin of the submodel control volume
         sub_side_len: (float) the side length of the submodel control volume
-        filename: (string) yaml filename
+        filename: (string or Path) yaml filename
         **kwargs: (any) provide additional info to write into the yaml file
     """
+    # convert filename to Path if it is a string
+    if isinstance(filename, str):
+        filename = Path(filename)
 
     class cube:
         def __init__(self, origin: list, side_x_len: float, side_y_len: float, side_z_len: float) -> None:
@@ -266,7 +273,7 @@ def write_submodel_times(
     }
 
     if filename is not None:
-        with open(filename, "w") as file:
+        with filename.open("w") as file:
             yaml.dump(result, file)
 
     return result
