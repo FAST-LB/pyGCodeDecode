@@ -66,7 +66,8 @@ select = [
     "UP",  # pyupgrade
     "RUF", # ruff
     "ANN", # function annotations
-    "S", # bandit security linter
+    "S",   # bandit security linter
+    "NPY", # NumPy
     # suggested but unused rulesets:
     # "N",   # PEP8-naming
 ]
