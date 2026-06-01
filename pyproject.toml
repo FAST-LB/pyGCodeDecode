@@ -42,7 +42,7 @@ DEVELOPER = ["ruff", "pre-commit", "pytest-cov"]
 DOCS = [
     "mkdocs",
     "pydoc-markdown",
-    # Needs this custom fork to sort modules: git+https://github.com/jeknirsch/pydoc-markdown.git@sort_modules"
+    # Needs this custom fork to sort modules: git+https://github.com/jeknirsch/pydoc-markdown.git@sort_modules
 ]
 
 [project.urls]
