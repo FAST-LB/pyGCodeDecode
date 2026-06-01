@@ -1,5 +1,7 @@
 """GCode Interpreter Module."""
 
+from __future__ import annotations
+
 import importlib.resources
 import time
 from pathlib import Path
@@ -144,7 +146,7 @@ class simulation:
         self,
         gcode_path: Path,
         machine_name: str | None = None,
-        initial_machine_setup: "setup | None" = None,
+        initial_machine_setup: setup | None = None,
         output_unit_system: str = "SI (mm)",
         verbosity_level: int | None = None,
     ) -> None:

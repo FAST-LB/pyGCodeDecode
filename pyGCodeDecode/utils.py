@@ -7,6 +7,8 @@ Utils for the GCode Reader contains:
     - position
 """
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -33,7 +35,7 @@ class seconds(float):
 
     """Time class for storing time, behaves like a float with additional methods."""
 
-    def __new__(cls, value: float) -> "seconds":
+    def __new__(cls, value: float) -> seconds:
         """Create a new instance of seconds."""
         return float.__new__(cls, value)
 
@@ -41,11 +43,11 @@ class seconds(float):
         """Return string representation of the time in seconds."""
         return f"{float(self)} s"
 
-    def __sub__(self, other: float | "seconds") -> "seconds":
+    def __sub__(self, other: float | seconds) -> seconds:
         """Subtract seconds or float and return a new seconds instance."""
         return seconds(float(self) - float(other))
 
-    def __add__(self, other: float | "seconds") -> "seconds":
+    def __add__(self, other: float | seconds) -> seconds:
         """Add seconds or float and return a new seconds instance."""
         return seconds(float(self) + float(other))
 
@@ -101,7 +103,7 @@ class vector_4D:
         """Return a string representation of the 4D vector."""
         return self.__str__()
 
-    def __add__(self, other: "vector_4D | list | tuple | np.ndarray") -> "vector_4D":
+    def __add__(self, other: vector_4D | list | tuple | np.ndarray) -> vector_4D:
         """Add functionality for 4D vectors.
 
         Args:
@@ -127,7 +129,7 @@ class vector_4D:
                 f"Addition with __add__ is only possible with other 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray' got {type(other)} instead."
             )
 
-    def __sub__(self, other: "vector_4D | list | tuple | np.ndarray") -> "vector_4D":
+    def __sub__(self, other: vector_4D | list | tuple | np.ndarray) -> vector_4D:
         """Sub functionality for 4D vectors.
 
         Args:
@@ -151,7 +153,7 @@ class vector_4D:
         else:
             raise ValueError("Addition with __sub__ is only possible with other 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'")
 
-    def __mul__(self, other: float | int) -> "vector_4D":
+    def __mul__(self, other: float | int) -> vector_4D:
         """Scalar multiplication functionality for 4D vectors.
 
         Args:
@@ -169,7 +171,7 @@ class vector_4D:
             raise TypeError("Multiplication of 4D vectors only supports float and int.")
         return self.__class__(x, y, z, e)
 
-    def __truediv__(self, other: float | int) -> "vector_4D":
+    def __truediv__(self, other: float | int) -> vector_4D:
         """Scalar division functionality for 4D Vectors.
 
         Args:
@@ -258,7 +260,7 @@ class position(vector_4D):
         """Print out position."""
         return "Position: " + super().__str__()
 
-    def is_travel(self, other: "position") -> bool:
+    def is_travel(self, other: position) -> bool:
         """Return True if there is travel between self and other position.
 
         Args:
@@ -272,7 +274,7 @@ class position(vector_4D):
         else:
             return False
 
-    def is_extruding(self, other: "position", ignore_retract: bool = True) -> bool:
+    def is_extruding(self, other: position, ignore_retract: bool = True) -> bool:
         """Return True if there is extrusion between self and other position.
 
         Args:
@@ -289,7 +291,7 @@ class position(vector_4D):
         else:
             return False
 
-    def get_t_distance(self, other: "position | None" = None, withExtrusion: bool = False) -> float:
+    def get_t_distance(self, other: position | None = None, withExtrusion: bool = False) -> float:
         """Calculate the travel distance between self and other position. If none is provided, zero will be used.
 
         Args:
@@ -303,7 +305,7 @@ class position(vector_4D):
             other = position(0, 0, 0, 0)
         return np.linalg.norm(np.subtract(self.get_vec(withExtrusion=withExtrusion), other.get_vec(withExtrusion=withExtrusion)))
 
-    def __truediv__(self, other: "seconds | float | int") -> "velocity | vector_4D":
+    def __truediv__(self, other: seconds | float | int) -> velocity | vector_4D:
         """Divide position by seconds to get velocity."""
         if isinstance(other, seconds):
             return velocity(
@@ -372,7 +374,7 @@ class velocity(vector_4D):
         """
         return True if self.e > 0 else False
 
-    def __mul__(self, other: "seconds | float | int") -> "position | velocity":
+    def __mul__(self, other: seconds | float | int) -> position | velocity:
         """Multiply velocity by a time to get position, or by scalar."""
         if isinstance(other, seconds):
             # velocity * seconds = position
@@ -392,7 +394,7 @@ class velocity(vector_4D):
         else:
             raise TypeError("Multiplication only supports seconds, float, or int.")
 
-    def __truediv__(self, other: "seconds | float | int") -> "acceleration | vector_4D":
+    def __truediv__(self, other: seconds | float | int) -> acceleration | vector_4D:
         """Divide velocity by scalar."""
         if isinstance(other, seconds):
             # velocity / seconds = acceleration
@@ -413,7 +415,7 @@ class acceleration(vector_4D):
         """Print out acceleration."""
         return "acceleration: " + super().__str__()
 
-    def __mul__(self, other: "seconds | float | int") -> "velocity | acceleration":
+    def __mul__(self, other: seconds | float | int) -> velocity | acceleration:
         """Multiply acceleration by a time to get velocity, or by scalar."""
         if isinstance(other, seconds):
             # acceleration * time = velocity
@@ -433,7 +435,7 @@ class acceleration(vector_4D):
         else:
             raise TypeError("Multiplication only supports seconds, float, or int.")
 
-    def __truediv__(self, other: float | int) -> "acceleration":
+    def __truediv__(self, other: float | int) -> acceleration:
         """Divide acceleration by scalar."""
         return super().__truediv__(other)
 
@@ -569,7 +571,7 @@ class segment:
         """Return the duration of the segment."""
         return self.t_end - self.t_begin
 
-    def self_check(self, p_settings: "state.p_settings" = None) -> bool:
+    def self_check(self, p_settings: state.p_settings = None) -> bool:
         """Check the segment for self consistency.
 
         Raises:
@@ -672,7 +674,7 @@ class segment:
             raise ValueError(f"Key: {key} not found.")
 
     @classmethod
-    def create_initial(cls, initial_position: position | None = None) -> "segment":
+    def create_initial(cls, initial_position: position | None = None) -> segment:
         """Create initial static segment with (optionally) initial position else start from Zero.
 
         Args:

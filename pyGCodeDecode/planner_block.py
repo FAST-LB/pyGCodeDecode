@@ -1,5 +1,7 @@
 """Planner block Module."""
 
+from __future__ import annotations
+
 from typing import ClassVar
 
 import numpy as np
@@ -262,7 +264,7 @@ class planner_block:
                 if calculator not in self.result_calculators:
                     calculator.calc_pblock(self)
 
-    def __init__(self, state: state, prev_block: "planner_block", firmware: str | None = None) -> None:
+    def __init__(self, state: state, prev_block: planner_block, firmware: str | None = None) -> None:
         """Calculate and store planner block consisting of one or multiple segments.
 
         Args:
@@ -314,21 +316,21 @@ class planner_block:
             ]
 
     @property
-    def prev_block(self) -> "planner_block | None":
+    def prev_block(self) -> planner_block | None:
         """Define prev_block as property."""
         return self._prev_block
 
     @prev_block.setter
-    def prev_block(self, block: "planner_block") -> None:
+    def prev_block(self, block: planner_block) -> None:
         self._prev_block = block
 
     @property
-    def next_block(self) -> "planner_block | None":
+    def next_block(self) -> planner_block | None:
         """Define next_block as property."""
         return self._next_block
 
     @next_block.setter
-    def next_block(self, block: "planner_block") -> None:
+    def next_block(self, block: planner_block) -> None:
         self._next_block = block
 
     def __str__(self) -> str:

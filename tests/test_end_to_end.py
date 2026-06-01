@@ -1,5 +1,7 @@
 """End to end test for the package."""
 
+from __future__ import annotations
+
 import pathlib
 
 import numpy as np

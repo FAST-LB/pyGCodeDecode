@@ -1,5 +1,7 @@
 """This module provides functionality for 3D plotting of G-code simulation data using PyVista."""
 
+from __future__ import annotations
+
 import os
 import pathlib
 
