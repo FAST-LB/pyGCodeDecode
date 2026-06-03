@@ -23,16 +23,17 @@ test-package:
         # missing dependencies for pyvista
         - apt-get update && apt-get install libgl1 -y
     script:
+        - export SAFE_IMAGE_NAME=$(echo "$IMAGE" | tr ':.' '_')
         - pip install .[TEST]
         - pytest --cov=. --cov-config=pyproject.toml --cov-report term
-          --cov-report xml:./tests/coverage.xml
+         --cov-report xml:./tests/coverage_${SAFE_IMAGE_NAME}.xml
     coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
     artifacts:
         untracked: false
         reports:
             coverage_report:
                 coverage_format: cobertura
-                path: ./tests/coverage.xml
+                path: ./tests/coverage_*.xml
         when: always
 
 doc-build:
