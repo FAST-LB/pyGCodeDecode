@@ -23,8 +23,9 @@ class planner_block:
 
     def move_maker(self, v_end: float) -> None:
         """
-        Calculate the correct move type (trapezoidal,triangular or singular) and generate the corresponding segments.
+        Calculate the correct move type and generate the corresponding segments.
 
+        (trapezoidal,triangular or singular)
         Args:
             v_end: (velocity) target velocity for end of move
         """
@@ -45,7 +46,9 @@ class planner_block:
                 vel_begin=vel_begin,
                 vel_end=vel_end,
             )
-            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
+            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(
+                pos_begin, ignore_retract=False
+            ):
                 self.segments.append(segment_A)
             # B --
             travel_const = distance - travel_ramp_down - travel_ramp_up
@@ -63,7 +66,9 @@ class planner_block:
                 pos_end=pos_end,
                 vel_end=vel_end,
             )
-            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
+            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(
+                pos_begin, ignore_retract=False
+            ):
                 self.segments.append(segment_B)
             # C \
             t2 = segment_B.t_end
@@ -80,7 +85,9 @@ class planner_block:
                 vel_begin=vel_begin,
                 vel_end=vel_end,
             )
-            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
+            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(
+                pos_begin, ignore_retract=False
+            ):
                 self.segments.append(segment_C)
 
             self.blocktype = "trapezoid"
@@ -102,7 +109,9 @@ class planner_block:
                 vel_begin=vel_begin,
                 vel_end=vel_end,
             )
-            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
+            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(
+                pos_begin, ignore_retract=False
+            ):
                 self.segments.append(segment_A)
             # C \
             t2 = segment_A.t_end
@@ -120,7 +129,9 @@ class planner_block:
                 vel_begin=vel_begin,
                 vel_end=vel_end,
             )
-            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
+            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(
+                pos_begin, ignore_retract=False
+            ):
                 self.segments.append(segment_C)
 
             self.blocktype = "triangle"
@@ -142,7 +153,9 @@ class planner_block:
                 vel_begin=vel_begin,
                 vel_end=vel_end,
             )
-            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
+            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(
+                pos_begin, ignore_retract=False
+            ):
                 self.segments.append(segment_A)
 
             self.blocktype = "single"
@@ -164,7 +177,9 @@ class planner_block:
                 vel_begin=vel_begin,
                 vel_end=vel_end,
             )
-            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
+            if pos_end.is_travel(pos_begin) or pos_end.is_extruding(
+                pos_begin, ignore_retract=False
+            ):
                 self.segments.append(segment_C)
 
             self.blocktype = "single"
@@ -174,12 +189,16 @@ class planner_block:
         if self.state_A is not None:
             distance = self.state_B.state_position.get_t_distance(other=self.state_A.state_position)
             if distance == 0:  # no travel, extrusion possible
-                distance = self.state_B.state_position.get_t_distance(other=self.state_A.state_position, withExtrusion=True)
+                distance = self.state_B.state_position.get_t_distance(
+                    other=self.state_A.state_position, withExtrusion=True
+                )
                 extrusion_only = True
         else:
             distance = 0
         previous_segment = (
-            self.prev_block.get_segments()[-1] if self.prev_block is not None else segment.create_initial(initial_position=self.state_A.state_position)
+            self.prev_block.get_segments()[-1]
+            if self.prev_block is not None
+            else segment.create_initial(initial_position=self.state_A.state_position)
         )
         settings = self.state_B.state_p_settings
 
@@ -189,7 +208,8 @@ class planner_block:
         v_begin = previous_segment.vel_end.get_norm()
         v_begin = v_begin if v_begin < v_target else v_target
 
-        # calculate min travel for trapezoidal shape, if sum larger than distance, regular movement pattern is possible
+        # calculate min travel for trapezoidal shape,
+        # if sum larger than distance, regular movement pattern is possible
         travel_ramp_up = (v_target - v_begin) * (v_begin + v_target) / (2 * acc)
         travel_ramp_down = (v_end - v_target) * (v_end + v_target) / (2 * -acc)
         vel_const = velocity(self.direction * v_target)
@@ -210,9 +230,15 @@ class planner_block:
                 and (travel_ramp_down > 0 or np.isclose(travel_ramp_down, 0.0))
             ):
                 trapezoid(extrusion_only=extrusion_only)
-            elif v_peak_tri > v_end and v_peak_tri > v_begin and (v_peak_tri < v_target or np.isclose(v_peak_tri, v_target)):
+            elif (
+                v_peak_tri > v_end
+                and v_peak_tri > v_begin
+                and (v_peak_tri < v_target or np.isclose(v_peak_tri, v_target))
+            ):
                 triang(extrusion_only=extrusion_only)
-            elif v_end_sing > v_begin and (v_end_sing < v_target or np.isclose(v_end_sing, v_target)):
+            elif v_end_sing > v_begin and (
+                v_end_sing < v_target or np.isclose(v_end_sing, v_target)
+            ):
                 singl_up()
             elif v_end_sing < v_begin:
                 singl_dwn()
@@ -236,9 +262,15 @@ class planner_block:
         """Check for interfacing vel and self correct."""
         flag_correct = False
         if self.next_block is not None:
-            same_vel = self.get_segments()[-1].vel_end.get_norm() == self.next_block.get_segments()[0].vel_begin.get_norm()
+            same_vel = (
+                self.get_segments()[-1].vel_end.get_norm()
+                == self.next_block.get_segments()[0].vel_begin.get_norm()
+            )
             if not same_vel:
-                error_vel = abs(self.get_segments()[-1].vel_end.get_norm() - self.next_block.get_segments()[0].vel_begin.get_norm())
+                error_vel = abs(
+                    self.get_segments()[-1].vel_end.get_norm()
+                    - self.next_block.get_segments()[0].vel_begin.get_norm()
+                )
                 if error_vel > tolerance:
                     flag_correct = True
 
@@ -256,9 +288,13 @@ class planner_block:
 
         # Check continuity in Position
         if self.next_block is not None:
-            same_position = self.get_segments()[-1].pos_end == self.next_block.get_segments()[0].pos_begin
+            same_position = (
+                self.get_segments()[-1].pos_end == self.next_block.get_segments()[0].pos_begin
+            )
             if not same_position:
-                error_position = self.get_segments()[-1].pos_end - self.next_block.get_segments()[0].pos_begin
+                error_position = (
+                    self.get_segments()[-1].pos_end - self.next_block.get_segments()[0].pos_begin
+                )
                 dist = error_position.get_t_distance()
                 if dist > tolerance:
                     raise NameError(f"Disconinuity of {dist} in segments detected")
@@ -269,7 +305,8 @@ class planner_block:
                 segm.self_check(p_settings=self.state_B.state_p_settings)
         except ValueError as ve:
             custom_print(
-                f"⚠️  Segment modeling travel to \n\t{self.state_B}\ndoes not adhere to machine limits: {ve}",
+                f"⚠️  Segment modeling travel to \n\t{self.state_B}\ndoes not"
+                f" adhere to machine limits: {ve}",
                 lvl=1,
             )
 
@@ -318,7 +355,9 @@ class planner_block:
                 if calculator not in self.result_calculators:
                     calculator.calc_pblock(self)
 
-    def __init__(self, state: state, prev_block: planner_block, firmware: str | None = None) -> None:
+    def __init__(
+        self, state: state, prev_block: planner_block, firmware: str | None = None
+    ) -> None:
         """Calculate and store planner block consisting of one or multiple segments.
 
         Args:
@@ -353,7 +392,9 @@ class planner_block:
         if self.valid:
             self.JD = v_JD * self.direction  # jd writeout for debugging plot
             self.move_maker(v_end=v_JD)
-            self.is_extruding = self.state_A.state_position.is_extruding(self.state_B.state_position)  # store extrusion flag
+            self.is_extruding = self.state_A.state_position.is_extruding(
+                self.state_B.state_position
+            )  # store extrusion flag
 
         # dwell functionality
         if self.state_B.pause is not None:
@@ -466,7 +507,6 @@ class planner_block:
         # last_cum_dist = 0
         for segm in self.segments:
             cum_dist += segm.get_segm_len()  # len with current segment
-            # last_cum_dist = len, without curr segm; dist_local >= last_cum_dist and ; last_cum_dist = cum_dist
             if dist_local <= cum_dist:
                 segm_local_dist = segm.get_segm_len() - (cum_dist - dist_local)
 
@@ -477,4 +517,6 @@ class planner_block:
                 )  # interpolate time over space
                 return time_of_isect
 
-        raise ValueError(f"This Planner Block with length {cum_dist} is not defined for dist: {dist_local}.")
+        raise ValueError(
+            f"This Planner Block with length {cum_dist} is not defined for dist: {dist_local}."
+        )

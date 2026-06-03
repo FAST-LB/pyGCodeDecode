@@ -23,7 +23,9 @@ def test_planner_block() -> None:
     dist = 10
     pos_0 = position(0, 0, 0, 0)
     pos_1 = position(dist, 0, 0, 0)
-    settings = state.p_settings(p_acc=100, jerk=0, vX=100, vY=100, vZ=100, vE=100, speed=10, units="SI (mm)")
+    settings = state.p_settings(
+        p_acc=100, jerk=0, vX=100, vY=100, vZ=100, vE=100, speed=10, units="SI (mm)"
+    )
     state_0 = state(state_position=pos_0, state_p_settings=settings)
     state_1 = state(state_position=pos_1, state_p_settings=settings)
     state_1.prev_state = state_0
@@ -32,9 +34,14 @@ def test_planner_block() -> None:
     # trapezoid block test
     assert block_1.blocktype == "trapezoid"
     assert block_1.valid is True
-    assert np.allclose(block_1.get_segments()[0].get_position(t=0).get_vec(withExtrusion=True), pos_0.get_vec(withExtrusion=True))
     assert np.allclose(
-        block_1.get_segments()[-1].get_position(t=block_1.get_segments()[-1].t_end).get_vec(withExtrusion=True),
+        block_1.get_segments()[0].get_position(t=0).get_vec(withExtrusion=True),
+        pos_0.get_vec(withExtrusion=True),
+    )
+    assert np.allclose(
+        block_1.get_segments()[-1]
+        .get_position(t=block_1.get_segments()[-1].t_end)
+        .get_vec(withExtrusion=True),
         pos_1.get_vec(withExtrusion=True),
     )
 
@@ -48,7 +55,9 @@ def test_planner_block() -> None:
     dist = 30
     pos_0 = position(0, 0, 0, 0)
     pos_1 = position(dist, 0, 0, 0)
-    settings = state.p_settings(p_acc=100, jerk=0, vX=100, vY=100, vZ=100, vE=100, speed=100, units="SI (mm)")
+    settings = state.p_settings(
+        p_acc=100, jerk=0, vX=100, vY=100, vZ=100, vE=100, speed=100, units="SI (mm)"
+    )
     state_0 = state(state_position=pos_0, state_p_settings=settings)
     state_1 = state(state_position=pos_1, state_p_settings=settings)
     state_1.prev_state = state_0
@@ -57,13 +66,23 @@ def test_planner_block() -> None:
     # triangle block test
     assert block_2.blocktype == "triangle"
     assert block_2.valid is True
-    assert np.allclose(block_2.get_segments()[0].get_position(t=0).get_vec(withExtrusion=True), pos_0.get_vec(withExtrusion=True))
     assert np.allclose(
-        block_2.get_segments()[-1].get_position(t=block_2.get_segments()[-1].t_end).get_vec(withExtrusion=True),
+        block_2.get_segments()[0].get_position(t=0).get_vec(withExtrusion=True),
+        pos_0.get_vec(withExtrusion=True),
+    )
+    assert np.allclose(
+        block_2.get_segments()[-1]
+        .get_position(t=block_2.get_segments()[-1].t_end)
+        .get_vec(withExtrusion=True),
         pos_1.get_vec(withExtrusion=True),
     )
-    assert np.isclose(block_2.get_segments()[0].t_end, np.sqrt(4 * dist * settings.p_acc) / (2 * settings.p_acc))
-    assert np.isclose(block_2.get_segments()[0].vel_end.get_norm(), (settings.p_acc * block_2.get_segments()[0].t_end))  # analytical check for peak vel
+    assert np.isclose(
+        block_2.get_segments()[0].t_end, np.sqrt(4 * dist * settings.p_acc) / (2 * settings.p_acc)
+    )
+    assert np.isclose(
+        block_2.get_segments()[0].vel_end.get_norm(),
+        (settings.p_acc * block_2.get_segments()[0].t_end),
+    )  # analytical check for peak vel
 
     # initialize test parameters single
     dist = 3
@@ -71,7 +90,9 @@ def test_planner_block() -> None:
     pos_1 = position(dist, 0, 0, 0)
     pos_2 = position(dist * 2, 0, 0, 0)
 
-    settings = state.p_settings(p_acc=100, jerk=10, vX=100, vY=100, vZ=100, vE=100, speed=100, units="SI (mm)")
+    settings = state.p_settings(
+        p_acc=100, jerk=10, vX=100, vY=100, vZ=100, vE=100, speed=100, units="SI (mm)"
+    )
     state_0 = state(state_position=pos_0, state_p_settings=settings)
     state_1 = state(state_position=pos_1, state_p_settings=settings)
     state_2 = state(state_position=pos_2, state_p_settings=settings)
@@ -82,13 +103,23 @@ def test_planner_block() -> None:
     # single block test
     assert block_3.blocktype == "single"
     assert block_3.valid is True
-    assert np.allclose(block_3.get_segments()[0].get_position(t=0).get_vec(withExtrusion=True), pos_0.get_vec(withExtrusion=True))
     assert np.allclose(
-        block_3.get_segments()[-1].get_position(t=block_3.get_segments()[-1].t_end).get_vec(withExtrusion=True),
+        block_3.get_segments()[0].get_position(t=0).get_vec(withExtrusion=True),
+        pos_0.get_vec(withExtrusion=True),
+    )
+    assert np.allclose(
+        block_3.get_segments()[-1]
+        .get_position(t=block_3.get_segments()[-1].t_end)
+        .get_vec(withExtrusion=True),
         pos_1.get_vec(withExtrusion=True),
     )
-    assert np.isclose(block_3.get_segments()[0].t_end, np.sqrt(2 * dist * settings.p_acc) / (settings.p_acc))
-    assert np.isclose(block_3.get_segments()[0].vel_end.get_norm(), (settings.p_acc * block_3.get_segments()[0].t_end))  # analytical check for end vel
+    assert np.isclose(
+        block_3.get_segments()[0].t_end, np.sqrt(2 * dist * settings.p_acc) / (settings.p_acc)
+    )
+    assert np.isclose(
+        block_3.get_segments()[0].vel_end.get_norm(),
+        (settings.p_acc * block_3.get_segments()[0].t_end),
+    )  # analytical check for end vel
 
     # self correction test
     block_3.segments[0].pos_begin = position(30, 0, 0, 0)
@@ -97,4 +128,7 @@ def test_planner_block() -> None:
     block_2.next_block = block_3
     block_2.self_correction()
     # check if interface velocity has been corrected
-    assert block_2.segments[-1].vel_end.get_norm() == block_2.next_block.segments[0].vel_begin.get_norm()
+    assert (
+        block_2.segments[-1].vel_end.get_norm()
+        == block_2.next_block.segments[0].vel_begin.get_norm()
+    )

@@ -48,7 +48,9 @@ def test_setup_extended() -> None:
     from pyGCodeDecode.gcode_interpreter import setup
 
     # test for specific printer is selected
-    simulation_setup = setup(presets_file=pathlib.Path("./tests/data/test_printer_setups.yaml"), printer="test")
+    simulation_setup = setup(
+        presets_file=pathlib.Path("./tests/data/test_printer_setups.yaml"), printer="test"
+    )
     assert simulation_setup.printer == "test"
     assert simulation_setup.firmware == "junction_deviation"
 
@@ -62,7 +64,9 @@ def test_setup_extended() -> None:
         assert str(e) == "Multiple printers found but none has been selected."
 
     # test for single printer in file and none has been selected -> auto select
-    simulation_setup = setup(presets_file=pathlib.Path("./tests/data/test_printer_setup_single.yaml"), verbosity_level=4)
+    simulation_setup = setup(
+        presets_file=pathlib.Path("./tests/data/test_printer_setup_single.yaml"), verbosity_level=4
+    )
     assert simulation_setup.printer == "debugging"
 
     # test for custom properties setting

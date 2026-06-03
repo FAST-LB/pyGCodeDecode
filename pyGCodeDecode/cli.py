@@ -47,13 +47,15 @@ def _plot(args: argparse.Namespace) -> None:
             g_code_file = specified_path
         elif specified_path is not None:
             custom_print(
-                f"❌ The specified G-code:\n{specified_path.resolve()}\nis not valid.\n🛑 Exiting the program.",
+                f"❌ The specified G-code:\n{specified_path.resolve()}\nis not valid."
+                "\n🛑 Exiting the program.",
                 lvl=1,
             )
             exit()
         else:
             custom_print(
-                "⚠️  No G-code file specified. Looking for a G-code file in the current directory... 👀",
+                "⚠️  No G-code file specified. Looking for a G-code file"
+                " in the current directory... 👀",
                 lvl=1,
             )
             files_list = list(pathlib.Path.cwd().glob("*.gcode"))
@@ -78,11 +80,16 @@ def _plot(args: argparse.Namespace) -> None:
     def _get_presets_file(presets_file: pathlib.Path | None) -> pathlib.Path:
         """Get the machine setup from the presets file."""
         if presets_file is None:
-            custom_print("⚠️  No presets file specified. Using the default presets shipped with pyGCD.")
-            presets_file = importlib.resources.files("pyGCodeDecode").joinpath("data/default_printer_presets.yaml")
+            custom_print(
+                "⚠️  No presets file specified. Using the default presets shipped with pyGCD."
+            )
+            presets_file = importlib.resources.files("pyGCodeDecode").joinpath(
+                "data/default_printer_presets.yaml"
+            )
         elif not presets_file.is_file():
             custom_print(
-                f"❌ The specified presets file:\n{presets_file.resolve()}\nis not valid.\n🛑 Exiting the program.",
+                f"❌ The specified presets file:\n{presets_file.resolve()}\n"
+                "is not valid.\n🛑 Exiting the program.",
                 lvl=1,
             )
             exit()
@@ -97,7 +104,8 @@ def _plot(args: argparse.Namespace) -> None:
             answer = ""
             while answer.lower() not in ("y", "yes", "n", "no"):
                 answer = input(
-                    "⚠️  No output directory specified! Do you want to create one in the current working directory?"
+                    "⚠️  No output directory specified! Do you want to create "
+                    "one in the current working directory?"
                     "\nOtherwise no outputs will be saved!"
                     "\nYou must answer with yes (y) or no (n)!\n"
                 )
@@ -197,7 +205,8 @@ def _main(args: list | None = None) -> None:
         "--gcode",
         action="store",
         nargs="?",
-        help="The path to the G-code file. Looks for a G-code file in the current directory if not specified.",
+        help="The path to the G-code file. Looks for a G-code file in the "
+        "current directory if not specified.",
         default=None,
         type=pathlib.Path,
         metavar="<PATH>",
@@ -215,7 +224,8 @@ def _main(args: list | None = None) -> None:
         "-pn",
         "--printer_name",
         action="store",
-        help="The name of the printer as specified in the presets file or the defaults if no presets were specified",
+        help="The name of the printer as specified in the presets file or the "
+        "defaults if no presets were specified",
         default=None,
         type=str,
         metavar="<NAME>",

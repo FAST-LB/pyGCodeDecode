@@ -59,7 +59,9 @@ class state:
             """Define representation."""
             return self.__str__()
 
-    def __init__(self, state_position: position = None, state_p_settings: p_settings = None) -> None:
+    def __init__(
+        self, state_position: position = None, state_p_settings: p_settings = None
+    ) -> None:
         """Initialize a state.
 
         Args:

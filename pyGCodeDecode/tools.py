@@ -32,7 +32,10 @@ def save_layer_metrics(
 
     # check if a layer cue was specified
     if "layer_cue" not in simulation.initial_machine_setup_dict:
-        custom_print("⚠️  No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!", lvl=1)
+        custom_print(
+            "⚠️  No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!",
+            lvl=1,
+        )
         return None
 
     if locale is None:
@@ -123,7 +126,9 @@ def write_submodel_times(
         filename = Path(filename)
 
     class cube:
-        def __init__(self, origin: list, side_x_len: float, side_y_len: float, side_z_len: float) -> None:
+        def __init__(
+            self, origin: list, side_x_len: float, side_y_len: float, side_z_len: float
+        ) -> None:
             """Define a cube with origin and side length. Cube is axis aligned."""
             self.origin = origin
             self.side_x_len = side_x_len
@@ -200,7 +205,9 @@ def write_submodel_times(
 
         return possible
 
-    def _isect_line_plane(p0: list, p1: list, p_co: list, p_no: list, epsilon: float = 1e-6) -> np.ndarray | None:
+    def _isect_line_plane(
+        p0: list, p1: list, p_co: list, p_no: list, epsilon: float = 1e-6
+    ) -> np.ndarray | None:
         """Return a Vector or None (when the intersection can't be found).
 
         p0, p1: Define the line.
@@ -243,11 +250,17 @@ def write_submodel_times(
     timetable = []
 
     for block in simulation.blocklist:
-        p_eval_A = _point_eval(block.state_A.state_position.get_vec(), control_volume.get_plane_lim())
-        p_eval_B = _point_eval(block.state_B.state_position.get_vec(), control_volume.get_plane_lim())
+        p_eval_A = _point_eval(
+            block.state_A.state_position.get_vec(), control_volume.get_plane_lim()
+        )
+        p_eval_B = _point_eval(
+            block.state_B.state_position.get_vec(), control_volume.get_plane_lim()
+        )
 
         if _intersect_possible(p_eval0=p_eval_A, p_eval1=p_eval_B):
-            for plane_orig, plane_normal in zip(control_volume.get_plane_orig(), control_volume.get_plane_normals(), strict=True):
+            for plane_orig, plane_normal in zip(
+                control_volume.get_plane_orig(), control_volume.get_plane_normals(), strict=True
+            ):
                 isec, s_len, sgn = _isect_line_plane(
                     p0=block.state_A.state_position.get_vec(),
                     p1=block.state_B.state_position.get_vec(),
@@ -255,14 +268,20 @@ def write_submodel_times(
                     p_no=plane_normal,
                 )
 
-                if isec is not None and _point_inside(p_eval=_point_eval(isec, control_volume.get_plane_lim())):
+                if isec is not None and _point_inside(
+                    p_eval=_point_eval(isec, control_volume.get_plane_lim())
+                ):
                     timetable.append([float(block.inverse_time_at_pos(s_len)), sgn])
 
     timetable = np.asarray(timetable)  # convert list to array for sorting
     timetable = timetable[timetable[:, 0].argsort()]  # sort array by first column
 
-    time_in = timetable[:, 0][np.asarray(timetable[:, 1], dtype=bool)]  # filter the data for entering the CV
-    time_out = timetable[:, 0][~np.asarray(timetable[:, 1], dtype=bool)]  # filter the data for exiting the CV
+    time_in = timetable[:, 0][
+        np.asarray(timetable[:, 1], dtype=bool)
+    ]  # filter the data for entering the CV
+    time_out = timetable[:, 0][
+        ~np.asarray(timetable[:, 1], dtype=bool)
+    ]  # filter the data for exiting the CV
 
     result = {
         **kwargs,  # add all kwargs to the result

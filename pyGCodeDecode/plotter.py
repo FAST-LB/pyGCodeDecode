@@ -65,9 +65,11 @@ def plot_3d(
         pv.MultiBlock: The PyVista mesh used for plotting.
         or
         np.ndarray: The screenshot image if `screenshot_path` is provided and `return_type` is "image".
-    """
+    """  # noqa: E501
 
-    def _safe_screenshot(plotter: pv.Plotter, screenshot_path: pathlib.Path | str | None = None) -> np.ndarray | None:
+    def _safe_screenshot(
+        plotter: pv.Plotter, screenshot_path: pathlib.Path | str | None = None
+    ) -> np.ndarray | None:
         if display_available:
             img = plotter.screenshot(
                 transparent_background=transparent_background,
@@ -136,7 +138,9 @@ def plot_3d(
                     else:
                         scalar.append(sc)
 
-            if (extrusion_only and (len(x) > 0 and not segm.is_extruding())) or (len(x) > 0 and n == (len(segments) - 1)):
+            if (extrusion_only and (len(x) > 0 and not segm.is_extruding())) or (
+                len(x) > 0 and n == (len(segments) - 1)
+            ):
                 points_3d = np.column_stack((x, y, z))
                 line = pv.lines_from_points(points_3d)
                 if scalar_value is not None:
@@ -243,7 +247,12 @@ def plot_3d(
                 else:
                     min_val, max_val = scalar_value_bounds
 
-                dummy_img = ax.imshow(np.array([[min_val, max_val]]), cmap=colorbar_label[scalar_value][-1], vmin=min_val, vmax=max_val)
+                dummy_img = ax.imshow(
+                    np.array([[min_val, max_val]]),
+                    cmap=colorbar_label[scalar_value][-1],
+                    vmin=min_val,
+                    vmax=max_val,
+                )
 
                 p.remove_scalar_bar()
 
@@ -262,7 +271,9 @@ def plot_3d(
                 ax.imshow(image)
             fig.tight_layout()
             dpi = window_size[1] / fig.get_size_inches()[1]
-            fig.savefig(screenshot_path, dpi=dpi, transparent=transparent_background)  # bbox_inches="tight",
+            fig.savefig(
+                screenshot_path, dpi=dpi, transparent=transparent_background
+            )  # bbox_inches="tight",
 
             custom_print(f"💾 MPL Screenshot saved to 👉{screenshot_path}")
         else:
@@ -444,7 +455,9 @@ def plot_vel(
         for segm in segments:
             times.append(segm.t_end)
     else:
-        raise ValueError("Invalid value for 'time_steps', either use Integer or 'constrained' as argument.")
+        raise ValueError(
+            "Invalid value for 'time_steps', either use Integer or 'constrained' as argument."
+        )
 
     # gathering values
     pos = [[], [], [], []]
@@ -454,7 +467,9 @@ def plot_vel(
     bar = ProgressBar(name="Velocity Plot")
 
     for i, t in enumerate(times):
-        segm, index_saved = find_current_segment(path=segments, t=t, last_index=index_saved, keep_position=True)
+        segm, index_saved = find_current_segment(
+            path=segments, t=t, last_index=index_saved, keep_position=True
+        )
 
         tmp_vel = segm.get_velocity(t=t).get_vec(withExtrusion=True)
         tmp_pos = segm.get_position(t=t).get_vec(withExtrusion=True)
@@ -496,7 +511,6 @@ def plot_vel(
     for ax in axis:
         ax1.plot(times, vel[axis_dict[ax]], label=ax)  # velocity
         ax2.plot(times, pos[axis_dict[ax]], linestyle="--")  # position w/ extrusion
-        # if not ax == "e": ax2.plot(times,pos[axis_dict[ax]],linestyle="--") #position ignoring extrusion
     ax1.plot(times, absolutes, color="black", label="abs")  # absolute velocity
 
     ax1.set_xlabel("time in s")

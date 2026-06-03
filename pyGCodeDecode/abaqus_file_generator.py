@@ -73,7 +73,15 @@ def generate_abaqus_event_series(
                 f"{float(time)},{round(scaling * position[0], round_to)},{round(scaling * position[1], round_to)},"
                 f"{round(scaling * position[2], round_to)},{position[3]}\n"
             )
-            event_series_list.append((float(time), scaling * position[0], scaling * position[1], scaling * position[2], position[3]))
+            event_series_list.append(
+                (
+                    float(time),
+                    scaling * position[0],
+                    scaling * position[1],
+                    scaling * position[2],
+                    position[3],
+                )
+            )
 
         custom_print(f"💾 ABAQUS event series written to 👉 {outfile.name}")
 

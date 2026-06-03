@@ -59,7 +59,9 @@ def test_result_calc_within_pb() -> None:
             segm.self_check()
             for name in errs:
                 print(f"Result {name}: {segm.result[name]}")
-                assert isinstance(segm.result[name], (int, float, list)), f"Error {name} is not a number"
+                assert isinstance(segm.result[name], (int, float, list)), (
+                    f"Error {name} is not a number"
+                )
 
         # Check if the results are calculated correctly
         assert len(pb.segments) == 3, "There should be 3 segments in the planner block"
@@ -103,7 +105,9 @@ def test_result_calc_simulation() -> None:
         if hasattr(calculator, "avgs") and isinstance(calculator.avgs, (list, tuple)):
             for avg in calculator.avgs:
                 print(f"Testing existence of average {avg} for {calculator.name}")
-                assert calculator.name + avg in sim.results, f"Result {calculator.name + avg} not found in simulation results"
+                assert calculator.name + avg in sim.results, (
+                    f"Result {calculator.name + avg} not found in simulation results"
+                )
 
     if has_private_results():
         print("Private results are available.")

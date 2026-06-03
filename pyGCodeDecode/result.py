@@ -1,5 +1,6 @@
 """Result calculation for segments and planner blocks."""
 
+import importlib.util
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
@@ -91,12 +92,8 @@ def get_all_result_calculators() -> list["abstract_result"]:
 
 def has_private_results() -> bool | None:
     """Check if private results are available."""
-    try:
-        from pyGCodeDecode.private_result import get_private_result_calculators  # type: ignore # noqa: F401
-
-        return True
-    except ImportError:
-        return False
+    spec = importlib.util.find_spec("pyGCodeDecode.private_result")
+    return spec is not None
 
 
 def get_result_info() -> dict:

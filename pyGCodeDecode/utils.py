@@ -118,7 +118,9 @@ class vector_4D:
             z = self.z + other.z
             e = self.e + other.e
             return self.__class__(x, y, z, e)
-        elif (isinstance(other, np.ndarray) or isinstance(other, list) or isinstance(other, tuple)) and len(other) == 4:
+        elif (
+            isinstance(other, np.ndarray) or isinstance(other, list) or isinstance(other, tuple)
+        ) and len(other) == 4:
             x = self.x + other[0]
             y = self.y + other[1]
             z = self.z + other[2]
@@ -126,7 +128,8 @@ class vector_4D:
             return self.__class__(x, y, z, e)
         else:
             raise ValueError(
-                f"Addition with __add__ is only possible with other 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray' got {type(other)} instead."
+                f"Addition with __add__ is only possible with other 4D vector, 1x4 'list',"
+                f" 1x4 'tuple' or 1x4 'numpy.ndarray' got {type(other)} instead."
             )
 
     def __sub__(self, other: vector_4D | list | tuple | np.ndarray) -> vector_4D:
@@ -144,14 +147,19 @@ class vector_4D:
             z = self.z - other.z
             e = self.e - other.e
             return self.__class__(x, y, z, e)
-        elif (isinstance(other, np.ndarray) or isinstance(other, list) or isinstance(other, tuple)) and len(other) == 4:
+        elif (
+            isinstance(other, np.ndarray) or isinstance(other, list) or isinstance(other, tuple)
+        ) and len(other) == 4:
             x = self.x - other[0]
             y = self.y - other[1]
             z = self.z - other[2]
             e = self.e - other[3]
             return self.__class__(x, y, z, e)
         else:
-            raise ValueError("Addition with __sub__ is only possible with other 4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray'")
+            raise ValueError(
+                "Addition with __sub__ is only possible with other 4D vector, 1x4 'list', "
+                "1x4 'tuple' or 1x4 'numpy.ndarray'"
+            )
 
     def __mul__(self, other: float | int) -> vector_4D:
         """Scalar multiplication functionality for 4D vectors.
@@ -220,7 +228,9 @@ class vector_4D:
         """
         if isinstance(other, type(self)):
             return self.get_norm() > other.get_norm()
-        elif (isinstance(other, np.ndarray)) or (isinstance(other, (list, tuple)) and len(other) == 4):
+        elif (isinstance(other, np.ndarray)) or (
+            isinstance(other, (list, tuple)) and len(other) == 4
+        ):
             return self.get_norm() > np.linalg.norm(other)
         elif isinstance(other, (float, int)):
             return self.get_norm() > other
@@ -279,7 +289,8 @@ class position(vector_4D):
 
         Args:
             other: (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')
-            ignore_retract: (bool, default = True) if true ignore retract movements else retract is also extrusion
+            ignore_retract: (bool, default = True) if true ignore retract movements
+                            else retract is also extrusion
 
         Returns:
             is_extruding: (bool) true if between self and other is extrusion
@@ -292,7 +303,9 @@ class position(vector_4D):
             return False
 
     def get_t_distance(self, other: position | None = None, withExtrusion: bool = False) -> float:
-        """Calculate the travel distance between self and other position. If none is provided, zero will be used.
+        """Calculate the travel distance between self and other position.
+
+        If none is provided, zero will be used.
 
         Args:
             other: (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray', default = None)
@@ -349,19 +362,6 @@ class velocity(vector_4D):
             if full_norm > 0:
                 return vec_e / full_norm
         return None
-
-    # def avoid_overspeed(self, p_settings: "state.p_settings") -> "velocity":
-    #     """Return velocity scaled to avoid any axis overspeed.
-
-    #     Scales the velocity uniformly so that no axis exceeds its configured maximum.
-    #     """
-    #     scale = 1.0
-    #     scale = p_settings.Vx / self.Vx if self.Vx > 0 and (p_settings.Vx / self.Vx) < scale else scale
-    #     scale = p_settings.Vy / self.Vy if self.Vy > 0 and (p_settings.Vy / self.Vy) < scale else scale
-    #     scale = p_settings.Vz / self.Vz if self.Vz > 0 and (p_settings.Vz / self.Vz) < scale else scale
-    #     scale = p_settings.Ve / self.Ve if self.Ve > 0 and (p_settings.Ve / self.Ve) < scale else scale
-
-    #     return self * scale
 
     def not_zero(self) -> bool:
         """Return True if velocity is not zero.
@@ -459,7 +459,8 @@ class segment:
     - get_segm_len: returns the length of the segment.
 
     **Class method**
-    - create_initial: returns the artificial initial segment where everything is at standstill, intervall length = 0
+    - create_initial: returns the artificial initial segment where everything is at standstill,
+        intervall length = 0
     - self_check: returns True if all self checks have been successfull
     """
 
@@ -495,7 +496,10 @@ class segment:
 
     def __str__(self) -> str:
         """Create string from segment."""
-        return f"\nSegment from: \n{self.pos_begin} to \n{self.pos_end} Self check: {self.self_check()}.\n"
+        return (
+            f"\nSegment from: \n{self.pos_begin} to \n{self.pos_end} "
+            f"Self check: {self.self_check()}.\n"
+        )
 
     def __repr__(self) -> str:
         """Segment representation."""
@@ -560,11 +564,15 @@ class segment:
         if not isinstance(t, seconds):
             t = seconds(t)
         if t < self.t_begin or t > self.t_end:
-            raise ValueError(f"Segment not defined for this point in time. {t} -->({self.t_begin}, {self.t_end})")
+            raise ValueError(
+                f"Segment not defined for this point in time. {t} -->({self.t_begin}, {self.t_end})"
+            )
         else:
             current_vel = self.get_velocity(t=t)
             # displacement = average velocity * dt
-            displacement_vec = ((self.vel_begin + current_vel) * (t - self.t_begin) / 2.0).get_vec(withExtrusion=True)
+            displacement_vec = ((self.vel_begin + current_vel) * (t - self.t_begin) / 2.0).get_vec(
+                withExtrusion=True
+            )
             position_val = self.pos_begin + displacement_vec
             return position_val
 
@@ -588,21 +596,35 @@ class segment:
         """
         # position self check:
         tolerance = 1e-6
-        position_calc = self.pos_begin + ((self.vel_begin + self.vel_end) * (self.t_end - self.t_begin) / 2.0)
+        position_calc = self.pos_begin + (
+            (self.vel_begin + self.vel_end) * (self.t_end - self.t_begin) / 2.0
+        )
         error_distance = self.pos_end - position_calc
         if error_distance.get_norm(withExtrusion=True) > tolerance:
             raise ValueError("Error distance: " + str(error_distance))
 
         # time consistency
         if self.t_begin > self.t_end:
-            raise ValueError(f"Inconsistent segment time (t_begin/t_end): ({self.t_begin}/{self.t_end}) \n ")
+            raise ValueError(
+                f"Inconsistent segment time (t_begin/t_end): ({self.t_begin}/{self.t_end}) \n "
+            )
 
         if p_settings is not None:
             # max velocity
-            if self.vel_begin.get_norm() > p_settings.speed and not np.isclose(self.vel_begin.get_norm(), p_settings.speed):
-                raise ValueError(f"Target Velocity of {p_settings.speed} exceeded with {self.vel_begin.get_norm()}.")
-            if self.vel_end.get_norm() > p_settings.speed and not np.isclose(self.vel_end.get_norm(), p_settings.speed):
-                raise ValueError(f"Target Velocity of {p_settings.speed} exceeded with {self.vel_end.get_norm()}.")
+            if self.vel_begin.get_norm() > p_settings.speed and not np.isclose(
+                self.vel_begin.get_norm(), p_settings.speed
+            ):
+                raise ValueError(
+                    f"Target Velocity of {p_settings.speed} exceeded "
+                    f"with {self.vel_begin.get_norm()}."
+                )
+            if self.vel_end.get_norm() > p_settings.speed and not np.isclose(
+                self.vel_end.get_norm(), p_settings.speed
+            ):
+                raise ValueError(
+                    f"Target Velocity of {p_settings.speed} exceeded "
+                    f"with {self.vel_end.get_norm()}."
+                )
 
             # max acceleration
             if self.t_end - self.t_begin > 0:
@@ -619,10 +641,13 @@ class segment:
                 scaled_atol = base_atol * dt_scale
                 acc_norm = acc.get_norm()
 
-                if acc_norm > p_settings.p_acc and not np.isclose(acc_norm, p_settings.p_acc, rtol=scaled_rtol, atol=scaled_atol):
+                if acc_norm > p_settings.p_acc and not np.isclose(
+                    acc_norm, p_settings.p_acc, rtol=scaled_rtol, atol=scaled_atol
+                ):
                     raise ValueError(
                         f"Maximum acceleration of {p_settings.p_acc} exceeded with {acc_norm}. "
-                        f"Delta t: {dt:.2e}, tolerance used: rtol={scaled_rtol:.2e}, atol={scaled_atol:.2e}"
+                        f"Delta t: {dt:.2e}, tolerance used: rtol={scaled_rtol:.2e}, "
+                        f"atol={scaled_atol:.2e}"
                     )
         return True
 

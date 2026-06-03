@@ -44,19 +44,51 @@ def test_state_generator() -> None:
 
     assert isinstance(states, list)  # check if state list gets generated
     print(states)
-    assert states[0].state_position.get_vec(withExtrusion=True) == list(initial_pos)  # test for inital position
+    assert states[0].state_position.get_vec(withExtrusion=True) == list(
+        initial_pos
+    )  # test for inital position
     # assert states[1]  # set pos to abs
-    assert states[3].state_position.get_vec(withExtrusion=True) == [10, 20, 30, initial_pos[-1]]  # test for second pos
-    assert states[4].state_position.get_vec(withExtrusion=True) == [300, 200, 100, 50]  # test for another pos with extr
-    assert states[5].state_position.get_vec(withExtrusion=True) == [-5, -5, 0, -0.2]  # test for pos with abs extr
-    assert states[7].state_position.get_vec(withExtrusion=True) == [-5, -5, 0, 10]  # test for another pos with rel extr
+    assert states[3].state_position.get_vec(withExtrusion=True) == [
+        10,
+        20,
+        30,
+        initial_pos[-1],
+    ]  # test for second pos
+    assert states[4].state_position.get_vec(withExtrusion=True) == [
+        300,
+        200,
+        100,
+        50,
+    ]  # test for another pos with extr
+    assert states[5].state_position.get_vec(withExtrusion=True) == [
+        -5,
+        -5,
+        0,
+        -0.2,
+    ]  # test for pos with abs extr
+    assert states[7].state_position.get_vec(withExtrusion=True) == [
+        -5,
+        -5,
+        0,
+        10,
+    ]  # test for another pos with rel extr
     # assert states[8]  # set pos to rel
-    assert states[9].state_position.get_vec(withExtrusion=True) == [5, -5, 0, 10]  # test for rel_move
+    assert states[9].state_position.get_vec(withExtrusion=True) == [
+        5,
+        -5,
+        0,
+        10,
+    ]  # test for rel_move
     # assert states[10]  # set pos to abs
     # assert states[11]  # set E to abs
     assert states[12].state_position.get_vec(withExtrusion=True) == [7, 7, 7, 7]  # abs move
     # assert states[13]  # virtual null all axis
-    assert states[14].state_position.get_vec(withExtrusion=True) == [14, 14, 14, 14]  # abs move with offset
+    assert states[14].state_position.get_vec(withExtrusion=True) == [
+        14,
+        14,
+        14,
+        14,
+    ]  # abs move with offset
     assert states[14].state_p_settings.units == "SI (mm)"
     assert states[15].state_p_settings.units == "inch"
     assert states[16].state_p_settings.units == "SI (mm)"
@@ -91,7 +123,9 @@ def test_set_initial_position() -> None:
         initial_machine_setup=test_setup.get_dict(),
     )
 
-    assert states[0].state_position.get_vec(withExtrusion=True) == list(initial_pos)  # test for inital position
+    assert states[0].state_position.get_vec(withExtrusion=True) == list(
+        initial_pos
+    )  # test for inital position
 
     # using first GCode pos
     test_setup = setup(
@@ -99,7 +133,12 @@ def test_set_initial_position() -> None:
         printer="test",
         layer_cue="LAYER cue",
     )
-    initial_pos = (10, 20, 30, 0)  # initial position as specified in "./data/test_state_generator.gcode" line 3
+    initial_pos = (
+        10,
+        20,
+        30,
+        0,
+    )  # initial position as specified in "./data/test_state_generator.gcode" line 3
     test_setup.set_initial_position("first")
 
     states = generate_states(

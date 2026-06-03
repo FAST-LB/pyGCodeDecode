@@ -61,7 +61,11 @@ def test_junction_handlings() -> None:
     for firmware in test_firmwares:
         handler = get_handler(firmware)
         assert handler is not None
-        assert handler is not junction_handling if firmware != "unknown" else handler is junction_handling
+        assert (
+            handler is not junction_handling
+            if firmware != "unknown"
+            else handler is junction_handling
+        )
         assert callable(handler)
 
         stateA, stateB, stateC = _initialize_dummy_states(p_acc=1000, jerk=10, speed=50)
@@ -115,7 +119,11 @@ def test_junction_handlings_rotating_COS() -> None:
     for firmware in test_firmwares:
         handler = get_handler(firmware)
         assert handler is not None
-        assert handler is not junction_handling if firmware != "unknown" else handler is junction_handling
+        assert (
+            handler is not junction_handling
+            if firmware != "unknown"
+            else handler is junction_handling
+        )
         assert callable(handler)
 
         stateA, stateB, stateC = _initialize_dummy_states(p_acc=1000, jerk=10, speed=50)
@@ -157,15 +165,22 @@ def test_junction_handlings_rotating_COS() -> None:
                 stateC_r = _rotate_state(stateC_r, rot_angle)
 
                 # Sanity check for angle between vectors
-                vec1 = np.array(stateB_r.state_position.get_vec()[:2]) - np.array(stateA_r.state_position.get_vec()[:2])
-                vec2 = np.array(stateC_r.state_position.get_vec()[:2]) - np.array(stateB_r.state_position.get_vec()[:2])
+                vec1 = np.array(stateB_r.state_position.get_vec()[:2]) - np.array(
+                    stateA_r.state_position.get_vec()[:2]
+                )
+                vec2 = np.array(stateC_r.state_position.get_vec()[:2]) - np.array(
+                    stateB_r.state_position.get_vec()[:2]
+                )
                 dot_product = np.dot(vec1, vec2)
                 norm1 = np.linalg.norm(vec1)
                 norm2 = np.linalg.norm(vec2)
                 cos_theta = dot_product / (norm1 * norm2)
                 angle_between = np.degrees(np.arccos(np.clip(cos_theta, -1.0, 1.0)))
                 if not np.isclose(angle_between, angle, atol=1e-2):
-                    print(f"Angle between vectors: {angle_between:.2f} degrees, should be {angle:.2f} degrees")
+                    print(
+                        f"Angle between vectors: {angle_between:.2f} degrees,"
+                        f" should be {angle:.2f} degrees"
+                    )
                 # Sanity check end
 
                 result_rot = handler(state_A=stateA_r, state_B=stateB_r).get_junction_vel()
@@ -192,7 +207,9 @@ def test_junction_handlings_rotating_COS() -> None:
     for fw in test_firmwares:
         # rotated_results[fw] is a list of (angle, [results for each rotation])
         # transpose the data: for each rotation, collect the results for all angles
-        all_rotations = list(zip(*[rot[1] for rot in rotated_results[fw]], strict=True))  # shape: (num_rotations, num_angles)
+        all_rotations = list(
+            zip(*[rot[1] for rot in rotated_results[fw]], strict=True)
+        )  # shape: (num_rotations, num_angles)
         for rot_curve in all_rotations:
             ax.plot(
                 angles,

@@ -17,7 +17,9 @@ from pyGCodeDecode.state_generator import generate_states
 from pyGCodeDecode.utils import segment, velocity
 
 
-def generate_planner_blocks(states: list[state], firmware: str | None = None) -> list[planner_block]:
+def generate_planner_blocks(
+    states: list[state], firmware: str | None = None
+) -> list[planner_block]:
     """Convert list of states to trajectory repr. by planner blocks.
 
     Args:
@@ -25,7 +27,8 @@ def generate_planner_blocks(states: list[state], firmware: str | None = None) ->
         firmware: (string, default = None) select firmware by name
 
     Returns:
-        block_list (list[planner_block]) list of all planner blocks to complete travel between all states
+        block_list (list[planner_block]) list of all planner blocks to complete
+        travel between all states
     """
     block_list = []
     bar = ProgressBar(name="Planner Blocks")
@@ -34,8 +37,12 @@ def generate_planner_blocks(states: list[state], firmware: str | None = None) ->
     last_type = None
 
     for i, this_state in enumerate(states):
-        prev_block = block_list[-1] if len(block_list) > 0 else None  # grab prev block from block_list
-        new_block = planner_block(state=this_state, prev_block=prev_block, firmware=firmware)  # generate new block
+        prev_block = (
+            block_list[-1] if len(block_list) > 0 else None
+        )  # grab prev block from block_list
+        new_block = planner_block(
+            state=this_state, prev_block=prev_block, firmware=firmware
+        )  # generate new block
 
         if this_state.comment is not None:
             for key in colordict.keys():
@@ -79,7 +86,7 @@ def find_current_segment(
                 if t >= segm.t_begin and t < segm.t_end:
                     return segm, last_index
                 elif t >= segm.t_end and t < path[last_index + 1].t_begin:
-                    # if no segment exists, create one that interpolates the previous segment as static
+                    # if no segment exists, create one that interpolates the prev segment as static
                     interpolated_segment = segment(
                         t_begin=segm.t_end,
                         t_end=path[last_index + 1].t_begin,
@@ -95,7 +102,7 @@ def find_current_segment(
                 if t >= segm.t_begin and t <= segm.t_end:
                     return segm, last_index + number
                 elif t >= segm.t_end and t < path[last_index + 1].t_begin:
-                    # if no segment exists, create one that interpolates the previous segment as static
+                    # if no segment exists, create one that interpolates the prev segment as static
                     interpolated_segment = segment(
                         t_begin=segm.t_end,
                         t_end=path[last_index + 1].t_begin,
@@ -149,7 +156,7 @@ class simulation:
         output_unit_system: str = "SI (mm)",
         verbosity_level: int | None = None,
     ) -> None:
-        """Initialize the Simulation of a given G-code with initial machine setup or default machine.
+        """Initialize the Simulation of a G-code with initial machine setup or default machine.
 
         - Generate all states from GCode.
         - Connect states with planner blocks, consisting of segments
@@ -159,12 +166,14 @@ class simulation:
             gcode_path: (Path) path to GCode
             machine_name: (string, default = None) name of the default machine to use
             initial_machine_setup: (setup, default = None) setup instance
-            output_unit_system: (string, default = "SI (mm)") available unit systems: SI, SI (mm) & inch
-            verbosity_level: (int, default = None) set verbosity level (0: no output, 1: warnings, 2: info, 3: debug)
+            output_unit_system: (string, default = "SI (mm)")
+                available unit systems: SI, SI (mm) & inch
+            verbosity_level: (int, default = None)
+                set verbosity level (0: no output, 1: warnings, 2: info, 3: debug)
 
         Example:
         ```python
-        gcode_interpreter.simulation(gcode_path=r"path/to/part.gcode", initial_machine_setup=printer_setup)
+        gcode_interpreter.simulation(gcode_path=r"path/to/a.gcode", initial_machine_setup=setup)
         ```
         """
         simulation_start_time = time.time()
@@ -182,20 +191,35 @@ class simulation:
 
         # create a printer setup with default values if none was specified
         if initial_machine_setup is not None:
-            if machine_name is not None and initial_machine_setup.get_dict()["printer"] != machine_name:
-                raise ValueError("Both a printer name and a printer setup were specified, but they do not match!")
+            if (
+                machine_name is not None
+                and initial_machine_setup.get_dict()["printer"] != machine_name
+            ):
+                raise ValueError(
+                    "Both a printer name and a printer setup were specified, but they do not match!"
+                )
             else:
                 pass
         else:
             if machine_name is None:
-                raise ValueError("Neither a printer name nor a printer setup was specified. At least one is required!")
+                raise ValueError(
+                    "Neither a printer name nor a printer setup was specified. "
+                    "At least one is required!"
+                )
             else:
                 custom_print(
-                    "Only a machine name was specified but no full setup. Trying to create a setup from pyGCD's default values...",
+                    "Only a machine name was specified but no full setup. "
+                    "Trying to create a setup from pyGCD's default values...",
                     lvl=1,
                 )
-                with importlib.resources.as_file(importlib.resources.files("pyGCodeDecode") / "data" / "default_printer_presets.yaml") as default_presets_file:
-                    initial_machine_setup = setup(presets_file=default_presets_file, printer=machine_name)
+                with importlib.resources.as_file(
+                    importlib.resources.files("pyGCodeDecode")
+                    / "data"
+                    / "default_printer_presets.yaml"
+                ) as default_presets_file:
+                    initial_machine_setup = setup(
+                        presets_file=default_presets_file, printer=machine_name
+                    )
 
         # SET INITIAL SETTINGS
         self.initial_machine_setup_dict = initial_machine_setup.check_initial_setup()
@@ -206,8 +230,13 @@ class simulation:
             initial_machine_setup=self.initial_machine_setup_dict,
         )
 
-        custom_print(f"Simulating {self.filename} with {self.initial_machine_setup_dict['printer']} using the {self.firmware} firmware.")
-        self.blocklist: list[planner_block] = generate_planner_blocks(states=self.states, firmware=self.firmware)
+        custom_print(
+            f"Simulating {self.filename} with {self.initial_machine_setup_dict['printer']}"
+            f" using the {self.firmware} firmware."
+        )
+        self.blocklist: list[planner_block] = generate_planner_blocks(
+            states=self.states, firmware=self.firmware
+        )
         self.trajectory_self_correct()
 
         # calculate results
@@ -281,7 +310,9 @@ class simulation:
                     else:
                         raise ValueError(f"Unknown average type: {avg} for {calculator.name}")
 
-    def get_values(self, t: float, output_unit_system: str | None = None) -> tuple[list[float], list[float]]:
+    def get_values(
+        self, t: float, output_unit_system: str | None = None
+    ) -> tuple[list[float], list[float]]:
         """Return unit system scaled values for vel and pos.
 
         Args:
@@ -294,7 +325,9 @@ class simulation:
             list: [pos_x, pos_y, pos_z, pos_e] position
         """
         segments = unpack_blocklist(blocklist=self.blocklist)
-        segm, self._last_index = find_current_segment(path=segments, t=t, last_index=self._last_index)
+        segm, self._last_index = find_current_segment(
+            path=segments, t=t, last_index=self._last_index
+        )
         tmp_vel = segm.get_velocity(t=t).get_vec(withExtrusion=True)
         tmp_pos = segm.get_position(t=t).get_vec(withExtrusion=True)
 
@@ -326,7 +359,11 @@ class simulation:
         flow_rate = curr_val[0][3]  # get extrusion rate at current time
 
         filament_cross_sec = np.pi * (filament_dia / 2) ** 2  # calculate cross area of filament
-        width = float((flow_rate * filament_cross_sec) / (extrusion_h * feed_rate)) if feed_rate > 0.0 else 0.0  # calculate width, zero if no movement.
+        width = (
+            float((flow_rate * filament_cross_sec) / (extrusion_h * feed_rate))
+            if feed_rate > 0.0
+            else 0.0
+        )  # calculate width, zero if no movement.
 
         return width
 
@@ -337,7 +374,8 @@ class simulation:
             start_time (float): time when the simulation run was started
         """
         custom_print(
-            f"✅ Simulation finished: pyGCodeDecode extracted {len(self.states)} states from {self.filename}"
+            f"✅ Simulation finished: pyGCodeDecode extracted {len(self.states)} "
+            f"states from {self.filename}"
             f" and generated {len(self.blocklist)} planner blocks.\n"
             f"Estimated time to travel all states with provided "
             f"printer settings is {self.blocklist[-1].get_segments()[-1].t_end:.2f} seconds.\n"
@@ -345,7 +383,7 @@ class simulation:
         )
 
     def refresh(self, new_state_list: list[state] | None = None) -> None:
-        """Refresh simulation. Either through new state list or by rerunning the self.states as input.
+        """Refresh simulation. Either through new state list or by rerunning the self.states.
 
         Args:
             new_state_list: (list[state], default = None) new list of states,
@@ -354,7 +392,9 @@ class simulation:
         if new_state_list is not None:
             self.states = new_state_list
 
-        self.blocklist: list[planner_block] = generate_planner_blocks(states=self.states, firmware=self.initial_machine_setup_dict["firmware"])
+        self.blocklist: list[planner_block] = generate_planner_blocks(
+            states=self.states, firmware=self.initial_machine_setup_dict["firmware"]
+        )
         self.trajectory_self_correct()
 
     def extrusion_extent(self, output_unit_system: str | None = None) -> np.ndarray:
@@ -371,8 +411,16 @@ class simulation:
             np.ndarray: extent of extruding positions
         """
         all_positions_extruding = np.asarray(
-            [block.state_A.state_position.get_vec() for block in self.blocklist if block.is_extruding]
-            + [block.state_B.state_position.get_vec() for block in self.blocklist if block.is_extruding]
+            [
+                block.state_A.state_position.get_vec()
+                for block in self.blocklist
+                if block.is_extruding
+            ]
+            + [
+                block.state_B.state_position.get_vec()
+                for block in self.blocklist
+                if block.is_extruding
+            ]
         )
 
         if len(all_positions_extruding) > 0:
@@ -395,7 +443,13 @@ class simulation:
         Returns:
             max_vel: (np.float64) maximum travel velocity while extruding
         """
-        all_blocks_max_vel = np.asarray([np.linalg.norm(block.extrusion_block_max_vel()[:3]) for block in self.blocklist if block.is_extruding])
+        all_blocks_max_vel = np.asarray(
+            [
+                np.linalg.norm(block.extrusion_block_max_vel()[:3])
+                for block in self.blocklist
+                if block.is_extruding
+            ]
+        )
         max_vel = np.amax(all_blocks_max_vel, axis=0)
 
         scaling = self.get_scaling_factor(output_unit_system=output_unit_system)
@@ -424,7 +478,11 @@ class simulation:
         e_end = self.blocklist[-1].get_segments()[-1].pos_end.get_vec(withExtrusion=True)[3]
 
         filament_diam = self.initial_machine_setup_dict.get("filament_diam", None)
-        e_amount = (e_end - self.initial_machine_setup_dict["E"]) * (np.pi * filament_diam**2 / 4) if filament_diam is not None else None
+        e_amount = (
+            (e_end - self.initial_machine_setup_dict["E"]) * (np.pi * filament_diam**2 / 4)
+            if filament_diam is not None
+            else None
+        )
 
         summary = {
             "filename": str(self.filename),
@@ -483,8 +541,10 @@ class setup:
 
         Args:
             presets_file (Path or str): Path to the YAML file containing printer presets.
-            printer (str, optional): Name of the printer to select from the preset file. Defaults to None.
-            verbosity_level (int, optional): Verbosity level for logging (0: no output, 1: warnings, 2: info, 3: debug). Defaults to None.
+            printer (str, optional): Name of the printer to select from the preset file.
+                Defaults to None.
+            verbosity_level (int, optional): Verbosity level for logging
+                (0: no output, 1: warnings, 2: info, 3: debug). Defaults to None.
             **kwargs: Additional properties to set or override in the setup.
 
         Raises:
@@ -540,7 +600,8 @@ class setup:
                     self.setup_dict = setup_dict[printer]
                     self.printer = printer
                     custom_print(
-                        f"Automatically selected the '{printer}' printer in the setup file {filepath}.",
+                        f"Automatically selected the '{printer}' "
+                        f"printer in the setup file {filepath}.",
                         lvl=2,
                     )
                 else:
@@ -593,20 +654,29 @@ class setup:
         # check if all provided keys are valid
         for key in initial_machine_setup:
             if key not in valid_keys:
-                raise ValueError(f"Invalid Key: '{key}' in Setup Dictionary, check for typos. Valid keys are: {valid_keys}")
+                raise ValueError(
+                    f"Invalid Key: '{key}' in Setup Dictionary, check for typos."
+                    f" Valid keys are: {valid_keys}"
+                )
 
         # check if every required key is provided
         for key in req_keys:
             if key not in initial_machine_setup:
-                raise ValueError(f"Missing Key: '{key}' is not provided in Setup Dictionary, check for typos. Required keys are: {req_keys}")
+                raise ValueError(
+                    f"Missing Key: '{key}' is not provided in Setup Dictionary, check for typos. "
+                    f"Required keys are: {req_keys}"
+                )
         return initial_machine_setup
 
-    def set_initial_position(self, initial_position: tuple | dict | str, input_unit_system: str | None = None) -> None:
+    def set_initial_position(
+        self, initial_position: tuple | dict | str, input_unit_system: str | None = None
+    ) -> None:
         """Set initial Position.
 
         Args:
-            initial_position: (tuple, dict or str) set initial position as tuple of len(4) or "first"
-                or dictionary with keys: {X, Y, Z, E} or "first" to use first occurring absolute position in GCode.
+            initial_position: (tuple, dict or str) set initial position as tuple of len(4)
+                or "first" or dictionary with keys: {X, Y, Z, E}
+                or "first" to use first occurring absolute position in GCode.
             input_unit_system (str, optional): Wanted input unit system.
                 Uses the one specified for the setup if None is specified.
 
@@ -620,7 +690,9 @@ class setup:
         """
         scaling = self.get_scaling_factor(input_unit_system=input_unit_system)
 
-        if isinstance(initial_position, dict) and all(key in initial_position for key in ["X", "Y", "Z", "E"]):
+        if isinstance(initial_position, dict) and all(
+            key in initial_position for key in ["X", "Y", "Z", "E"]
+        ):
             for key in initial_position:
                 self.setup_dict[key] = scaling * initial_position[key]
         elif isinstance(initial_position, tuple) and len(initial_position) == 4:
@@ -636,7 +708,10 @@ class setup:
             self.setup_dict.update({"X": None, "Y": None, "Z": None, "E": None})
             custom_print("Initial position set to first GCode position.", lvl=3)
         else:
-            raise ValueError("Set initial position through dict with keys: {X, Y, Z, E} or as tuple with length 4.")
+            raise ValueError(
+                "Set initial position through dict with keys: {X, Y, Z, E} "
+                "or as tuple with length 4."
+            )
 
     def set_property(self, property_dict: dict) -> None:
         """Overwrite or add a property to the printer dictionary.

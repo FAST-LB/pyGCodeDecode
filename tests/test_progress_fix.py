@@ -55,7 +55,11 @@ def test_progress_bar_with_interruptions(capsys: pytest.CaptureFixture[str]) -> 
     out_lines = [normalize(lin) for lin in out.splitlines()]
     exp_lines = [normalize(lin) for lin in expected.splitlines()]
     # Only keep lines that are expected (messages and final progress bars)
-    filtered_out_lines = [lin for lin in out_lines if lin.startswith("[WARN]") or lin.startswith("[INFO]") or "✅ Done" in lin]
+    filtered_out_lines = [
+        lin
+        for lin in out_lines
+        if lin.startswith("[WARN]") or lin.startswith("[INFO]") or "✅ Done" in lin
+    ]
     # filtered_out_lines = [
     #     lin
     #     for lin in out_lines
