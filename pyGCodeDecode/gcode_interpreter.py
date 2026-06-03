@@ -10,12 +10,11 @@ import numpy as np
 import yaml
 
 from pyGCodeDecode.helpers import ProgressBar, custom_print, set_verbosity_level
-
-from .planner_block import planner_block
-from .result import get_all_result_calculators
-from .state import state
-from .state_generator import generate_states
-from .utils import segment, velocity
+from pyGCodeDecode.planner_block import planner_block
+from pyGCodeDecode.result import get_all_result_calculators
+from pyGCodeDecode.state import state
+from pyGCodeDecode.state_generator import generate_states
+from pyGCodeDecode.utils import segment, velocity
 
 
 def generate_planner_blocks(states: list[state], firmware: str | None = None) -> list[planner_block]:

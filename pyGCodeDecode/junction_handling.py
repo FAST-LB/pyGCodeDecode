@@ -6,9 +6,8 @@ import sys
 import numpy as np
 
 from pyGCodeDecode.helpers import custom_print
-
-from .state import state
-from .utils import velocity
+from pyGCodeDecode.state import state
+from pyGCodeDecode.utils import velocity
 
 
 class junction_handling:
@@ -453,7 +452,11 @@ class junction_deviation(junction_handling):
             state_B: (state)   end state
         """
         super().__init__(state_A, state_B)
-        self.junction_vel = self.calc_JD(vel_0=self.target_vel, vel_1=self.vel_next, p_settings=self.state_B.state_p_settings)
+        self.junction_vel = self.calc_JD(
+            vel_0=self.target_vel,
+            vel_1=self.vel_next,
+            p_settings=self.state_B.state_p_settings,
+        )
 
     def get_junction_vel(self) -> float:
         """Return junction velocity.

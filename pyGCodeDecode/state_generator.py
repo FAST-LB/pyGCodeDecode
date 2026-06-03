@@ -6,9 +6,8 @@ from pathlib import Path
 from re import Match
 
 from pyGCodeDecode.helpers import ProgressBar, custom_print
-
-from .state import state
-from .utils import position
+from pyGCodeDecode.state import state
+from pyGCodeDecode.utils import position
 
 supported_commands = {
     "G0": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # non Extrusion Move
@@ -52,7 +51,14 @@ unsupported_commands = {
     },  # counter-clockwise arc move,
     "G10": {"S": None},  # read only
     "G11": None,  # read only
-    "G28": {"L": None, "O": None, "R": None, "X": None, "Y": None, "Z": None},  # home all axes
+    "G28": {
+        "L": None,
+        "O": None,
+        "R": None,
+        "X": None,
+        "Y": None,
+        "Z": None,
+    },  # home all axes
     "G29": {
         "A": None,
         "B": None,

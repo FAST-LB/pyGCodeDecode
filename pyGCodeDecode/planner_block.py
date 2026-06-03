@@ -7,11 +7,10 @@ from typing import ClassVar
 import numpy as np
 
 from pyGCodeDecode.helpers import custom_print
+from pyGCodeDecode.junction_handling import get_handler
 from pyGCodeDecode.result import abstract_result, acceleration_result, velocity_result
-
-from .junction_handling import get_handler
-from .state import state
-from .utils import segment, velocity
+from pyGCodeDecode.state import state
+from pyGCodeDecode.utils import segment, velocity
 
 
 class planner_block:
@@ -38,7 +37,14 @@ class planner_block:
             pos_end = pos_begin + self.direction * travel_ramp_up
             vel_begin = velocity(self.direction * v_begin)
             vel_end = vel_const
-            segment_A = segment(t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end)
+            segment_A = segment(
+                t_begin=t0,
+                t_end=t1,
+                pos_begin=pos_begin,
+                pos_end=pos_end,
+                vel_begin=vel_begin,
+                vel_end=vel_end,
+            )
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_A)
             # B --
@@ -49,7 +55,14 @@ class planner_block:
             pos_end = pos_begin + self.direction * travel_const
             vel_begin = vel_const
             vel_end = vel_const
-            segment_B = segment(t_begin=t1, t_end=t2, pos_begin=pos_begin, vel_begin=vel_begin, pos_end=pos_end, vel_end=vel_end)
+            segment_B = segment(
+                t_begin=t1,
+                t_end=t2,
+                pos_begin=pos_begin,
+                vel_begin=vel_begin,
+                pos_end=pos_end,
+                vel_end=vel_end,
+            )
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_B)
             # C \
@@ -59,7 +72,14 @@ class planner_block:
             pos_end = pos_begin + self.direction * travel_ramp_down
             vel_begin = segment_B.vel_end
             vel_end = velocity(self.direction * v_end)
-            segment_C = segment(t_begin=t2, t_end=t3, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end)
+            segment_C = segment(
+                t_begin=t2,
+                t_end=t3,
+                pos_begin=pos_begin,
+                pos_end=pos_end,
+                vel_begin=vel_begin,
+                vel_end=vel_end,
+            )
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_C)
 
@@ -74,7 +94,14 @@ class planner_block:
             pos_end = pos_begin + self.direction * travel_ramp_up
             vel_begin = velocity(self.direction * v_begin)
             vel_end = velocity(self.direction * v_peak_tri)
-            segment_A = segment(t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end)
+            segment_A = segment(
+                t_begin=t0,
+                t_end=t1,
+                pos_begin=pos_begin,
+                pos_end=pos_end,
+                vel_begin=vel_begin,
+                vel_end=vel_end,
+            )
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_A)
             # C \
@@ -85,7 +112,14 @@ class planner_block:
             pos_end = pos_begin + self.direction * travel_ramp_down
             vel_begin = segment_A.vel_end
             vel_end = velocity(self.direction * v_end)
-            segment_C = segment(t_begin=t2, t_end=t3, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end)
+            segment_C = segment(
+                t_begin=t2,
+                t_end=t3,
+                pos_begin=pos_begin,
+                pos_end=pos_end,
+                vel_begin=vel_begin,
+                vel_end=vel_end,
+            )
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_C)
 
@@ -100,7 +134,14 @@ class planner_block:
             pos_end = pos_begin + self.direction * travel_ramp_up
             vel_begin = velocity(self.direction * v_begin)
             vel_end = velocity(self.direction * v_end_sing)
-            segment_A = segment(t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end)
+            segment_A = segment(
+                t_begin=t0,
+                t_end=t1,
+                pos_begin=pos_begin,
+                pos_end=pos_end,
+                vel_begin=vel_begin,
+                vel_end=vel_end,
+            )
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_A)
 
@@ -115,7 +156,14 @@ class planner_block:
             pos_end = pos_begin + self.direction * travel_ramp_up
             vel_begin = velocity(self.direction * v_begin_sing)
             vel_end = velocity(self.direction * v_end)
-            segment_C = segment(t_begin=t0, t_end=t1, pos_begin=pos_begin, pos_end=pos_end, vel_begin=vel_begin, vel_end=vel_end)
+            segment_C = segment(
+                t_begin=t0,
+                t_end=t1,
+                pos_begin=pos_begin,
+                pos_end=pos_end,
+                vel_begin=vel_begin,
+                vel_end=vel_end,
+            )
             if pos_end.is_travel(pos_begin) or pos_end.is_extruding(pos_begin, ignore_retract=False):
                 self.segments.append(segment_C)
 
@@ -178,7 +226,10 @@ class planner_block:
                 )
 
         except ValueError as ve:
-            custom_print(f"Segments to state: {self.state_B!s} could not be modeled.\n {ve}", lvl=1)
+            custom_print(
+                f"Segments to state: {self.state_B!s} could not be modeled.\n {ve}",
+                lvl=1,
+            )
             raise RuntimeError() from ve
 
     def self_correction(self, tolerance: float = float("1e-12")) -> None:
@@ -217,7 +268,10 @@ class planner_block:
             for segm in self.segments:
                 segm.self_check(p_settings=self.state_B.state_p_settings)
         except ValueError as ve:
-            custom_print(f"⚠️  Segment modeling travel to \n\t{self.state_B}\ndoes not adhere to machine limits: {ve}", lvl=1)
+            custom_print(
+                f"⚠️  Segment modeling travel to \n\t{self.state_B}\ndoes not adhere to machine limits: {ve}",
+                lvl=1,
+            )
 
         return flag_correct
 

@@ -9,7 +9,6 @@ if TYPE_CHECKING:
 from pyGCodeDecode.utils import segment
 
 
-# new segment class spanned by pos, rest is "result"
 class abstract_result(ABC):
     """Abstract class for result calculation."""
 
@@ -80,7 +79,7 @@ def get_all_result_calculators() -> list["abstract_result"]:
     private_results = []
     # Try to import private results if the module exists
     try:
-        from pyGCodeDecode.private_result import get_private_result_calculators
+        from pyGCodeDecode.private_result import get_private_result_calculators  # type: ignore
 
         private_results = get_private_result_calculators()
     except ImportError:
@@ -93,9 +92,7 @@ def get_all_result_calculators() -> list["abstract_result"]:
 def has_private_results() -> bool | None:
     """Check if private results are available."""
     try:
-        from pyGCodeDecode.private_result import (  # noqa: F401
-            get_private_result_calculators,
-        )
+        from pyGCodeDecode.private_result import get_private_result_calculators  # type: ignore # noqa: F401
 
         return True
     except ImportError:

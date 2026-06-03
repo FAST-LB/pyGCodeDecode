@@ -303,7 +303,12 @@ class position(vector_4D):
         """
         if other is None:
             other = position(0, 0, 0, 0)
-        return np.linalg.norm(np.subtract(self.get_vec(withExtrusion=withExtrusion), other.get_vec(withExtrusion=withExtrusion)))
+        return np.linalg.norm(
+            np.subtract(
+                self.get_vec(withExtrusion=withExtrusion),
+                other.get_vec(withExtrusion=withExtrusion),
+            )
+        )
 
     def __truediv__(self, other: seconds | float | int) -> velocity | vector_4D:
         """Divide position by seconds to get velocity."""
@@ -685,4 +690,11 @@ class segment:
         """
         velocity_0 = velocity(0, 0, 0, 0)
         pos_0 = position(0, 0, 0, 0) if initial_position is None else initial_position
-        return cls(t_begin=0, t_end=0, pos_begin=pos_0, vel_begin=velocity_0, pos_end=pos_0, vel_end=velocity_0)
+        return cls(
+            t_begin=0,
+            t_end=0,
+            pos_begin=pos_0,
+            vel_begin=velocity_0,
+            pos_end=pos_0,
+            vel_end=velocity_0,
+        )

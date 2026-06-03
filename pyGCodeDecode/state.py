@@ -1,6 +1,8 @@
 """State module with state."""
 
-from .utils import position
+from __future__ import annotations
+
+from pyGCodeDecode.utils import position
 
 
 class state:
@@ -9,7 +11,17 @@ class state:
     class p_settings:
         """Store Printing Settings."""
 
-        def __init__(self, p_acc: float, jerk: float, vX: float, vY: float, vZ: float, vE: float, speed: float, units: str = "SI (mm)") -> None:
+        def __init__(
+            self,
+            p_acc: float,
+            jerk: float,
+            vX: float,
+            vY: float,
+            vZ: float,
+            vE: float,
+            speed: float,
+            units: str = "SI (mm)",
+        ) -> None:
             """Initialize printing settings.
 
             Args:
@@ -64,7 +76,7 @@ class state:
         self.pause = None
 
     @property
-    def state_position(self) -> "position | None":
+    def state_position(self) -> position | None:
         """Define property state_position."""
         return self._state_position
 
@@ -73,7 +85,7 @@ class state:
         self._state_position = set_position
 
     @property
-    def state_p_settings(self) -> "p_settings | None":
+    def state_p_settings(self) -> p_settings | None:
         """Define property state_p_settings."""
         return self._state_p_settings
 
@@ -95,14 +107,13 @@ class state:
         """
         self._line_nmbr = nmbr
 
-    # Neighbor list
     @property
-    def next_state(self) -> "state | None":
+    def next_state(self) -> state | None:
         """Define property next_state."""
         return self._next_state
 
     @next_state.setter
-    def next_state(self, state: "state") -> None:
+    def next_state(self, state: state) -> None:
         """Set next state.
 
         Args:
@@ -111,12 +122,12 @@ class state:
         self._next_state = state
 
     @property
-    def prev_state(self) -> "state | None":
+    def prev_state(self) -> state | None:
         """Define property prev_state."""
         return self._prev_state
 
     @prev_state.setter
-    def prev_state(self, state: "state") -> None:
+    def prev_state(self, state: state) -> None:
         """Set previous state.
 
         Args:

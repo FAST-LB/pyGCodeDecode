@@ -9,11 +9,7 @@ import numpy as np
 import pyvista as pv
 from matplotlib.figure import Figure
 
-from pyGCodeDecode.gcode_interpreter import (
-    find_current_segment,
-    simulation,
-    unpack_blocklist,
-)
+from pyGCodeDecode.gcode_interpreter import find_current_segment, simulation, unpack_blocklist
 from pyGCodeDecode.helpers import ProgressBar, custom_print
 
 

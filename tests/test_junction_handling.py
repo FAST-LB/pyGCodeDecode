@@ -9,27 +9,26 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from pyGCodeDecode.gcode_interpreter import generate_planner_blocks
-from pyGCodeDecode.junction_handling import (
-    _get_handler_names,
-    get_handler,
-    junction_handling,
-)
+from pyGCodeDecode.junction_handling import _get_handler_names, get_handler, junction_handling
 from pyGCodeDecode.state import state
 from pyGCodeDecode.state_generator import generate_states
 from pyGCodeDecode.utils import position
-
-# import pandas as pd
 
 
 def _rotate_pos(pos: position, alpha: float) -> np.ndarray:  # 2D Rotation
     alpha_r = math.radians(alpha)
     pos_v = np.array(pos.get_vec()[:2])
-    rot_M = np.array([[math.cos(alpha_r), -math.sin(alpha_r)], [math.sin(alpha_r), math.cos(alpha_r)]])
+    rot_M = np.array(
+        [
+            [math.cos(alpha_r), -math.sin(alpha_r)],
+            [math.sin(alpha_r), math.cos(alpha_r)],
+        ]
+    )
     new_pos = np.matmul(rot_M, pos_v)
     return new_pos
 
 
-def _rotate_state(state: "state", alpha: float = 45) -> "state":
+def _rotate_state(state: state, alpha: float = 45) -> state:
     pos = state.state_position
     new_pos = _rotate_pos(pos, alpha)
     state.state_position = position(new_pos[0], new_pos[1], pos.z, pos.e)
@@ -37,7 +36,7 @@ def _rotate_state(state: "state", alpha: float = 45) -> "state":
     return state
 
 
-def _initialize_dummy_states(p_acc: float, jerk: float, speed: float) -> tuple["state", "state", "state"]:
+def _initialize_dummy_states(p_acc: float, jerk: float, speed: float) -> tuple[state, state, state]:
     settings = state.p_settings(p_acc=p_acc, jerk=jerk, vX=100, vY=100, vZ=100, vE=100, speed=speed)
     stateA = state(state_p_settings=settings)
     stateB = state(state_p_settings=settings)
@@ -75,7 +74,10 @@ def test_junction_handlings() -> None:
 
         firmware_results = []
         for angle in angles:
-            coordXY = [math.cos(math.radians(angle)) * 50 + 50, math.sin(math.radians(angle)) * 50]
+            coordXY = [
+                math.cos(math.radians(angle)) * 50 + 50,
+                math.sin(math.radians(angle)) * 50,
+            ]
             stateC.state_position = position(*coordXY, 0, 0)
             stateC = _rotate_state(stateC, ang)
 
@@ -128,7 +130,10 @@ def test_junction_handlings_rotating_COS() -> None:
         rotated_firmware_results = []
 
         for angle in angles:
-            coordXY = [math.cos(math.radians(angle)) * 50 + 50, math.sin(math.radians(angle)) * 50]
+            coordXY = [
+                math.cos(math.radians(angle)) * 50 + 50,
+                math.sin(math.radians(angle)) * 50,
+            ]
             stateC.state_position = position(*coordXY, 0, 0)
             stateC = _rotate_state(stateC, ang)
 

@@ -2,9 +2,8 @@
 
 from pathlib import Path
 
+from pyGCodeDecode import gcode_interpreter
 from pyGCodeDecode.helpers import custom_print
-
-from . import gcode_interpreter
 
 """
 This script is to convert gcode into an event series as abaqus input
