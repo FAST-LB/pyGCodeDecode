@@ -1,3 +1,10 @@
+workflow:
+    rules:
+        - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+          when: never # Disables the branch pipeline if an MR is open
+        - if: $CI_PIPELINE_SOURCE == "merge_request_event" # Runs the MR pipeline instead
+        - if: $CI_COMMIT_BRANCH
+
 stages:
     - doc
     - test
@@ -26,7 +33,7 @@ test-package:
         - export SAFE_IMAGE_NAME=$(echo "$IMAGE" | tr ':.' '_')
         - pip install .[TEST]
         - pytest --cov=. --cov-config=pyproject.toml --cov-report term
-         --cov-report xml:./tests/coverage_${SAFE_IMAGE_NAME}.xml
+          --cov-report xml:./tests/coverage_${SAFE_IMAGE_NAME}.xml
     coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
     artifacts:
         untracked: false
