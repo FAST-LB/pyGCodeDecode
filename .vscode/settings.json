@@ -2,7 +2,7 @@
     "editor.defaultFormatter": "ms-python.black-formatter",
     "editor.rulers": [
         {
-            "column": 120,
+            "column": 100,
             "color": "#FF0000"
         }
     ],

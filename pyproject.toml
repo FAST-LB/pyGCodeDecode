@@ -26,7 +26,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -34,23 +33,16 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = ["numpy", "matplotlib", "PyYAML", "pyvista"]
 
 [project.optional-dependencies]
 TEST = ["pytest-cov", "pandas"]
-DEVELOPER = [
-    "flake8",
-    "isort",
-    "black[jupyter]",
-    "flake8-docstrings",
-    "pre-commit",
-    "pytest-cov",
-]
+DEVELOPER = ["ruff", "pre-commit", "pytest-cov"]
 DOCS = [
     "mkdocs",
     "pydoc-markdown",
-    # Needs this custom fork to sort modules: git+https://github.com/jeknirsch/pydoc-markdown.git@sort_modules"
+    # Needs this custom fork to sort modules: git+https://github.com/jeknirsch/pydoc-markdown.git@sort_modules
 ]
 
 [project.urls]
@@ -60,14 +52,38 @@ Issues = "https://github.com/FAST-LB/pyGCodeDecode/issues"
 [project.scripts]
 pygcd = "pyGCodeDecode.cli:_main"
 
-[tool.black]
-line-length = 120
-extend-exclude = '''
-^.*\.ipynb$
-'''
+[tool.ruff]
+line-length = 100
+target-version = "py310"
 
-[tool.isort]
-profile = "black"
+[tool.ruff.lint]
+select = [
+    "I",   # isort
+    "F",   # pyflakes
+    "E",   # pydocstyle errors
+    "W",   # pydocstyle warnings
+    "D",   # pydocstyle
+    "UP",  # pyupgrade
+    "RUF", # ruff
+    "ANN", # function annotations
+    "S",   # bandit security linter
+    "NPY", # NumPy
+    "A",   # builtins
+    "C4",  # list comprehensions
+    "ICN", # import conventions
+    "PTH", # pathlib
+    "PD",  # pandas-vet
+    "PLE", # Pylint errors
+    "B",   # bugbear
+    # suggested but unused rulesets:
+    # "N",   # PEP8-naming
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"] # Allow use of assert in tests
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
 
 [tool.coverage.paths]
 source = ["./pyGCodeDecode/"]

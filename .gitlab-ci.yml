@@ -1,3 +1,10 @@
+workflow:
+    rules:
+        - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+          when: never # Disables the branch pipeline if an MR is open
+        - if: $CI_PIPELINE_SOURCE == "merge_request_event" # Runs the MR pipeline instead
+        - if: $CI_COMMIT_BRANCH
+
 stages:
     - doc
     - test
@@ -7,10 +14,9 @@ test-lint:
     image: "python:3.14"
     needs: []
     script:
-        - pip install isort black[jupyter] flake8-docstrings
-        - isort --check . -v
-        - black --check */ -v
-        - flake8 . -v
+        - pip install ruff
+        - ruff check .
+        - ruff format --check .
     when: always
 
 test-package:
@@ -18,22 +24,23 @@ test-package:
     needs: []
     parallel:
         matrix:
-            - IMAGE: ["python:3.9", "python:3.10", "python:3.14"]
+            - IMAGE: ["python:3.10", "python:3.14"]
     image: $IMAGE
     before_script:
         # missing dependencies for pyvista
         - apt-get update && apt-get install libgl1 -y
     script:
+        - export SAFE_IMAGE_NAME=$(echo "$IMAGE" | tr ':.' '_')
         - pip install .[TEST]
         - pytest --cov=. --cov-config=pyproject.toml --cov-report term
-          --cov-report xml:./tests/coverage.xml
+          --cov-report xml:./tests/coverage_${SAFE_IMAGE_NAME}.xml
     coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
     artifacts:
         untracked: false
         reports:
             coverage_report:
                 coverage_format: cobertura
-                path: ./tests/coverage.xml
+                path: ./tests/coverage_*.xml
         when: always
 
 doc-build:
@@ -68,6 +75,7 @@ doc-compile_paper:
     needs: []
     rules:
         - when: manual
+    allow_failure: true
     tags:
         - shell
     script:

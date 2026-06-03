@@ -3,7 +3,7 @@
 import pathlib
 
 
-def test_setup():
+def test_setup() -> None:
     """Test for the simulation setup class."""
     from pyGCodeDecode.gcode_interpreter import setup
 
@@ -43,12 +43,14 @@ def test_setup():
     assert sim_dict["E"] == 4
 
 
-def test_setup_extended():
+def test_setup_extended() -> None:
     """Test for the simulation setup class."""
     from pyGCodeDecode.gcode_interpreter import setup
 
     # test for specific printer is selected
-    simulation_setup = setup(presets_file=pathlib.Path("./tests/data/test_printer_setups.yaml"), printer="test")
+    simulation_setup = setup(
+        presets_file=pathlib.Path("./tests/data/test_printer_setups.yaml"), printer="test"
+    )
     assert simulation_setup.printer == "test"
     assert simulation_setup.firmware == "junction_deviation"
 
@@ -57,7 +59,7 @@ def test_setup_extended():
         simulation_setup = setup(
             presets_file=pathlib.Path("./tests/data/test_printer_setups.yaml"),
         )
-        assert False, "Expected ValueError was not raised."
+        raise AssertionError("Expected ValueError was not raised.")
     except ValueError as e:
         assert str(e) == "Multiple printers found but none has been selected."
 
@@ -115,7 +117,7 @@ def test_setup_extended():
     assert sim_dict["E"] == 4
 
 
-def test_simulation_class():
+def test_simulation_class() -> None:
     """Test for simulation class."""
     from pyGCodeDecode.gcode_interpreter import setup, simulation
 

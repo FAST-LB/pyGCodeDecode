@@ -5,7 +5,7 @@ import numpy as np
 from pyGCodeDecode.utils import acceleration, position, seconds, velocity
 
 
-def test_4d_vectors():
+def test_4d_vectors() -> None:
     """Test the 4d vector functions."""
     pos1 = position(1, 2, 3, 4)
     pos2 = position(4, 5, 6, 7)

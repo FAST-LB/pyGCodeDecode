@@ -1,5 +1,6 @@
 """Result calculation for segments and planner blocks."""
 
+import importlib.util
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
@@ -9,23 +10,22 @@ if TYPE_CHECKING:
 from pyGCodeDecode.utils import segment
 
 
-# new segment class spanned by pos, rest is "result"
 class abstract_result(ABC):
     """Abstract class for result calculation."""
 
     @property
     @abstractmethod
-    def name(self):
+    def name(self) -> str:
         """Name of the result. Has to be set in the derived class."""
         pass
 
     @abstractmethod
-    def calc_pblock(self, pblock: "planner_block", **kwargs):
+    def calc_pblock(self, pblock: "planner_block", **kwargs: object) -> None:
         """Calculate the result for a planner block."""
         pass
 
     @abstractmethod
-    def calc_segm(self, segm: "segment", **kwargs):
+    def calc_segm(self, segm: "segment", **kwargs: object) -> None:
         """Calculate the result for a segment."""
         pass
 
@@ -35,7 +35,7 @@ class acceleration_result(abstract_result):
 
     name = "acceleration"
 
-    def calc_segm(self, segm: "segment", **kwargs):
+    def calc_segm(self, segm: "segment", **kwargs: object) -> None:
         """Calculate the acceleration for a segment."""
         delta_v = segm.vel_end.get_norm() - segm.vel_begin.get_norm()
         delta_t = segm.get_segm_duration()
@@ -46,7 +46,7 @@ class acceleration_result(abstract_result):
             acc = 0
         segm.result[self.name] = acc
 
-    def calc_pblock(self, pblock, **kwargs):
+    def calc_pblock(self, pblock: "planner_block", **kwargs: object) -> None:
         """Calculate the acceleration for a planner block."""
         for segm in pblock.segments:
             self.calc_segm(segm, **kwargs)
@@ -57,20 +57,20 @@ class velocity_result(abstract_result):
 
     name = "velocity"
 
-    def calc_segm(self, segm: "segment", **kwargs):
+    def calc_segm(self, segm: "segment", **kwargs: object) -> None:
         """Calculate the velocity for a segment."""
         segm.result[self.name] = [
             segm.vel_begin.get_norm(),
             segm.vel_end.get_norm(),
         ]
 
-    def calc_pblock(self, pblock: "planner_block", **kwargs):
+    def calc_pblock(self, pblock: "planner_block", **kwargs: object) -> None:
         """Calculate the velocity for a planner block."""
         for segm in pblock.segments:
             self.calc_segm(segm, **kwargs)
 
 
-def get_all_result_calculators():
+def get_all_result_calculators() -> list["abstract_result"]:
     """Get all results."""
     public_results = [
         acceleration_result(),
@@ -80,7 +80,7 @@ def get_all_result_calculators():
     private_results = []
     # Try to import private results if the module exists
     try:
-        from pyGCodeDecode.private_result import get_private_result_calculators
+        from pyGCodeDecode.private_result import get_private_result_calculators  # type: ignore
 
         private_results = get_private_result_calculators()
     except ImportError:
@@ -90,19 +90,13 @@ def get_all_result_calculators():
     return public_results + private_results
 
 
-def has_private_results():
+def has_private_results() -> bool | None:
     """Check if private results are available."""
-    try:
-        from pyGCodeDecode.private_result import (  # noqa: F401
-            get_private_result_calculators,
-        )
-
-        return True
-    except ImportError:
-        return False
+    spec = importlib.util.find_spec("pyGCodeDecode.private_result")
+    return spec is not None
 
 
-def get_result_info():
+def get_result_info() -> dict:
     """Get information about available result calculators."""
     all_calcs = get_all_result_calculators()
     public_count = 2  # acceleration_result and velocity_result

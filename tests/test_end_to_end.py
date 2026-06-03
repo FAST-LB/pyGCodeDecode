@@ -1,5 +1,7 @@
 """End to end test for the package."""
 
+from __future__ import annotations
+
 import pathlib
 
 import numpy as np
@@ -7,7 +9,7 @@ import numpy as np
 from pyGCodeDecode.plotter import plot_vel
 
 
-def test_end_to_end_compact():
+def test_end_to_end_compact() -> None:
     """Testing the simulation functionality with automatic setup, similarly to the brace example."""
     from pyGCodeDecode.gcode_interpreter import simulation
 
@@ -17,8 +19,8 @@ def test_end_to_end_compact():
     )
 
 
-def test_end_to_end_volumetr():
-    """Testing the simulation functionality with automatic setup, using volumetric or distance based extrusion."""
+def test_end_to_end_volumetr() -> None:
+    """Testing the simulation functionality using volumetric or distance based extrusion."""
     from pyGCodeDecode.gcode_interpreter import setup, simulation
 
     preset = setup(pathlib.Path("./tests/data/test_printer_setups.yaml"), "test")
@@ -31,9 +33,9 @@ def test_end_to_end_volumetr():
 
     end_extrusion = sim.blocklist[-1].segments[-1].pos_end.e
     expected_extrusion = 14.0
-    assert np.isclose(
-        end_extrusion, expected_extrusion, rtol=1e-4
-    ), f"Expected {expected_extrusion}, but got {end_extrusion}"
+    assert np.isclose(end_extrusion, expected_extrusion, rtol=1e-4), (
+        f"Expected {expected_extrusion}, but got {end_extrusion}"
+    )
     preset = setup(pathlib.Path("./tests/data/test_printer_setups.yaml"), "test")
     preset.set_property({"volumetric_extrusion": True})
 
@@ -45,13 +47,13 @@ def test_end_to_end_volumetr():
     end_extrusion = sim.blocklist[-1].segments[-1].pos_end.e
     expected_extrusion = 14.0 / ((1.75 / 2) ** 2 * np.pi)
 
-    assert np.isclose(
-        end_extrusion, expected_extrusion, rtol=1e-4
-    ), f"Expected {expected_extrusion}, but got {end_extrusion}"
+    assert np.isclose(end_extrusion, expected_extrusion, rtol=1e-4), (
+        f"Expected {expected_extrusion}, but got {end_extrusion}"
+    )
 
 
-def test_end_to_end_extensive():
-    """Testing the simulation functionality as well as the various outputs, similarly to the benchy example."""
+def test_end_to_end_extensive() -> None:
+    """Testing the simulation functionality as well as the various outputs."""
     from pyGCodeDecode.abaqus_file_generator import generate_abaqus_event_series
     from pyGCodeDecode.gcode_interpreter import setup, simulation
     from pyGCodeDecode.plotter import plot_2d, plot_3d
@@ -122,7 +124,6 @@ def test_end_to_end_extensive():
         show=False,
         filepath=output_dir / "test_end_to_end_2d.png",
     )
-    # end_to_end_simulation.plot_2d_position(filepath=output_dir / "test_end_to_end_2d.png", show=False)
 
     # plotting velocities with matplotlib
     plot_vel(

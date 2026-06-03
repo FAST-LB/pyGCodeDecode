@@ -1,14 +1,13 @@
 """State generator module."""
 
 import math
-import pathlib
 import re
-from typing import List, Match
+from pathlib import Path
+from re import Match
 
 from pyGCodeDecode.helpers import ProgressBar, custom_print
-
-from .state import state
-from .utils import position
+from pyGCodeDecode.state import state
+from pyGCodeDecode.utils import position
 
 supported_commands = {
     "G0": {"E": None, "X": None, "Y": None, "Z": None, "F": None},  # non Extrusion Move
@@ -52,7 +51,14 @@ unsupported_commands = {
     },  # counter-clockwise arc move,
     "G10": {"S": None},  # read only
     "G11": None,  # read only
-    "G28": {"L": None, "O": None, "R": None, "X": None, "Y": None, "Z": None},  # home all axes
+    "G28": {
+        "L": None,
+        "O": None,
+        "R": None,
+        "X": None,
+        "Y": None,
+        "Z": None,
+    },  # home all axes
     "G29": {
         "A": None,
         "B": None,
@@ -117,8 +123,8 @@ def _arg_extract(string: str, key_dict: dict) -> dict:
         dict: (dict) dictionary with all found keys and their arguments
 
     """
-    arg_dict = dict()  # dict to store found arguments for each key
-    matches: List[Match] = list()  # list to store matching keywords
+    arg_dict = {}  # dict to store found arguments for each key
+    matches: list[Match] = []  # list to store matching keywords
     string = str(string)  # typecasting to prevent TypeError
 
     for key in key_dict.keys():  # look for each key in the dictionary
@@ -141,7 +147,7 @@ def _arg_extract(string: str, key_dict: dict) -> dict:
         filter(lambda x: x >= num, lst), default=len(string)
     )  # function to find next largest occurrence in list, default to eol
     comment_begin = min(
-        [start.start() for start in list(filter(lambda x: x.group() == ";", [match for match in matches]))],
+        [start.start() for start in list(filter(lambda x: x.group() == ";", list(matches)))],
         default=len(string),
     )  # find first comment, default to eol
 
@@ -150,7 +156,9 @@ def _arg_extract(string: str, key_dict: dict) -> dict:
         key = match.group()  # get key from match
         arg = None
 
-        match_next_start = next_larger(match_start_list, match_end)  # find arg end by using beginning of next arg
+        match_next_start = next_larger(
+            match_start_list, match_end
+        )  # find arg end by using beginning of next arg
         if key != ";":
             arg = string[match_end:match_next_start]  # slice string
             arg = arg.replace(" ", "")  # remove spaces if argument is not a comment
@@ -161,7 +169,9 @@ def _arg_extract(string: str, key_dict: dict) -> dict:
             except ValueError:
                 pass
         else:
-            arg = string[match_end:]  # special case for comments where everything coming after match is arg
+            arg = string[
+                match_end:
+            ]  # special case for comments where everything coming after match is arg
 
         if key_dict[key] is not None:  # check for nested commands
             arg = _arg_extract(arg, key_dict[key])  # call _arg_extract through recursion
@@ -173,7 +183,7 @@ def _arg_extract(string: str, key_dict: dict) -> dict:
     return arg_dict
 
 
-def _read_gcode_to_dict_list(filepath: pathlib.Path) -> List[dict]:
+def _read_gcode_to_dict_list(filepath: Path) -> list[dict]:
     """
     Read gcode from .gcode file.
 
@@ -186,14 +196,14 @@ def _read_gcode_to_dict_list(filepath: pathlib.Path) -> List[dict]:
     dict_list = []
 
     # First pass to count total lines
-    with open(file=filepath) as file_gcode:
+    with filepath.open() as file_gcode:
         total_lines = sum(1 for _ in file_gcode)
 
     # Initialize progress bar with the total number of lines
     progress_bar = ProgressBar(name=f"Parsing {total_lines} lines of {filepath.name}")
 
     # Second pass to process the lines
-    with open(file=filepath) as file_gcode:
+    with filepath.open() as file_gcode:
         for i, line in enumerate(file_gcode):
             line_dict = _arg_extract(string=line, key_dict=known_commands)
             line_dict["line_number"] = i + 1
@@ -208,13 +218,14 @@ def _read_gcode_to_dict_list(filepath: pathlib.Path) -> List[dict]:
     return dict_list
 
 
-def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict) -> List[state]:
+def _dict_list_traveler(line_dict_list: list[dict], initial_machine_setup: dict) -> list[state]:
     """
     Convert the line dictionary to a state.
 
     Args:
         line_dict_list: (dict) dict list with commands
-        initial_machine_setup: (dict) dict with initial machine setup [absolute_position, absolute_extrusion, units, initial_position...]
+        initial_machine_setup: (dict) dict with initial machine setup
+            [absolute_position, absolute_extrusion, units, initial_position...]
 
     Returns:
         state_list: (list[state]) all states in a list
@@ -232,7 +243,11 @@ def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict)
     def apply_pos_offset(virtual_machine: dict) -> list[float]:
         pos = []
         for key in ax_keys:
-            pos.append(virtual_machine[key] + virtual_machine[f"_{key}"] if virtual_machine[key] is not None else None)
+            pos.append(
+                virtual_machine[key] + virtual_machine[f"_{key}"]
+                if virtual_machine[key] is not None
+                else None
+            )
         return pos
 
     def apply_extrusion(line_dict: dict, virtual_machine: dict, command: str) -> dict:
@@ -252,10 +267,10 @@ def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict)
 
         return virtual_machine
 
-    state_list: List[state] = list()
+    state_list: list[state] = []
 
     pos_keys = ["X", "Y", "Z"]
-    ax_keys = pos_keys + ["E"]  # add E for extrusion
+    ax_keys = [*pos_keys, "E"]  # add E for extrusion
 
     virtual_machine = {
         "X": 0,  # machine coordinates
@@ -285,7 +300,7 @@ def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict)
             virtual_machine[key] = default_virtual_machine[key]
 
     # create initial state only with initial position
-    if not any([virtual_machine[poskey] is None for poskey in pos_keys]):
+    if not any(virtual_machine[poskey] is None for poskey in pos_keys):
         # initial state creation
         state_position = position(apply_pos_offset(virtual_machine))
 
@@ -298,7 +313,9 @@ def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict)
             vZ=virtual_machine["vZ"],
             vE=virtual_machine["vE"],
         )
-        new_state = state(state_position=state_position, state_p_settings=p_settings)  # create new state
+        new_state = state(
+            state_position=state_position, state_p_settings=p_settings
+        )  # create new state
 
         # add initial state comment
         new_state.comment = "Initial state created by pyGCD."
@@ -340,9 +357,13 @@ def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict)
                         # relative movement
                         else:
                             if is_position_fully_defined(virtual_machine):
-                                virtual_machine[key] = virtual_machine[key] + line_dict[command][key]
+                                virtual_machine[key] = (
+                                    virtual_machine[key] + line_dict[command][key]
+                                )
                             else:
-                                raise ValueError("Position is not fully defined, cannot apply relative movement.")
+                                raise ValueError(
+                                    "Position is not fully defined, cannot apply relative movement."
+                                )
                 # look for extrusion commands and apply abs/rel
                 if "E" in line_dict[command]:
                     virtual_machine = apply_extrusion(line_dict, virtual_machine, command)
@@ -385,7 +406,9 @@ def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict)
                 pause_duration = line_dict["G4"]["S"]
 
         # Ensure all axes are defined if any position is set
-        if any(virtual_machine[key] is not None for key in ax_keys) and not is_position_fully_defined(virtual_machine):
+        if any(
+            virtual_machine[key] is not None for key in ax_keys
+        ) and not is_position_fully_defined(virtual_machine):
             virtual_machine.update({key: virtual_machine.get(key, 0) or 0 for key in ax_keys})
             custom_print(
                 "Implicit zero position assumed for axes: '"
@@ -411,14 +434,19 @@ def _dict_list_traveler(line_dict_list: List[dict], initial_machine_setup: dict)
             vE=virtual_machine["vE"],
             units=virtual_machine["units"],
         )
-        new_state = state(state_position=state_position, state_p_settings=p_settings)  # create new state
+        new_state = state(
+            state_position=state_position, state_p_settings=p_settings
+        )  # create new state
 
         # parse comment
         new_state.comment = line_dict[";"].strip() if ";" in line_dict else None
 
         # if layer cue is requested, count and add layers
         if "layer_cue" in initial_machine_setup:
-            if new_state.comment is not None and initial_machine_setup["layer_cue"] == new_state.comment:
+            if (
+                new_state.comment is not None
+                and initial_machine_setup["layer_cue"] == new_state.comment
+            ):
                 layer_counter += 1
             new_state.layer = layer_counter
 
@@ -458,18 +486,23 @@ def _check_for_unsupported_commands(line_dict_list: dict) -> dict:
     }
 
     if unsupported_commands_found != []:
-        commands_str = ", ".join([f"'{key}' ({value} time(s))" for key, value in unsupported_command_counts.items()])
+        commands_str = ", ".join(
+            [f"'{key}' ({value} time(s))" for key, value in unsupported_command_counts.items()]
+        )
         custom_print(
-            f"⚠️  {len(unsupported_command_counts.keys())} known but unsupported command(s) found: {commands_str}",
+            f"⚠️  {len(unsupported_command_counts.keys())} known but "
+            f"unsupported command(s) found: {commands_str}",
             lvl=1,
         )
     else:
-        custom_print("Great, the G-code does not contain any unsupported commands known to pyGCD 🎈.")
+        custom_print(
+            "Great, the G-code does not contain any unsupported commands known to pyGCD 🎈."
+        )
 
     return unsupported_command_counts
 
 
-def generate_states(filepath: pathlib.Path, initial_machine_setup: dict) -> List[state]:
+def generate_states(filepath: Path, initial_machine_setup: dict) -> list[state]:
     """Generate state list from GCode file.
 
     Args:
@@ -481,6 +514,8 @@ def generate_states(filepath: pathlib.Path, initial_machine_setup: dict) -> List
     """
     line_dict_list = _read_gcode_to_dict_list(filepath=filepath)
     _check_for_unsupported_commands(line_dict_list=line_dict_list)
-    states = _dict_list_traveler(line_dict_list=line_dict_list, initial_machine_setup=initial_machine_setup)
+    states = _dict_list_traveler(
+        line_dict_list=line_dict_list, initial_machine_setup=initial_machine_setup
+    )
 
     return states

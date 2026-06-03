@@ -1,7 +1,6 @@
 """Helper functions."""
 
 import sys
-from typing import Optional
 
 # global flags
 # check if program is running in ABAQUS-Python
@@ -31,7 +30,7 @@ _levels = {
 }
 
 
-def set_verbosity_level(level: Optional[int]) -> None:
+def set_verbosity_level(level: int | None) -> None:
     """Set the global verbosity level."""
     global VERBOSITY_LEVEL
     if level is not None:
@@ -43,8 +42,8 @@ def get_verbosity_level() -> int:
     return VERBOSITY_LEVEL
 
 
-def custom_print(*args, lvl=2, **kwargs) -> None:
-    """Sanitize outputs for ABAQUS and print them if the log level is high enough. Takes all arguments for print.
+def custom_print(*args: object, lvl: int = 2, **kwargs: object) -> None:
+    """Sanitize outputs for ABAQUS and print them if the log level is high enough.
 
     Args:
         *args: arguments to be printed
@@ -99,7 +98,7 @@ def custom_print(*args, lvl=2, **kwargs) -> None:
 class ProgressBar:
     """A simple progress bar for the console."""
 
-    def __init__(self, name: str = "Percent", barLength: int = 4, verbosity_level: int = 2):
+    def __init__(self, name: str = "Percent", barLength: int = 4, verbosity_level: int = 2) -> None:
         """Initialize a progress bar."""
         self.name = name
         self.barLength = barLength
@@ -119,7 +118,7 @@ class ProgressBar:
         """Display or update a console progress bar.
 
         Args:
-            progress: float between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
+            progress: float between 0 and 1, < 0 represents a 'halt', > 1 represents 100%
         """
         global _active_progress_bar
 
@@ -151,10 +150,10 @@ class ProgressBar:
             if self.last_progress_update != progress_percent or status != "":
                 block = int(round(barLength * progress, ndigits=0))
                 if progress < 1.0:
-                    text = f"\r[{'#' * block + '-' * (barLength - block)}] {progress_percent} % of {self.name} {status}"
+                    text = f"\r[{'#' * block + '-' * (barLength - block)}] "
+                    f"{progress_percent} % of {self.name} {status}"
                 else:
                     text = f"\r{_levels.get(self.verbosity_level, '')} ✅ Done with {self.name}"
-                    # text = f"\r[{'#' * block + '-' * (barLength - block)}] ✅ Done with {self.name}"
                 self.last_text = text
                 sys.stdout.write(text)
                 sys.stdout.flush()

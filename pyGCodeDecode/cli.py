@@ -30,7 +30,7 @@ from pyGCodeDecode.plotter import plot_3d
 from pyGCodeDecode.tools import save_layer_metrics
 
 
-def _run_example(args: argparse.Namespace):
+def _run_example(args: argparse.Namespace) -> None:
     """Generate a plot from a GCode file."""
     if args.example == "brace":
         brace_example()
@@ -38,7 +38,7 @@ def _run_example(args: argparse.Namespace):
         benchy_example()
 
 
-def _plot(args: argparse.Namespace):
+def _plot(args: argparse.Namespace) -> None:
     """Generate a plot from a GCode file."""
 
     def _find_gcode_file(specified_path: pathlib.Path | None) -> pathlib.Path:
@@ -47,17 +47,23 @@ def _plot(args: argparse.Namespace):
             g_code_file = specified_path
         elif specified_path is not None:
             custom_print(
-                f"❌ The specified G-code:\n{specified_path.resolve()}\nis not valid.\n" "🛑 Exiting the program.",
+                f"❌ The specified G-code:\n{specified_path.resolve()}\nis not valid."
+                "\n🛑 Exiting the program.",
                 lvl=1,
             )
             exit()
         else:
             custom_print(
-                "⚠️  No G-code file specified. Looking for a G-code file in the current directory... 👀", lvl=1
+                "⚠️  No G-code file specified. Looking for a G-code file"
+                " in the current directory... 👀",
+                lvl=1,
             )
             files_list = list(pathlib.Path.cwd().glob("*.gcode"))
             if files_list.__len__() == 0:
-                custom_print("❌ No G-code file found in the current directory.\n" "🛑 Exiting the program.", lvl=1)
+                custom_print(
+                    "❌ No G-code file found in the current directory.\n🛑 Exiting the program.",
+                    lvl=1,
+                )
                 exit()
             elif files_list.__len__() == 1:
                 g_code_file = files_list[0]
@@ -74,11 +80,16 @@ def _plot(args: argparse.Namespace):
     def _get_presets_file(presets_file: pathlib.Path | None) -> pathlib.Path:
         """Get the machine setup from the presets file."""
         if presets_file is None:
-            custom_print("⚠️  No presets file specified. Using the default presets shipped with pyGCD.")
-            presets_file = importlib.resources.files("pyGCodeDecode").joinpath("data/default_printer_presets.yaml")
+            custom_print(
+                "⚠️  No presets file specified. Using the default presets shipped with pyGCD."
+            )
+            presets_file = importlib.resources.files("pyGCodeDecode").joinpath(
+                "data/default_printer_presets.yaml"
+            )
         elif not presets_file.is_file():
             custom_print(
-                f"❌ The specified presets file:\n{presets_file.resolve()}\nis not valid.\n" "🛑 Exiting the program.",
+                f"❌ The specified presets file:\n{presets_file.resolve()}\n"
+                "is not valid.\n🛑 Exiting the program.",
                 lvl=1,
             )
             exit()
@@ -93,7 +104,8 @@ def _plot(args: argparse.Namespace):
             answer = ""
             while answer.lower() not in ("y", "yes", "n", "no"):
                 answer = input(
-                    "⚠️  No output directory specified! Do you want to create one in the current working directory?"
+                    "⚠️  No output directory specified! Do you want to create "
+                    "one in the current working directory?"
                     "\nOtherwise no outputs will be saved!"
                     "\nYou must answer with yes (y) or no (n)!\n"
                 )
@@ -156,7 +168,7 @@ def _plot(args: argparse.Namespace):
     plot_3d(sim, mesh=mesh)
 
 
-def _main(args=None):
+def _main(args: list | None = None) -> None:
     """Entry point function for the command-line interface (CLI)."""
     global_parser = argparse.ArgumentParser(
         prog="pygcd",
@@ -193,7 +205,8 @@ def _main(args=None):
         "--gcode",
         action="store",
         nargs="?",
-        help="The path to the G-code file. Looks for a G-code file in the current directory if not specified.",
+        help="The path to the G-code file. Looks for a G-code file in the "
+        "current directory if not specified.",
         default=None,
         type=pathlib.Path,
         metavar="<PATH>",
@@ -211,7 +224,8 @@ def _main(args=None):
         "-pn",
         "--printer_name",
         action="store",
-        help="The name of the printer as specified in the presets file or the defaults if no presets were specified",
+        help="The name of the printer as specified in the presets file or the "
+        "defaults if no presets were specified",
         default=None,
         type=str,
         metavar="<NAME>",

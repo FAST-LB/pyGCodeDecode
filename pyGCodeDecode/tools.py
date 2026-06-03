@@ -1,8 +1,7 @@
 """Tools for pyGCD."""
 
 import locale as loc
-import pathlib
-from typing import Optional
+from pathlib import Path
 
 import numpy as np
 import yaml
@@ -13,24 +12,31 @@ from pyGCodeDecode.helpers import custom_print
 
 def save_layer_metrics(
     simulation: simulation,
-    filepath: Optional[pathlib.Path] = pathlib.Path("./layer_metrics.csv"),
-    locale: str = None,
+    filepath: Path | None = Path("./layer_metrics.csv"),
+    locale: str | None = None,
     delimiter: str = ";",
-) -> Optional[tuple[list, list, list, list]]:
+) -> tuple[list, list, list, list] | None:
     """Print out print times, distance traveled and the average travel speed to a csv-file.
 
     Args:
         simulation: (simulation) simulation instance
         filepath: (Path , default = "./layer_metrics.csv") file name
-        locale: (string, default = None) select locale settings, e.g. "en_US.utf8", None = use system locale
+        locale: (string, default = None) select locale settings,
+            e.g. "en_US.utf8", None = use system locale
         delimiter: (string, default = ";") select delimiter
 
     Layers are detected using the given layer cue.
     """
+    # convert filepath to Path if it is a string
+    if isinstance(filepath, str):
+        filepath = Path(filepath)
+
     # check if a layer cue was specified
     if "layer_cue" not in simulation.initial_machine_setup_dict:
         custom_print(
-            "⚠️  No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!", lvl=1
+            "⚠️  No layer_cue was specified in the simulation setup. "
+            "Therefore, layer metrics can not be saved!",
+            lvl=1,
         )
         return None
 
@@ -82,9 +88,10 @@ def save_layer_metrics(
     # write the layer info to a csv if a filepath is given
     if filepath is not None:
         # create directory if necessary
-        pathlib.Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+        Path(filepath).parent.mkdir(parents=True, exist_ok=True)
 
-        header = f"layer{delimiter} layer time in s{delimiter} travel distance in mm{delimiter} avg speed in mm/s"
+        header = f"layer{delimiter} layer time in s{delimiter} travel distance "
+        f"in mm{delimiter} avg speed in mm/s"
         data = np.array([layers, durations, travel_distances, avg_speeds], dtype=object).T
         np.savetxt(
             fname=filepath,
@@ -105,8 +112,8 @@ def write_submodel_times(
     sub_side_x_len: float,
     sub_side_y_len: float,
     sub_side_z_len: float,
-    filename: Optional[pathlib.Path] = pathlib.Path("submodel_times.yaml"),
-    **kwargs,
+    filename: Path | None = Path("submodel_times.yaml"),
+    **kwargs: object,
 ) -> dict:
     """Write the submodel entry and exit times to a yaml file.
 
@@ -114,19 +121,24 @@ def write_submodel_times(
         simulation: (simulation) the simulation instance to analyze
         sub_orig: (list with [xcoord, ycoord, zcoord]) the origin of the submodel control volume
         sub_side_len: (float) the side length of the submodel control volume
-        filename: (string) yaml filename
+        filename: (string or Path) yaml filename
         **kwargs: (any) provide additional info to write into the yaml file
     """
+    # convert filename to Path if it is a string
+    if isinstance(filename, str):
+        filename = Path(filename)
 
     class cube:
-        def __init__(self, origin, side_x_len, side_y_len, side_z_len) -> None:
+        def __init__(
+            self, origin: list, side_x_len: float, side_y_len: float, side_z_len: float
+        ) -> None:
             """Define a cube with origin and side length. Cube is axis aligned."""
             self.origin = origin
             self.side_x_len = side_x_len
             self.side_y_len = side_y_len
             self.side_z_len = side_z_len
 
-        def get_plane_lim(self):
+        def get_plane_lim(self) -> list:
             return [
                 [
                     self.origin[0] + self.side_x_len / 2,
@@ -142,7 +154,7 @@ def write_submodel_times(
                 ],
             ]
 
-        def get_plane_normals(self):
+        def get_plane_normals(self) -> list:
             """Create Plane normals."""
             X_pos = [1, 0, 0]
             X_neg = [-1, 0, 0]
@@ -155,7 +167,7 @@ def write_submodel_times(
 
             return [X_pos, X_neg, Y_pos, Y_neg, Z_pos, Z_neg]
 
-        def get_plane_orig(self):
+        def get_plane_orig(self) -> list:
             """Create Plane origins."""
             X_pos = [self.origin[0] + self.side_x_len / 2, 0, 0]
             X_neg = [self.origin[0] - self.side_x_len / 2, 0, 0]
@@ -168,9 +180,9 @@ def write_submodel_times(
 
             return [X_pos, X_neg, Y_pos, Y_neg, Z_pos, Z_neg]
 
-    def _point_eval(point, pl_lim):
+    def _point_eval(point: list, pl_lim: list) -> list:
         p_eval = []
-        for lim_n, p_n in zip(pl_lim, point):
+        for lim_n, p_n in zip(pl_lim, point, strict=True):
             inters_pl = [
                 p_n <= lim_n[0],
                 p_n >= lim_n[1],
@@ -178,12 +190,12 @@ def write_submodel_times(
             p_eval.append(inters_pl)
         return p_eval
 
-    def _point_inside(p_eval):
-        return all([all(p_ev_ax) for p_ev_ax in p_eval])
+    def _point_inside(p_eval: list) -> bool:
+        return all(all(p_ev_ax) for p_ev_ax in p_eval)
 
-    def _intersect_possible(p_eval0, p_eval1):
+    def _intersect_possible(p_eval0: list, p_eval1: list) -> bool:
         possible = False
-        for ax_eval0, ax_eval1 in zip(p_eval0, p_eval1):
+        for ax_eval0, ax_eval1 in zip(p_eval0, p_eval1, strict=True):
             if ax_eval0 != ax_eval1:
                 # crossing
                 possible = True  # if one axis crosses any plane, intersection is possible
@@ -196,7 +208,9 @@ def write_submodel_times(
 
         return possible
 
-    def _isect_line_plane(p0, p1, p_co, p_no, epsilon=1e-6):
+    def _isect_line_plane(
+        p0: list, p1: list, p_co: list, p_no: list, epsilon: float = 1e-6
+    ) -> np.ndarray | None:
         """Return a Vector or None (when the intersection can't be found).
 
         p0, p1: Define the line.
@@ -239,11 +253,17 @@ def write_submodel_times(
     timetable = []
 
     for block in simulation.blocklist:
-        p_eval_A = _point_eval(block.state_A.state_position.get_vec(), control_volume.get_plane_lim())
-        p_eval_B = _point_eval(block.state_B.state_position.get_vec(), control_volume.get_plane_lim())
+        p_eval_A = _point_eval(
+            block.state_A.state_position.get_vec(), control_volume.get_plane_lim()
+        )
+        p_eval_B = _point_eval(
+            block.state_B.state_position.get_vec(), control_volume.get_plane_lim()
+        )
 
         if _intersect_possible(p_eval0=p_eval_A, p_eval1=p_eval_B):
-            for plane_orig, plane_normal in zip(control_volume.get_plane_orig(), control_volume.get_plane_normals()):
+            for plane_orig, plane_normal in zip(
+                control_volume.get_plane_orig(), control_volume.get_plane_normals(), strict=True
+            ):
                 isec, s_len, sgn = _isect_line_plane(
                     p0=block.state_A.state_position.get_vec(),
                     p1=block.state_B.state_position.get_vec(),
@@ -251,14 +271,20 @@ def write_submodel_times(
                     p_no=plane_normal,
                 )
 
-                if isec is not None and _point_inside(p_eval=_point_eval(isec, control_volume.get_plane_lim())):
+                if isec is not None and _point_inside(
+                    p_eval=_point_eval(isec, control_volume.get_plane_lim())
+                ):
                     timetable.append([float(block.inverse_time_at_pos(s_len)), sgn])
 
     timetable = np.asarray(timetable)  # convert list to array for sorting
     timetable = timetable[timetable[:, 0].argsort()]  # sort array by first column
 
-    time_in = timetable[:, 0][np.asarray(timetable[:, 1], dtype=bool)]  # filter the data for entering the CV
-    time_out = timetable[:, 0][~np.asarray(timetable[:, 1], dtype=bool)]  # filter the data for exiting the CV
+    time_in = timetable[:, 0][
+        np.asarray(timetable[:, 1], dtype=bool)
+    ]  # filter the data for entering the CV
+    time_out = timetable[:, 0][
+        ~np.asarray(timetable[:, 1], dtype=bool)
+    ]  # filter the data for exiting the CV
 
     result = {
         **kwargs,  # add all kwargs to the result
@@ -269,7 +295,7 @@ def write_submodel_times(
     }
 
     if filename is not None:
-        with open(filename, "w") as file:
+        with filename.open("w") as file:
             yaml.dump(result, file)
 
     return result

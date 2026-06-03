@@ -2,35 +2,33 @@
 
 import copy
 import math
-import os
-import pathlib
 import sys
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 from pyGCodeDecode.gcode_interpreter import generate_planner_blocks
-from pyGCodeDecode.junction_handling import (
-    _get_handler_names,
-    get_handler,
-    junction_handling,
-)
+from pyGCodeDecode.junction_handling import _get_handler_names, get_handler, junction_handling
 from pyGCodeDecode.state import state
 from pyGCodeDecode.state_generator import generate_states
 from pyGCodeDecode.utils import position
 
-# import pandas as pd
 
-
-def _rotate_pos(pos: position, alpha):  # 2D Rotation
+def _rotate_pos(pos: position, alpha: float) -> np.ndarray:  # 2D Rotation
     alpha_r = math.radians(alpha)
     pos_v = np.array(pos.get_vec()[:2])
-    rot_M = np.array([[math.cos(alpha_r), -math.sin(alpha_r)], [math.sin(alpha_r), math.cos(alpha_r)]])
+    rot_M = np.array(
+        [
+            [math.cos(alpha_r), -math.sin(alpha_r)],
+            [math.sin(alpha_r), math.cos(alpha_r)],
+        ]
+    )
     new_pos = np.matmul(rot_M, pos_v)
     return new_pos
 
 
-def _rotate_state(state, alpha=45):
+def _rotate_state(state: state, alpha: float = 45) -> state:
     pos = state.state_position
     new_pos = _rotate_pos(pos, alpha)
     state.state_position = position(new_pos[0], new_pos[1], pos.z, pos.e)
@@ -38,7 +36,7 @@ def _rotate_state(state, alpha=45):
     return state
 
 
-def _initialize_dummy_states(p_acc, jerk, speed):
+def _initialize_dummy_states(p_acc: float, jerk: float, speed: float) -> tuple[state, state, state]:
     settings = state.p_settings(p_acc=p_acc, jerk=jerk, vX=100, vY=100, vZ=100, vE=100, speed=speed)
     stateA = state(state_p_settings=settings)
     stateB = state(state_p_settings=settings)
@@ -51,7 +49,7 @@ def _initialize_dummy_states(p_acc, jerk, speed):
     return stateA, stateB, stateC
 
 
-def test_junction_handlings():
+def test_junction_handlings() -> None:
     """Test for junction handling."""
     # Test cases for junction handling
     test_firmwares = _get_handler_names()
@@ -63,7 +61,11 @@ def test_junction_handlings():
     for firmware in test_firmwares:
         handler = get_handler(firmware)
         assert handler is not None
-        assert handler is not junction_handling if firmware != "unknown" else handler is junction_handling
+        assert (
+            handler is not junction_handling
+            if firmware != "unknown"
+            else handler is junction_handling
+        )
         assert callable(handler)
 
         stateA, stateB, stateC = _initialize_dummy_states(p_acc=1000, jerk=10, speed=50)
@@ -76,7 +78,10 @@ def test_junction_handlings():
 
         firmware_results = []
         for angle in angles:
-            coordXY = [math.cos(math.radians(angle)) * 50 + 50, math.sin(math.radians(angle)) * 50]
+            coordXY = [
+                math.cos(math.radians(angle)) * 50 + 50,
+                math.sin(math.radians(angle)) * 50,
+            ]
             stateC.state_position = position(*coordXY, 0, 0)
             stateC = _rotate_state(stateC, ang)
 
@@ -99,7 +104,7 @@ def test_junction_handlings():
     # plt.show()
 
 
-def test_junction_handlings_rotating_COS():
+def test_junction_handlings_rotating_COS() -> None:
     """Test for junction handling with coordinate system rotation."""
     test_firmwares = _get_handler_names()
     test_firmwares.append("unknown")  # Add "unknown" for default handler
@@ -114,7 +119,11 @@ def test_junction_handlings_rotating_COS():
     for firmware in test_firmwares:
         handler = get_handler(firmware)
         assert handler is not None
-        assert handler is not junction_handling if firmware != "unknown" else handler is junction_handling
+        assert (
+            handler is not junction_handling
+            if firmware != "unknown"
+            else handler is junction_handling
+        )
         assert callable(handler)
 
         stateA, stateB, stateC = _initialize_dummy_states(p_acc=1000, jerk=10, speed=50)
@@ -129,7 +138,10 @@ def test_junction_handlings_rotating_COS():
         rotated_firmware_results = []
 
         for angle in angles:
-            coordXY = [math.cos(math.radians(angle)) * 50 + 50, math.sin(math.radians(angle)) * 50]
+            coordXY = [
+                math.cos(math.radians(angle)) * 50 + 50,
+                math.sin(math.radians(angle)) * 50,
+            ]
             stateC.state_position = position(*coordXY, 0, 0)
             stateC = _rotate_state(stateC, ang)
 
@@ -153,15 +165,22 @@ def test_junction_handlings_rotating_COS():
                 stateC_r = _rotate_state(stateC_r, rot_angle)
 
                 # Sanity check for angle between vectors
-                vec1 = np.array(stateB_r.state_position.get_vec()[:2]) - np.array(stateA_r.state_position.get_vec()[:2])
-                vec2 = np.array(stateC_r.state_position.get_vec()[:2]) - np.array(stateB_r.state_position.get_vec()[:2])
+                vec1 = np.array(stateB_r.state_position.get_vec()[:2]) - np.array(
+                    stateA_r.state_position.get_vec()[:2]
+                )
+                vec2 = np.array(stateC_r.state_position.get_vec()[:2]) - np.array(
+                    stateB_r.state_position.get_vec()[:2]
+                )
                 dot_product = np.dot(vec1, vec2)
                 norm1 = np.linalg.norm(vec1)
                 norm2 = np.linalg.norm(vec2)
                 cos_theta = dot_product / (norm1 * norm2)
                 angle_between = np.degrees(np.arccos(np.clip(cos_theta, -1.0, 1.0)))
                 if not np.isclose(angle_between, angle, atol=1e-2):
-                    print(f"Angle between vectors: {angle_between:.2f} degrees, should be {angle:.2f} degrees")
+                    print(
+                        f"Angle between vectors: {angle_between:.2f} degrees,"
+                        f" should be {angle:.2f} degrees"
+                    )
                 # Sanity check end
 
                 result_rot = handler(state_A=stateA_r, state_B=stateB_r).get_junction_vel()
@@ -175,7 +194,7 @@ def test_junction_handlings_rotating_COS():
     fig, ax = plt.subplots(figsize=(6, 4))
     color_map = {}
     # Plot solid lines for unrotated
-    for idx, fw in enumerate(test_firmwares):
+    for fw in test_firmwares:
         line = ax.plot(
             angles,
             results[fw],
@@ -188,7 +207,9 @@ def test_junction_handlings_rotating_COS():
     for fw in test_firmwares:
         # rotated_results[fw] is a list of (angle, [results for each rotation])
         # transpose the data: for each rotation, collect the results for all angles
-        all_rotations = list(zip(*[rot[1] for rot in rotated_results[fw]]))  # shape: (num_rotations, num_angles)
+        all_rotations = list(
+            zip(*[rot[1] for rot in rotated_results[fw]], strict=True)
+        )  # shape: (num_rotations, num_angles)
         for rot_curve in all_rotations:
             ax.plot(
                 angles,
@@ -206,18 +227,18 @@ def test_junction_handlings_rotating_COS():
     ax.legend()
 
     # Ensure output directory exists
-    output_dir = "tests/output"
-    os.makedirs(output_dir, exist_ok=True)
-    fig.savefig(os.path.join(output_dir, "junction_handlings_rotating_COS.png"), dpi=300, bbox_inches="tight")
+    output_dir = Path("tests/output")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_dir / "junction_handlings_rotating_COS.png", dpi=300, bbox_inches="tight")
     # plt.show()
 
 
-def test_junction_handling_state_connect():
+def test_junction_handling_state_connect() -> None:
     """Test for the state connect method in the junction handling."""
     from pyGCodeDecode.gcode_interpreter import setup
 
     test_setup = setup(
-        presets_file=pathlib.Path("./tests/data/test_printer_setups.yaml"),
+        presets_file=Path("./tests/data/test_printer_setups.yaml"),
         printer="prusa_mini",
         layer_cue="LAYER cue",
     )
@@ -225,7 +246,7 @@ def test_junction_handling_state_connect():
 
     print(test_setup.firmware)
     states = generate_states(
-        filepath=pathlib.Path("./tests/data/test_state_generator.gcode"),
+        filepath=Path("./tests/data/test_state_generator.gcode"),
         initial_machine_setup=test_setup.get_dict(),
     )
 

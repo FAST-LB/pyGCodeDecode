@@ -2,10 +2,12 @@
 
 import time
 
+import pytest
+
 from pyGCodeDecode.helpers import ProgressBar, custom_print, set_verbosity_level
 
 
-def test_progress_bar_with_interruptions(capsys):
+def test_progress_bar_with_interruptions(capsys: pytest.CaptureFixture[str]) -> None:
     """Run the test and capture output."""
     set_verbosity_level(3)
     pb1 = ProgressBar("Test Process 1", 20)
@@ -47,14 +49,16 @@ def test_progress_bar_with_interruptions(capsys):
     # )
 
     # Normalize whitespace for progress bar lines
-    def normalize(line):
+    def normalize(line: str) -> str:
         return line.rstrip()
 
     out_lines = [normalize(lin) for lin in out.splitlines()]
     exp_lines = [normalize(lin) for lin in expected.splitlines()]
     # Only keep lines that are expected (messages and final progress bars)
     filtered_out_lines = [
-        lin for lin in out_lines if lin.startswith("[WARN]") or lin.startswith("[INFO]") or "✅ Done" in lin
+        lin
+        for lin in out_lines
+        if lin.startswith("[WARN]") or lin.startswith("[INFO]") or "✅ Done" in lin
     ]
     # filtered_out_lines = [
     #     lin
@@ -64,7 +68,7 @@ def test_progress_bar_with_interruptions(capsys):
     assert exp_lines == filtered_out_lines
 
 
-def test_progress_bar_no_interruptions(capsys):
+def test_progress_bar_no_interruptions(capsys: pytest.CaptureFixture[str]) -> None:
     """Test progress bar without interruptions."""
     set_verbosity_level(3)
     pb = ProgressBar("No Interruptions", 10)
@@ -78,7 +82,7 @@ def test_progress_bar_no_interruptions(capsys):
     assert "[INFO] Done without interruptions" in out
 
 
-def test_progress_bar_multiple_messages(capsys):
+def test_progress_bar_multiple_messages(capsys: pytest.CaptureFixture[str]) -> None:
     """Test progress bar with multiple messages at different points."""
     set_verbosity_level(3)
     pb = ProgressBar("Multiple Messages", 5)

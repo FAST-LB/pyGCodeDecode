@@ -12,8 +12,7 @@
 [![Paper_DOI](https://joss.theoj.org/papers/10.21105/joss.06465/status.svg)](https://doi.org/10.21105/joss.06465)
 
 ![Python](https://img.shields.io/pypi/pyversions/pygcodedecode.svg)
-[![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://black.readthedocs.io/en/stable/)
-[![isort](https://img.shields.io/badge/isort-blue)](https://pycqa.github.io/isort/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
 ## What is this repository for?

@@ -1,18 +1,15 @@
 """This module provides functionality for 3D plotting of G-code simulation data using PyVista."""
 
+from __future__ import annotations
+
 import os
 import pathlib
-from typing import Tuple, Union
 
 import numpy as np
 import pyvista as pv
 from matplotlib.figure import Figure
 
-from pyGCodeDecode.gcode_interpreter import (
-    find_current_segment,
-    simulation,
-    unpack_blocklist,
-)
+from pyGCodeDecode.gcode_interpreter import find_current_segment, simulation, unpack_blocklist
 from pyGCodeDecode.helpers import ProgressBar, custom_print
 
 
@@ -20,23 +17,23 @@ def plot_3d(
     sim: simulation,
     extrusion_only: bool = True,
     scalar_value: str = "velocity",
-    screenshot_path: pathlib.Path = None,
-    camera_settings: dict = None,
-    vtk_path: pathlib.Path = None,
+    screenshot_path: pathlib.Path | None = None,
+    camera_settings: dict | None = None,
+    vtk_path: pathlib.Path | None = None,
     mesh: pv.MultiBlock = None,
-    layer_select: int = None,
-    z_scaler: float = None,
+    layer_select: int | None = None,
+    z_scaler: float | None = None,
     window_size: tuple = (2048, 1536),
     mpl_subplot: bool = False,
-    mpl_rcParams: Union[dict, None] = None,
+    mpl_rcParams: dict | None = None,
     solid_color: str = "black",
     transparent_background: bool = True,
     parallel_projection: bool = False,
     lighting: bool = True,
     block_colorbar: bool = False,
-    extra_plotting: callable = None,  # function to add plotting, args: plotter, mesh
-    overwrite_labels: Union[dict, None] = None,
-    scalar_value_bounds: Union[Tuple[float, float], None] = None,
+    extra_plotting: callable | None = None,  # function to add plotting, args: plotter, mesh
+    overwrite_labels: dict | None = None,
+    scalar_value_bounds: tuple[float, float] | None = None,
     return_type: str = "mesh",  # "mesh" or "image", only available with screenshot_path
 ) -> pv.MultiBlock:
     """Plot a 3D visualization of G-code simulation data using PyVista.
@@ -68,9 +65,11 @@ def plot_3d(
         pv.MultiBlock: The PyVista mesh used for plotting.
         or
         np.ndarray: The screenshot image if `screenshot_path` is provided and `return_type` is "image".
-    """
+    """  # noqa: E501
 
-    def _safe_screenshot(plotter: pv.Plotter, screenshot_path=None):
+    def _safe_screenshot(
+        plotter: pv.Plotter, screenshot_path: pathlib.Path | str | None = None
+    ) -> np.ndarray | None:
         if display_available:
             img = plotter.screenshot(
                 transparent_background=transparent_background,
@@ -249,7 +248,10 @@ def plot_3d(
                     min_val, max_val = scalar_value_bounds
 
                 dummy_img = ax.imshow(
-                    np.array([[min_val, max_val]]), cmap=colorbar_label[scalar_value][-1], vmin=min_val, vmax=max_val
+                    np.array([[min_val, max_val]]),
+                    cmap=colorbar_label[scalar_value][-1],
+                    vmin=min_val,
+                    vmax=max_val,
                 )
 
                 p.remove_scalar_bar()
@@ -269,7 +271,9 @@ def plot_3d(
                 ax.imshow(image)
             fig.tight_layout()
             dpi = window_size[1] / fig.get_size_inches()[1]
-            fig.savefig(screenshot_path, dpi=dpi, transparent=transparent_background)  # bbox_inches="tight",
+            fig.savefig(
+                screenshot_path, dpi=dpi, transparent=transparent_background
+            )  # bbox_inches="tight",
 
             custom_print(f"💾 MPL Screenshot saved to 👉{screenshot_path}")
         else:
@@ -290,13 +294,13 @@ def plot_3d(
 def plot_2d(
     sim: simulation,
     filepath: pathlib.Path = pathlib.Path("trajectory_2D.png"),
-    colvar="Velocity",
-    show_points=False,
-    colvar_spatial_resolution=1,
-    dpi=400,
-    scaled=True,
-    show=False,
-):
+    colvar: str = "Velocity",
+    show_points: bool = False,
+    colvar_spatial_resolution: int = 1,
+    dpi: int = 400,
+    scaled: bool = True,
+    show: bool = False,
+) -> None:
     """Plot 2D position (XY plane) with matplotlib (unmaintained)."""
     import matplotlib.pyplot as plt
     from matplotlib import cm
@@ -307,7 +311,7 @@ def plot_2d(
         "Acceleration": "Acceleration in mm/s^2",
     }
 
-    def _interp_2D(x, y, cvar, spatial_resolution=1):
+    def _interp_2D(x: list, y: list, cvar: list, spatial_resolution: int = 1) -> np.ndarray:
         segm_length = np.linalg.norm([np.ediff1d(x), np.ediff1d(y)], axis=0)
         segm_cvar_delt = np.greater(np.abs(np.ediff1d(cvar)), 0)
         segm_interpol = np.r_[
@@ -406,13 +410,13 @@ def plot_2d(
 
 def plot_vel(
     sim: simulation,
-    axis: Tuple[str] = ("x", "y", "z", "e"),
+    axis: tuple[str] = ("x", "y", "z", "e"),
     show: bool = True,
     show_planner_blocks: bool = True,
     show_segments: bool = False,
     show_jv: bool = False,
-    time_steps: Union[int, str] = "constrained",
-    filepath: pathlib.Path = None,
+    time_steps: int | str = "constrained",
+    filepath: pathlib.Path | None = None,
     dpi: int = 400,
 ) -> Figure:
     """Plot axis velocity with matplotlib.
@@ -451,17 +455,21 @@ def plot_vel(
         for segm in segments:
             times.append(segm.t_end)
     else:
-        raise ValueError("Invalid value for 'time_steps', either use Integer or 'constrained' as argument.")
+        raise ValueError(
+            "Invalid value for 'time_steps', either use Integer or 'constrained' as argument."
+        )
 
     # gathering values
     pos = [[], [], [], []]
     vel = [[], [], [], []]
-    abs = []  # initialize value arrays
+    absolutes = []  # initialize value arrays
     index_saved = 0
     bar = ProgressBar(name="Velocity Plot")
 
     for i, t in enumerate(times):
-        segm, index_saved = find_current_segment(path=segments, t=t, last_index=index_saved, keep_position=True)
+        segm, index_saved = find_current_segment(
+            path=segments, t=t, last_index=index_saved, keep_position=True
+        )
 
         tmp_vel = segm.get_velocity(t=t).get_vec(withExtrusion=True)
         tmp_pos = segm.get_position(t=t).get_vec(withExtrusion=True)
@@ -469,7 +477,7 @@ def plot_vel(
             pos[axis_dict[ax]].append(tmp_pos[axis_dict[ax]])
             vel[axis_dict[ax]].append(tmp_vel[axis_dict[ax]])
 
-        abs.append(np.linalg.norm(tmp_vel[:3]))
+        absolutes.append(np.linalg.norm(tmp_vel[:3]))
         bar.update((i + 1) / len(times))
 
     fig, ax1 = plt.subplots()
@@ -503,8 +511,7 @@ def plot_vel(
     for ax in axis:
         ax1.plot(times, vel[axis_dict[ax]], label=ax)  # velocity
         ax2.plot(times, pos[axis_dict[ax]], linestyle="--")  # position w/ extrusion
-        # if not ax == "e": ax2.plot(times,pos[axis_dict[ax]],linestyle="--") #position ignoring extrusion
-    ax1.plot(times, abs, color="black", label="abs")  # absolute velocity
+    ax1.plot(times, absolutes, color="black", label="abs")  # absolute velocity
 
     ax1.set_xlabel("time in s")
     ax1.set_ylabel("velocity in mm/s")
