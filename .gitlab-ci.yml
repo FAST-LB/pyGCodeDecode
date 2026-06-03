@@ -67,6 +67,7 @@ doc-compile_paper:
     needs: []
     rules:
         - when: manual
+    allow_failure: true
     tags:
         - shell
     script:
