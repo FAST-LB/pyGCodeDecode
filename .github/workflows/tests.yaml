@@ -16,10 +16,9 @@ jobs:
 
             - name: lint
               run: |
-                pip install isort black[jupyter] flake8-docstrings
-                isort --check . -v
-                black --check */ -v
-                flake8 . -v
+                pip install ruff
+                ruff check .
+                ruff format --check .
 
     testing:
         runs-on: ${{ matrix.os }}
