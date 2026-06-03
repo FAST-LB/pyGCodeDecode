@@ -11,15 +11,17 @@ from pyGCodeDecode.tools import save_layer_metrics
 
 
 def benchy_example() -> None:
-    """Extensive example for the usage of pyGCodeDecode simulating G-code for the famous 3DBenchy."""
+    """Extensive example for the usage of pyGCodeDecode simulating G-code for the  3DBenchy."""
     # setting the paths to the input and output directories
     data_dir = importlib.resources.files("pyGCodeDecode").joinpath("examples/data/")
     output_dir = pathlib.Path.cwd() / "output_benchy_example"
 
     custom_print(
         "Running pyGCD's benchy example! 🛥️"
-        "\nThis example illustrates an extensive use of the package: \nA gcode is simulated with default presets from a "
-        "file provided alongside this example. After the simulation, an interactive 3D-plot is shown."
+        "\nThis example illustrates an extensive use of the package: "
+        "\nA gcode is simulated with default presets from a "
+        "file provided alongside this example. After the simulation, "
+        "an interactive 3D-plot is shown."
         "\nThe following files are saved to a new folder in your current directory: ",
         output_dir.__str__() + " 💾",
         "\n   - a screenshot of the 3D-plot 📸"

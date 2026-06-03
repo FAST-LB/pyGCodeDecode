@@ -43,7 +43,7 @@ def get_verbosity_level() -> int:
 
 
 def custom_print(*args: object, lvl: int = 2, **kwargs: object) -> None:
-    """Sanitize outputs for ABAQUS and print them if the log level is high enough. Takes all arguments for print.
+    """Sanitize outputs for ABAQUS and print them if the log level is high enough.
 
     Args:
         *args: arguments to be printed
@@ -118,7 +118,7 @@ class ProgressBar:
         """Display or update a console progress bar.
 
         Args:
-            progress: float between 0 and 1 for percentage, < 0 represents a 'halt', > 1 represents 100%
+            progress: float between 0 and 1, < 0 represents a 'halt', > 1 represents 100%
         """
         global _active_progress_bar
 
@@ -150,10 +150,10 @@ class ProgressBar:
             if self.last_progress_update != progress_percent or status != "":
                 block = int(round(barLength * progress, ndigits=0))
                 if progress < 1.0:
-                    text = f"\r[{'#' * block + '-' * (barLength - block)}] {progress_percent} % of {self.name} {status}"
+                    text = f"\r[{'#' * block + '-' * (barLength - block)}] "
+                    f"{progress_percent} % of {self.name} {status}"
                 else:
                     text = f"\r{_levels.get(self.verbosity_level, '')} ✅ Done with {self.name}"
-                    # text = f"\r[{'#' * block + '-' * (barLength - block)}] ✅ Done with {self.name}"
                 self.last_text = text
                 sys.stdout.write(text)
                 sys.stdout.flush()

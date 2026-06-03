@@ -21,7 +21,8 @@ def save_layer_metrics(
     Args:
         simulation: (simulation) simulation instance
         filepath: (Path , default = "./layer_metrics.csv") file name
-        locale: (string, default = None) select locale settings, e.g. "en_US.utf8", None = use system locale
+        locale: (string, default = None) select locale settings,
+            e.g. "en_US.utf8", None = use system locale
         delimiter: (string, default = ";") select delimiter
 
     Layers are detected using the given layer cue.
@@ -33,7 +34,8 @@ def save_layer_metrics(
     # check if a layer cue was specified
     if "layer_cue" not in simulation.initial_machine_setup_dict:
         custom_print(
-            "⚠️  No layer_cue was specified in the simulation setup. Therefore, layer metrics can not be saved!",
+            "⚠️  No layer_cue was specified in the simulation setup. "
+            "Therefore, layer metrics can not be saved!",
             lvl=1,
         )
         return None
@@ -88,7 +90,8 @@ def save_layer_metrics(
         # create directory if necessary
         Path(filepath).parent.mkdir(parents=True, exist_ok=True)
 
-        header = f"layer{delimiter} layer time in s{delimiter} travel distance in mm{delimiter} avg speed in mm/s"
+        header = f"layer{delimiter} layer time in s{delimiter} travel distance "
+        f"in mm{delimiter} avg speed in mm/s"
         data = np.array([layers, durations, travel_distances, avg_speeds], dtype=object).T
         np.savetxt(
             fname=filepath,

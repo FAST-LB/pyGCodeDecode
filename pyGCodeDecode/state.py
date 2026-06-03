@@ -6,7 +6,10 @@ from pyGCodeDecode.utils import position
 
 
 class state:
-    """State contains a Position and Printing Settings (p_settings) to apply for the corresponding move to this State."""
+    """State contains a Position and Printing Settings (p_settings).
+
+    Used to apply for the corresponding move to this State.
+    """
 
     class p_settings:
         """Store Printing Settings."""

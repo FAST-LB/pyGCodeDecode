@@ -224,7 +224,8 @@ def _dict_list_traveler(line_dict_list: list[dict], initial_machine_setup: dict)
 
     Args:
         line_dict_list: (dict) dict list with commands
-        initial_machine_setup: (dict) dict with initial machine setup [absolute_position, absolute_extrusion, units, initial_position...]
+        initial_machine_setup: (dict) dict with initial machine setup
+            [absolute_position, absolute_extrusion, units, initial_position...]
 
     Returns:
         state_list: (list[state]) all states in a list
@@ -489,7 +490,8 @@ def _check_for_unsupported_commands(line_dict_list: dict) -> dict:
             [f"'{key}' ({value} time(s))" for key, value in unsupported_command_counts.items()]
         )
         custom_print(
-            f"⚠️  {len(unsupported_command_counts.keys())} known but unsupported command(s) found: {commands_str}",
+            f"⚠️  {len(unsupported_command_counts.keys())} known but "
+            f"unsupported command(s) found: {commands_str}",
             lvl=1,
         )
     else:

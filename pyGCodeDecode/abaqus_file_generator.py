@@ -10,11 +10,12 @@ This script is to convert gcode into an event series as abaqus input
 
 An example output looks like this:
 
-time    x       y       z       extrusion bool -> 1 = extrusion moving to next step, 0 = no extrusion
+time    x       y       z       extrusion bool -> 1 = extrusion moving to next, 0 = no extrusion
 0.0,    1.0,    0.0,    2.0,    1
 0.44,   1.0,    22.0,   2.0,    0
 
-time points generated are always at segment beginnings / endings, so interpolation linearly is the exact solution
+time points generated are always at segment beginnings / endings,
+so interpolation linearly is the exact solution
 
 """
 
@@ -70,7 +71,8 @@ def generate_abaqus_event_series(
     with filepath.open("w") as outfile:
         for time, position in zip(times, positions, strict=True):
             outfile.write(
-                f"{float(time)},{round(scaling * position[0], round_to)},{round(scaling * position[1], round_to)},"
+                f"{float(time)},{round(scaling * position[0], round_to)},"
+                f"{round(scaling * position[1], round_to)},"
                 f"{round(scaling * position[2], round_to)},{position[3]}\n"
             )
             event_series_list.append(

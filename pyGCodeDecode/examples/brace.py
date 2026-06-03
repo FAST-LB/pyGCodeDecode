@@ -1,4 +1,4 @@
-"""Minimal example simulating the G-code of a brace from Aura-slicer on an Anisoprint Composer A4."""
+"""Minimal example simulating the G-code of a brace from Aura-slicer on Anisoprint Composer A4."""
 
 import importlib.resources
 
@@ -11,8 +11,10 @@ def brace_example() -> None:
     """Minimal example for the usage of pyGCodeDecode simulating the G-code of a brace."""
     custom_print(
         "Running pyGCD's brace example! 📎"
-        "\nThis example illustrates the simplest use of the package: A gcode is simulated with default presets "
-        "\nprovided by the package. After the simulation, an interactive 3D-plot is shown. No output is saved."
+        "\nThis example illustrates the simplest use of the package: "
+        "A gcode is simulated with default presets "
+        "\nprovided by the package. After the simulation, an interactive 3D-plot is shown. "
+        "No output is saved."
     )
 
     gcode_path = importlib.resources.files("pyGCodeDecode").joinpath("examples/data/brace.gcode")
