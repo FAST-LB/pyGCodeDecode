@@ -479,12 +479,12 @@
 <p>Module for generating Abaqus .inp files for AMSIM.</p>
 <p><a id="pyGCodeDecode.abaqus_file_generator.generate_abaqus_event_series"></a></p>
 <h4 id="generate_abaqus_event_series">generate_abaqus_event_series<a class="headerlink" href="#generate_abaqus_event_series" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def generate_abaqus_event_series(
-        simulation: gcode_interpreter.simulation,
-        filepath: str = &quot;pyGcodeDecode_abaqus_events.inp&quot;,
-        tolerance: float = 1e-12,
-        output_unit_system: str = None,
-        return_tuple: bool = False) -&gt; tuple
+<pre class="codehilite"><code class="language-python">def generate_abaqus_event_series(simulation: gcode_interpreter.simulation,
+                                 filepath: str
+                                 | Path = &quot;pyGcodeDecode_abaqus_events.inp&quot;,
+                                 tolerance: float = 1e-12,
+                                 output_unit_system: str | None = None,
+                                 return_tuple: bool = False) -&gt; tuple
 </code></pre>
 
 <p>Generate abaqus event series.</p>
@@ -522,10 +522,11 @@
 <p>GCode Interpreter Module.</p>
 <p><a id="pyGCodeDecode.gcode_interpreter.find_current_segment"></a></p>
 <h4 id="find_current_segment">find_current_segment<a class="headerlink" href="#find_current_segment" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def find_current_segment(path: List[segment],
-                         t: float,
-                         last_index: Optional[int] = None,
-                         keep_position: bool = False)
+<pre class="codehilite"><code class="language-python">def find_current_segment(
+        path: list[segment],
+        t: float,
+        last_index: int | None = None,
+        keep_position: bool = False) -&gt; tuple[segment | None, int | None]
 </code></pre>
 
 <p>Find the current segment.</p>
@@ -544,7 +545,9 @@
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.generate_planner_blocks"></a></p>
 <h4 id="generate_planner_blocks">generate_planner_blocks<a class="headerlink" href="#generate_planner_blocks" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def generate_planner_blocks(states: List[state], firmware=None)
+<pre class="codehilite"><code class="language-python">def generate_planner_blocks(
+        states: list[state],
+        firmware: str | None = None) -&gt; list[planner_block]
 </code></pre>
 
 <p>Convert list of states to trajectory repr. by planner blocks.</p>
@@ -554,7 +557,8 @@
 <li><code>firmware</code> - (string, default = None) select firmware by name</li>
 </ul>
 <p><strong>Returns</strong>:</p>
-<p>block_list (list[planner_block]) list of all planner blocks to complete travel between all states</p>
+<p>block_list (list[planner_block]) list of all planner blocks to complete
+  travel between all states</p>
 <p><a id="pyGCodeDecode.gcode_interpreter.setup"></a></p>
 <h3 id="setup-objects">setup Objects<a class="headerlink" href="#setup-objects" title="Permanent link">&para;</a></h3>
 <pre class="codehilite"><code class="language-python">class setup()
@@ -563,24 +567,26 @@
 <p>Setup for printing simulation.</p>
 <p><a id="pyGCodeDecode.gcode_interpreter.setup.__getattr__"></a></p>
 <h4 id="setup__getattr__">setup.__getattr__<a class="headerlink" href="#setup__getattr__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __getattr__(name)
+<pre class="codehilite"><code class="language-python">def __getattr__(name: str) -&gt; object
 </code></pre>
 
 <p>Access to setup_dict content.</p>
 <p><a id="pyGCodeDecode.gcode_interpreter.setup.__init__"></a></p>
 <h4 id="setup__init__">setup.__init__<a class="headerlink" href="#setup__init__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __init__(presets_file: Union[Path, str],
-             printer: Optional[str] = None,
-             verbosity_level: Optional[int] = None,
-             **kwargs)
+<pre class="codehilite"><code class="language-python">def __init__(presets_file: Path | str,
+             printer: str | None = None,
+             verbosity_level: int | None = None,
+             **kwargs: object) -&gt; None
 </code></pre>
 
 <p>Initialize the setup for the printing simulation.</p>
 <p><strong>Arguments</strong>:</p>
 <ul>
 <li><code>presets_file</code> <em>Path or str</em> - Path to the YAML file containing printer presets.</li>
-<li><code>printer</code> <em>str, optional</em> - Name of the printer to select from the preset file. Defaults to None.</li>
-<li><code>verbosity_level</code> <em>int, optional</em> - Verbosity level for logging (0: no output, 1: warnings, 2: info, 3: debug). Defaults to None.</li>
+<li><code>printer</code> <em>str, optional</em> - Name of the printer to select from the preset file.
+  Defaults to None.</li>
+<li><code>verbosity_level</code> <em>int, optional</em> - Verbosity level for logging</li>
+<li><code>(0</code> - no output, 1: warnings, 2: info, 3: debug). Defaults to None.</li>
 <li><code>**kwargs</code> - Additional properties to set or override in the setup.</li>
 </ul>
 <p><strong>Raises</strong>:</p>
@@ -589,13 +595,13 @@
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.setup.__setattr__"></a></p>
 <h4 id="setup__setattr__">setup.__setattr__<a class="headerlink" href="#setup__setattr__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __setattr__(name, value)
+<pre class="codehilite"><code class="language-python">def __setattr__(name: str, value: object) -&gt; None
 </code></pre>
 
 <p>Set setup_dict keys.</p>
 <p><a id="pyGCodeDecode.gcode_interpreter.setup.check_initial_setup"></a></p>
 <h4 id="setupcheck_initial_setup">setup.check_initial_setup<a class="headerlink" href="#setupcheck_initial_setup" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def check_initial_setup()
+<pre class="codehilite"><code class="language-python">def check_initial_setup() -&gt; None
 </code></pre>
 
 <p>Check the printer Dict for typos or missing parameters and raise errors if invalid.</p>
@@ -611,7 +617,7 @@
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.setup.get_scaling_factor"></a></p>
 <h4 id="setupget_scaling_factor">setup.get_scaling_factor<a class="headerlink" href="#setupget_scaling_factor" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_scaling_factor(input_unit_system: Optional[str] = None) -&gt; float
+<pre class="codehilite"><code class="language-python">def get_scaling_factor(input_unit_system: str | None = None) -&gt; float
 </code></pre>
 
 <p>Get a scaling factor to convert lengths from mm to another supported unit system.</p>
@@ -626,7 +632,7 @@
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.setup.load_setup"></a></p>
 <h4 id="setupload_setup">setup.load_setup<a class="headerlink" href="#setupload_setup" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def load_setup(filepath: Union[Path, str], printer=None)
+<pre class="codehilite"><code class="language-python">def load_setup(filepath: Path | str, printer: str | None = None) -&gt; None
 </code></pre>
 
 <p>Load setup from file.</p>
@@ -636,15 +642,16 @@
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.setup.set_initial_position"></a></p>
 <h4 id="setupset_initial_position">setup.set_initial_position<a class="headerlink" href="#setupset_initial_position" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def set_initial_position(initial_position: Union[tuple, dict, str],
-                         input_unit_system: Optional[str] = None)
+<pre class="codehilite"><code class="language-python">def set_initial_position(initial_position: tuple | dict | str,
+                         input_unit_system: str | None = None) -&gt; None
 </code></pre>
 
 <p>Set initial Position.</p>
 <p><strong>Arguments</strong>:</p>
 <ul>
-<li><code>initial_position</code> - (tuple, dict or str) set initial position as tuple of len(4) or "first"
-  or dictionary with keys: {X, Y, Z, E} or "first" to use first occurring absolute position in GCode.</li>
+<li><code>initial_position</code> - (tuple, dict or str) set initial position as tuple of len(4)
+  or "first" or dictionary with keys: {X, Y, Z, E}
+  or "first" to use first occurring absolute position in GCode.</li>
 <li><code>input_unit_system</code> <em>str, optional</em> - Wanted input unit system.
   Uses the one specified for the setup if None is specified.</li>
 </ul>
@@ -656,7 +663,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 
 <p><a id="pyGCodeDecode.gcode_interpreter.setup.set_property"></a></p>
 <h4 id="setupset_property">setup.set_property<a class="headerlink" href="#setupset_property" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def set_property(property_dict: dict)
+<pre class="codehilite"><code class="language-python">def set_property(property_dict: dict) -&gt; None
 </code></pre>
 
 <p>Overwrite or add a property to the printer dictionary.</p>
@@ -676,20 +683,20 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 <p>Simulation of .gcode with given machine parameters.</p>
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.__getattr__"></a></p>
 <h4 id="simulation__getattr__">simulation.__getattr__<a class="headerlink" href="#simulation__getattr__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __getattr__(name)
+<pre class="codehilite"><code class="language-python">def __getattr__(name: str) -&gt; object
 </code></pre>
 
 <p>Get result by name.</p>
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.__init__"></a></p>
 <h4 id="simulation__init__">simulation.__init__<a class="headerlink" href="#simulation__init__" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">def __init__(gcode_path: Path,
-             machine_name: Optional[str] = None,
-             initial_machine_setup: Optional[&quot;setup&quot;] = None,
+             machine_name: str | None = None,
+             initial_machine_setup: setup | None = None,
              output_unit_system: str = &quot;SI (mm)&quot;,
-             verbosity_level: Optional[int] = None)
+             verbosity_level: int | None = None) -&gt; None
 </code></pre>
 
-<p>Initialize the Simulation of a given G-code with initial machine setup or default machine.</p>
+<p>Initialize the Simulation of a G-code with initial machine setup or default machine.</p>
 <ul>
 <li>Generate all states from GCode.</li>
 <li>Connect states with planner blocks, consisting of segments</li>
@@ -700,28 +707,30 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 <li><code>gcode_path</code> - (Path) path to GCode</li>
 <li><code>machine_name</code> - (string, default = None) name of the default machine to use</li>
 <li><code>initial_machine_setup</code> - (setup, default = None) setup instance</li>
-<li><code>output_unit_system</code> - (string, default = "SI (mm)") available unit systems: SI, SI (mm) &amp; inch</li>
-<li><code>verbosity_level</code> - (int, default = None) set verbosity level (0: no output, 1: warnings, 2: info, 3: debug)</li>
+<li><code>output_unit_system</code> - (string, default = "SI (mm)")
+  available unit systems: SI, SI (mm) &amp; inch</li>
+<li><code>verbosity_level</code> - (int, default = None)
+  set verbosity level (0: no output, 1: warnings, 2: info, 3: debug)</li>
 </ul>
 <p><strong>Example</strong>:</p>
-<pre class="codehilite"><code class="language-python">gcode_interpreter.simulation(gcode_path=r&quot;path/to/part.gcode&quot;, initial_machine_setup=printer_setup)
+<pre class="codehilite"><code class="language-python">gcode_interpreter.simulation(gcode_path=r&quot;path/to/a.gcode&quot;, initial_machine_setup=setup)
 </code></pre>
 
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.calc_results"></a></p>
 <h4 id="simulationcalc_results">simulation.calc_results<a class="headerlink" href="#simulationcalc_results" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def calc_results()
+<pre class="codehilite"><code class="language-python">def calc_results() -&gt; None
 </code></pre>
 
 <p>Calculate the results.</p>
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.calculate_averages"></a></p>
 <h4 id="simulationcalculate_averages">simulation.calculate_averages<a class="headerlink" href="#simulationcalculate_averages" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def calculate_averages()
+<pre class="codehilite"><code class="language-python">def calculate_averages() -&gt; None
 </code></pre>
 
 <p>Calculate averages for averageable results.</p>
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.extrusion_extent"></a></p>
 <h4 id="simulationextrusion_extent">simulation.extrusion_extent<a class="headerlink" href="#simulationextrusion_extent" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def extrusion_extent(output_unit_system: Optional[str] = None) -&gt; np.ndarray
+<pre class="codehilite"><code class="language-python">def extrusion_extent(output_unit_system: str | None = None) -&gt; np.ndarray
 </code></pre>
 
 <p>Return scaled xyz min &amp; max while extruding.</p>
@@ -740,7 +749,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.extrusion_max_vel"></a></p>
 <h4 id="simulationextrusion_max_vel">simulation.extrusion_max_vel<a class="headerlink" href="#simulationextrusion_max_vel" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def extrusion_max_vel(output_unit_system: Optional[str] = None) -&gt; np.float64
+<pre class="codehilite"><code class="language-python">def extrusion_max_vel(output_unit_system: str | None = None) -&gt; np.float64
 </code></pre>
 
 <p>Return scaled maximum velocity while extruding.</p>
@@ -755,7 +764,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.get_scaling_factor"></a></p>
 <h4 id="simulationget_scaling_factor">simulation.get_scaling_factor<a class="headerlink" href="#simulationget_scaling_factor" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_scaling_factor(output_unit_system: Optional[str] = None) -&gt; float
+<pre class="codehilite"><code class="language-python">def get_scaling_factor(output_unit_system: str | None = None) -&gt; float
 </code></pre>
 
 <p>Get a scaling factor to convert lengths from mm to another supported unit system.</p>
@@ -771,9 +780,9 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.get_values"></a></p>
 <h4 id="simulationget_values">simulation.get_values<a class="headerlink" href="#simulationget_values" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">def get_values(
-    t: float,
-    output_unit_system: Optional[str] = None
-) -&gt; Tuple[List[float], List[float]]
+        t: float,
+        output_unit_system: str | None = None
+) -&gt; tuple[list[float], list[float]]
 </code></pre>
 
 <p>Return unit system scaled values for vel and pos.</p>
@@ -792,7 +801,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 <h4 id="simulationget_width">simulation.get_width<a class="headerlink" href="#simulationget_width" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">def get_width(t: float,
               extrusion_h: float,
-              filament_dia: Optional[float] = None) -&gt; float
+              filament_dia: float | None = None) -&gt; float
 </code></pre>
 
 <p>Return the extrusion width for a certain extrusion height at time.</p>
@@ -808,7 +817,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.print_summary"></a></p>
 <h4 id="simulationprint_summary">simulation.print_summary<a class="headerlink" href="#simulationprint_summary" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def print_summary(start_time: float)
+<pre class="codehilite"><code class="language-python">def print_summary(start_time: float) -&gt; None
 </code></pre>
 
 <p>Print simulation summary to console.</p>
@@ -818,10 +827,10 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.refresh"></a></p>
 <h4 id="simulationrefresh">simulation.refresh<a class="headerlink" href="#simulationrefresh" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def refresh(new_state_list: Optional[List[state]] = None)
+<pre class="codehilite"><code class="language-python">def refresh(new_state_list: list[state] | None = None) -&gt; None
 </code></pre>
 
-<p>Refresh simulation. Either through new state list or by rerunning the self.states as input.</p>
+<p>Refresh simulation. Either through new state list or by rerunning the self.states.</p>
 <p><strong>Arguments</strong>:</p>
 <ul>
 <li><code>new_state_list</code> - (list[state], default = None) new list of states,
@@ -829,7 +838,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 </ul>
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.save_summary"></a></p>
 <h4 id="simulationsave_summary">simulation.save_summary<a class="headerlink" href="#simulationsave_summary" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def save_summary(filepath: Union[Path, str])
+<pre class="codehilite"><code class="language-python">def save_summary(filepath: Path | str) -&gt; None
 </code></pre>
 
 <p>Save summary to .yaml file.</p>
@@ -844,13 +853,13 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
   - max_extrusion_travel_velocity (float, maximum travel velocity where positive extrusion)</p>
 <p><a id="pyGCodeDecode.gcode_interpreter.simulation.trajectory_self_correct"></a></p>
 <h4 id="simulationtrajectory_self_correct">simulation.trajectory_self_correct<a class="headerlink" href="#simulationtrajectory_self_correct" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def trajectory_self_correct()
+<pre class="codehilite"><code class="language-python">def trajectory_self_correct() -&gt; None
 </code></pre>
 
 <p>Self correct all blocks in the blocklist with self_correction() method.</p>
 <p><a id="pyGCodeDecode.gcode_interpreter.unpack_blocklist"></a></p>
 <h4 id="unpack_blocklist">unpack_blocklist<a class="headerlink" href="#unpack_blocklist" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def unpack_blocklist(blocklist: List[planner_block]) -&gt; List[segment]
+<pre class="codehilite"><code class="language-python">def unpack_blocklist(blocklist: list[planner_block]) -&gt; list[segment]
 </code></pre>
 
 <p>Return list of segments by unpacking list of planner blocks.</p>
@@ -867,10 +876,10 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 <p>Helper functions.</p>
 <p><a id="pyGCodeDecode.helpers.custom_print"></a></p>
 <h4 id="custom_print">custom_print<a class="headerlink" href="#custom_print" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def custom_print(*args, lvl=2, **kwargs) -&gt; None
+<pre class="codehilite"><code class="language-python">def custom_print(*args: object, lvl: int = 2, **kwargs: object) -&gt; None
 </code></pre>
 
-<p>Sanitize outputs for ABAQUS and print them if the log level is high enough. Takes all arguments for print.</p>
+<p>Sanitize outputs for ABAQUS and print them if the log level is high enough.</p>
 <p><strong>Arguments</strong>:</p>
 <ul>
 <li><code>*args</code> - arguments to be printed</li>
@@ -893,7 +902,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 <h4 id="progressbar__init__">ProgressBar.__init__<a class="headerlink" href="#progressbar__init__" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">def __init__(name: str = &quot;Percent&quot;,
              barLength: int = 4,
-             verbosity_level: int = 2)
+             verbosity_level: int = 2) -&gt; None
 </code></pre>
 
 <p>Initialize a progress bar.</p>
@@ -905,11 +914,11 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 <p>Display or update a console progress bar.</p>
 <p><strong>Arguments</strong>:</p>
 <ul>
-<li><code>progress</code> - float between 0 and 1 for percentage, &lt; 0 represents a 'halt', &gt; 1 represents 100%</li>
+<li><code>progress</code> - float between 0 and 1, &lt; 0 represents a 'halt', &gt; 1 represents 100%</li>
 </ul>
 <p><a id="pyGCodeDecode.helpers.set_verbosity_level"></a></p>
 <h4 id="set_verbosity_level">set_verbosity_level<a class="headerlink" href="#set_verbosity_level" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def set_verbosity_level(level: Optional[int]) -&gt; None
+<pre class="codehilite"><code class="language-python">def set_verbosity_level(level: int | None) -&gt; None
 </code></pre>
 
 <p>Set the global verbosity level.</p>
@@ -944,7 +953,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 2: <a href="http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html">Kynetic CNC Blog</a></p>
 <p><a id="pyGCodeDecode.junction_handling.junction_deviation.__init__"></a></p>
 <h4 id="junction_deviation__init__">junction_deviation.__init__<a class="headerlink" href="#junction_deviation__init__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __init__(state_A: state, state_B: state)
+<pre class="codehilite"><code class="language-python">def __init__(state_A: state, state_B: state) -&gt; None
 </code></pre>
 
 <p>Marlin specific junction velocity calculation with Junction Deviation.</p>
@@ -955,7 +964,8 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 </ul>
 <p><a id="pyGCodeDecode.junction_handling.junction_deviation.calc_JD"></a></p>
 <h4 id="junction_deviationcalc_jd">junction_deviation.calc_JD<a class="headerlink" href="#junction_deviationcalc_jd" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def calc_JD(vel_0: velocity, vel_1: velocity, p_settings: state.p_settings)
+<pre class="codehilite"><code class="language-python">def calc_JD(vel_0: velocity, vel_1: velocity,
+            p_settings: state.p_settings) -&gt; float
 </code></pre>
 
 <p>Calculate junction deviation velocity from 2 velocities.</p>
@@ -971,7 +981,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 </ul>
 <p><a id="pyGCodeDecode.junction_handling.junction_deviation.get_junction_vel"></a></p>
 <h4 id="junction_deviationget_junction_vel">junction_deviation.get_junction_vel<a class="headerlink" href="#junction_deviationget_junction_vel" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_junction_vel()
+<pre class="codehilite"><code class="language-python">def get_junction_vel() -&gt; float
 </code></pre>
 
 <p>Return junction velocity.</p>
@@ -987,7 +997,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 <p>Junction handling super class.</p>
 <p><a id="pyGCodeDecode.junction_handling.junction_handling.__init__"></a></p>
 <h4 id="junction_handling__init__">junction_handling.__init__<a class="headerlink" href="#junction_handling__init__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __init__(state_A: state, state_B: state)
+<pre class="codehilite"><code class="language-python">def __init__(state_A: state, state_B: state) -&gt; None
 </code></pre>
 
 <p>Initialize the junction handling.</p>
@@ -998,7 +1008,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 </ul>
 <p><a id="pyGCodeDecode.junction_handling.junction_handling.connect_state"></a></p>
 <h4 id="junction_handlingconnect_state">junction_handling.connect_state<a class="headerlink" href="#junction_handlingconnect_state" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def connect_state(state_A: state, state_B: state)
+<pre class="codehilite"><code class="language-python">def connect_state(state_A: state, state_B: state) -&gt; velocity
 </code></pre>
 
 <p>Connect two states and generates the velocity for the move from state_A to state_B.</p>
@@ -1013,7 +1023,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 </ul>
 <p><a id="pyGCodeDecode.junction_handling.junction_handling.get_junction_vel"></a></p>
 <h4 id="junction_handlingget_junction_vel">junction_handling.get_junction_vel<a class="headerlink" href="#junction_handlingget_junction_vel" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_junction_vel()
+<pre class="codehilite"><code class="language-python">def get_junction_vel() -&gt; int
 </code></pre>
 
 <p>Return default junction velocity of zero.</p>
@@ -1023,7 +1033,7 @@ setup.set_initial_position(&quot;first&quot;) # use first GCode position
 </ul>
 <p><a id="pyGCodeDecode.junction_handling.junction_handling.get_target_vel"></a></p>
 <h4 id="junction_handlingget_target_vel">junction_handling.get_target_vel<a class="headerlink" href="#junction_handlingget_target_vel" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_target_vel()
+<pre class="codehilite"><code class="language-python">def get_target_vel() -&gt; velocity
 </code></pre>
 
 <p>Return target velocity.</p>
@@ -1048,7 +1058,7 @@ vmax_junction_sqr = sq(vmax_junction * v_factor);
 
 <p><a id="pyGCodeDecode.junction_handling.marlin.__init__"></a></p>
 <h4 id="marlin__init__">marlin.__init__<a class="headerlink" href="#marlin__init__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __init__(state_A: state, state_B: state)
+<pre class="codehilite"><code class="language-python">def __init__(state_A: state, state_B: state) -&gt; None
 </code></pre>
 
 <p>Marlin classic jerk specific junction velocity calculation.</p>
@@ -1059,13 +1069,13 @@ vmax_junction_sqr = sq(vmax_junction * v_factor);
 </ul>
 <p><a id="pyGCodeDecode.junction_handling.marlin.calc_j_vel"></a></p>
 <h4 id="marlincalc_j_vel">marlin.calc_j_vel<a class="headerlink" href="#marlincalc_j_vel" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def calc_j_vel()
+<pre class="codehilite"><code class="language-python">def calc_j_vel() -&gt; None
 </code></pre>
 
 <p>Calculate the junction velocity.</p>
 <p><a id="pyGCodeDecode.junction_handling.marlin.get_junction_vel"></a></p>
 <h4 id="marlinget_junction_vel">marlin.get_junction_vel<a class="headerlink" href="#marlinget_junction_vel" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_junction_vel()
+<pre class="codehilite"><code class="language-python">def get_junction_vel() -&gt; float
 </code></pre>
 
 <p>Return the calculated junction velocity.</p>
@@ -1164,7 +1174,7 @@ if (limited) vmax_junction *= v_factor;
 
 <p><a id="pyGCodeDecode.junction_handling.prusa.__init__"></a></p>
 <h4 id="prusa__init__">prusa.__init__<a class="headerlink" href="#prusa__init__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __init__(state_A: state, state_B: state)
+<pre class="codehilite"><code class="language-python">def __init__(state_A: state, state_B: state) -&gt; None
 </code></pre>
 
 <p>Marlin classic jerk specific junction velocity calculation.</p>
@@ -1175,13 +1185,13 @@ if (limited) vmax_junction *= v_factor;
 </ul>
 <p><a id="pyGCodeDecode.junction_handling.prusa.calc_j_vel"></a></p>
 <h4 id="prusacalc_j_vel">prusa.calc_j_vel<a class="headerlink" href="#prusacalc_j_vel" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def calc_j_vel()
+<pre class="codehilite"><code class="language-python">def calc_j_vel() -&gt; None
 </code></pre>
 
 <p>Calculate the junction velocity.</p>
 <p><a id="pyGCodeDecode.junction_handling.prusa.get_junction_vel"></a></p>
 <h4 id="prusaget_junction_vel">prusa.get_junction_vel<a class="headerlink" href="#prusaget_junction_vel" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_junction_vel()
+<pre class="codehilite"><code class="language-python">def get_junction_vel() -&gt; float
 </code></pre>
 
 <p>Return the calculated junction velocity.</p>
@@ -1230,7 +1240,7 @@ block-&gt;max_entry_speed = vmax_junction;
 
 <p><a id="pyGCodeDecode.junction_handling.ultimaker.__init__"></a></p>
 <h4 id="ultimaker__init__">ultimaker.__init__<a class="headerlink" href="#ultimaker__init__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __init__(state_A: state, state_B: state)
+<pre class="codehilite"><code class="language-python">def __init__(state_A: state, state_B: state) -&gt; None
 </code></pre>
 
 <p>Ultimaker specific junction velocity calculation.</p>
@@ -1241,13 +1251,13 @@ block-&gt;max_entry_speed = vmax_junction;
 </ul>
 <p><a id="pyGCodeDecode.junction_handling.ultimaker.calc_j_vel"></a></p>
 <h4 id="ultimakercalc_j_vel">ultimaker.calc_j_vel<a class="headerlink" href="#ultimakercalc_j_vel" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def calc_j_vel()
+<pre class="codehilite"><code class="language-python">def calc_j_vel() -&gt; None
 </code></pre>
 
 <p>Calculate the junction velocity.</p>
 <p><a id="pyGCodeDecode.junction_handling.ultimaker.get_junction_vel"></a></p>
 <h4 id="ultimakerget_junction_vel">ultimaker.get_junction_vel<a class="headerlink" href="#ultimakerget_junction_vel" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_junction_vel()
+<pre class="codehilite"><code class="language-python">def get_junction_vel() -&gt; float
 </code></pre>
 
 <p>Return the calculated junction velocity.</p>
@@ -1266,7 +1276,9 @@ block-&gt;max_entry_speed = vmax_junction;
 <p>Planner Block Class.</p>
 <p><a id="pyGCodeDecode.planner_block.planner_block.__init__"></a></p>
 <h4 id="planner_block__init__">planner_block.__init__<a class="headerlink" href="#planner_block__init__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __init__(state: state, prev_block: &quot;planner_block&quot;, firmware=None)
+<pre class="codehilite"><code class="language-python">def __init__(state: state,
+             prev_block: planner_block,
+             firmware: str | None = None) -&gt; None
 </code></pre>
 
 <p>Calculate and store planner block consisting of one or multiple segments.</p>
@@ -1290,13 +1302,13 @@ block-&gt;max_entry_speed = vmax_junction;
 <p>Create a visually aligned ASCII art string for planner block.</p>
 <p><a id="pyGCodeDecode.planner_block.planner_block.calc_results"></a></p>
 <h4 id="planner_blockcalc_results">planner_block.calc_results<a class="headerlink" href="#planner_blockcalc_results" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def calc_results(*additional_calculators: abstract_result)
+<pre class="codehilite"><code class="language-python">def calc_results(*additional_calculators: abstract_result) -&gt; None
 </code></pre>
 
 <p>Calculate the result of the planner block.</p>
 <p><a id="pyGCodeDecode.planner_block.planner_block.extrusion_block_max_vel"></a></p>
 <h4 id="planner_blockextrusion_block_max_vel">planner_block.extrusion_block_max_vel<a class="headerlink" href="#planner_blockextrusion_block_max_vel" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def extrusion_block_max_vel() -&gt; Union[np.ndarray, None]
+<pre class="codehilite"><code class="language-python">def extrusion_block_max_vel() -&gt; np.ndarray | None
 </code></pre>
 
 <p>Return max vel from planner block while extruding.</p>
@@ -1307,19 +1319,19 @@ block-&gt;max_entry_speed = vmax_junction;
 </ul>
 <p><a id="pyGCodeDecode.planner_block.planner_block.get_block_travel"></a></p>
 <h4 id="planner_blockget_block_travel">planner_block.get_block_travel<a class="headerlink" href="#planner_blockget_block_travel" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_block_travel()
+<pre class="codehilite"><code class="language-python">def get_block_travel() -&gt; float
 </code></pre>
 
 <p>Return the travel length of the planner block.</p>
 <p><a id="pyGCodeDecode.planner_block.planner_block.get_segments"></a></p>
 <h4 id="planner_blockget_segments">planner_block.get_segments<a class="headerlink" href="#planner_blockget_segments" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_segments()
+<pre class="codehilite"><code class="language-python">def get_segments() -&gt; list[segment]
 </code></pre>
 
 <p>Return segments, contained by the planner block.</p>
 <p><a id="pyGCodeDecode.planner_block.planner_block.inverse_time_at_pos"></a></p>
 <h4 id="planner_blockinverse_time_at_pos">planner_block.inverse_time_at_pos<a class="headerlink" href="#planner_blockinverse_time_at_pos" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def inverse_time_at_pos(dist_local)
+<pre class="codehilite"><code class="language-python">def inverse_time_at_pos(dist_local: float) -&gt; float
 </code></pre>
 
 <p>Get the global time, at which the local length is reached.</p>
@@ -1333,10 +1345,11 @@ block-&gt;max_entry_speed = vmax_junction;
 </ul>
 <p><a id="pyGCodeDecode.planner_block.planner_block.move_maker"></a></p>
 <h4 id="planner_blockmove_maker">planner_block.move_maker<a class="headerlink" href="#planner_blockmove_maker" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def move_maker(v_end)
+<pre class="codehilite"><code class="language-python">def move_maker(v_end: float) -&gt; None
 </code></pre>
 
-<p>Calculate the correct move type (trapezoidal,triangular or singular) and generate the corresponding segments.</p>
+<p>Calculate the correct move type and generate the corresponding segments.</p>
+<p>(trapezoidal,triangular or singular)</p>
 <p><strong>Arguments</strong>:</p>
 <ul>
 <li><code>v_end</code> - (velocity) target velocity for end of move</li>
@@ -1344,26 +1357,26 @@ block-&gt;max_entry_speed = vmax_junction;
 <p><a id="pyGCodeDecode.planner_block.planner_block.next_block"></a></p>
 <h4 id="planner_blocknext_block">planner_block.next_block<a class="headerlink" href="#planner_blocknext_block" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">@property
-def next_block()
+def next_block() -&gt; planner_block | None
 </code></pre>
 
 <p>Define next_block as property.</p>
 <p><a id="pyGCodeDecode.planner_block.planner_block.prev_block"></a></p>
 <h4 id="planner_blockprev_block">planner_block.prev_block<a class="headerlink" href="#planner_blockprev_block" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">@property
-def prev_block()
+def prev_block() -&gt; planner_block | None
 </code></pre>
 
 <p>Define prev_block as property.</p>
 <p><a id="pyGCodeDecode.planner_block.planner_block.self_correction"></a></p>
 <h4 id="planner_blockself_correction">planner_block.self_correction<a class="headerlink" href="#planner_blockself_correction" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def self_correction(tolerance=float(&quot;1e-12&quot;))
+<pre class="codehilite"><code class="language-python">def self_correction(tolerance: float = float(&quot;1e-12&quot;)) -&gt; None
 </code></pre>
 
 <p>Check for interfacing vel and self correct.</p>
 <p><a id="pyGCodeDecode.planner_block.planner_block.timeshift"></a></p>
 <h4 id="planner_blocktimeshift">planner_block.timeshift<a class="headerlink" href="#planner_blocktimeshift" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def timeshift(delta_t: float)
+<pre class="codehilite"><code class="language-python">def timeshift(delta_t: float) -&gt; None
 </code></pre>
 
 <p>Shift planner block in time.</p>
@@ -1378,12 +1391,12 @@ def prev_block()
 <h4 id="plot_2d">plot_2d<a class="headerlink" href="#plot_2d" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">def plot_2d(sim: simulation,
             filepath: pathlib.Path = pathlib.Path(&quot;trajectory_2D.png&quot;),
-            colvar=&quot;Velocity&quot;,
-            show_points=False,
-            colvar_spatial_resolution=1,
-            dpi=400,
-            scaled=True,
-            show=False)
+            colvar: str = &quot;Velocity&quot;,
+            show_points: bool = False,
+            colvar_spatial_resolution: int = 1,
+            dpi: int = 400,
+            scaled: bool = True,
+            show: bool = False) -&gt; None
 </code></pre>
 
 <p>Plot 2D position (XY plane) with matplotlib (unmaintained).</p>
@@ -1392,23 +1405,23 @@ def prev_block()
 <pre class="codehilite"><code class="language-python">def plot_3d(sim: simulation,
             extrusion_only: bool = True,
             scalar_value: str = &quot;velocity&quot;,
-            screenshot_path: pathlib.Path = None,
-            camera_settings: dict = None,
-            vtk_path: pathlib.Path = None,
+            screenshot_path: pathlib.Path | None = None,
+            camera_settings: dict | None = None,
+            vtk_path: pathlib.Path | None = None,
             mesh: pv.MultiBlock = None,
-            layer_select: int = None,
-            z_scaler: float = None,
+            layer_select: int | None = None,
+            z_scaler: float | None = None,
             window_size: tuple = (2048, 1536),
             mpl_subplot: bool = False,
-            mpl_rcParams: Union[dict, None] = None,
+            mpl_rcParams: dict | None = None,
             solid_color: str = &quot;black&quot;,
             transparent_background: bool = True,
             parallel_projection: bool = False,
             lighting: bool = True,
             block_colorbar: bool = False,
-            extra_plotting: callable = None,
-            overwrite_labels: Union[dict, None] = None,
-            scalar_value_bounds: Union[Tuple[float, float], None] = None,
+            extra_plotting: callable | None = None,
+            overwrite_labels: dict | None = None,
+            scalar_value_bounds: tuple[float, float] | None = None,
             return_type: str = &quot;mesh&quot;) -&gt; pv.MultiBlock
 </code></pre>
 
@@ -1446,13 +1459,13 @@ def prev_block()
 <p><a id="pyGCodeDecode.plotter.plot_vel"></a></p>
 <h4 id="plot_vel">plot_vel<a class="headerlink" href="#plot_vel" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">def plot_vel(sim: simulation,
-             axis: Tuple[str] = (&quot;x&quot;, &quot;y&quot;, &quot;z&quot;, &quot;e&quot;),
+             axis: tuple[str] = (&quot;x&quot;, &quot;y&quot;, &quot;z&quot;, &quot;e&quot;),
              show: bool = True,
              show_planner_blocks: bool = True,
              show_segments: bool = False,
              show_jv: bool = False,
-             time_steps: Union[int, str] = &quot;constrained&quot;,
-             filepath: pathlib.Path = None,
+             time_steps: int | str = &quot;constrained&quot;,
+             filepath: pathlib.Path | None = None,
              dpi: int = 400) -&gt; Figure
 </code></pre>
 
@@ -1484,14 +1497,14 @@ def prev_block()
 <p><a id="pyGCodeDecode.result.abstract_result.calc_pblock"></a></p>
 <h4 id="abstract_resultcalc_pblock">abstract_result.calc_pblock<a class="headerlink" href="#abstract_resultcalc_pblock" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">@abstractmethod
-def calc_pblock(pblock: &quot;planner_block&quot;, **kwargs)
+def calc_pblock(pblock: &quot;planner_block&quot;, **kwargs: object) -&gt; None
 </code></pre>
 
 <p>Calculate the result for a planner block.</p>
 <p><a id="pyGCodeDecode.result.abstract_result.calc_segm"></a></p>
 <h4 id="abstract_resultcalc_segm">abstract_result.calc_segm<a class="headerlink" href="#abstract_resultcalc_segm" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">@abstractmethod
-def calc_segm(segm: &quot;segment&quot;, **kwargs)
+def calc_segm(segm: &quot;segment&quot;, **kwargs: object) -&gt; None
 </code></pre>
 
 <p>Calculate the result for a segment.</p>
@@ -1499,7 +1512,7 @@ def calc_segm(segm: &quot;segment&quot;, **kwargs)
 <h4 id="abstract_resultname">abstract_result.name<a class="headerlink" href="#abstract_resultname" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">@property
 @abstractmethod
-def name()
+def name() -&gt; str
 </code></pre>
 
 <p>Name of the result. Has to be set in the derived class.</p>
@@ -1511,31 +1524,31 @@ def name()
 <p>The acceleration.</p>
 <p><a id="pyGCodeDecode.result.acceleration_result.calc_pblock"></a></p>
 <h4 id="acceleration_resultcalc_pblock">acceleration_result.calc_pblock<a class="headerlink" href="#acceleration_resultcalc_pblock" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def calc_pblock(pblock, **kwargs)
+<pre class="codehilite"><code class="language-python">def calc_pblock(pblock: &quot;planner_block&quot;, **kwargs: object) -&gt; None
 </code></pre>
 
 <p>Calculate the acceleration for a planner block.</p>
 <p><a id="pyGCodeDecode.result.acceleration_result.calc_segm"></a></p>
 <h4 id="acceleration_resultcalc_segm">acceleration_result.calc_segm<a class="headerlink" href="#acceleration_resultcalc_segm" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def calc_segm(segm: &quot;segment&quot;, **kwargs)
+<pre class="codehilite"><code class="language-python">def calc_segm(segm: &quot;segment&quot;, **kwargs: object) -&gt; None
 </code></pre>
 
 <p>Calculate the acceleration for a segment.</p>
 <p><a id="pyGCodeDecode.result.get_all_result_calculators"></a></p>
 <h4 id="get_all_result_calculators">get_all_result_calculators<a class="headerlink" href="#get_all_result_calculators" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_all_result_calculators()
+<pre class="codehilite"><code class="language-python">def get_all_result_calculators() -&gt; list[&quot;abstract_result&quot;]
 </code></pre>
 
 <p>Get all results.</p>
 <p><a id="pyGCodeDecode.result.get_result_info"></a></p>
 <h4 id="get_result_info">get_result_info<a class="headerlink" href="#get_result_info" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_result_info()
+<pre class="codehilite"><code class="language-python">def get_result_info() -&gt; dict
 </code></pre>
 
 <p>Get information about available result calculators.</p>
 <p><a id="pyGCodeDecode.result.has_private_results"></a></p>
 <h4 id="has_private_results">has_private_results<a class="headerlink" href="#has_private_results" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def has_private_results()
+<pre class="codehilite"><code class="language-python">def has_private_results() -&gt; bool | None
 </code></pre>
 
 <p>Check if private results are available.</p>
@@ -1547,13 +1560,13 @@ def name()
 <p>The velocity.</p>
 <p><a id="pyGCodeDecode.result.velocity_result.calc_pblock"></a></p>
 <h4 id="velocity_resultcalc_pblock">velocity_result.calc_pblock<a class="headerlink" href="#velocity_resultcalc_pblock" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def calc_pblock(pblock: &quot;planner_block&quot;, **kwargs)
+<pre class="codehilite"><code class="language-python">def calc_pblock(pblock: &quot;planner_block&quot;, **kwargs: object) -&gt; None
 </code></pre>
 
 <p>Calculate the velocity for a planner block.</p>
 <p><a id="pyGCodeDecode.result.velocity_result.calc_segm"></a></p>
 <h4 id="velocity_resultcalc_segm">velocity_result.calc_segm<a class="headerlink" href="#velocity_resultcalc_segm" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def calc_segm(segm: &quot;segment&quot;, **kwargs)
+<pre class="codehilite"><code class="language-python">def calc_segm(segm: &quot;segment&quot;, **kwargs: object) -&gt; None
 </code></pre>
 
 <p>Calculate the velocity for a segment.</p>
@@ -1565,11 +1578,12 @@ def name()
 <pre class="codehilite"><code class="language-python">class state()
 </code></pre>
 
-<p>State contains a Position and Printing Settings (p_settings) to apply for the corresponding move to this State.</p>
+<p>State contains a Position and Printing Settings (p_settings).</p>
+<p>Used to apply for the corresponding move to this State.</p>
 <p><a id="pyGCodeDecode.state.state.__init__"></a></p>
 <h4 id="state__init__">state.__init__<a class="headerlink" href="#state__init__" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">def __init__(state_position: position = None,
-             state_p_settings: p_settings = None)
+             state_p_settings: p_settings = None) -&gt; None
 </code></pre>
 
 <p>Initialize a state.</p>
@@ -1593,14 +1607,14 @@ def name()
 <p><a id="pyGCodeDecode.state.state.line_number"></a></p>
 <h4 id="stateline_number">state.line_number<a class="headerlink" href="#stateline_number" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">@property
-def line_number()
+def line_number() -&gt; int | None
 </code></pre>
 
 <p>Define property line_number.</p>
 <p><a id="pyGCodeDecode.state.state.line_number"></a></p>
 <h4 id="stateline_number_1">state.line_number<a class="headerlink" href="#stateline_number_1" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">@line_number.setter
-def line_number(nmbr)
+def line_number(nmbr: int | None) -&gt; None
 </code></pre>
 
 <p>Set line number.</p>
@@ -1611,14 +1625,14 @@ def line_number(nmbr)
 <p><a id="pyGCodeDecode.state.state.next_state"></a></p>
 <h4 id="statenext_state">state.next_state<a class="headerlink" href="#statenext_state" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">@property
-def next_state()
+def next_state() -&gt; state | None
 </code></pre>
 
 <p>Define property next_state.</p>
 <p><a id="pyGCodeDecode.state.state.next_state"></a></p>
 <h4 id="statenext_state_1">state.next_state<a class="headerlink" href="#statenext_state_1" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">@next_state.setter
-def next_state(state: &quot;state&quot;)
+def next_state(state: state) -&gt; None
 </code></pre>
 
 <p>Set next state.</p>
@@ -1634,7 +1648,14 @@ def next_state(state: &quot;state&quot;)
 <p>Store Printing Settings.</p>
 <p><a id="pyGCodeDecode.state.state.p_settings.__init__"></a></p>
 <h4 id="p_settings__init__">p_settings.__init__<a class="headerlink" href="#p_settings__init__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __init__(p_acc, jerk, vX, vY, vZ, vE, speed, units=&quot;SI (mm)&quot;)
+<pre class="codehilite"><code class="language-python">def __init__(p_acc: float,
+             jerk: float,
+             vX: float,
+             vY: float,
+             vZ: float,
+             vE: float,
+             speed: float,
+             units: str = &quot;SI (mm)&quot;) -&gt; None
 </code></pre>
 
 <p>Initialize printing settings.</p>
@@ -1664,14 +1685,14 @@ def next_state(state: &quot;state&quot;)
 <p><a id="pyGCodeDecode.state.state.prev_state"></a></p>
 <h4 id="stateprev_state">state.prev_state<a class="headerlink" href="#stateprev_state" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">@property
-def prev_state()
+def prev_state() -&gt; state | None
 </code></pre>
 
 <p>Define property prev_state.</p>
 <p><a id="pyGCodeDecode.state.state.prev_state"></a></p>
 <h4 id="stateprev_state_1">state.prev_state<a class="headerlink" href="#stateprev_state_1" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">@prev_state.setter
-def prev_state(state: &quot;state&quot;)
+def prev_state(state: state) -&gt; None
 </code></pre>
 
 <p>Set previous state.</p>
@@ -1682,14 +1703,14 @@ def prev_state(state: &quot;state&quot;)
 <p><a id="pyGCodeDecode.state.state.state_p_settings"></a></p>
 <h4 id="statestate_p_settings">state.state_p_settings<a class="headerlink" href="#statestate_p_settings" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">@property
-def state_p_settings()
+def state_p_settings() -&gt; p_settings | None
 </code></pre>
 
 <p>Define property state_p_settings.</p>
 <p><a id="pyGCodeDecode.state.state.state_position"></a></p>
 <h4 id="statestate_position">state.state_position<a class="headerlink" href="#statestate_position" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">@property
-def state_position()
+def state_position() -&gt; position | None
 </code></pre>
 
 <p>Define property state_position.</p>
@@ -1698,8 +1719,8 @@ def state_position()
 <p>State generator module.</p>
 <p><a id="pyGCodeDecode.state_generator.generate_states"></a></p>
 <h4 id="generate_states">generate_states<a class="headerlink" href="#generate_states" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def generate_states(filepath: pathlib.Path,
-                    initial_machine_setup: dict) -&gt; List[state]
+<pre class="codehilite"><code class="language-python">def generate_states(filepath: Path,
+                    initial_machine_setup: dict) -&gt; list[state]
 </code></pre>
 
 <p>Generate state list from GCode file.</p>
@@ -1719,9 +1740,9 @@ def state_position()
 <h4 id="save_layer_metrics">save_layer_metrics<a class="headerlink" href="#save_layer_metrics" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">def save_layer_metrics(
         simulation: simulation,
-        filepath: Optional[pathlib.Path] = pathlib.Path(&quot;./layer_metrics.csv&quot;),
-        locale: str = None,
-        delimiter: str = &quot;;&quot;) -&gt; Optional[tuple[list, list, list, list]]
+        filepath: Path | None = Path(&quot;./layer_metrics.csv&quot;),
+        locale: str | None = None,
+        delimiter: str = &quot;;&quot;) -&gt; tuple[list, list, list, list] | None
 </code></pre>
 
 <p>Print out print times, distance traveled and the average travel speed to a csv-file.</p>
@@ -1729,7 +1750,8 @@ def state_position()
 <ul>
 <li><code>simulation</code> - (simulation) simulation instance</li>
 <li><code>filepath</code> - (Path , default = "./layer_metrics.csv") file name</li>
-<li><code>locale</code> - (string, default = None) select locale settings, e.g. "en_US.utf8", None = use system locale</li>
+<li><code>locale</code> - (string, default = None) select locale settings,
+  e.g. "en_US.utf8", None = use system locale</li>
 <li><code>delimiter</code> - (string, default = ";") select delimiter</li>
 </ul>
 <p>Layers are detected using the given layer cue.</p>
@@ -1740,9 +1762,8 @@ def state_position()
                          sub_side_x_len: float,
                          sub_side_y_len: float,
                          sub_side_z_len: float,
-                         filename: Optional[pathlib.Path] = pathlib.Path(
-                             &quot;submodel_times.yaml&quot;),
-                         **kwargs) -&gt; dict
+                         filename: Path | None = Path(&quot;submodel_times.yaml&quot;),
+                         **kwargs: object) -&gt; dict
 </code></pre>
 
 <p>Write the submodel entry and exit times to a yaml file.</p>
@@ -1751,7 +1772,7 @@ def state_position()
 <li><code>simulation</code> - (simulation) the simulation instance to analyze</li>
 <li><code>sub_orig</code> - (list with [xcoord, ycoord, zcoord]) the origin of the submodel control volume</li>
 <li><code>sub_side_len</code> - (float) the side length of the submodel control volume</li>
-<li><code>filename</code> - (string) yaml filename</li>
+<li><code>filename</code> - (string or Path) yaml filename</li>
 <li><code>**kwargs</code> - (any) provide additional info to write into the yaml file</li>
 </ul>
 <p><a id="pyGCodeDecode.utils"></a></p>
@@ -1769,7 +1790,7 @@ def state_position()
 <p>4D - Acceleration object for (Cartesian) 3D printer.</p>
 <p><a id="pyGCodeDecode.utils.acceleration.__mul__"></a></p>
 <h4 id="acceleration__mul__">acceleration.__mul__<a class="headerlink" href="#acceleration__mul__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __mul__(other)
+<pre class="codehilite"><code class="language-python">def __mul__(other: seconds | float | int) -&gt; velocity | acceleration
 </code></pre>
 
 <p>Multiply acceleration by a time to get velocity, or by scalar.</p>
@@ -1781,7 +1802,7 @@ def state_position()
 <p>Print out acceleration.</p>
 <p><a id="pyGCodeDecode.utils.acceleration.__truediv__"></a></p>
 <h4 id="acceleration__truediv__">acceleration.__truediv__<a class="headerlink" href="#acceleration__truediv__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __truediv__(other)
+<pre class="codehilite"><code class="language-python">def __truediv__(other: float | int) -&gt; acceleration
 </code></pre>
 
 <p>Divide acceleration by scalar.</p>
@@ -1799,16 +1820,18 @@ def state_position()
 <p>Print out position.</p>
 <p><a id="pyGCodeDecode.utils.position.__truediv__"></a></p>
 <h4 id="position__truediv__">position.__truediv__<a class="headerlink" href="#position__truediv__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __truediv__(other)
+<pre class="codehilite"><code class="language-python">def __truediv__(other: seconds | float | int) -&gt; velocity | vector_4D
 </code></pre>
 
 <p>Divide position by seconds to get velocity.</p>
 <p><a id="pyGCodeDecode.utils.position.get_t_distance"></a></p>
 <h4 id="positionget_t_distance">position.get_t_distance<a class="headerlink" href="#positionget_t_distance" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_t_distance(other=None, withExtrusion: bool = False) -&gt; float
+<pre class="codehilite"><code class="language-python">def get_t_distance(other: position | None = None,
+                   withExtrusion: bool = False) -&gt; float
 </code></pre>
 
-<p>Calculate the travel distance between self and other position. If none is provided, zero will be used.</p>
+<p>Calculate the travel distance between self and other position.</p>
+<p>If none is provided, zero will be used.</p>
 <p><strong>Arguments</strong>:</p>
 <ul>
 <li><code>other</code> - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray', default = None)</li>
@@ -1820,14 +1843,15 @@ def state_position()
 </ul>
 <p><a id="pyGCodeDecode.utils.position.is_extruding"></a></p>
 <h4 id="positionis_extruding">position.is_extruding<a class="headerlink" href="#positionis_extruding" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def is_extruding(other: &quot;position&quot;, ignore_retract: bool = True) -&gt; bool
+<pre class="codehilite"><code class="language-python">def is_extruding(other: position, ignore_retract: bool = True) -&gt; bool
 </code></pre>
 
 <p>Return True if there is extrusion between self and other position.</p>
 <p><strong>Arguments</strong>:</p>
 <ul>
 <li><code>other</code> - (4D vector, 1x4 'list', 1x4 'tuple' or 1x4 'numpy.ndarray')</li>
-<li><code>ignore_retract</code> - (bool, default = True) if true ignore retract movements else retract is also extrusion</li>
+<li><code>ignore_retract</code> - (bool, default = True) if true ignore retract movements
+  else retract is also extrusion</li>
 </ul>
 <p><strong>Returns</strong>:</p>
 <ul>
@@ -1835,7 +1859,7 @@ def state_position()
 </ul>
 <p><a id="pyGCodeDecode.utils.position.is_travel"></a></p>
 <h4 id="positionis_travel">position.is_travel<a class="headerlink" href="#positionis_travel" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def is_travel(other) -&gt; bool
+<pre class="codehilite"><code class="language-python">def is_travel(other: position) -&gt; bool
 </code></pre>
 
 <p>Return True if there is travel between self and other position.</p>
@@ -1868,13 +1892,13 @@ def state_position()
 
 <p><a id="pyGCodeDecode.utils.seconds.__add__"></a></p>
 <h4 id="seconds__add__">seconds.__add__<a class="headerlink" href="#seconds__add__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __add__(other) -&gt; &quot;seconds&quot;
+<pre class="codehilite"><code class="language-python">def __add__(other: float | seconds) -&gt; seconds
 </code></pre>
 
 <p>Add seconds or float and return a new seconds instance.</p>
 <p><a id="pyGCodeDecode.utils.seconds.__new__"></a></p>
 <h4 id="seconds__new__">seconds.__new__<a class="headerlink" href="#seconds__new__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __new__(cls, value)
+<pre class="codehilite"><code class="language-python">def __new__(cls, value: float) -&gt; seconds
 </code></pre>
 
 <p>Create a new instance of seconds.</p>
@@ -1892,7 +1916,7 @@ def state_position()
 <p>Return string representation of the time in seconds.</p>
 <p><a id="pyGCodeDecode.utils.seconds.__sub__"></a></p>
 <h4 id="seconds__sub__">seconds.__sub__<a class="headerlink" href="#seconds__sub__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __sub__(other) -&gt; &quot;seconds&quot;
+<pre class="codehilite"><code class="language-python">def __sub__(other: float | seconds) -&gt; seconds
 </code></pre>
 
 <p>Subtract seconds or float and return a new seconds instance.</p>
@@ -1918,16 +1942,17 @@ def seconds() -&gt; float
 - get_position: returns the calculated Position for all axis at a given point in time
 - get_segm_len: returns the length of the segment.</p>
 <p><strong>Class method</strong>
-- create_initial: returns the artificial initial segment where everything is at standstill, intervall length = 0
+- create_initial: returns the artificial initial segment where everything is at standstill,
+    intervall length = 0
 - self_check: returns True if all self checks have been successfull</p>
 <p><a id="pyGCodeDecode.utils.segment.__init__"></a></p>
 <h4 id="segment__init__">segment.__init__<a class="headerlink" href="#segment__init__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __init__(t_begin: Union[float, seconds],
-             t_end: Union[float, seconds],
+<pre class="codehilite"><code class="language-python">def __init__(t_begin: float | seconds,
+             t_end: float | seconds,
              pos_begin: position,
              vel_begin: velocity,
              pos_end: position = None,
-             vel_end: velocity = None)
+             vel_end: velocity = None) -&gt; None
 </code></pre>
 
 <p>Initialize a segment.</p>
@@ -1942,7 +1967,7 @@ def seconds() -&gt; float
 </ul>
 <p><a id="pyGCodeDecode.utils.segment.__repr__"></a></p>
 <h4 id="segment__repr__">segment.__repr__<a class="headerlink" href="#segment__repr__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __repr__()
+<pre class="codehilite"><code class="language-python">def __repr__() -&gt; str
 </code></pre>
 
 <p>Segment representation.</p>
@@ -1955,8 +1980,7 @@ def seconds() -&gt; float
 <p><a id="pyGCodeDecode.utils.segment.create_initial"></a></p>
 <h4 id="segmentcreate_initial">segment.create_initial<a class="headerlink" href="#segmentcreate_initial" title="Permanent link">&para;</a></h4>
 <pre class="codehilite"><code class="language-python">@classmethod
-def create_initial(cls,
-                   initial_position: Optional[position] = None) -&gt; &quot;segment&quot;
+def create_initial(cls, initial_position: position | None = None) -&gt; segment
 </code></pre>
 
 <p>Create initial static segment with (optionally) initial position else start from Zero.</p>
@@ -1970,7 +1994,7 @@ def create_initial(cls,
 </ul>
 <p><a id="pyGCodeDecode.utils.segment.get_position"></a></p>
 <h4 id="segmentget_position">segment.get_position<a class="headerlink" href="#segmentget_position" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_position(t: Union[float, seconds]) -&gt; position
+<pre class="codehilite"><code class="language-python">def get_position(t: float | seconds) -&gt; position
 </code></pre>
 
 <p>Get current position of segment at a certain time.</p>
@@ -1984,7 +2008,7 @@ def create_initial(cls,
 </ul>
 <p><a id="pyGCodeDecode.utils.segment.get_result"></a></p>
 <h4 id="segmentget_result">segment.get_result<a class="headerlink" href="#segmentget_result" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_result(key: str)
+<pre class="codehilite"><code class="language-python">def get_result(key: str) -&gt; float | list[float]
 </code></pre>
 
 <p>Return the requested result.</p>
@@ -2010,7 +2034,7 @@ def create_initial(cls,
 <p>Return the length of the segment.</p>
 <p><a id="pyGCodeDecode.utils.segment.get_velocity"></a></p>
 <h4 id="segmentget_velocity">segment.get_velocity<a class="headerlink" href="#segmentget_velocity" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_velocity(t: Union[float, seconds]) -&gt; velocity
+<pre class="codehilite"><code class="language-python">def get_velocity(t: float | seconds) -&gt; velocity
 </code></pre>
 
 <p>Get current velocity of segment at a certain time.</p>
@@ -2044,7 +2068,7 @@ def create_initial(cls,
 </ul>
 <p><a id="pyGCodeDecode.utils.segment.move_segment_time"></a></p>
 <h4 id="segmentmove_segment_time">segment.move_segment_time<a class="headerlink" href="#segmentmove_segment_time" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def move_segment_time(delta_t: Union[float, seconds]) -&gt; None
+<pre class="codehilite"><code class="language-python">def move_segment_time(delta_t: float | seconds) -&gt; None
 </code></pre>
 
 <p>Move segment in time.</p>
@@ -2054,7 +2078,7 @@ def create_initial(cls,
 </ul>
 <p><a id="pyGCodeDecode.utils.segment.self_check"></a></p>
 <h4 id="segmentself_check">segment.self_check<a class="headerlink" href="#segmentself_check" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def self_check(p_settings: &quot;state.p_settings&quot; = None) -&gt; bool
+<pre class="codehilite"><code class="language-python">def self_check(p_settings: state.p_settings = None) -&gt; bool
 </code></pre>
 
 <p>Check the segment for self consistency.</p>
@@ -2083,7 +2107,7 @@ def create_initial(cls,
 - eq</p>
 <p><a id="pyGCodeDecode.utils.vector_4D.__add__"></a></p>
 <h4 id="vector_4d__add__">vector_4D.__add__<a class="headerlink" href="#vector_4d__add__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __add__(other)
+<pre class="codehilite"><code class="language-python">def __add__(other: vector_4D | list | tuple | np.ndarray) -&gt; vector_4D
 </code></pre>
 
 <p>Add functionality for 4D vectors.</p>
@@ -2097,7 +2121,7 @@ def create_initial(cls,
 </ul>
 <p><a id="pyGCodeDecode.utils.vector_4D.__eq__"></a></p>
 <h4 id="vector_4d__eq__">vector_4D.__eq__<a class="headerlink" href="#vector_4d__eq__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __eq__(other) -&gt; bool
+<pre class="codehilite"><code class="language-python">def __eq__(other: object) -&gt; bool
 </code></pre>
 
 <p>Check for equality and return True if equal.</p>
@@ -2111,7 +2135,7 @@ def create_initial(cls,
 </ul>
 <p><a id="pyGCodeDecode.utils.vector_4D.__gt__"></a></p>
 <h4 id="vector_4d__gt__">vector_4D.__gt__<a class="headerlink" href="#vector_4d__gt__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __gt__(other) -&gt; bool
+<pre class="codehilite"><code class="language-python">def __gt__(other: object) -&gt; bool
 </code></pre>
 
 <p>Check for greater than and return True if greater.</p>
@@ -2125,7 +2149,7 @@ def create_initial(cls,
 </ul>
 <p><a id="pyGCodeDecode.utils.vector_4D.__init__"></a></p>
 <h4 id="vector_4d__init__">vector_4D.__init__<a class="headerlink" href="#vector_4d__init__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __init__(*args)
+<pre class="codehilite"><code class="language-python">def __init__(*args: float | list | tuple | np.ndarray) -&gt; None
 </code></pre>
 
 <p>Store 3D position + extrusion axis.</p>
@@ -2135,7 +2159,7 @@ def create_initial(cls,
 </ul>
 <p><a id="pyGCodeDecode.utils.vector_4D.__mul__"></a></p>
 <h4 id="vector_4d__mul__">vector_4D.__mul__<a class="headerlink" href="#vector_4d__mul__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __mul__(other)
+<pre class="codehilite"><code class="language-python">def __mul__(other: float | int) -&gt; vector_4D
 </code></pre>
 
 <p>Scalar multiplication functionality for 4D vectors.</p>
@@ -2149,7 +2173,7 @@ def create_initial(cls,
 </ul>
 <p><a id="pyGCodeDecode.utils.vector_4D.__repr__"></a></p>
 <h4 id="vector_4d__repr__">vector_4D.__repr__<a class="headerlink" href="#vector_4d__repr__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __repr__()
+<pre class="codehilite"><code class="language-python">def __repr__() -&gt; str
 </code></pre>
 
 <p>Return a string representation of the 4D vector.</p>
@@ -2161,7 +2185,7 @@ def create_initial(cls,
 <p>Return string representation.</p>
 <p><a id="pyGCodeDecode.utils.vector_4D.__sub__"></a></p>
 <h4 id="vector_4d__sub__">vector_4D.__sub__<a class="headerlink" href="#vector_4d__sub__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __sub__(other)
+<pre class="codehilite"><code class="language-python">def __sub__(other: vector_4D | list | tuple | np.ndarray) -&gt; vector_4D
 </code></pre>
 
 <p>Sub functionality for 4D vectors.</p>
@@ -2175,7 +2199,7 @@ def create_initial(cls,
 </ul>
 <p><a id="pyGCodeDecode.utils.vector_4D.__truediv__"></a></p>
 <h4 id="vector_4d__truediv__">vector_4D.__truediv__<a class="headerlink" href="#vector_4d__truediv__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __truediv__(other)
+<pre class="codehilite"><code class="language-python">def __truediv__(other: float | int) -&gt; vector_4D
 </code></pre>
 
 <p>Scalar division functionality for 4D Vectors.</p>
@@ -2203,7 +2227,7 @@ def create_initial(cls,
 </ul>
 <p><a id="pyGCodeDecode.utils.vector_4D.get_vec"></a></p>
 <h4 id="vector_4dget_vec">vector_4D.get_vec<a class="headerlink" href="#vector_4dget_vec" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_vec(withExtrusion: bool = False) -&gt; List[float]
+<pre class="codehilite"><code class="language-python">def get_vec(withExtrusion: bool = False) -&gt; list[float]
 </code></pre>
 
 <p>Return the 4D vector, optionally with extrusion.</p>
@@ -2223,7 +2247,7 @@ def create_initial(cls,
 <p>4D - Velocity object for (Cartesian) 3D printer.</p>
 <p><a id="pyGCodeDecode.utils.velocity.__mul__"></a></p>
 <h4 id="velocity__mul__">velocity.__mul__<a class="headerlink" href="#velocity__mul__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __mul__(other)
+<pre class="codehilite"><code class="language-python">def __mul__(other: seconds | float | int) -&gt; position | velocity
 </code></pre>
 
 <p>Multiply velocity by a time to get position, or by scalar.</p>
@@ -2235,13 +2259,13 @@ def create_initial(cls,
 <p>Print out velocity.</p>
 <p><a id="pyGCodeDecode.utils.velocity.__truediv__"></a></p>
 <h4 id="velocity__truediv__">velocity.__truediv__<a class="headerlink" href="#velocity__truediv__" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def __truediv__(other)
+<pre class="codehilite"><code class="language-python">def __truediv__(other: seconds | float | int) -&gt; acceleration | vector_4D
 </code></pre>
 
 <p>Divide velocity by scalar.</p>
 <p><a id="pyGCodeDecode.utils.velocity.get_norm_dir"></a></p>
 <h4 id="velocityget_norm_dir">velocity.get_norm_dir<a class="headerlink" href="#velocityget_norm_dir" title="Permanent link">&para;</a></h4>
-<pre class="codehilite"><code class="language-python">def get_norm_dir(withExtrusion: bool = False) -&gt; Optional[np.ndarray]
+<pre class="codehilite"><code class="language-python">def get_norm_dir(withExtrusion: bool = False) -&gt; np.ndarray | None
 </code></pre>
 
 <p>Get normalized direction vector as numpy array.</p>
