@@ -85,7 +85,7 @@ def _plot(args: argparse.Namespace) -> None:
             )
             presets_file = importlib.resources.files("pyGCodeDecode").joinpath(
                 "data/default_printer_presets.yaml"
-            )
+            )  # type: ignore
         elif not presets_file.is_file():
             custom_print(
                 f"❌ The specified presets file:\n{presets_file.resolve()}\n"
@@ -96,17 +96,19 @@ def _plot(args: argparse.Namespace) -> None:
         else:
             custom_print(f"✅ Using the presets file:\n{presets_file.resolve()}")
 
-        return presets_file
+        return presets_file  # type: ignore
 
-    def _get_out_dir(out_dir: pathlib.Path | None, g_code_file: pathlib.Path) -> pathlib.Path:
+    def _get_out_dir(
+        out_dir: pathlib.Path | None, g_code_file: pathlib.Path
+    ) -> pathlib.Path | None:
         """Get the output directory for the plot."""
         if out_dir is None:
             answer = ""
             while answer.lower() not in ("y", "yes", "n", "no"):
                 answer = input(
-                    "⚠️  No output directory specified! Do you want to create "
-                    "one in the current working directory?"
-                    "\nOtherwise no outputs will be saved!"
+                    "⚠️  No output directory specified! Do you want to create one in the current "
+                    "working directory?"
+                    "\nIf not, no outputs will be saved!"
                     "\nYou must answer with yes (y) or no (n)!\n"
                 )
 
@@ -116,7 +118,8 @@ def _plot(args: argparse.Namespace) -> None:
             elif answer.lower() in ["y", "yes"]:
                 out_dir = pathlib.Path.cwd() / f"output_{g_code_file.stem}"
 
-        custom_print(f"✅ Using the output directory: {out_dir.resolve()}")
+        if out_dir is not None:
+            custom_print(f"✅ Using the output directory: {out_dir.resolve()}")
         return out_dir
 
     g_code_file = _find_gcode_file(args.gcode)
@@ -165,14 +168,15 @@ def _plot(args: argparse.Namespace) -> None:
         mesh = None
 
     # create an interactive 3D-plot
-    plot_3d(sim, mesh=mesh)
+    plot_3d(sim, mesh=mesh)  # type: ignore
 
 
 def _main(args: list | None = None) -> None:
     """Entry point function for the command-line interface (CLI)."""
     global_parser = argparse.ArgumentParser(
         prog="pygcd",
-        description=f"{__doc__} You are running version {__version__}.",
+        description=__doc__.splitlines()[0]  # type: ignore
+        + f" You are running version {__version__}.",
     )
     global_parser.add_argument(
         "-v",
