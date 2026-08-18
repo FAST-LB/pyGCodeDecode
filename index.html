@@ -167,7 +167,9 @@ print(pyGCodeDecode.__version__)&quot;
 <ol>
 <li>Load your setup <code>.yaml</code> file through:</li>
 </ol>
-<pre class="codehilite"><code class="language-python">setup = gcode_interpreter.setup(filename=r&quot;./pyGCodeDecode/data/default_printer_presets.yaml&quot;, printer=&quot;prusa_mini&quot;)
+<pre class="codehilite"><code class="language-python">setup = gcode_interpreter.setup(
+    filename=r&quot;./pyGCodeDecode/data/default_printer_presets.yaml&quot;, printer=&quot;prusa_mini&quot;
+)
 </code></pre>
 
 <ol>
@@ -179,7 +181,9 @@ print(pyGCodeDecode.__version__)&quot;
 <ol>
 <li>Finally, run the simulation by providing a <code>GCode</code> and passing the setup defined before:</li>
 </ol>
-<pre class="codehilite"><code class="language-python">simulation = gcode_interpreter.simulation(filename=r&quot;example\example.gcode&quot;, initial_machine_setup=setup)
+<pre class="codehilite"><code class="language-python">simulation = gcode_interpreter.simulation(
+    filename=r&quot;example\example.gcode&quot;, initial_machine_setup=setup
+)
 </code></pre>
 
 <h3 id="access-the-results">Access the Results<a class="headerlink" href="#access-the-results" title="Permanent link">&para;</a></h3>
@@ -190,16 +194,14 @@ print(pyGCodeDecode.__version__)&quot;
 
 <p>You can visualize the GCode by plotting it in 3D:</p>
 <pre class="codehilite"><code class="language-python">from pyGCodeDecode.plotter import plot_3d
+
 plot_3d(simulation)
 </code></pre>
 
 <p>pyGCD can also be used to create files defining an event series for ABAQUS simulations.</p>
 <pre class="codehilite"><code class="language-python">from pyGCodeDecode.abaqus_file_generator import generate_abaqus_event_series
 
-generate_abaqus_event_series(
-        simulation=simulation,
-        filepath=&quot;path/to/event_series.csv&quot;
-)
+generate_abaqus_event_series(simulation=simulation, filepath=&quot;path/to/event_series.csv&quot;)
 </code></pre>
 
 <p>For more in depth information have a look into the <a href="https://fast-lb.github.io/pyGCodeDecode/">documentation</a>.</p>
@@ -284,5 +286,5 @@ generate_abaqus_event_series(
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2026-08-18 14:31:26.329946+00:00
+Build Date UTC : 2026-08-18 14:41:44.097622+00:00
 -->
