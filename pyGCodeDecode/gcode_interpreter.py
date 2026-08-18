@@ -478,8 +478,17 @@ class simulation:
         e_end = self.blocklist[-1].get_segments()[-1].pos_end.get_vec(withExtrusion=True)[3]
 
         filament_diam = self.initial_machine_setup_dict.get("filament_diam", None)
-        e_amount = (
-            (e_end - self.initial_machine_setup_dict["E"]) * (np.pi * filament_diam**2 / 4)
+
+        if len(self.states) > 0:
+            for state in self.states:
+                if state.state_position and state.state_position.is_fully_defined():
+                    e_start = state.state_position.e
+                    break
+            else:
+                raise ValueError("No fully defined position found in the state list.")
+
+        e_end_vol = (
+            (e_end - e_start) * (np.pi * filament_diam**2 / 4)
             if filament_diam is not None
             else None
         )
@@ -495,7 +504,7 @@ class simulation:
             "z_max": float(extent[1, 2]),
             "max_extrusion_travel_velocity": float(max_vel),
             "e_end": float(e_end),
-            "e_end_vol": float(e_amount) if e_amount is not None else None,
+            "e_end_vol": float(e_end_vol) if e_end_vol is not None else None,
         }
 
         for key in summary:
