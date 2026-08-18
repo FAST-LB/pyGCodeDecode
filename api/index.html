@@ -426,6 +426,8 @@
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#vector_4dget_vec">vector_4D.get_vec</a>
     </li>
+    <li class="toctree-l4"><a class="reference internal" href="#vector_4dis_fully_defined">vector_4D.is_fully_defined</a>
+    </li>
         </ul>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#velocity-objects">velocity Objects</a>
@@ -2238,6 +2240,16 @@ def create_initial(cls, initial_position: position | None = None) -&gt; segment
 <p><strong>Returns</strong>:</p>
 <ul>
 <li><code>vec</code> - (list[3 or 4]) with (x,y,z,(optionally e))</li>
+</ul>
+<p><a id="pyGCodeDecode.utils.vector_4D.is_fully_defined"></a></p>
+<h4 id="vector_4dis_fully_defined">vector_4D.is_fully_defined<a class="headerlink" href="#vector_4dis_fully_defined" title="Permanent link">&para;</a></h4>
+<pre class="codehilite"><code class="language-python">def is_fully_defined() -&gt; bool
+</code></pre>
+
+<p>Check if all components are defined (not None).</p>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>is_fully_defined</code> - (bool) true if all components are defined</li>
 </ul>
 <p><a id="pyGCodeDecode.utils.velocity"></a></p>
 <h3 id="velocity-objects">velocity Objects<a class="headerlink" href="#velocity-objects" title="Permanent link">&para;</a></h3>
