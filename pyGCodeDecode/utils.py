@@ -262,6 +262,14 @@ class vector_4D:
         """
         return np.linalg.norm(self.get_vec(withExtrusion=withExtrusion))
 
+    def is_fully_defined(self) -> bool:
+        """Check if all components are defined (not None).
+
+        Returns:
+            is_fully_defined: (bool) true if all components are defined
+        """
+        return None not in [self.x, self.y, self.z, self.e]
+
 
 class position(vector_4D):
     """4D - Position object for (Cartesian) 3D printer."""

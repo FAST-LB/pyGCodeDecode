@@ -376,25 +376,28 @@ class planner_block:
         self.blocktype = None
         self.e_type = None  # use for extrusion type e.g. perimeter, infill ...
 
-        handler = get_handler(firmware_name=firmware)  # get junction handler
-        junction = handler(state_A=self.state_A, state_B=self.state_B)
+        if self.state_A is not None and self.state_A.state_position.is_fully_defined():
+            handler = get_handler(firmware_name=firmware)  # get junction handler
+            junction = handler(state_A=self.state_A, state_B=self.state_B)
 
-        # planner block calculation
-        self.target_vel = junction.get_target_vel()  # target velocity for this planner block
+            # planner block calculation
+            self.target_vel = junction.get_target_vel()  # target velocity for this planner block
 
-        v_JD = junction.get_junction_vel()
+            v_JD = junction.get_junction_vel()
 
-        self.direction = self.target_vel.get_norm_dir(withExtrusion=True)  # direction vector of pb
+            self.direction = self.target_vel.get_norm_dir(
+                withExtrusion=True
+            )  # direction vector of pb
 
-        self.valid = self.target_vel.not_zero()  # valid planner block
+            self.valid = self.target_vel.not_zero()  # valid planner block
 
-        # standard move maker
-        if self.valid:
-            self.JD = v_JD * self.direction  # jd writeout for debugging plot
-            self.move_maker(v_end=v_JD)
-            self.is_extruding = self.state_A.state_position.is_extruding(
-                self.state_B.state_position
-            )  # store extrusion flag
+            # standard move maker
+            if self.valid:
+                self.JD = v_JD * self.direction  # jd writeout for debugging plot
+                self.move_maker(v_end=v_JD)
+                self.is_extruding = self.state_A.state_position.is_extruding(
+                    self.state_B.state_position
+                )  # store extrusion flag
 
         # dwell functionality
         if self.state_B.pause is not None:
