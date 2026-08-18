@@ -106,7 +106,9 @@ from pyGCodeDecode import gcode_interpreter
 1. Load your setup `.yaml` file through:
 
 ```python
-setup = gcode_interpreter.setup(filename=r"./pyGCodeDecode/data/default_printer_presets.yaml", printer="prusa_mini")
+setup = gcode_interpreter.setup(
+    filename=r"./pyGCodeDecode/data/default_printer_presets.yaml", printer="prusa_mini"
+)
 ```
 
 1. You can optionally set or modify custom properties after loading the setup:
@@ -118,7 +120,9 @@ setup.set_property({"layer_cue": "LAYER_CHANGE"})
 1. Finally, run the simulation by providing a `GCode` and passing the setup defined before:
 
 ```python
-simulation = gcode_interpreter.simulation(filename=r"example\example.gcode", initial_machine_setup=setup)
+simulation = gcode_interpreter.simulation(
+    filename=r"example\example.gcode", initial_machine_setup=setup
+)
 ```
 
 ### Access the Results
@@ -135,6 +139,7 @@ You can visualize the GCode by plotting it in 3D:
 
 ```python
 from pyGCodeDecode.plotter import plot_3d
+
 plot_3d(simulation)
 ```
 
@@ -143,10 +148,7 @@ pyGCD can also be used to create files defining an event series for ABAQUS simul
 ```python
 from pyGCodeDecode.abaqus_file_generator import generate_abaqus_event_series
 
-generate_abaqus_event_series(
-        simulation=simulation,
-        filepath="path/to/event_series.csv"
-)
+generate_abaqus_event_series(simulation=simulation, filepath="path/to/event_series.csv")
 ```
 
 For more in depth information have a look into the [documentation](https://fast-lb.github.io/pyGCodeDecode/).
